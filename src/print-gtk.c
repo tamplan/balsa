@@ -286,7 +286,7 @@ begin_print(GtkPrintOperation * operation, GtkPrintContext * context,
 
     if (pdata->message->headers->from) {
 	gchar *from =
-	    internet_address_list_to_string(pdata->message->headers->from, FALSE);
+	    internet_address_list_to_string(pdata->message->headers->from, NULL, FALSE);
 
 	libbalsa_utf8_sanitize(&from, balsa_app.convert_unknown_8bit,
 			       NULL);

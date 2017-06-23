@@ -1116,8 +1116,9 @@ main(int argc, char *argv[])
 #endif
 
     bab_init();
-    balsa_ab_setup_libbalsa_notification((GApplication *) application);
-    g_mime_init(GMIME_ENABLE_RFC2047_WORKAROUNDS);
+    libbalsa_real_information_func = (LibBalsaInformationFunc)information_real;
+    g_mime_init();
+    libbalsa_parser_options_init();
 
     /* load address book data */
     libbalsa_conf_push_group("Globals");

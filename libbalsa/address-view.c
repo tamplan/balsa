@@ -39,7 +39,7 @@
  */
 #include "address-book.h"
 #include "cell-renderer-button.h"
-#include "misc.h"
+#include "libbalsa.h"
 
 struct _LibBalsaAddressView {
     GtkTreeView parent;
@@ -223,7 +223,7 @@ lbav_append_addresses(LibBalsaAddressView * address_view,
 
     for (; match; match = match->next) {
         InternetAddress *ia = match->data;
-        name = internet_address_to_string(ia, FALSE);
+        name = internet_address_to_string(ia, NULL, FALSE);
         gtk_list_store_append(store, &iter);
         gtk_list_store_set(store, &iter, COMPLETION_NAME_COL, name, -1);
         g_free(name);
@@ -395,7 +395,7 @@ lbav_add_from_list(LibBalsaAddressView * address_view,
 
     for (i = 0; i < internet_address_list_length(list); i++) {
         InternetAddress *ia = internet_address_list_get_address(list, i);
-        gchar *name = internet_address_to_string(ia, FALSE);
+        gchar *name = internet_address_to_string(ia, NULL, FALSE);
 
         libbalsa_utf8_sanitize(&name, address_view->fallback, NULL);
         lbav_clean_text(name);
@@ -422,7 +422,7 @@ static gboolean
 lbav_add_from_string(LibBalsaAddressView * address_view,
                      GtkTreeIter * iter, const gchar * string)
 {
-    InternetAddressList *list = internet_address_list_parse_string(string);
+    InternetAddressList *list = internet_address_list_parse(libbalsa_parser_options(), string);
     gboolean retval = FALSE;
 
     if (list) {
@@ -766,7 +766,7 @@ lbav_focus_out_cb(GtkEntry * entry, GdkEventFocus * event,
             if (!match->next) {
                 gchar *the_addr =
                     internet_address_to_string((InternetAddress *) match->
-                                               data, FALSE);
+                                               data, NULL, FALSE);
 
                 g_signal_handlers_block_by_func(entry,
                                                 lbav_entry_changed_cb,
@@ -1270,8 +1270,10 @@ libbalsa_address_view_get_list(LibBalsaAddressView * address_view,
                            ADDRESS_NAME_COL, &name, -1);
 
         if (this_type == type) {
-            InternetAddressList *tmp_list =
-                internet_address_list_parse_string(name);
+            InternetAddressList *tmp_list = NULL;
+
+            if (name != NULL)
+                tmp_list = internet_address_list_parse(libbalsa_parser_options(), name);
             if (tmp_list) {
                 internet_address_list_append(address_list, tmp_list);
                 g_object_unref(tmp_list);

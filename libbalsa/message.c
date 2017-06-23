@@ -478,7 +478,8 @@ GList *
 libbalsa_message_user_hdrs_from_gmime(GMimeMessage * message)
 {
     GMimeHeaderList *hdrlist;
-    GMimeHeaderIter iter;
+    gint count;
+    gint i;
     GList *res = NULL;
     const char *value;
 
@@ -522,16 +523,18 @@ libbalsa_message_user_hdrs_from_gmime(GMimeMessage * message)
             g_list_prepend(res,
                            libbalsa_create_hdr_pair
                            ("In-Reply-To",
-                            g_mime_utils_header_decode_text(value)));
+                            g_mime_utils_header_decode_text(libbalsa_parser_options(), value)));
     }
 
     hdrlist = g_mime_object_get_header_list (GMIME_OBJECT(message));
-    if (g_mime_header_list_get_iter (hdrlist, &iter)) {
-	do {
-            res = prepend_header_misc(res,
-                                      g_mime_header_iter_get_name (&iter),
-                                      g_mime_header_iter_get_value (&iter));
-	} while (g_mime_header_iter_next (&iter));
+    count = g_mime_header_list_get_count(hdrlist);
+    for (i = 0; i < count; i++) {
+        GMimeHeader *header;
+
+        header = g_mime_header_list_get_header_at(hdrlist, i);
+        prepend_header_misc(g_mime_header_get_name(header),
+                            g_mime_header_get_value(header),
+                            &res);
     }
     
     return g_list_reverse(res);
@@ -885,36 +888,43 @@ libbalsa_message_get_no(LibBalsaMessage* msg)
 
 /* Populate headers from mime_msg, but only the members that are needed
  * all the time. */
-static InternetAddressList *
-lb_message_recipients(GMimeMessage * message, GMimeRecipientType type)
-{
-    const InternetAddressList *list;
-    InternetAddressList *copy = NULL;
 
-    if ((list = g_mime_message_get_recipients (message, type))) {
-	copy = internet_address_list_new ();
-	internet_address_list_append (copy, (InternetAddressList *) list);
+static InternetAddressList *
+lb_message_address_list_ref(InternetAddressList * list)
+{
+    if (list != NULL && internet_address_list_length(list) > 0) {
+        return g_object_ref(list);
     }
-    
-    return copy;
+
+    return NULL;
+}
+
+static InternetAddressList *
+lb_message_recipients(GMimeMessage   * message,
+                      GMimeAddressType type)
+{
+    return lb_message_address_list_ref(g_mime_message_get_addresses(message, type));
 }
 
 static void
 lb_message_headers_basic_from_gmime(LibBalsaMessageHeaders *headers,
 				    GMimeMessage *mime_msg)
 {
-    g_return_if_fail(headers);
-    g_return_if_fail(mime_msg != NULL);
+    if (headers->from == NULL) {
+        headers->from =
+            lb_message_address_list_ref(g_mime_message_get_from(mime_msg));
+    }
 
-    if (!headers->from)
-        headers->from = internet_address_list_parse_string(mime_msg->from);
+    if (headers->date == 0) {
+        GDateTime *datetime;
 
-    if (!headers->date)
-	g_mime_message_get_date(mime_msg, &headers->date, NULL);
+        datetime = g_mime_message_get_date(mime_msg);
+        headers->date = g_date_time_to_unix(datetime);
+    }
 
-    if (!headers->to_list)
+    if (headers->to_list == NULL)
         headers->to_list =
-            lb_message_recipients(mime_msg, GMIME_RECIPIENT_TYPE_TO);
+            lb_message_recipients(mime_msg, GMIME_ADDRESS_TYPE_TO);
 
     if (!headers->content_type) {
 	/* If we could:
@@ -926,8 +936,8 @@ lb_message_headers_basic_from_gmime(LibBalsaMessageHeaders *headers,
 	gchar *str;
 	g_return_if_fail(headers->content_type == NULL);
 	content_type = g_mime_object_get_content_type(mime_msg->mime_part);
-	str = g_mime_content_type_to_string(content_type);
-	headers->content_type = g_mime_content_type_new_from_string(str);
+	str = g_mime_content_type_get_mime_type(content_type);
+	headers->content_type = g_mime_content_type_parse(libbalsa_parser_options(), str);
 	g_free(str);
     }
 }
@@ -941,23 +951,29 @@ lb_message_headers_extra_from_gmime(LibBalsaMessageHeaders *headers,
     g_return_if_fail(headers);
     g_return_if_fail(mime_msg != NULL);
 
-    if (!headers->reply_to)
+    if (headers->reply_to == NULL) {
         headers->reply_to =
-	    internet_address_list_parse_string(mime_msg->reply_to);
+            lb_message_address_list_ref(g_mime_message_get_reply_to(mime_msg));
+    }
 
-    if (!headers->dispnotify_to)
-        headers->dispnotify_to =
-            internet_address_list_parse_string(g_mime_object_get_header
-                                          (GMIME_OBJECT(mime_msg),
-                                           "Disposition-Notification-To"));
+    if (headers->dispnotify_to == NULL) {
+        const gchar *value =
+            g_mime_object_get_header(GMIME_OBJECT(mime_msg), "Disposition-Notification-To");
 
-    if (!headers->cc_list)
+        if (value != NULL)
+            headers->dispnotify_to =
+                internet_address_list_parse(libbalsa_parser_options(), value);
+    }
+
+    if (headers->cc_list == NULL) {
         headers->cc_list =
-            lb_message_recipients(mime_msg, GMIME_RECIPIENT_TYPE_CC);
+            lb_message_recipients(mime_msg, GMIME_ADDRESS_TYPE_CC);
+    }
 
-    if (!headers->bcc_list)
+    if (headers->bcc_list == NULL) {
         headers->bcc_list =
-            lb_message_recipients(mime_msg, GMIME_RECIPIENT_TYPE_BCC);
+            lb_message_recipients(mime_msg, GMIME_ADDRESS_TYPE_BCC);
+    }
 
     /* Get fcc from message */
     if (!headers->fcc_url)
@@ -1048,15 +1064,20 @@ libbalsa_message_refs_for_threading(LibBalsaMessage * message)
 static GList *
 references_decode(const gchar * str)
 {
-    GMimeReferences *references, *reference;
+    GMimeReferences *references;
     GList *list = NULL;
+    gint length;
+    gint i;
 
-    reference = references = g_mime_references_decode(str);
-    while (reference) {
-	list = g_list_prepend(list, g_strdup(reference->msgid));
-	reference = reference->next;
+    references = g_mime_references_parse(NULL, str);
+    length = g_mime_references_length(references);
+    for (i = 0; i < length; i++) {
+        const gchar *message_id;
+
+        message_id = g_mime_references_get_message_id(references, i);
+        list = g_list_prepend(list, g_strdup(message_id));
     }
-    g_mime_references_clear(&references);
+    g_mime_references_free(references);
 
     return g_list_reverse(list);
 }
@@ -1110,7 +1131,7 @@ lbmsg_set_header(LibBalsaMessage *message, const gchar *name,
          * appropriate GMime decoder. */
         gchar *tmp = g_strdup(value);
         libbalsa_utf8_sanitize(&tmp, TRUE, NULL);
-        val = g_mime_utils_header_encode_text(tmp);
+        val = g_mime_utils_header_encode_text(NULL, tmp, NULL);
         g_free(tmp);
 #ifdef DEBUG
         g_print("%s: non-ascii “%s” header “%s” encoded as “%s”\n",
@@ -1130,15 +1151,21 @@ lbmsg_set_header(LibBalsaMessage *message, const gchar *name,
 #endif
     } else
     if (g_ascii_strcasecmp(name, "Date") == 0) {
-	message->headers->date = g_mime_utils_header_decode_date(value, NULL);
+        GDateTime *datetime;
+
+        datetime = g_mime_utils_header_decode_date(value);
+	message->headers->date = g_date_time_to_unix(datetime);
+        g_date_time_unref(datetime);
     } else
     if (message->headers->from == NULL &&
 	g_ascii_strcasecmp(name, "From") == 0) {
-        message->headers->from = internet_address_list_parse_string(value);
+        message->headers->from =
+            internet_address_list_parse(libbalsa_parser_options(), value);
     } else
     if (message->headers->to_list == NULL &&
         g_ascii_strcasecmp(name, "To") == 0) {
-	message->headers->to_list = internet_address_list_parse_string(value);
+        message->headers->to_list =
+            internet_address_list_parse(libbalsa_parser_options(), value);
     } else
     if (g_ascii_strcasecmp(name, "In-Reply-To") == 0) {
 	libbalsa_message_set_in_reply_to_from_string(message, value);
@@ -1153,12 +1180,12 @@ lbmsg_set_header(LibBalsaMessage *message, const gchar *name,
     if (message->headers->content_type == NULL &&
 	g_ascii_strcasecmp(name, "Content-Type") == 0) {
 	message->headers->content_type =
-	    g_mime_content_type_new_from_string(value);
+	    g_mime_content_type_parse(libbalsa_parser_options(), value);
     } else
     if (message->headers->dispnotify_to == NULL &&
 	g_ascii_strcasecmp(name, "Disposition-Notification-To") == 0) {
 	message->headers->dispnotify_to =
-	    internet_address_list_parse_string(value);
+            internet_address_list_parse(libbalsa_parser_options(), value);
     } else
 #ifdef MESSAGE_COPY_CONTENT
     if (g_ascii_strcasecmp(name, "Content-Length") == 0) {
@@ -1228,9 +1255,7 @@ libbalsa_message_load_envelope_from_stream(LibBalsaMessage * message,
     gmime_stream_filter =
         g_mime_stream_filter_new(gmime_stream);
 
-    gmime_filter_crlf =
-        g_mime_filter_crlf_new(FALSE,
-                               FALSE);
+    gmime_filter_crlf = g_mime_filter_dos2unix_new(FALSE);
     g_mime_stream_filter_add(GMIME_STREAM_FILTER(gmime_stream_filter),
                                                  gmime_filter_crlf);
     g_object_unref(gmime_filter_crlf);
@@ -1308,7 +1333,7 @@ libbalsa_message_stream(LibBalsaMessage * message)
                                                    message->msgno, FALSE);
 
     mime_stream = g_mime_stream_mem_new();
-    g_mime_object_write_to_stream(GMIME_OBJECT(message->mime_msg),
+    g_mime_object_write_to_stream(GMIME_OBJECT(message->mime_msg), NULL,
                                   mime_stream);
     g_mime_stream_reset(mime_stream);
 
@@ -1360,7 +1385,7 @@ libbalsa_message_set_subject_from_header(LibBalsaMessage * message,
 {
     if (header) {
         gchar *subject =
-            g_mime_utils_header_decode_text(header);
+            g_mime_utils_header_decode_text(libbalsa_parser_options(), header);
         libbalsa_message_set_subject(message, subject);
         g_free(subject);
     }

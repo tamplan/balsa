@@ -373,7 +373,7 @@ store_address_add_address(StoreAddressInfo * info,
     entries = g_new(GtkWidget *, NUM_FIELDS);
     info->entries_list = g_list_append(info->entries_list, entries);
 
-    text = internet_address_to_string(ia, FALSE);
+    text = internet_address_to_string(ia, NULL, FALSE);
     address = libbalsa_address_new();
     address->full_name =
         g_strdup(ia->name ? ia->name : group ? group->name : NULL);

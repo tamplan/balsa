@@ -3913,7 +3913,8 @@ lbm_get_mime_msg(LibBalsaMailbox * mailbox, LibBalsaMessage * msg)
 						     TRUE);
         parser = g_mime_parser_new_with_stream(stream);
         g_object_unref(stream);
-        mime_msg = g_mime_parser_construct_message(parser);
+        mime_msg = g_mime_parser_construct_message(parser, libbalsa_parser_options());
+
         g_object_unref(parser);
     }
     libbalsa_mailbox_release_message(mailbox, msg);

@@ -231,7 +231,7 @@ dnl #####################################################################
 PKG_CHECK_MODULES(BALSA, [
 glib-2.0 >= 2.40.0
 gtk+-3.0 >= 3.10.0
-gmime-2.6
+gmime-3.0
 gio-2.0
 gthread-2.0
 gnutls
@@ -240,7 +240,8 @@ gnutls
 PKG_CHECK_MODULES(BALSA_AB, [
    glib-2.0
    gtk+-3.0
-   gmime-2.6
+   gmime-3.0
+   $gnome_extras
 ])
 
 PKG_CHECK_MODULES(LIBNETCLIENT, [

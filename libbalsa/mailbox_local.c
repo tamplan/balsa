@@ -875,7 +875,7 @@ message_match_real(LibBalsaMailbox *mailbox, guint msgno,
             if (message->headers->to_list) {
                 gchar *str =
                     internet_address_list_to_string(message->headers->
-                                                    to_list, FALSE);
+                                                    to_list, NULL, FALSE);
                 match =
                     libbalsa_utf8_strstr(str, cond->match.string.string);
                 g_free(str);
@@ -902,7 +902,7 @@ message_match_real(LibBalsaMailbox *mailbox, guint msgno,
             if (message->headers->cc_list) {
                 gchar *str =
                     internet_address_list_to_string(message->headers->
-                                                    cc_list, FALSE);
+                                                    cc_list, NULL, FALSE);
                 match =
                     libbalsa_utf8_strstr(str, cond->match.string.string);
                 g_free(str);
@@ -1028,7 +1028,7 @@ libbalsa_mailbox_local_cache_message(LibBalsaMailboxLocal * local,
     info->sender = NULL;
     if (message->headers->from)
         info->sender =
-            internet_address_list_to_string(message->headers->from, FALSE);
+            internet_address_list_to_string(message->headers->from, NULL, FALSE);
     if (!info->sender)
         info->sender = g_strdup("");
 }
@@ -2091,8 +2091,8 @@ libbalsa_mailbox_local_get_mime_message(LibBalsaMailbox * mailbox,
 	return NULL;
 
     mime_parser = g_mime_parser_new_with_stream(mime_stream);
-    g_mime_parser_set_scan_from(mime_parser, FALSE);
-    mime_message = g_mime_parser_construct_message(mime_parser);
+    g_mime_parser_set_format(mime_parser, GMIME_FORMAT_MESSAGE);
+    mime_message = g_mime_parser_construct_message(mime_parser, libbalsa_parser_options());
 
     g_object_unref(mime_parser);
     g_object_unref(mime_stream);
