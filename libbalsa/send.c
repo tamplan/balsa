@@ -1658,8 +1658,13 @@ libbalsa_fill_msg_queue_item_from_queu(LibBalsaMessage  *message,
         g_mime_stream_filter_add(GMIME_STREAM_FILTER(filter_stream), filter);
         g_object_unref(G_OBJECT(filter));
 
-        /* add CRLF, encode dot */
+        /* add CRLF */
         filter = g_mime_filter_unix2dos_new(TRUE);
+        g_mime_stream_filter_add(GMIME_STREAM_FILTER(filter_stream), filter);
+        g_object_unref(G_OBJECT(filter));
+
+        /* encode dot */
+        filter = g_mime_filter_smtp_data_new();
         g_mime_stream_filter_add(GMIME_STREAM_FILTER(filter_stream), filter);
         g_object_unref(G_OBJECT(filter));
 
