@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 2017-09-30  Peter Bloomfield  <pbloomfield@bellsouth.net>
 
 	Remove unused make_gradient function, and build with
@@ -525,6 +526,14 @@
 
 	* libbalsa/send.c (libbalsa_fill_msg_queue_item_from_queu): use
 	GMimeFilterSmtpData to dot-stuff outgoing mail.
+
+2017-06-25  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	Decode all RFC-2047-encoded headers
+
+	* libbalsa/message.c
+	  (prepend_header_misc): decode header value;
+	  (libbalsa_message_user_hdrs_from_gmime): streamline code.
 
 2017-06-19  Peter Bloomfield  <pbloomfield@bellsouth.net>
 

@@ -532,9 +532,9 @@ libbalsa_message_user_hdrs_from_gmime(GMimeMessage * message)
         GMimeHeader *header;
 
         header = g_mime_header_list_get_header_at(hdrlist, i);
-        prepend_header_misc(g_mime_header_get_name(header),
-                            g_mime_header_get_value(header),
-                            &res);
+        res = prepend_header_misc(res,
+                                  g_mime_header_get_name(header),
+                                  g_mime_header_get_value(header));
     }
     
     return g_list_reverse(res);
