@@ -3460,22 +3460,21 @@ bw_mailbox_check(LibBalsaMailbox * mailbox, struct check_messages_thread_info *i
 
     g_debug("checking mailbox %s", mailbox->name);
     if (LIBBALSA_IS_MAILBOX_IMAP(mailbox)) {
-    	if ((info->window != NULL) && !info->window->network_available) {
-    		return;
-    	}
+        if (window && !window->network_available) {
+                return;
+        }
 
-    	if (info->with_progress_dialog) {
-    		libbalsa_progress_dialog_update(&progress_dialog, _("Mailboxes"), FALSE, INFINITY,
-    			_("IMAP mailbox: %s"), mailbox->url);
-    	}
+	string = g_strdup_printf(_("IMAP mailbox: %s"), mailbox->url);
+        if (balsa_app.debug)
+            fprintf(stderr, "%s\n", string);
     } else if (LIBBALSA_IS_MAILBOX_LOCAL(mailbox)) {
-    	if (info->with_progress_dialog) {
-    		libbalsa_progress_dialog_update(&progress_dialog, _("Mailboxes"), FALSE, INFINITY,
-    			_("Local mailbox: %s"), mailbox->name);
-    	}
+	string = g_strdup_printf(_("Local mailbox: %s"), mailbox->name);
     } else {
-    	g_assert_not_reached();
+        g_assert_not_reached();
     }
+
+    MSGMAILTHREAD(threadmessage, LIBBALSA_NTFY_SOURCE, NULL, string, 0, 0);
+    g_free(string);
 
     libbalsa_mailbox_check(mailbox);
 }
