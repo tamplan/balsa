@@ -713,22 +713,28 @@ libbalsa_gpgme_validity_to_gchar_short(gpgme_validity_t validity)
 static gboolean
 gpg_updates_trustdb(void)
 {
-	static gchar *lockname = NULL;
-	gboolean result;
+    static gchar *lockname = NULL;
+    struct passwd *pwent;
+    struct stat stat_buf;
 
-	if (lockname == NULL) {
-		lockname = g_build_filename(g_get_home_dir(), ".gnupg", "trustdb.gpg.lock", NULL);
-	}
+    if (lockname == NULL) {
+	if ((pwent = getpwuid(getuid())) != NULL) {
+	    lockname =
+		g_strdup_printf("%s/.gnupg/trustdb.gpg.lock",
+				pwent->pw_dir);
+        } else {
+            g_assert_not_reached();
+        }
+    }
 
-	if (g_file_test(lockname, G_FILE_TEST_EXISTS)) {
-		libbalsa_information(LIBBALSA_INFORMATION_ERROR, "%s %s",
-			_("GnuPG is rebuilding the trust database and is currently unavailable."),
-			_("Try again later."));
-		result = TRUE;
-	} else {
-		result = FALSE;
-	}
-	return result;
+    if (stat(lockname, &stat_buf) == 0) {
+	libbalsa_information(LIBBALSA_INFORMATION_ERROR, "%s%s",
+			     _
+			     ("GnuPG is rebuilding the trust database and is currently unavailable."),
+			     _("Try again later."));
+	return TRUE;
+    } else
+	return FALSE;
 }
 
 
