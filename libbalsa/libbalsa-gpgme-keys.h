@@ -63,21 +63,6 @@ gboolean libbalsa_gpgme_list_keys(gpgme_ctx_t   ctx,
 								  gboolean      on_keyserver,
 								  GError      **error);
 
-/** \brief Load a key
- *
- * \param ctx GpgME context
- * \param fingerprint key fingerprint to search for
- * \param error filled with error information on error, may be NULL
- * \return the key matching the passed fingerprint, or NULL on error
- *
- * Return the key matching the passed fingerprint from the local key ring. The function returns NULL if either no or more than one
- * key is available.
- */
-gpgme_key_t libbalsa_gpgme_load_key(gpgme_ctx_t   ctx,
-									const gchar  *fingerprint,
-									GError      **error)
-	G_GNUC_WARN_UNUSED_RESULT;
-
 /** \brief Search the key server for a key
  *
  * \param fingerprint key fingerprint to search for
@@ -94,39 +79,6 @@ gpgme_key_t libbalsa_gpgme_load_key(gpgme_ctx_t   ctx,
 gboolean libbalsa_gpgme_keyserver_op(const gchar  *fingerprint,
 									 GtkWindow    *parent,
 									 GError      **error);
-
-/** \brief Export a public key
- *
- * \param ctx GpgME context
- * \param key the key which shall be exported
- * \param name key description, used only for creating an error string on error
- * \param error filled with error information on error, may be NULL
- * \return a newly allocated string containing the key on success, NULL on error
- *
- * Export the passed key as ASCII armoured string.
- *
- * \note The returned string shall be freed by the caller.
- */
-gchar *libbalsa_gpgme_export_key(gpgme_ctx_t   ctx,
-								 gpgme_key_t   key,
-								 const gchar  *name,
-								 GError      **error)
-	G_GNUC_WARN_UNUSED_RESULT;
-
-/** \brief Import an ASCII-armoured key
- *
- * \param ctx GpgME context
- * \param key_buf ASCII-armoured GnuPG key buffer
- * \param import_info filled with human-readable information about the import, may be NULL
- * \param error filled with error information on error, may be NULL
- * \return TRUE on success, or FALSE on error
- *
- * Import an ASCII-armoured GnuPG key into the key ring.
- */
-gboolean libbalsa_gpgme_import_ascii_key(gpgme_ctx_t   ctx,
-										 const gchar  *key_buf,
-										 gchar       **import_info,
-										 GError      **error);
 
 
 G_END_DECLS

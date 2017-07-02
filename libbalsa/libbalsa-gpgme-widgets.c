@@ -2,7 +2,7 @@
 /*
  * Balsa E-Mail Client
  *
- * gpgme key related widgets and display functions
+ * gpgme -related widgets
  * Copyright (C) 2017 Albrecht Dreß <albrecht.dress@arcor.de>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -26,25 +26,11 @@
 #include "rfc3156.h"
 
 
-#ifdef G_LOG_DOMAIN
-#  undef G_LOG_DOMAIN
-#endif
-#define G_LOG_DOMAIN "crypto"
-
-
-
-#define BULLET_STR	"\302\240\342\200\242\302\240"
-
-
 static gchar *create_status_str(gboolean revoked,
 					  	  	  	gboolean expired,
 								gboolean disabled,
 								gboolean invalid)
 	G_GNUC_WARN_UNUSED_RESULT;
-static gchar *create_uid_str(const gpgme_user_id_t  uid,
-							 gboolean              *warn)
-	G_GNUC_WARN_UNUSED_RESULT;
-
 static gint create_key_grid_row(GtkGrid     *grid,
 								gint         row,
 								const gchar *key,
@@ -61,8 +47,6 @@ static gchar *create_purpose_str(gboolean can_sign,
 	   	   	   	   	   	   	     gboolean can_encrypt,
 								 gboolean can_certify,
 								 gboolean can_auth)
-	G_GNUC_WARN_UNUSED_RESULT;
-static gchar *create_subkey_type_str(gpgme_subkey_t subkey)
 	G_GNUC_WARN_UNUSED_RESULT;
 
 
@@ -120,7 +104,7 @@ libbalsa_gpgme_key(gpgme_key_t           key,
 		GtkWidget *uid_box;
 		gpgme_user_id_t uid;
 
-		uid_expander = gtk_expander_new(_("Additional User IDs"));
+		uid_expander = gtk_expander_new(_("Additional User ID's"));
 		gtk_expander_set_expanded(GTK_EXPANDER(uid_expander), expanded);
 		gtk_grid_attach(GTK_GRID(key_data), uid_expander, 0, row++, 2, 1);
 
@@ -209,134 +193,6 @@ libbalsa_gpgme_key(gpgme_key_t           key,
 }
 
 
-/* documentation: see header file */
-gchar *
-libbalsa_gpgme_key_to_gchar(gpgme_key_t  key,
-							const gchar *fingerprint)
-{
-	GString *result;
-	gchar *status_str;
-
-	g_return_val_if_fail((key != NULL) && (fingerprint != NULL), NULL);
-
-	result = g_string_new(NULL);
-
-	/* print a warning for a bad key status */
-	status_str = create_status_str(key->expired != 0U, key->revoked != 0U, key->disabled != 0U, key->invalid != 0U);
-	if (strlen(status_str) > 0U) {
-		g_string_append_printf(result, "%s %s\n", _("Key status:"), status_str);
-	}
-	g_free(status_str);
-
-	/* primary User ID */
-	if (key->uids == NULL) {
-		g_string_append_printf(result, "%s %s", _("User ID:"), _("None"));
-	} else {
-		gchar *uid_str;
-
-		uid_str = create_uid_str(key->uids, NULL);
-		if (key->uids->next != NULL) {
-			g_string_append_printf(result, "%s %s", _("Primary user ID:"), uid_str);
-		} else {
-			g_string_append_printf(result, "%s %s", _("User ID:"), uid_str);
-		}
-		g_free(uid_str);
-	}
-
-	/* owner trust is valid for OpenPGP only */
-	if (key->protocol == GPGME_PROTOCOL_OpenPGP) {
-		g_string_append_printf(result, "\n%s %s", _("Key owner trust:"), libbalsa_gpgme_validity_to_gchar_short(key->owner_trust));
-	}
-
-	/* add additional UID's (if any) */
-	if ((key->uids != NULL) && (key->uids->next != NULL)) {
-		gpgme_user_id_t uid;
-
-		g_string_append_printf(result, "\n%s", _("Additional User IDs"));
-		for (uid = key->uids->next; uid != NULL; uid = uid->next) {
-			gchar *uid_str;
-
-			uid_str = create_uid_str(uid, NULL);
-			g_string_append_printf(result, "\n" BULLET_STR "%s", uid_str);
-			g_free(uid_str);
-		}
-	}
-
-	/* add the issuer information for CMS only */
-	if (key->protocol == GPGME_PROTOCOL_CMS) {
-		g_string_append_printf(result, "\n%s", _("Issuer"));
-
-		if (key->issuer_name != NULL) {
-			gchar *issuer_readable;
-
-			issuer_readable = libbalsa_cert_subject_readable(key->issuer_name);
-			g_string_append_printf(result, "\n" BULLET_STR "%s %s", _("Name:"), issuer_readable);
-			g_free(issuer_readable);
-		}
-		if (key->issuer_serial != NULL) {
-			g_string_append_printf(result, "\n" BULLET_STR "%s %s", _("Serial number:"), key->issuer_serial);
-		}
-		if (key->chain_id != NULL) {
-			g_string_append_printf(result, "\n" BULLET_STR "%s %s", _("Chain ID:"), key->chain_id);
-		}
-	}
-
-	/* subkey information */
-	if (key->subkeys != NULL) {
-		gpgme_subkey_t subkey;
-
-		g_string_append_printf(result, "\n%s", _("Subkey used"));
-		for (subkey = key->subkeys; subkey != NULL; subkey = subkey->next) {
-			if (strcmp(fingerprint, subkey->fpr) == 0) {
-				gchar *details_str;
-				gchar *timebuf;
-
-				details_str = create_status_str(subkey->expired != 0U, subkey->revoked != 0U, subkey->disabled != 0U,
-					subkey->invalid != 0U);
-				if (strlen(details_str) > 0U) {
-					g_string_append_printf(result, "\n" BULLET_STR "%s %s", _("Status:"), details_str);
-				}
-				g_free(details_str);
-
-				g_string_append_printf(result, "\n" BULLET_STR "%s %s", _("Fingerprint:"), subkey->fpr);
-
-				details_str = create_subkey_type_str(subkey);
-				g_string_append_printf(result, "\n" BULLET_STR "%s %s", _("Type:"), details_str);
-				g_free(details_str);
-
-				details_str = create_purpose_str(subkey->can_sign != 0U, subkey->can_encrypt != 0, subkey->can_certify != 0U,
-					subkey->can_authenticate != 0U);
-				if (strlen(details_str) > 0U) {
-					g_string_append_printf(result, "\n" BULLET_STR "%s %s", _("Capabilities:"), details_str);
-				}
-				g_free(details_str);
-
-				if (subkey->timestamp == -1) {
-					timebuf = g_strdup(_("invalid timestamp"));
-				} else if (subkey->timestamp == 0) {
-					timebuf = g_strdup(_("not available"));
-				} else {
-					timebuf = libbalsa_date_to_utf8(subkey->timestamp, "%x %X");
-				}
-				g_string_append_printf(result, "\n" BULLET_STR "%s %s", _("Created:"), timebuf);
-				g_free(timebuf);
-
-				if (subkey->expires == 0) {
-					timebuf = g_strdup(_("never"));
-				} else {
-					timebuf = libbalsa_date_to_utf8(subkey->expires, "%x %X");
-				}
-				g_string_append_printf(result, "\n" BULLET_STR "%s %s", _("Expires:"), timebuf);
-				g_free(timebuf);
-			}
-		}
-	}
-
-	return g_string_free(result, FALSE);
-}
-
-
-/* documentation: see header file */
 GtkWidget *
 libbalsa_key_dialog(GtkWindow            *parent,
 	   	   	   	    GtkButtonsType		  buttons,
@@ -452,44 +308,6 @@ create_status_str(gboolean revoked,
 }
 
 
-/** \brief Create a UID string
- *
- * \param uid UID
- * \param warn filled with TRUE if the UID is revoked or invalid
- * \return a newly allocated string containing the UID string
- *
- * Create a string containing the passed UID subject.  If the UID is revoked or invalid, the status information is added in '(…)'.
- *
- * \todo Do we want to add more details from the gpgme_user_id_t data?
- */
-static gchar *
-create_uid_str(const gpgme_user_id_t uid, gboolean *warn)
-{
-	gchar *uid_readable;
-	gchar *uid_status;
-	gchar *result;
-	gboolean do_warn;
-
-	uid_readable = libbalsa_cert_subject_readable(uid->uid);
-	uid_status = create_status_str(uid->revoked != 0U, FALSE, FALSE, uid->invalid != 0U);
-	if (uid_status[0] != '\0') {
-		result = g_strdup_printf("%s (%s)", uid_readable, uid_status);
-		g_free(uid_readable);
-		g_free(uid_status);
-		do_warn = TRUE;
-	} else {
-		result = uid_readable;
-		do_warn = FALSE;
-	}
-
-	if (warn != NULL) {
-		*warn = do_warn;
-	}
-
-	return result;
-}
-
-
 /** \brief Add a grid row
  *
  * \param grid target grid
@@ -529,21 +347,29 @@ create_key_grid_row(GtkGrid     *grid,
  * Create a widget containing the passed UID subject.  If the UID is revoked or invalid, a warning icon is prepended, and the
  * status information is added.
  *
- * \sa create_uid_str()
- *
  * \todo We might want to show the TOFU data (requires gpgme >= 1.7.0, and GPGME_KEYLIST_MODE_WITH_TOFU in key listing options).
  *       Maybe also add an expander?
  */
 static GtkWidget *
 create_key_uid_widget(const gpgme_user_id_t uid)
 {
-	gchar *buf;
-	gboolean warn;
+	gchar *uid_readable;
+	gchar *uid_status;
 	GtkWidget *result;
 
-	buf = create_uid_str(uid, &warn);
-	result = create_key_label_with_warn(buf, warn);
-	g_free(buf);
+	uid_readable = libbalsa_cert_subject_readable(uid->uid);
+	uid_status = create_status_str(uid->revoked != 0U, FALSE, FALSE, uid->invalid != 0U);
+	if (strlen(uid_status) > 0U) {
+		gchar *buf;
+
+		buf = g_strdup_printf("%s (%s)", uid_readable, uid_status);
+		result = create_key_label_with_warn(buf, TRUE);
+		g_free(buf);
+	} else {
+		result = create_key_label_with_warn(uid_readable, FALSE);
+	}
+	g_free(uid_status);
+	g_free(uid_readable);
 	return result;
 }
 
@@ -605,31 +431,27 @@ create_subkey_widget(gpgme_subkey_t subkey)
 {
 	GtkWidget *subkey_grid;
 	gint subkey_row = 0;
-	gchar *details_str;
+	gchar *status_str;
 	gchar *timebuf;
 
 	subkey_grid = gtk_grid_new();
 	gtk_grid_set_column_spacing(GTK_GRID(subkey_grid), 6);
 
 	/* print a warning for a bad subkey status */
-	details_str = create_status_str(subkey->expired != 0U, subkey->revoked != 0U, subkey->disabled != 0U, subkey->invalid != 0U);
-	if (strlen(details_str) > 0U) {
-		subkey_row = create_key_grid_row(GTK_GRID(subkey_grid), subkey_row, _("Status:"), details_str, TRUE);
+	status_str = create_status_str(subkey->expired != 0U, subkey->revoked != 0U, subkey->disabled != 0U, subkey->invalid != 0U);
+	if (strlen(status_str) > 0U) {
+		subkey_row = create_key_grid_row(GTK_GRID(subkey_grid), subkey_row, _("Status:"), status_str, TRUE);
 	}
-	g_free(details_str);
+	g_free(status_str);
 
 	subkey_row = create_key_grid_row(GTK_GRID(subkey_grid), subkey_row, _("Fingerprint:"), subkey->fpr, FALSE);
 
-	details_str = create_subkey_type_str(subkey);
-	subkey_row = create_key_grid_row(GTK_GRID(subkey_grid), subkey_row, _("Type:"), details_str, FALSE);
-	g_free(details_str);
-
-	details_str = create_purpose_str(subkey->can_sign != 0U, subkey->can_encrypt != 0, subkey->can_certify != 0U,
+	status_str = create_purpose_str(subkey->can_sign != 0U, subkey->can_encrypt != 0, subkey->can_certify != 0U,
 		subkey->can_authenticate != 0U);
-	if (strlen(details_str) > 0U) {
-		subkey_row = create_key_grid_row(GTK_GRID(subkey_grid), subkey_row, _("Capabilities:"), details_str, FALSE);
+	if (strlen(status_str) > 0U) {
+		subkey_row = create_key_grid_row(GTK_GRID(subkey_grid), subkey_row, _("Capabilities:"), status_str, FALSE);
 	}
-	g_free(details_str);
+	g_free(status_str);
 
 	if (subkey->timestamp == -1) {
 		timebuf = g_strdup(_("invalid timestamp"));
@@ -646,7 +468,7 @@ create_subkey_widget(gpgme_subkey_t subkey)
 	} else {
 		timebuf = libbalsa_date_to_utf8(subkey->expires, "%x %X");
 	}
-	(void) create_key_grid_row(GTK_GRID(subkey_grid), subkey_row, _("Expires:"), timebuf, FALSE);
+	subkey_row = create_key_grid_row(GTK_GRID(subkey_grid), subkey_row, _("Expires:"), timebuf, FALSE);
 	g_free(timebuf);
 
 	return subkey_grid;
@@ -688,32 +510,4 @@ create_purpose_str(gboolean can_sign,
 		g_string_append_printf(purpose, "%s%s", (purpose->len > 0U) ? ", " : "", _("authenticate"));
 	}
 	return g_string_free(purpose, FALSE);
-}
-
-
-/** \brief Create a subkey type string
- *
- * \param subkey the subkey
- * \return a newly allocated string containing a human-readable description of the subkey type
- *
- * Create a string containing the length of the subkey in bits, the public key algorithm supported by it and for ECC algorithms the
- * name of the curve.
- */
-static gchar *
-create_subkey_type_str(gpgme_subkey_t subkey)
-{
-	GString *type_str;
-	const gchar *algo;
-
-	type_str = g_string_new(NULL);
-	g_string_append_printf(type_str, ngettext("%u bit", "%u bits", subkey->length), subkey->length);
-	algo = gpgme_pubkey_algo_name(subkey->pubkey_algo);
-	if (algo != NULL) {
-		g_string_append_printf(type_str, " %s", algo);
-	}
-	if (subkey->curve != NULL) {
-		g_string_append_printf(type_str, _(" curve “%s”"), subkey->curve);
-	}
-
-	return g_string_free(type_str, FALSE);
 }

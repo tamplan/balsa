@@ -113,7 +113,7 @@ libbalsa_gpgme_init(gpgme_passphrase_cb_t get_passphrase,
     const gchar *agent_info;
 
     /* initialise the gpgme library */
-    g_debug("init gpgme version %s", gpgme_check_version(NULL));
+    g_message("init gpgme version %s", gpgme_check_version(NULL));
 
 #ifdef ENABLE_NLS
     gpgme_set_locale(NULL, LC_CTYPE, get_utf8_locale(LC_CTYPE));
@@ -150,10 +150,10 @@ libbalsa_gpgme_init(gpgme_passphrase_cb_t get_passphrase,
     }
 
     if (gpgme_engine_check_version(GPGME_PROTOCOL_CMS) == GPG_ERR_NO_ERROR) {
-    	g_debug("CMS (aka S/MIME) protocol supported");
+    	g_message("CMS (aka S/MIME) protocol supported");
     	has_proto_cms = TRUE;
     } else {
-    	g_warning("CMS protocol not supported, S/MIME will not work!");
+    	g_message("CMS protocol not supported, S/MIME will not work!");
     	has_proto_cms = FALSE;
     }
 
@@ -214,62 +214,11 @@ libbalsa_gpgme_new_with_proto(gpgme_protocol_t        protocol,
 		    gpgme_release(ctx);
 		    ctx = NULL;
 		} else {
-			if (protocol == GPGME_PROTOCOL_CMS) {
-				/* s/mime signing fails with error "not implemented" if a passphrase callback has been set... */
-				gpgme_set_passphrase_cb(ctx, NULL, NULL);
-				/* ...but make sure the user certificate is always included when signing */
-				gpgme_set_include_certs(ctx, 1);
-			} else {
-				gpgme_set_passphrase_cb(ctx, callback, parent);
-			}
+			gpgme_set_passphrase_cb(ctx, callback, parent);
 		}
 	}
 
 	return ctx;
-}
-
-
-/** \brief Set the configuration folder for a GpgME context
- *
- * \param ctx GpgME context
- * \param home_dir configuration directory for the crypto engine, or NULL for the default one
- * \param error Filled with error information on error.
- * \return TRUE on success, or FALSE on error
- *
- * Set the configuration and key ring folder for a GpgME context.
- */
-gboolean
-libbalsa_gpgme_ctx_set_home(gpgme_ctx_t   ctx,
-							const gchar  *home_dir,
-							GError      **error)
-{
-	gpgme_protocol_t protocol;
-	gpgme_engine_info_t engine_info;
-	gpgme_engine_info_t this_engine;
-	gboolean result = FALSE;
-
-	g_return_val_if_fail(ctx != NULL, FALSE);
-
-	protocol = gpgme_get_protocol(ctx);
-    engine_info = gpgme_ctx_get_engine_info(ctx);
-    for (this_engine = engine_info;
-    	 (this_engine != NULL) && (this_engine->protocol != protocol);
-    	 this_engine = this_engine->next) {
-    	/* nothing to do */
-    }
-    if (this_engine != NULL) {
-    	gpgme_error_t err;
-
-    	err = gpgme_ctx_set_engine_info(ctx, protocol, this_engine->file_name, home_dir);
-    	if (err == GPG_ERR_NO_ERROR) {
-    		result = TRUE;
-    	} else {
-    		libbalsa_gpgme_set_error(error, err, _("could not set folder “%s” for engine “%s”"), home_dir,
-    			gpgme_get_protocol_name(protocol));
-    	}
-    }
-
-    return result;
 }
 
 
@@ -683,6 +632,38 @@ libbalsa_gpgme_decrypt(GMimeStream * crypted, GMimeStream * plain,
 }
 
 
+/*
+ * set a GError form GpgME information
+ */
+void
+libbalsa_gpgme_set_error(GError        **error,
+					     gpgme_error_t   gpgme_err,
+						 const gchar    *format,
+						 ...)
+{
+    if (error != NULL) {
+    	gchar errbuf[4096];		/* should be large enough... */
+        gchar *errstr;
+        gchar *srcstr;
+        gchar *msgstr;
+        va_list ap;
+
+        srcstr = utf8_valid_str(gpgme_strsource(gpgme_err));
+        gpgme_strerror_r(gpgme_err, errbuf, sizeof(errbuf));
+        errstr = utf8_valid_str(errbuf);
+        va_start(ap, format);
+        msgstr = g_strdup_vprintf(format, ap);
+        va_end(ap);
+        g_set_error(error, GPGME_ERROR_QUARK, gpgme_err, "%s: %s: %s", srcstr, msgstr, errstr);
+        g_free(msgstr);
+        g_free(errstr);
+        g_free(srcstr);
+    }
+}
+
+
+/* ---- local stuff ---------------------------------------------------- */
+
 /** \brief Export a public key
  *
  * \param protocol GpgME crypto protocol to use
@@ -782,57 +763,6 @@ libbalsa_gpgme_get_seckey(gpgme_protocol_t   protocol,
 	}
 
 	return keyid;
-}
-
-
-/*
- * set a GError form GpgME information
- */
-void
-libbalsa_gpgme_set_error(GError        **error,
-					     gpgme_error_t   gpgme_err,
-						 const gchar    *format,
-						 ...)
-{
-    if (error != NULL) {
-    	gchar errbuf[4096];		/* should be large enough... */
-        gchar *errstr;
-        gchar *srcstr;
-        gchar *msgstr;
-        va_list ap;
-
-        srcstr = utf8_valid_str(gpgme_strsource(gpgme_err));
-        gpgme_strerror_r(gpgme_err, errbuf, sizeof(errbuf));
-        errstr = utf8_valid_str(errbuf);
-        va_start(ap, format);
-        msgstr = g_strdup_vprintf(format, ap);
-        va_end(ap);
-        g_set_error(error, GPGME_ERROR_QUARK, gpgme_err, "%s: %s: %s", srcstr, msgstr, errstr);
-        g_free(msgstr);
-        g_free(errstr);
-        g_free(srcstr);
-    }
-}
-
-
-/* ---- local stuff ---------------------------------------------------- */
-
-static gchar *
-utf8_valid_str(const char *gpgme_str)
-{
-	gchar *result;
-
-	if (gpgme_str != NULL) {
-		if (g_utf8_validate(gpgme_str, -1, NULL)) {
-			result = g_strdup(gpgme_str);
-		} else {
-			gsize bytes_written;
-			result = g_locale_to_utf8(gpgme_str, -1, NULL, &bytes_written, NULL);
-		}
-	} else {
-		result = NULL;
-	}
-	return result;
 }
 
 
@@ -954,10 +884,9 @@ get_key_from_name(gpgme_ctx_t   ctx,
 	}
 	g_list_free_full(keys, (GDestroyNotify) gpgme_key_unref);
 
-	/* OpenPGP: ask the user if a low-validity key should be trusted for encryption (Note: owner_trust is not applicable to
-	 * S/MIME certificates) */
-	if ((selected != NULL) &&
-                (result == GPG_ERR_NO_ERROR) && !secret && !accept_all && (gpgme_get_protocol(ctx) == GPGME_PROTOCOL_OpenPGP) &&
+	/* OpenPGP: ask the user if a low-validity key should be trusted for encryption */
+	// FIXME - shouldn't we do the same for S/MIME?
+	if ((result == GPG_ERR_NO_ERROR) && !secret && !accept_all && (gpgme_get_protocol(ctx) == GPGME_PROTOCOL_OpenPGP) &&
 		(selected->owner_trust < GPGME_VALIDITY_FULL)) {
 		if ((accept_low_trust_cb == NULL) || !accept_low_trust_cb(name, selected, parent)) {
 			gpgme_key_unref(selected);
