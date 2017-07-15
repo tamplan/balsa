@@ -41,10 +41,6 @@
 	* libbalsa/address.c (libbalsa_address_get_edit_widget): do not
 	use old style declaration.
 
-<<<<<<< HEAD
-=======
->>>>>>> 3d41c63... Build with -Wshadow
->>>>>>> e671bfa3... Build with -Wshadow
 2017-07-15  Albrecht Dreß
 
 	* libbalsa/libbalsa-progress.c (revealer_destroy_notify),
