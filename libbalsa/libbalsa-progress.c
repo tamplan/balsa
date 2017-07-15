@@ -211,16 +211,60 @@ libbalsa_progress_dialog_ensure_real(ProgressDialog *progress_dialog,
     }
 }
 
+static void
+revealer_destroy_notify(gpointer timer_id)
+{
+    g_source_remove(GPOINTER_TO_UINT(timer_id));
+}
 
 /* note: the mutex ProgressDialog::mutex is never locked when this function is called */
 static gboolean
 libbalsa_progress_dialog_create_cb(create_progress_dlg_t *dlg_data)
 {
-	g_mutex_lock(&dlg_data->dialog->mutex);
-	libbalsa_progress_dialog_ensure_real(dlg_data->dialog, dlg_data->title, dlg_data->parent, dlg_data->id);
-	dlg_data->done = TRUE;
-	g_cond_signal(&dlg_data->cond);
-	g_mutex_unlock(&dlg_data->dialog->mutex);
+	LibbalsaProgressData *ctrl_data = (LibbalsaProgressData *) user_data;
+
+	g_return_val_if_fail(ctrl_data != NULL, FALSE);
+
+	g_mutex_lock(&progress_mutex);
+
+	if (ctrl_data->progress_dialog == NULL) {
+		if (ctrl_data->finished) {
+			libbalsa_information(LIBBALSA_INFORMATION_MESSAGE, "%s:\n%s", ctrl_data->progress_id, ctrl_data->message);
+		}
+	} else {
+		GtkWidget *progress_widget;
+		GtkWidget *content_box;
+
+		content_box = gtk_dialog_get_content_area(GTK_DIALOG(ctrl_data->progress_dialog));
+		progress_widget = find_widget_by_name(GTK_CONTAINER(content_box), ctrl_data->progress_id);
+		if (progress_widget != NULL) {
+			if (ctrl_data->message != NULL) {
+				GtkLabel *label;
+
+				label = GTK_LABEL(g_object_get_data(G_OBJECT(progress_widget), "label"));
+				gtk_label_set_text(label, ctrl_data->message);
+			}
+			if (isnan(ctrl_data->fraction) != 1) {
+				GtkProgressBar *progress;
+
+				progress = GTK_PROGRESS_BAR(g_object_get_data(G_OBJECT(progress_widget), "progress"));
+				gtk_progress_bar_set_fraction(progress, ctrl_data->fraction);
+			}
+			if (ctrl_data->finished) {
+				guint timer_id;
+
+				gtk_revealer_set_reveal_child(GTK_REVEALER(progress_widget), FALSE);
+
+				/* set a timer and remember it's id so we can remove it properly if the user destroys the whole dialogue */
+                                timer_id = g_timeout_add(500, remove_progress_widget, progress_widget);
+                                g_object_set_data_full(G_OBJECT(progress_widget), "timer", GUINT_TO_POINTER(timer_id),
+                                                       revealer_destroy_notify);
+			}
+		}
+	}
+
+	g_mutex_unlock(&progress_mutex);
+	send_progress_data_free(ctrl_data);
 
 	return FALSE;
 }
@@ -337,9 +381,10 @@ remove_progress_widget(progress_widget_data_t *progress_data)
 	GtkWidget *content_box;
 	guint rev_children = 0U;
 
-	progress_data->fadeout_id = 0U;
-	parent_dialog = gtk_widget_get_toplevel(progress_data->revealer);
-	gtk_widget_destroy(progress_data->revealer);
+        (void) g_object_steal_data(G_OBJECT(progress), "timer");
+
+	parent_dialog = gtk_widget_get_toplevel(progress);
+	gtk_widget_destroy(progress);
 
 	/* count the GtkRevealer children left, so we can just destroy the dialogue if there is none */
 	content_box = gtk_dialog_get_content_area(GTK_DIALOG(parent_dialog));
