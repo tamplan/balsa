@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 2017-07-15  Peter Bloomfield  <pbloomfield@bellsouth.net>
 
 	Do not use local variables that shadow other variables
@@ -43,7 +41,6 @@
 	* libbalsa/address.c (libbalsa_address_get_edit_widget): do not
 	use old style declaration.
 
->>>>>>> 3d41c63... Build with -Wshadow
 2017-07-15  Albrecht Dreß
 
 	* libbalsa/libbalsa-progress.c (revealer_destroy_notify),
