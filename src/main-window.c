@@ -92,7 +92,11 @@ static GtkTargetEntry notebook_drop_types[NUM_DROP_TYPES] = {
 };
 
 /* Define thread-related globals, including dialogs */
-static ProgressDialog progress_dialog;
+GtkWidget *progress_dialog = NULL;
+GtkWidget *progress_dialog_source = NULL;
+GtkWidget *progress_dialog_message = NULL;
+GtkWidget *progress_dialog_bar = NULL;
+static int quiet_check=0;
 
 struct check_messages_thread_info {
     BalsaWindow *window;

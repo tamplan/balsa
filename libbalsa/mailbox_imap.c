@@ -940,9 +940,9 @@ imap_expunge_cb(ImapMboxHandle *handle, unsigned seqno,
 	struct message_info *info =
 	    &g_array_index(mimap->messages_info, struct message_info, i);
 
-        g_assert(msg_info != NULL);
-	if (msg_info->message)
-	    msg_info->message->msgno = i + 1;
+        g_assert(info != NULL);
+	if (info->message)
+	    info->message->msgno = i + 1;
     }
 
     libbalsa_unlock_mailbox(mailbox);

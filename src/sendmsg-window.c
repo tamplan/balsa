@@ -840,7 +840,7 @@ sw_edit_activated(GSimpleAction * action,
             InternetAddressList *list =
                 libbalsa_address_view_get_list(bsmsg->recipient_view,
                                                address_types[type]);
-            gchar *p = internet_address_list_to_string(list, NULL, FALSE);
+            gchar *addr_string = internet_address_list_to_string(list, NULL, FALSE);
             g_object_unref(list);
             fprintf(tmp, "%s %s\n", _(address_types[type]), addr_string);
             g_free(addr_string);
@@ -4029,7 +4029,7 @@ static const gchar *
 create_lang_menu(GtkWidget * parent, BalsaSendmsg * bsmsg)
 {
     guint i;
-    GtkWidget *langs;
+    GtkWidget *langs = gtk_menu_new();
     static gboolean locales_sorted = FALSE;
     GSList *group = NULL;
 #if HAVE_GSPELL
