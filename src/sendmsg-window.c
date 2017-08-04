@@ -4070,6 +4070,16 @@ create_lang_menu(GtkWidget * parent, BalsaSendmsg * bsmsg)
     preferred_lang = balsa_app.spell_check_lang ?
         balsa_app.spell_check_lang : setlocale(LC_CTYPE, NULL);
 
+#if HAVE_GTKSPELL_3_0_3
+    lang_list = gtk_spell_checker_get_language_list();
+#elif HAVE_GSPELL
+    lang_list = gspell_language_get_available();
+#else                           /* HAVE_GTKSPELL_3_0_3 */
+    broker = enchant_broker_init();
+    lang_list = NULL;
+    enchant_broker_list_dicts(broker, sw_broker_cb, &lang_list);
+#endif                          /* HAVE_GTKSPELL_3_0_3 */
+
     langs = gtk_menu_new();
     for (i = 0; i < ELEMENTS(locales); i++) {
         gconstpointer found;
