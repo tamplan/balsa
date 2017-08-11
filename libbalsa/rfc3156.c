@@ -268,7 +268,7 @@ libbalsa_encrypt_mime_object(GMimeObject ** content, GList * rfc822_for,
 
     	result = g_mime_application_pkcs7_encrypt(pkcs7, *content, recipients, always_trust, parent, error);
     }
-    g_ptr_array_free(recipients, FALSE);
+    g_ptr_array_unref(recipients);
 
     /* error checking */
     if (!result) {
