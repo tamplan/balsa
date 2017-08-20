@@ -9,13 +9,8 @@ msgstr ""
 "Project-Id-Version: balsa\n"
 "Report-Msgid-Bugs-To: https://bugzilla.gnome.org/enter_bug.cgi?product=balsa&"
 "keywords=I18N+L10N&component=general\n"
-<<<<<<< HEAD
-"POT-Creation-Date: 2017-02-26 06:24+0000\n"
-"PO-Revision-Date: 2017-02-26 15:50+0200\n"
-=======
 "POT-Creation-Date: 2017-08-19 17:55+0000\n"
 "PO-Revision-Date: 2017-08-20 20:07+0200\n"
->>>>>>> 7d668e22... Updated Serbian translation
 "Last-Translator: Miroslav Nikolić <miroslavnikolic@rocketmail.com>\n"
 "Language-Team: srpski <gnome-sr@googlegroups.org>\n"
 "Language: sr\n"
@@ -486,20 +481,6 @@ msgstr "Novi identitet"
 
 #: ../libbalsa/identity.c:343
 #, c-format
-<<<<<<< HEAD
-msgid "Error executing signature generator %s"
-msgstr "Greška izvršavanja tvorca potpisa %s"
-
-#: ../libbalsa/identity.c:352
-#, c-format
-msgid "Cannot open signature file “%s” for reading"
-msgstr "Ne mogu da otvorim datoteku potpisa „%s“ radi čitanja"
-
-#: ../libbalsa/identity.c:358
-#, c-format
-msgid "Error reading signature from %s"
-msgstr "Greška čitanja potpisa iz %s"
-=======
 msgid "Error executing signature generator “%s”: %s"
 msgstr "Greška izvršavanja tvorca potpisa „%s“: %s"
 
@@ -507,7 +488,6 @@ msgstr "Greška izvršavanja tvorca potpisa „%s“: %s"
 #, c-format
 msgid "Cannot read signature file “%s”: %s"
 msgstr "Ne mogu da pročitam datoteku potpisa „%s“: %s"
->>>>>>> 7d668e22... Updated Serbian translation
 
 #: ../libbalsa/identity.c:363
 #, c-format
@@ -679,25 +659,15 @@ msgstr "šifruj poruke po osnovi"
 msgid "default protocol"
 msgstr "osnovni protokol"
 
-<<<<<<< HEAD
-#: ../libbalsa/identity.c:1061
-msgid "always trust GnuPG keys when encrypting"
-msgstr "uvek veruj GnuPG ključevima prilikom šifrovanja"
-=======
 #: ../libbalsa/identity.c:1060
 msgid "always trust GnuPG keys to encrypt messages"
 msgstr "uvek veruj GnuPG ključevima za šifrovanje poruka"
->>>>>>> 7d668e22... Updated Serbian translation
 
 #: ../libbalsa/identity.c:1061
 msgid "remind me if messages can be encrypted"
 msgstr "podseti me ukoliko je moguće potpisati poruku"
 
-<<<<<<< HEAD
-#: ../libbalsa/identity.c:1067
-=======
 #: ../libbalsa/identity.c:1066
->>>>>>> 7d668e22... Updated Serbian translation
 msgid ""
 "use secret key with this id for signing GnuPG messages\n"
 "(leave empty for automatic selection)"
@@ -705,9 +675,6 @@ msgstr ""
 "koristi tajni ključ uz ovaj ib za potpisivanje GnuPG poruka\n"
 "(ostavite prazno za samostalno biranje)"
 
-<<<<<<< HEAD
-#: ../libbalsa/identity.c:1201
-=======
 #: ../libbalsa/identity.c:1070
 msgid ""
 "use certificate with this id for signing S/MIME messages\n"
@@ -726,7 +693,6 @@ msgid "Choose…"
 msgstr "Izaberi…"
 
 #: ../libbalsa/identity.c:1262
->>>>>>> 7d668e22... Updated Serbian translation
 #, c-format
 msgid "Error reading file %s: %s"
 msgstr "Greška čitanja datoteke „%s“: %s"
@@ -925,21 +891,8 @@ msgstr ""
 
 #: ../libbalsa/libbalsa.c:679
 #, c-format
-<<<<<<< HEAD
-msgid ""
-"%s\n"
-"Please enter the passphrase for the secret key!\n"
-"\n"
-"Key: %s"
-msgstr ""
-"%s\n"
-"Molim da unesete lozinku za tajni ključ!\n"
-"\n"
-"Ključ: %s"
-=======
 msgid "could not set folder “%s” for engine “%s”"
 msgstr "ne mogu da popodesim fasciklu „%s“ za pogon „%s“"
->>>>>>> 7d668e22... Updated Serbian translation
 
 #: ../libbalsa/libbalsa.c:836
 #, c-format
@@ -1033,54 +986,26 @@ msgstr ""
 
 #: ../libbalsa/libbalsa-gpgme.c:928
 #, c-format
-<<<<<<< HEAD
-msgid "%s: could not find a key for %s"
-msgstr "%s: ne mogu da nađem ključ za %s"
-=======
 msgid "Could not find a key for “%s”"
 msgstr "Ne mogu da nađem ključ za „%s“"
->>>>>>> 7d668e22... Updated Serbian translation
 
 #: ../libbalsa/libbalsa-gpgme.c:943
 #, c-format
-<<<<<<< HEAD
-msgid ""
-"%s: a key with id %s is present, but it is expired, disabled, revoked or "
-"invalid"
-msgstr ""
-"%s: ključ sa ib-om %s je prisutan, ali je istekao, isključen, opozvan ili "
-"neispravan"
-=======
 msgid "Multiple keys for “%s”"
 msgstr "Više ključeva za „%s“"
->>>>>>> 7d668e22... Updated Serbian translation
 
 #: ../libbalsa/libbalsa-gpgme.c:965
 #, c-format
-<<<<<<< HEAD
-msgid "%s: could not find a key with id %s"
-msgstr "%s: ne mogu da nađem ključ sa ib-om %s"
-=======
 msgid "Insufficient key validity"
 msgstr "Nedovoljno valjanosti za ključ"
->>>>>>> 7d668e22... Updated Serbian translation
 
 #: ../libbalsa/libbalsa-gpgme.c:827
 #, c-format
-<<<<<<< HEAD
-msgid "%s: multiple keys for %s"
-msgstr "%s: više ključeva za %s"
-=======
 msgid "Select the private key for the signer “%s”"
 msgstr "Izaberite privatni ključ za potpisnika „%s“"
->>>>>>> 7d668e22... Updated Serbian translation
 
 #: ../libbalsa/libbalsa-gpgme-cb.c:213
 #, c-format
-<<<<<<< HEAD
-msgid "%s: insufficient validity for UID %s"
-msgstr "%s: nedovoljno valjanosti za UIB %s"
-=======
 msgid "Select the public key for the recipient “%s”"
 msgstr "Izaberite javni ključ za primaoca „%s“"
 
@@ -1101,14 +1026,9 @@ msgstr "Dva puta kliknite na ključ da pokažete pojedinosti"
 #: ../libbalsa/libbalsa-gpgme-cb.c:278
 msgid "User ID"
 msgstr "IB korisnika"
->>>>>>> 7d668e22... Updated Serbian translation
 
 #: ../libbalsa/libbalsa-gpgme-cb.c:218
 #, c-format
-<<<<<<< HEAD
-msgid "could not list keys"
-msgstr "ne mogu da pobrojim ključeve"
-=======
 msgid ""
 "The owner trust for this key is “%s” only.\n"
 "Use this key anyway?"
@@ -1124,7 +1044,6 @@ msgstr "Nedovoljno poverenja vlasnika ključa"
 #: ../libbalsa/libbalsa-gpgme-cb.c:346
 msgid "Enter Passphrase"
 msgstr "Unesite lozinku"
->>>>>>> 7d668e22... Updated Serbian translation
 
 #: ../libbalsa/libbalsa-conf.c:143
 msgid "Your Balsa configuration is now stored in “~/.balsa/config”."
@@ -1132,10 +1051,6 @@ msgstr "Vaša podešavanja Balse su sada smeštena u „~/.balsa/config“."
 
 #: ../libbalsa/libbalsa-gpgme-cb.c:223
 #, c-format
-<<<<<<< HEAD
-msgid "not a regular file"
-msgstr "nije obična datoteka"
-=======
 msgid ""
 "%s\n"
 "Please enter the passphrase for the secret key!\n"
@@ -1150,35 +1065,24 @@ msgstr ""
 #: ../libbalsa/libbalsa-gpgme-keys.c:83
 msgid "error setting key list mode"
 msgstr "greška podešavanja režima spiska ključa"
->>>>>>> 7d668e22... Updated Serbian translation
 
 #: ../libbalsa/libbalsa-vfs.c:606
 #, c-format
-<<<<<<< HEAD
-msgid "Cannot launch, missing application"
-msgstr "Ne mogu da pokrenem, nedostaje program"
-=======
 msgid "could not list keys for “%s”"
 msgstr "ne mogu da pobrojim ključeve za „%s“"
 
 #: ../libbalsa/libbalsa-gpgme-keys.c:190 ../libbalsa/libbalsa-gpgme-keys.c:230
 msgid "cannot create data buffer"
 msgstr "ne mogu da napravim međumemoriju podataka"
->>>>>>> 7d668e22... Updated Serbian translation
 
 #: ../libbalsa/libbalsa-vfs.c:672
 #, c-format
-<<<<<<< HEAD
-msgid "Open with %s"
-msgstr "Otvori programom „%s“"
-=======
 msgid "exporting key for “%s” failed"
 msgstr "izvoz ključa za „%s“ nije uspeo"
 
 #: ../libbalsa/libbalsa-gpgme-keys.c:234
 msgid "importing ASCII-armored key data failed"
 msgstr "nisam uspeo da uvezem podatke ASKRI-ojačanog ključa"
->>>>>>> 7d668e22... Updated Serbian translation
 
 #. create the dialog
 #: ../libbalsa/libbalsa-gpgme-cb.c:320
@@ -1190,16 +1094,6 @@ msgstr "Pregledaj _deo pomoću „%s“"
 msgid "Invalid date"
 msgstr "Pogrešan datum"
 
-<<<<<<< HEAD
-#: ../libbalsa/libbalsa.c:383 ../src/pref-manager.c:1370
-#: ../src/pref-manager.c:1466
-msgid "Unknown"
-msgstr "Nepoznato"
-
-#: ../libbalsa/libbalsa.c:525 ../libbalsa/libbalsa.c:630
-msgid "SSL/TLS certificate"
-msgstr "SSL/TLS uverenje"
-=======
 #: ../libbalsa/libbalsa-gpgme-keys.c:323
 #, c-format
 msgid "Searching the key server failed: %s"
@@ -1208,7 +1102,6 @@ msgstr "Nisam uspeo da pretražim server ključa: %s"
 #: ../libbalsa/libbalsa-gpgme-keys.c:402
 msgid "error importing key"
 msgstr "greška uvoza ključa"
->>>>>>> 7d668e22... Updated Serbian translation
 
 #: ../libbalsa/libbalsa.c:529 ../libbalsa/libbalsa.c:634
 msgid "_Accept Once"
@@ -1247,12 +1140,8 @@ msgstr ""
 "<b>Razlog:</b> %s\n"
 "<b>Ovo uverenje pripada:</b>\n"
 
-<<<<<<< HEAD
-#: ../libbalsa/libbalsa.c:600
-=======
 #: ../libbalsa/libbalsa-gpgme-keys.c:466
 #, c-format
->>>>>>> 7d668e22... Updated Serbian translation
 msgid ""
 "\n"
 "Key: %s"
@@ -1265,17 +1154,6 @@ msgstr ""
 #: ../libbalsa/libbalsa.c:611
 #, c-format
 msgid ""
-<<<<<<< HEAD
-"<b>This certificate is valid</b>\n"
-"from %s\n"
-"to %s\n"
-"<b>Fingerprint:</b> %s"
-msgstr ""
-"<b>Ovo uverenje važi</b>\n"
-"od %s\n"
-"do %s\n"
-"<b>Otisak:</b> %s"
-=======
 "\n"
 "• %d new revocation"
 msgid_plural ""
@@ -1440,22 +1318,16 @@ msgstr "potvrdi identitet"
 #, c-format
 msgid "%u bits"
 msgstr "%u bita"
->>>>>>> 7d668e22... Updated Serbian translation
 
 #: ../libbalsa/libbalsa-gpgme-keys.c:95 ../libbalsa/libbalsa-gpgme-keys.c:120
 #: ../libbalsa/libbalsa-gpgme-keys.c:162 ../libbalsa/libbalsa-gpgme-keys.c:166
 #, c-format
-<<<<<<< HEAD
-msgid "Connection to %s timed out. Abort?"
-msgstr "Veza sa „%s“ je istekla. Da prekinem?"
-=======
 msgid " curve “%s”"
 msgstr " kriva „%s“"
 
 #: ../libbalsa/libbalsa-progress.c:65 ../src/main-window.c:3273
 msgid "_Hide"
 msgstr "_Sakrij"
->>>>>>> 7d668e22... Updated Serbian translation
 
 #: ../libbalsa/libbalsa-gpgme-keys.c:173
 #, c-format
@@ -2120,17 +1992,6 @@ msgstr "Ne mogu da napravim poruku"
 msgid "Message rename error"
 msgstr "Greška preimenovanja poruke"
 
-<<<<<<< HEAD
-#: ../libbalsa/mailbox_pop3.c:196
-#, c-format
-msgid "Saving the POP3 message UID list failed: %s"
-msgstr "Nisam uspeo da sačuvam spisak UID-a POP3 poruke: „%s“"
-
-#: ../libbalsa/mailbox_pop3.c:298 ../libbalsa/mailbox_pop3.c:322
-#, c-format
-msgid "Saving POP message to %s failed"
-msgstr "Nisam uspeo da sačuvam POP poruku u „%s“"
-=======
 #: ../libbalsa/mailbox_pop3.c:259
 #, c-format
 msgid "Saving the POP3 message UID list failed: %s"
@@ -2150,17 +2011,11 @@ msgstr "Nisam uspeo da sačuvam POP poruku"
 #, c-format
 msgid "Transferring POP message to %s failed: %s"
 msgstr "Nisam uspeo da prenesem POP poruku do „%s“: %s"
->>>>>>> 7d668e22... Updated Serbian translation
 
 #: ../libbalsa/mailbox_pop3.c:327
 #, c-format
-<<<<<<< HEAD
-msgid "Retrieving Message %d of %d"
-msgstr "Preuzimam poruku %d od %d"
-=======
 msgid "Message %lu of %lu (%s of %s)"
 msgstr "%lu. poruka od %lu (%s od %s)"
->>>>>>> 7d668e22... Updated Serbian translation
 
 #: ../libbalsa/mailbox_pop3.c:346
 #, c-format
@@ -2174,44 +2029,16 @@ msgstr "%lu. poruka od %lu (%s od %s)"
 
 #: ../libbalsa/mailbox_pop3.c:437
 #, c-format
-<<<<<<< HEAD
-msgid "Transferring POP message to %s failed."
-msgstr "Nisam uspeo da prenesem POP poruku u „%s“."
-=======
 msgid "POP3 mailbox %s: cannot connect %s: %s"
 msgstr "POP3 sandučete „%s“: ne mogu da se povežem sa „%s“: %s"
->>>>>>> 7d668e22... Updated Serbian translation
 
 #: ../libbalsa/mailbox_pop3.c:495 ../libbalsa/send.c:793
 #, c-format
-<<<<<<< HEAD
-msgid ""
-"POP3 mailbox %s temp file error:\n"
-"%s"
-msgstr ""
-"Greška privremene datoteke POP3 sandučeta %s:\n"
-"%s"
-=======
 msgid "POP3 mailbox %s error: %s"
 msgstr "Greška POP3 sandučeta %s: %s"
->>>>>>> 7d668e22... Updated Serbian translation
 
 #: ../libbalsa/mailbox_pop3.c:521
 #, c-format
-<<<<<<< HEAD
-msgid "POP3 mailbox %s error: %s\n"
-msgstr "Greška POP3 sandučeta %s: %s\n"
-
-#: ../libbalsa/mailbox_pop3.c:566
-#, c-format
-msgid "POP3 message %d oversized: %s — skipped."
-msgstr "Premašena je veličina POP3 poruke %d: %s — preskačem."
-
-#: ../libbalsa/mailbox_pop3.c:640 ../libbalsa/send.c:1015
-#, c-format
-msgid "POP3 error: cannot open %s for writing."
-msgstr "POP3 greška: ne mogu da otvorim „%s“ radi upisa."
-=======
 msgid "POP3 message %d oversized: %s — skipped."
 msgstr "Premašena je veličina POP3 poruke %d: %s — preskačem."
 
@@ -2227,17 +2054,11 @@ msgstr "%lu nove poruke (%s)"
 #: ../libbalsa/mailbox_pop3.c:665
 msgid "Deleting messages on server…"
 msgstr "Brišem poruke na serveru…"
->>>>>>> 7d668e22... Updated Serbian translation
 
 #: ../libbalsa/mailbox_pop3.c:655
 #, c-format
-<<<<<<< HEAD
-msgid "POP3 error: cannot close %s."
-msgstr "POP3 greška: ne mogu da zatvorim „%s“."
-=======
 msgid "POP3 error: %s"
 msgstr "POP3 greška: %s"
->>>>>>> 7d668e22... Updated Serbian translation
 
 #: ../libbalsa/mailbox_pop3.c:666
 msgid "Deleting messages on server…"
@@ -2245,13 +2066,8 @@ msgstr "Brišem poruke na serveru…"
 
 #: ../libbalsa/mailbox_pop3.c:689
 #, c-format
-<<<<<<< HEAD
-msgid "POP3 error: %s."
-msgstr "POP3 greška: %s."
-=======
 msgid "Finished"
 msgstr "Završeno"
->>>>>>> 7d668e22... Updated Serbian translation
 
 #: ../libbalsa/message.c:620
 #, c-format
@@ -2636,15 +2452,6 @@ msgstr "loš red „%s“, nedostaje „:“"
 msgid "malformed line “%s”, empty name or value"
 msgstr "loš red „%s“, prazan naziv ili vrednost"
 
-<<<<<<< HEAD
-#: ../libbalsa/send.c:226 ../libbalsa/send.c:233
-msgid "Sending Mail…"
-msgstr "Šaljem poštu…"
-
-#: ../libbalsa/send.c:230 ../src/main-window.c:3267
-msgid "_Hide"
-msgstr "_Sakrij"
-=======
 #: ../libbalsa/send.c:211
 #, c-format
 msgid "SMTP server %s"
@@ -2654,15 +2461,9 @@ msgstr "SMTP server „%s“"
 #, c-format
 msgid "Message %u of %u"
 msgstr "%u. poruka od %u"
->>>>>>> 7d668e22... Updated Serbian translation
 
 #: ../libbalsa/send.c:721
 #, c-format
-<<<<<<< HEAD
-#| msgid "Could not load Face header file %s: %s"
-msgid "Cannot load certificate file %s: %s"
-msgstr "Ne mogu da učitam datoteku uverenja „%s“: %s"
-=======
 msgid "Cannot reach SMTP server %s (%s), any queued message will remain in %s."
 msgstr ""
 "Ne mogu da pristupim SMTP serveru „%s“ (%s), sve pripremljene poruke ostaće u "
@@ -2671,17 +2472,11 @@ msgstr ""
 #: ../libbalsa/send.c:848
 msgid "Sending Mail"
 msgstr "Šaljem poštu"
->>>>>>> 7d668e22... Updated Serbian translation
 
 #: ../libbalsa/send.c:896
 #, c-format
-<<<<<<< HEAD
-msgid "Connected to MTA %s: %s"
-msgstr "Povezan sam na MTA „%s“: %s"
-=======
 msgid "Save message in %s…"
 msgstr "Sačuvaj poruku u „%s“…"
->>>>>>> 7d668e22... Updated Serbian translation
 
 #: ../libbalsa/send.c:936
 #, c-format
@@ -2699,12 +2494,6 @@ msgstr ""
 
 #: ../libbalsa/send.c:973
 #, c-format
-<<<<<<< HEAD
-msgid "Connecting MTA %s (%s) failed: %s"
-msgstr "Povezivanje MTA „%s“ (%s) nije uspelo: %s"
-
-#: ../libbalsa/send.c:1154 ../libbalsa/send.c:1220
-=======
 msgid "Sending queued messages to %s"
 msgstr "Šaljem zakazane poruke za „%s“"
 
@@ -2728,7 +2517,6 @@ msgstr[2] "Odaslao sam %u poruka za „%s“"
 msgstr[3] "Odaslao sam %u poruku za „%s“"
 
 #: ../libbalsa/send.c:1279 ../libbalsa/send.c:1345
->>>>>>> 7d668e22... Updated Serbian translation
 #, c-format
 msgid "Cannot read %s: %s"
 msgstr "Ne mogu da pročitam %s: %s"
@@ -3058,15 +2846,9 @@ msgstr "Naziv servera pošte za dolaznu _poštu:"
 msgid "_Type of mail server:"
 msgstr "_Vrsta servera pošte:"
 
-<<<<<<< HEAD
-#: ../libinit_balsa/assistant_page_user.c:108
-msgid "Connect using _SSL:"
-msgstr "Poveži se koristeći _SSL:"
-=======
 #: ../libinit_balsa/assistant_page_user.c:114
 msgid "Connection _Security"
 msgstr "Bezbednost _veze"
->>>>>>> 7d668e22... Updated Serbian translation
 
 #: ../libinit_balsa/assistant_page_user.c:118
 msgid "Your email _login name:"
@@ -3193,8 +2975,6 @@ msgstr "nepovezan"
 msgid "connection is already encrypted"
 msgstr "veza je već šifrovana"
 
-<<<<<<< HEAD
-=======
 #. unexpected server reply
 #: ../libnetclient/net-client-pop.c:214 ../libnetclient/net-client-pop.c:431
 #: ../libnetclient/net-client-smtp.c:586 ../libnetclient/net-client-smtp.c:657
@@ -3273,7 +3053,6 @@ msgstr "ne mogu da napravim zahtev GSS prijave: %s"
 msgid "unknown error code %u:%u"
 msgstr "nepoznat kod greške %u:%u"
 
->>>>>>> 7d668e22... Updated Serbian translation
 #: ../sounds/balsa.soundlist.in.h:1
 msgid "Balsa Email Reader"
 msgstr "Čitač e-pošte Balsa"
@@ -4022,15 +3801,6 @@ msgstr "Datoteka već postoji. Da prepišem preko?"
 msgid "Unlink %s: %s"
 msgstr "Razveži %s: %s"
 
-<<<<<<< HEAD
-#: ../src/balsa-mime-widget-crypto.c:87
-msgid "_Run GnuPG to import this key"
-msgstr "_Pokreni GnuPG za uvoz ovog ključa"
-
-#: ../src/balsa-mime-widget-crypto.c:91
-msgid "_Run GnuPG to check for an update of this key"
-msgstr "_Pokreni GnuPG za proveru ažuriranja ovog ključa"
-=======
 #: ../src/balsa-mime-widget-crypto.c:76 ../src/balsa-mime-widget-text.c:156
 #, c-format
 msgid "Could not save a text part: %s"
@@ -4070,7 +3840,6 @@ msgstr "(uvezen)"
 #: ../src/balsa-mime-widget-crypto.c:317
 msgid "Import key into the local key ring"
 msgstr "Uvezi ključ u mesni prsten ključeva"
->>>>>>> 7d668e22... Updated Serbian translation
 
 #: ../src/balsa-mime-widget-image.c:119 ../src/balsa-mime-widget-image.c:248
 #, c-format
@@ -5224,13 +4993,10 @@ msgstr "Podešavač udaljenog sandučeta"
 msgid "Mailbox _name:"
 msgstr "Naziv _sandučeta:"
 
-<<<<<<< HEAD
-=======
 #: ../src/mailbox-conf.c:1294
 msgid "POP3 over SSL (POP3S)"
 msgstr "POP3 preko SSL-a (POP3S)"
 
->>>>>>> 7d668e22... Updated Serbian translation
 #. password field
 #: ../src/mailbox-conf.c:1308 ../src/mailbox-conf.c:1423
 msgid "Pass_word:"
@@ -5946,15 +5712,11 @@ msgstr "Umnoži odlazeće poruke u „Poslato“"
 msgid "Send button always queues outgoing mail in outbox"
 msgstr "Dugme za slanje uvek smešta poruku u „Odlazno“"
 
-<<<<<<< HEAD
-#: ../src/pref-manager.c:2109
-=======
 #: ../src/pref-manager.c:2306
 msgid "_Send queued mail automatically every"
 msgstr "_Sam pošalji spremnu poštu svakih"
 
 #: ../src/pref-manager.c:2316
->>>>>>> 7d668e22... Updated Serbian translation
 msgid "Edit headers in external editor"
 msgstr "Izmeni zaglavlja u spoljašnjem uređivaču"
 
@@ -5970,15 +5732,9 @@ msgstr "Glavni prozor"
 msgid "Use preview pane"
 msgstr "Koristi površ za pregled"
 
-<<<<<<< HEAD
-#: ../src/pref-manager.c:2168
-msgid "Show mailbox statistics in left pane"
-msgstr "Prikaži statistiku sandučeta na levoj površi"
-=======
 #: ../src/pref-manager.c:2343
 msgid "Show message counts in mailbox list"
 msgstr "Prikaži broj poruka na spisku sandučeta"
->>>>>>> 7d668e22... Updated Serbian translation
 
 #: ../src/pref-manager.c:2349
 msgid "Automatically view message when mailbox opened"
@@ -6891,13 +6647,8 @@ msgstr ""
 
 #: ../src/sendmsg-window.c:4661
 #, c-format
-<<<<<<< HEAD
-msgid "Could not open the file %s.\n"
-msgstr "Ne mogu da otvorim datoteku %s.\n"
-=======
 msgid "Cannot not read the file “%s”: %s"
 msgstr "Ne mogu da pročitam datoteku „%s“: %s"
->>>>>>> 7d668e22... Updated Serbian translation
 
 #: ../src/sendmsg-window.c:4680
 msgid "Include file"
@@ -7269,11 +7020,11 @@ msgstr ""
 msgid "Send"
 msgstr "Pošalji"
 
-#: ../src/toolbar-factory.c:156
+#: ../src/toolbar-factory.c:160
 msgid "Send queued"
 msgstr "Pošalji pripremljeno"
 
-#: ../src/toolbar-factory.c:157
+#: ../src/toolbar-factory.c:161
 msgid "Exchange"
 msgstr "Razmeni"
 
@@ -8139,8 +7890,6 @@ msgstr "Razmeni"
 #~ msgid "Could not open the file %s.\n"
 #~ msgstr "Ne mogu da otvorim datoteku %s.\n"
 
-<<<<<<< HEAD
-=======
 #: ../ui/ab-main.ui.h:1 ../ui/main-window.ui.h:17 ../ui/message-window.ui.h:1
 #: ../ui/sendmsg-window.ui.h:1 ../ui/source-viewer.ui.h:1
 msgid "_File"
@@ -8705,7 +8454,6 @@ msgstr "Istakni _naročite znake"
 #~ msgid "Could not open the file %s.\n"
 #~ msgstr "Ne mogu da otvorim datoteku %s.\n"
 
->>>>>>> 7d668e22... Updated Serbian translation
 #~ msgid "Bcc:"
 #~ msgstr "Nevidljiva kopija:"
 
