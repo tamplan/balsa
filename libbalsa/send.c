@@ -1744,7 +1744,7 @@ lb_create_pubkey_part(LibBalsaMessage  *message,
 	    wrapper = g_mime_data_wrapper_new();
 	    g_mime_data_wrapper_set_stream(wrapper, stream);
 	    g_object_unref(stream);
-	    g_mime_part_set_content_object(mime_part, wrapper);
+	    g_mime_part_set_content(mime_part, wrapper);
 	    g_object_unref(wrapper);
 	}
 
