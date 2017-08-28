@@ -7148,57 +7148,6 @@ msgstr "Přiložit veřejný klíč _GnuPG"
 msgid "_Escape Special Characters"
 msgstr "O_šetřit speciální znaky"
 
-#~ msgid "%s: could not find a key for %s"
-#~ msgstr "%s: nelze najít klíč pro %s"
-
-#~ msgid ""
-#~ "%s: a key with id %s is present, but it is expired, disabled, revoked or "
-#~ "invalid"
-#~ msgstr ""
-#~ "%s: klíč s ID %s je přítomen, ale jeho platnost vypršela, je neaktivní, "
-#~ "odvolaný nebo neplatný"
-
-#~ msgid "%s: could not find a key with id %s"
-#~ msgstr "%s: nelze najít klíč s ID %s"
-
-#~ msgid "could not list keys"
-#~ msgstr "nelze vypsat klíče"
-
-#~ msgid "Key ID"
-#~ msgstr "ID klíče"
-
-#~ msgid "Length"
-#~ msgstr "Délka"
-
-#~ msgid "Validity"
-#~ msgstr "Platnost"
-
-#~ msgid "The validity of the key with user ID “%s” is “%s”."
-#~ msgstr "Platnost klíče ID uživatele „%s“ je „%s“."
-
-#~ msgid "Use this key anyway?"
-#~ msgstr "Přesto tento klíč použít?"
-
-#~ msgid "Could not launch %s to query the public key %s."
-#~ msgstr "Nelze spustit %s pro získání veřejného klíče %s."
-
-#~ msgid ""
-#~ "Running %s failed with return value %d:\n"
-#~ "%s"
-#~ msgstr ""
-#~ "Spuštění %s selhalo s návratovou hodnotou %d:\n"
-#~ "%s"
-
-#~ msgid ""
-#~ "Running %s successful:\n"
-#~ "%s"
-#~ msgstr ""
-#~ "Spuštění %s úspěšné:\n"
-#~ "%s"
-
-#~ msgid "_Run GnuPG to import this key"
-#~ msgstr "_Spusťte GnuPG pro import tohoto klíče"
-
 #~ msgid "Error reading signature from %s"
 #~ msgstr "Chyba při čtení podpisu z %s"
 

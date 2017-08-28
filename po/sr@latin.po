@@ -1023,11 +1023,7 @@ msgstr ""
 msgid "Double-click key to show details"
 msgstr "Dva puta kliknite na ključ da pokažete pojedinosti"
 
-#: ../libbalsa/libbalsa-gpgme-cb.c:278
-msgid "User ID"
-msgstr "IB korisnika"
-
-#: ../libbalsa/libbalsa-gpgme-cb.c:218
+#: ../libbalsa/libbalsa-gpgme.c:894 ../libbalsa/libbalsa-gpgme.c:908
 #, c-format
 msgid ""
 "The owner trust for this key is “%s” only.\n"
@@ -1039,11 +1035,6 @@ msgstr ""
 #: ../libbalsa/libbalsa-gpgme-cb.c:316
 msgid "Insufficient key owner trust"
 msgstr "Nedovoljno poverenja vlasnika ključa"
-
-#. FIXME: create dialog according to the Gnome HIG
-#: ../libbalsa/libbalsa-gpgme-cb.c:346
-msgid "Enter Passphrase"
-msgstr "Unesite lozinku"
 
 #: ../libbalsa/libbalsa-conf.c:143
 msgid "Your Balsa configuration is now stored in “~/.balsa/config”."
@@ -1065,11 +1056,6 @@ msgstr ""
 #: ../libbalsa/libbalsa-gpgme-keys.c:83
 msgid "error setting key list mode"
 msgstr "greška podešavanja režima spiska ključa"
-
-#: ../libbalsa/libbalsa-vfs.c:606
-#, c-format
-msgid "could not list keys for “%s”"
-msgstr "ne mogu da pobrojim ključeve za „%s“"
 
 #: ../libbalsa/libbalsa-gpgme-keys.c:190 ../libbalsa/libbalsa-gpgme-keys.c:230
 msgid "cannot create data buffer"
@@ -2324,7 +2310,7 @@ msgstr "loša ispravnost"
 msgid "undefined"
 msgstr "neodređeno"
 
-#: ../libbalsa/rfc3156.c:695
+#: ../libbalsa/rfc3156.c:724
 msgid "marginal"
 msgstr "delom"
 
@@ -2920,7 +2906,22 @@ msgstr ""
 "• ili da je vaš administrator mreže na vašem radnom mestu/kancelariji već "
 "podesio vaš računar za povezivanje na mrežu."
 
-#: ../libnetclient/net-client.c:78 ../libnetclient/net-client.c:116
+#: ../libnetclient/net-client-smtp.c:135
+#, c-format
+msgid "remote server does not support STARTTLS"
+msgstr "udaljeni server ne podržava STARTTLS"
+
+#: ../libnetclient/net-client-smtp.c:608
+#, c-format
+msgid "transient error %d: %s"
+msgstr "prolazna greška %d: %s"
+
+#: ../libnetclient/net-client-smtp.c:613
+#, c-format
+msgid "permanent error %d: %s"
+msgstr "stalna greška %d: %s"
+
+#: ../libnetclient/net-client.c:80 ../libnetclient/net-client.c:117
 #, c-format
 msgid "network client is already connected"
 msgstr "klijent mreže je već povezan"
@@ -3007,21 +3008,6 @@ msgstr "potrebna je lozinka"
 #, c-format
 msgid "no suitable authentication mechanism"
 msgstr "nema odgovarajućeg mehanizma potvrđivanja identiteta"
-
-#: ../libnetclient/net-client-smtp.c:142
-#, c-format
-msgid "remote server does not support STARTTLS"
-msgstr "udaljeni server ne podržava STARTTLS"
-
-#: ../libnetclient/net-client-smtp.c:689
-#, c-format
-msgid "transient error %d: %s"
-msgstr "prolazna greška %d: %s"
-
-#: ../libnetclient/net-client-smtp.c:694
-#, c-format
-msgid "permanent error %d: %s"
-msgstr "stalna greška %d: %s"
 
 #: ../libnetclient/net-client-utils.c:143
 #, c-format
@@ -4110,6 +4096,29 @@ msgstr "Zahtev iTIP kalendara"
 #, c-format
 msgid "Sending the iTIP calendar reply failed: %s"
 msgstr "Nisam uspeo da pošaljem odgovor iTIP kalendara: %s"
+
+#: ../src/balsa-mime-widget.c:257
+#, c-format
+msgid "Error reading message part: %s"
+msgstr "Greška čitanja dela poruke: %s"
+
+#: ../src/balsa-mime-widget.c:284
+#, c-format
+msgid "Type: %s (%s)"
+msgstr "Vrsta: %s (%s)"
+
+#: ../src/balsa-mime-widget.c:288
+#, c-format
+msgid "Content Type: %s"
+msgstr "Vrsta sadržaja: %s"
+
+#: ../src/balsa-mime-widget.c:302
+msgid "No open or view action defined for this content type"
+msgstr "Nije određena radnja za otvaranje ili pregled ove vrste sadržaja"
+
+#: ../src/balsa-mime-widget.c:307
+msgid "S_ave part"
+msgstr "Sačuvaj _deo"
 
 #: ../src/balsa-print-object-default.c:162
 #: ../src/balsa-print-object-default.c:166
@@ -7045,7 +7054,7 @@ msgstr "Sačuvaj"
 msgid "Identity"
 msgstr "Ličnost"
 
-#: ../src/toolbar-factory.c:164
+#: ../src/toolbar-factory.c:166
 msgid ""
 "Toggle\n"
 "new"
@@ -8356,21 +8365,6 @@ msgstr "Istakni _naročite znake"
 #~ msgid "Error reading signature from %s"
 #~ msgstr "Greška čitanja potpisa iz %s"
 
-#~ msgid "Key ID"
-#~ msgstr "IB ključa"
-
-#~ msgid "Length"
-#~ msgstr "Dužina"
-
-#~ msgid "Validity"
-#~ msgstr "Ispravnost"
-
-#~ msgid "The validity of the key with user ID “%s” is “%s”."
-#~ msgstr "Ispravnost ključa sa korisničkim IB-om „%s“ je „%s“."
-
-#~ msgid "Use this key anyway?"
-#~ msgstr "Da ipak koristim ovaj ključ?"
-
 #~ msgid "%s: could not find a key for %s"
 #~ msgstr "%s: ne mogu da nađem ključ za %s"
 
@@ -8391,12 +8385,6 @@ msgstr "Istakni _naročite znake"
 #~ msgstr "Preuzimam poruku %d od %d"
 
 # bug: plural-forms
-#~ msgid "Received %ld kB of %ld"
-#~ msgstr "Primljeno je %ld kB od %ld"
-
-#~ msgid "Saving POP message to %s failed."
-#~ msgstr "Nisam uspeo da sačuvam POP poruku u „%s“."
-
 #~ msgid ""
 #~ "POP3 mailbox %s temp file error:\n"
 #~ "%s"
@@ -8410,43 +8398,11 @@ msgstr "Istakni _naročite znake"
 #~ msgid "POP3 error: cannot close %s."
 #~ msgstr "POP3 greška: ne mogu da zatvorim „%s“."
 
-#~ msgid "Could not launch %s to query the public key %s."
-#~ msgstr "Ne mogu da pokrenem „%s“ da bih propitao javni ključ „%s“."
-
-#~ msgid ""
-#~ "Running %s failed with return value %d:\n"
-#~ "%s"
-#~ msgstr ""
-#~ "Pokretanje „%s“ nije uspelo sa povratnom vrednošću „%d:\n"
-#~ "%s"
-
-#~ msgid ""
-#~ "Running %s successful:\n"
-#~ "%s"
-#~ msgstr ""
-#~ "Pokretanje „%s“ je uspelo:\n"
-#~ "%s"
-
-#~ msgid "Error loading %s: %s\n"
-#~ msgstr "Greška učitavanja „%s“: %s\n"
-
 #~ msgid "Connect using _SSL:"
 #~ msgstr "Poveži se koristeći _SSL:"
 
 #~ msgid "_Run GnuPG to import this key"
 #~ msgstr "_Pokreni GnuPG za uvoz ovog ključa"
-
-#~ msgid "Sending error: %s"
-#~ msgstr "Greška pri slanju: %s"
-
-#~ msgid "Debug POP3 connection"
-#~ msgstr "Popravlja POP3 vezu"
-
-#~ msgid "Mail servers"
-#~ msgstr "Serveri pošte"
-
-#~ msgid "Layout"
-#~ msgstr "Raspored"
 
 #~ msgid "Show mailbox statistics in left pane"
 #~ msgstr "Prikaži statistiku sandučeta na levoj površi"
@@ -8601,6 +8557,9 @@ msgstr "Istakni _naročite znake"
 #~ "Problem prilikom stvaranja sandučića\n"
 #~ "%s"
 
+#~ msgid "Rubrica Address Book"
+#~ msgstr "Adresar rubrike"
+
 #~ msgid "Edit address book properties"
 #~ msgstr "Uredite svojstva adresara"
 
@@ -8700,6 +8659,9 @@ msgstr "Istakni _naročite znake"
 #~ msgid "... [truncated]"
 #~ msgstr "... [skraćeno]"
 
+#~ msgid "Mail_boxes"
+#~ msgstr "_Sandučići"
+
 #~ msgid "_More"
 #~ msgstr "_Još"
 
@@ -8792,6 +8754,9 @@ msgstr "Istakni _naročite znake"
 
 #~ msgid "Export filters as Sieve scripts"
 #~ msgstr "Izvezite propusnike kao Sjev skripte"
+
+#~ msgid "Prefere_nces"
+#~ msgstr "Pos_tavke"
 
 #~ msgid "Expand all threads"
 #~ msgstr "Raširite sve poruke"
@@ -8953,6 +8918,9 @@ msgstr "Istakni _naročite znake"
 #~ msgid "Wrap message lines"
 #~ msgstr "Prelomite redove poruka"
 
+#~ msgid "Un_Deleted"
+#~ msgstr "Od_obrisana"
+
 #~ msgid "Show all headers"
 #~ msgstr "Prikažite sva zaglavlja"
 
@@ -9024,6 +8992,9 @@ msgstr "Istakni _naročite znake"
 
 #~ msgid "Error displaying link_id %s: %s\n"
 #~ msgstr "Greška prikazivanja ib_veze %s: %s\n"
+
+#~ msgid "_Include File..."
+#~ msgstr "_Uključi datoteku..."
 
 #~ msgid "Include a file"
 #~ msgstr "Uključite datoteku"
