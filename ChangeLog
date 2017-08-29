@@ -1,9 +1,13 @@
+2017-08-29  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	* libbalsa/libbalsa.c (libbalsa_init): drop unused call to
+	uname.
+
 2017-08-28  Peter Bloomfield  <pbloomfield@bellsouth.net>
 
 	* libbalsa/send.c (lb_create_pubkey_part):
 	g_mime_part_set_content_object is deprecated in favor of
 	g_mime_part_set_content.
-
 
 2017-08-22  Tony Nelson <tonynelson@georgeanelson.com>
 
