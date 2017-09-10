@@ -4339,7 +4339,8 @@ msgstr "Coincideix quan cap d'aquests senyaladors està definit:"
 
 #: ../src/filter-edit-callbacks.c:538
 msgid "You must specify the name of the user header to match on"
-msgstr "Heu d'especificar el nom de la capçalera d'usuari amb la qual coincidir"
+msgstr ""
+"Heu d'especificar el nom de la capçalera d'usuari amb la qual coincidir"
 
 #: ../src/filter-edit-callbacks.c:549
 msgid "You must specify at least one field for matching"
@@ -4806,11 +4807,6 @@ msgstr "Habilita les _solucions temporals per als errors"
 #: ../src/folder-conf.c:368
 msgid "Use STATUS for mailbox checking"
 msgstr "Utilitza STATUS per a comprovar les bústies de correu"
-
-#: ../src/folder-conf.c:367 ../src/mailbox-conf.c:1248
-#: ../src/mailbox-conf.c:1373
-msgid "_Advanced"
-msgstr "_Avançat"
 
 #. INPUT FIELD CREATION
 #: ../src/folder-conf.c:377
@@ -6297,8 +6293,9 @@ msgid ""
 "The following setting is global, but may be overridden for the selected "
 "mailbox using Mailbox %s Hide messages:"
 msgstr ""
-"No es pot obrir la bústia!\n"
-"%s."
+"El paràmetre de configuració següent és global, però probablement se "
+"sobreescriurà per a la bústia seleccionada utilitzant els missatges de la "
+"Bústia %s Oculta:"
 
 #: ../src/pref-manager.c:2956
 msgid "Hide messages marked as deleted"
@@ -7879,13 +7876,13 @@ msgstr "Missatge anterior"
 msgid "Next Unread Message"
 msgstr "Següent missatge sense llegir"
 
-#: ../src/pref-manager.c:2692
-msgid "Scan local folders to depth"
-msgstr "Escaneja les carpetes locals fins al nivell de profunditat"
+#: ../ui/main-window.ui.h:58 ../ui/message-window.ui.h:33
+msgid "Next Flagged Message"
+msgstr "Següent missatge senyalat"
 
-#: ../src/pref-manager.c:2705
-msgid "Scan IMAP folders to depth"
-msgstr "Escaneja les carpetes d'IMAP fins al nivell de profunditat"
+#: ../ui/main-window.ui.h:59
+msgid "_Hide Messages"
+msgstr "_Oculta els missatges"
 
 #: ../ui/main-window.ui.h:60
 msgid "_Deleted"
