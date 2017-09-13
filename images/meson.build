@@ -6,6 +6,7 @@ foreach dir : subdirs
 endforeach
 
 # balsa_logo.png used by About menu (small one).
+# balsa-logo.png used by the init-druid
 balsa_imgs = [
   'attachment.png',
   'balsa-top.png',
@@ -13,7 +14,7 @@ balsa_imgs = [
   'balsa_logo.png'
   ]
 
-balsabitmapsdir = join_paths(get_option('datadir'), 'balsa', 'pixmaps')
+balsabitmapsdir = join_paths(get_option('datadir'), 'pixmaps')
 install_data(balsa_imgs, install_dir : balsabitmapsdir)
 
 if gtk_update_icon_cache_program.found()

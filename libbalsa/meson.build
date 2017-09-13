@@ -1,6 +1,6 @@
 # libbalsa/meson.build
 
-if gpgmecfg == 'true'
+if gpgmecfg == 'yes'
   libbalsa_gpgme_extra = [
     'libbalsa-gpgme.h',
     'libbalsa-gpgme.c',
@@ -135,49 +135,47 @@ libbalsa_a_sources = [
 
 libbalsa_a_sources += libbalsa_gpgme_extra
 
+libbalsa_compile_args = ['-I' + meson.build_root(),
+                         '-I' + meson.current_build_dir(),
+                         '-I' + join_paths(meson.source_root(), 'libbalsa'),
+                         '-I' + join_paths(meson.source_root(), 'libnetclient'),
+                         '-I' + join_paths(meson.source_root(), 'libbalsa', 'imap')]
+libbalsa_deps = declare_dependency(compile_args : libbalsa_compile_args,
+                                   dependencies : balsa_deps)
+
 # genmarshal
 #
 
-if use_gnome_genmarshal
-  libbalsa_marshal_files = gnome.genmarshal('libbalsa-marshal',
-                                            prefix  : 'libbalsa',
-                                            sources : 'libbalsa-marshal.list')
-else # use_gnome_genmarshal
-  libbalsa_marshal_h = custom_target('libbalsa_marshal_h',
-    input   : 'libbalsa-marshal.list',
-    output  : 'libbalsa-marshal.h',
-    capture : true,
-    command : [
-      glib_genmarshal,
-      '--header',
-      '--prefix=libbalsa',
-      '@INPUT@'
-    ]
-  )
+libbalsa_marshal_h = custom_target('libbalsa_marshal_h',
+  input   : 'libbalsa-marshal.list',
+  output  : 'libbalsa-marshal.h',
+  command : [
+    'sh', '-c',
+    glib_genmarshal +
+    ' --header' +
+    ' --prefix=libbalsa' +
+    ' @INPUT@' +
+    ' > libbalsa/libbalsa-marshal.h'
+  ]
+)
 
-  libbalsa_marshal_c = custom_target('libbalsa_marshal_c',
-    input   : 'libbalsa-marshal.list',
-    output  : 'libbalsa-marshal.c',
-    capture : true,
-    command : [
-      glib_genmarshal,
-      '--header',
-      '--body',
-      '--prefix=libbalsa',
-      '@INPUT@'
-    ]
-  )
+libbalsa_marshal_c = custom_target('libbalsa_marshal_c',
+  input   : 'libbalsa-marshal.list',
+  output  : 'libbalsa-marshal.c',
+  command : [
+    'sh', '-c',
+    'echo \'#include "libbalsa-marshal.h"\' > libbalsa/libbalsa-marshal.c && ' +
+    glib_genmarshal +
+    ' --body' +
+    ' --prefix=libbalsa' +
+    ' @INPUT@' +
+    ' >> libbalsa/libbalsa-marshal.c'
+  ]
+)
 
-  libbalsa_marshal_files = [libbalsa_marshal_c, libbalsa_marshal_h]
-endif # use_gnome_genmarshal
-
-libimap_include = include_directories('imap')
-
-libbalsa_a = static_library('balsa', libbalsa_a_sources, libbalsa_marshal_files,
-                            dependencies        : balsa_deps,
-                            include_directories : [top_include,
-                                                   libnetclient_include,
-                                                   libimap_include],
-                            install             : false)
+libbalsa_a = static_library('balsa', libbalsa_a_sources,
+                            libbalsa_marshal_c, libbalsa_marshal_h,
+                            dependencies : libbalsa_deps,
+                            install      : false)
 
 subdir('imap')

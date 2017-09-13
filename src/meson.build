@@ -58,12 +58,15 @@ balsa_base_srclist = [
   'pref-manager.c',
   'pref-manager.h',
   'print.h',
+  'quote-color.c',
+  'quote-color.h',
   'save-restore.c',
   'save-restore.h',
   'sendmsg-window.c',
   'sendmsg-window.h',
   'store-address.c',
   'store-address.h',
+  'threads.h',
   'toolbar-factory.c',
   'toolbar-factory.h',
   'toolbar-prefs.c',
@@ -87,10 +90,8 @@ balsa_print_source = [
   ]
 
 balsa_sources = balsa_base_srclist + balsa_print_source
-if spell_checker == 'internal'
+if use_spell_checker == 'internal'
   balsa_spell_extra = [
-    'quote-color.c',
-    'quote-color.h',
     'spell-check.c',
     'spell-check.h'
     ]
@@ -98,24 +99,31 @@ if spell_checker == 'internal'
 endif
 
 locale_dir = join_paths(get_option('prefix'), get_option('datadir'), 'locale')
-balsa_compile_arg = '-DGNOMELOCALEDIR="' + locale_dir + '"'
+balsa_compile_args = ['-DGNOMELOCALEDIR="' + locale_dir + '"',
+                      '-I' + meson.build_root(),
+                      '-I' + meson.source_root(),
+                      '-I' + join_paths(meson.source_root(), 'libbalsa'),
+                      '-I' + join_paths(meson.source_root(), 'libnetclient')]
 
-balsa_compile_dep = declare_dependency(compile_args : balsa_compile_arg)
-balsa_libs = [libinit_balsa_a, libbalsa_a, libimap_a, libnetclient_a]
+real_balsa_deps = declare_dependency(compile_args : balsa_compile_args,
+                                     dependencies : balsa_deps)
+real_balsa_libs = [libinit_balsa_a, libbalsa_a, libimap_a, libnetclient_a]
 
-executable('balsa', balsa_sources, balsa_resources,
-           dependencies        : balsa_deps + [balsa_compile_dep],
-           include_directories : [top_include, libbalsa_include, libnetclient_include],
-           link_with           : balsa_libs,
-           install             : true)
+executable('balsa', balsa_sources,
+           dependencies : real_balsa_deps,
+           link_with    : real_balsa_libs)
 
 balsa_ab_sources = [
   'ab-main.c',
   'address-book-config.c'
   ]
 
-executable('balsa_ab', balsa_ab_sources, balsa_ab_resources,
-           dependencies        : balsa_ab_deps,
-           include_directories : [top_include, libbalsa_include],
-           link_with           : libbalsa_a,
-           install             : true)
+balsa_ab_compile_args = ['-I' + meson.build_root(),
+                         '-I' + join_paths(meson.source_root(), 'libbalsa')]
+
+real_balsa_ab_deps = declare_dependency(compile_args : balsa_ab_compile_args,
+                                        dependencies : balsa_ab_deps)
+
+executable('balsa_ab', balsa_ab_sources,
+           dependencies : real_balsa_ab_deps,
+           link_with    : libbalsa_a)

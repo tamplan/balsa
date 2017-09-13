@@ -16,61 +16,59 @@ libimap_a_sources = [
   'imap-tls.c',
   'imap_private.h',
   'libimap.h',
-  'siobuf-nc.h',
+  'siobuf.c',
+  'siobuf.h',
   'util.c',
   'util.h'
   ]
 
+libimap_compile_args = ['-I' + meson.build_root(),
+                        '-I' + meson.current_build_dir(),
+                        '-I' + meson.source_root(),
+                        '-I' + join_paths(meson.source_root(), 'libbalsa'),
+                        '-I' + join_paths(meson.source_root(), 'libnetclient'),
+                        '-I' + join_paths(meson.source_root(), 'libbalsa', 'imap'),
+                        '-ansi']
+libimap_deps = declare_dependency(compile_args : libimap_compile_args,
+                                  dependencies : balsa_deps)
+
 # genmarshal
 #
 
-if use_gnome_genmarshal
-  libimap_marshal_files = gnome.genmarshal('libimap-marshal',
-                                           prefix  : 'libimap',
-                                           sources : 'libimap-marshal.list')
-else # use_gnome_genmarshal
-  libimap_marshal_h = custom_target('libimap_marshal_h',
-    input   : 'libimap-marshal.list',
-    output  : 'libimap-marshal.h',
-    capture : true,
-    command : [
-      glib_genmarshal,
-      '--header',
-      '--prefix=libimap',
-      '@INPUT@'
-    ]
-  )
+libimap_marshal_h = custom_target('libimap_marshal_h',
+  input   : 'libimap-marshal.list',
+  output  : 'libimap-marshal.h',
+  command : [
+    'sh', '-c',
+    glib_genmarshal +
+    ' --header' +
+    ' --prefix=libimap' +
+    ' @INPUT@' +
+    ' > libbalsa/imap/libimap-marshal.h'
+  ]
+)
 
-  libimap_marshal_c = custom_target('libimap_marshal_c',
-    input   : 'libimap-marshal.list',
-    output  : 'libimap-marshal.c',
-    capture : true,
-    command : [
-      glib_genmarshal,
-      '--header',
-      '--body',
-      '--prefix=libimap',
-      '@INPUT@'
-    ]
-  )
+libimap_marshal_c = custom_target('libimap_marshal_c',
+  input   : 'libimap-marshal.list',
+  output  : 'libimap-marshal.c',
+  command : [
+    'sh', '-c',
+    'echo \'#include "libimap-marshal.h"\' > libbalsa/imap/libimap-marshal.c && ' +
+    glib_genmarshal +
+    ' --body' +
+    ' --prefix=libimap' +
+    ' @INPUT@' +
+    ' >> libbalsa/imap/libimap-marshal.c'
+  ]
+)
 
-  libimap_marshal_files = [libimap_marshal_c, libimap_marshal_h]
-endif # use_gnome_genmarshal
-
-libimap_compile_arg = '-ansi'
-libimap_link_arg    = '-lz'
-libimap_compile_dep  = declare_dependency(compile_args : libimap_compile_arg,
-                                          link_args    : libimap_link_arg)
-
-libimap_a = static_library('imap', libimap_a_sources, libimap_marshal_files,
-                           dependencies        : balsa_deps + [libimap_compile_dep],
-                           include_directories : [top_include, libnetclient_include],
-                           install             : false)
+libimap_a = static_library('imap', libimap_a_sources,
+                           libimap_marshal_c, libimap_marshal_h,
+                           dependencies : libimap_deps,
+                           install      : false)
 
 imap_tst_sources = 'imap_tst.c'
 
 imap_tst = executable('imap_tst', imap_tst_sources,
-                      link_with           : [libimap_a, libnetclient_a],
-                      dependencies        : balsa_deps,
-                      include_directories : libnetclient_include,
-                      install             : false)
+                      link_with    : [libimap_a, libnetclient_a],
+	              dependencies : balsa_deps)

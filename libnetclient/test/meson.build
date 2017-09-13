@@ -1,6 +1,6 @@
 # libnetclient/test/meson.build
 
-if libnetclient_test
+if with_libnetclient_test
 
   test_flags    = ['-DNCAT="' + ncat + '"',
                    '-DSED="'  + sed  + '"',
@@ -8,7 +8,6 @@ if libnetclient_test
                    '-ftest-coverage',
                    '-g',
                    '-Wno-error']
-  link_arg      = '-lgcov'
   lcov_flags    = ['--rc',
                    'lcov_branch_coverage=1']
   genhtml_flags = ['--function-coverage',
@@ -19,13 +18,12 @@ if libnetclient_test
                    '--track-fds=yes',
                    '--child-silent-after-fork=yes']
 
-  test_compile_dep = declare_dependency(compile_args : test_flags,
-                                        link_args    : link_arg)
-  test_executable  = executable('tests', 'tests.c',
-                                include_directories : [top_include, libnetclient_include],
-                                link_with           : libnetclient_a,
-                                dependencies        : libnetclient_deps + [test_compile_dep],
-                                install             : false)
+  test_deps = declare_dependency(compile_args : test_flags + ['-I.', '-I..'],
+                                 dependencies : libnetclient_deps)
+  test_executable = executable('tests', 'tests.c',
+                               link_with    : libnetclient_a,
+                               dependencies : test_deps,
+                               install      : false)
   test('libnetclient-test', test_executable)
   # now run the test with:
   #   meson test --wrap='valgrind --tool=memcheck --leak-check=full --track-fds=yes --child-silent-after-fork=yes --suppressions=valgrind.supp' libnetclient-test
@@ -62,4 +60,4 @@ if libnetclient_test
   html_out_path = join_paths(build_path, 'gcov')
   run_command(genhtml, [genhtml_flags, '-o', html_out_path, lcov_out_path])
 
-endif # libnetclient_test
+endif # with_libnetclient_test
