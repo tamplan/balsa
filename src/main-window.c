@@ -3534,6 +3534,145 @@ bw_check_messages_thread(struct check_messages_thread_info *info)
     g_thread_exit(0);
 }
 
+/* mail_progress_notify_cb:
+   called from the thread checking the new mail. Basically does the GUI
+   interaction because checking thread cannot do it.
+*/
+gboolean
+mail_progress_notify_cb(GIOChannel * source, GIOCondition condition,
+                        BalsaWindow ** window)
+{
+    const int MSG_BUFFER_SIZE = 512 * sizeof(MailThreadMessage *);
+    MailThreadMessage *threadmessage;
+    MailThreadMessage **currentpos;
+    void *msgbuffer;
+    ssize_t count;
+    gfloat fraction;
+    GtkStatusbar *statusbar;
+    guint context_id;
+
+    msgbuffer = g_malloc(MSG_BUFFER_SIZE);
+    count = read(mail_thread_pipes[0], msgbuffer, MSG_BUFFER_SIZE);
+
+    /* FIXME: imagine reading just half of the pointer. The sync is gone.. */
+    if (count % sizeof(MailThreadMessage *)) {
+        g_free(msgbuffer);
+        return TRUE;
+    }
+
+    currentpos = (MailThreadMessage **) msgbuffer;
+
+    if (quiet_check || !*window) {
+        /* Eat messages */
+        while (count) {
+            threadmessage = *currentpos;
+            g_free(threadmessage);
+            currentpos++;
+            count -= sizeof(void *);
+        }
+        g_free(msgbuffer);
+        return TRUE;
+    }
+
+    statusbar = GTK_STATUSBAR((*window)->statusbar);
+    context_id = gtk_statusbar_get_context_id(statusbar, "BalsaWindow mail progress");
+
+    while (count) {
+        threadmessage = *currentpos;
+
+        if (balsa_app.debug)
+            fprintf(stderr, "Message: %lu, %d, %s\n",
+                    (unsigned long) threadmessage,
+                    threadmessage->message_type,
+                    threadmessage->message_string);
+
+        if (!progress_dialog)
+            gtk_statusbar_pop(statusbar, context_id);
+
+        switch (threadmessage->message_type) {
+        case LIBBALSA_NTFY_SOURCE:
+            if (progress_dialog) {
+                gtk_label_set_text(GTK_LABEL(progress_dialog_source),
+                                   threadmessage->message_string);
+                gtk_label_set_text(GTK_LABEL(progress_dialog_message), "");
+                gtk_widget_show_all(progress_dialog);
+            } else
+                gtk_statusbar_push(statusbar, context_id,
+                                   threadmessage->message_string);
+            break;
+        case LIBBALSA_NTFY_MSGINFO:
+            if (progress_dialog) {
+                gtk_label_set_text(GTK_LABEL(progress_dialog_message),
+                                   threadmessage->message_string);
+                gtk_widget_show_all(progress_dialog);
+            } else
+                gtk_statusbar_push(statusbar, context_id,
+                                   threadmessage->message_string);
+            break;
+        case LIBBALSA_NTFY_UPDATECONFIG:
+            config_mailbox_update(threadmessage->mailbox);
+            break;
+
+        case LIBBALSA_NTFY_PROGRESS:
+            fraction = (gfloat) threadmessage->num_bytes /
+                (gfloat) threadmessage->tot_bytes;
+            if (fraction > 1.0 || fraction < 0.0) {
+                if (balsa_app.debug)
+                    fprintf(stderr,
+                            "progress bar fraction out of range %f\n",
+                            fraction);
+                fraction = 1.0;
+            }
+            if (progress_dialog) {
+                gtk_label_set_text(GTK_LABEL(progress_dialog_message),
+                                   threadmessage->message_string);
+                gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR
+                                              (progress_dialog_bar),
+					      fraction);
+            } else {
+                gtk_statusbar_push(statusbar, context_id,
+                                   threadmessage->message_string);
+                gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR
+                                              ((*window)->progress_bar),
+                                              fraction);
+            }
+            break;
+        case LIBBALSA_NTFY_FINISHED:
+
+            if (balsa_app.pwindow_option == WHILERETR && progress_dialog) {
+                gtk_widget_destroy(progress_dialog);
+            } else if (progress_dialog) {
+                gtk_label_set_text(GTK_LABEL(progress_dialog_source),
+                                   _("Finished Checking."));
+                gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR
+                                              (progress_dialog_bar), 0.0);
+            } else {
+                gtk_statusbar_pop(statusbar, context_id);
+                gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR
+                                              ((*window)->progress_bar), 0.0);
+            }
+            break;
+
+        case LIBBALSA_NTFY_ERROR:
+            balsa_information(LIBBALSA_INFORMATION_ERROR,
+                              "%s",
+                              threadmessage->message_string);
+            break;
+
+        default:
+            fprintf(stderr, " Unknown check mail message(%d): %s\n",
+                    threadmessage->message_type,
+                    threadmessage->message_string);
+        }
+        g_free(threadmessage);
+        currentpos++;
+        count -= sizeof(void *);
+    }
+    g_free(msgbuffer);
+
+    return TRUE;
+}
+
 
 /** Returns properly formatted string informing the user about the
     amount of the new mail.
