@@ -180,7 +180,53 @@ mailbox_conf_combo_box_make(GtkComboBoxText * combo_box, unsigned cnt,
 
 
 GtkWidget*
-balsa_server_conf_get_advanced_widget(BalsaServerConf *bsc)
+balsa_server_conf_get_advanced_widget(BalsaServerConf *bsc, LibBalsaServer *s,
+                                      int extra_rows)
+{
+    static const struct menu_data tls_menu[] = {
+        { N_("Never"),       LIBBALSA_TLS_DISABLED },
+        { N_("If Possible"), LIBBALSA_TLS_ENABLED  },
+        { N_("Required"),    LIBBALSA_TLS_REQUIRED }
+    };
+    GtkWidget *label;
+    GtkWidget *box;
+    gboolean use_ssl = s && s->use_ssl;
+
+    box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+
+    bsc->grid = GTK_GRID(libbalsa_create_grid());
+    g_object_set(G_OBJECT(bsc->grid), "margin", 12, NULL);
+    gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(bsc->grid));
+
+    bsc->used_rows = 0;
+
+    bsc->use_ssl = balsa_server_conf_add_checkbox(bsc, _("Use _SSL"));
+    if(use_ssl)
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(bsc->use_ssl), TRUE);
+
+    label =
+        libbalsa_create_grid_label(_("Use _TLS:"), GTK_WIDGET(bsc->grid), 1);
+
+    bsc->tls_option = gtk_combo_box_text_new();
+    gtk_widget_set_hexpand(bsc->tls_option, TRUE);
+    mailbox_conf_combo_box_make(GTK_COMBO_BOX_TEXT(bsc->tls_option),
+                                ELEMENTS(tls_menu), tls_menu);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(bsc->tls_option),
+                             s ? s->tls_mode : LIBBALSA_TLS_ENABLED);
+    gtk_grid_attach(bsc->grid, bsc->tls_option, 1, 1, 1, 1);
+    gtk_label_set_mnemonic_widget(GTK_LABEL(label), bsc->tls_option);
+
+    g_signal_connect(G_OBJECT (bsc->use_ssl), "toggled",
+                     G_CALLBACK (bsc_ssl_toggled_cb), bsc);
+    gtk_widget_show(GTK_WIDGET(bsc->grid));
+    bsc->used_rows = 2;
+    gtk_widget_set_sensitive(bsc->tls_option, !use_ssl);
+
+    return box;
+}
+
+static GtkWidget*
+balsa_server_conf_get_advanced_widget_new(BalsaServerConf *bsc)
 {
     GtkWidget *box;
     GtkWidget *label;
@@ -188,8 +234,8 @@ balsa_server_conf_get_advanced_widget(BalsaServerConf *bsc)
     box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
 
     bsc->grid = GTK_GRID(libbalsa_create_grid());
-    gtk_container_set_border_width(GTK_CONTAINER(bsc->grid), 12);
-    gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(bsc->grid), FALSE, FALSE, 0);
+    g_object_set(G_OBJECT(bsc->grid), "margin", 12, NULL);
+    gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(bsc->grid));
 
     bsc->used_rows = 0U;
 
@@ -547,7 +593,7 @@ run_mailbox_conf(BalsaMailboxNode* mbnode, GType mailbox_type,
 
     g_signal_connect(G_OBJECT(mcw->window), "response", 
                      G_CALLBACK(conf_response_cb), mcw);
-    gtk_widget_show_all(GTK_WIDGET(mcw->window));
+    gtk_widget_show(GTK_WIDGET(mcw->window));
 
     return GTK_WIDGET(mcw->window);
 }
@@ -1220,7 +1266,7 @@ create_pop_mailbox_dialog(MailboxConfWindow *mcw)
 
     notebook = gtk_notebook_new();
     grid = libbalsa_create_grid();
-    gtk_container_set_border_width(GTK_CONTAINER(grid), 12);
+    g_object_set(G_OBJECT(grid), "margin", 12, NULL);
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), grid,
                              gtk_label_new_with_mnemonic(_("_Basic")));
     row = 0;
@@ -1272,7 +1318,7 @@ create_pop_mailbox_dialog(MailboxConfWindow *mcw)
     /* toggle for enabling pipeling */
     mcw->mb_data.pop3.enable_pipe = balsa_server_conf_add_checkbox(&mcw->mb_data.pop3.bsc, _("Overlap commands"));
 
-    gtk_widget_show_all(notebook);
+    gtk_widget_show(notebook);
     gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), 0);
     gtk_widget_grab_focus(mcw->mailbox_name);
 
@@ -1320,7 +1366,7 @@ create_imap_mailbox_dialog(MailboxConfWindow *mcw)
 
     notebook = gtk_notebook_new();
     grid = libbalsa_create_grid();
-    gtk_container_set_border_width(GTK_CONTAINER(grid), 12);
+    g_object_set(G_OBJECT(grid), "margin", 12, NULL);
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), grid,
                              gtk_label_new_with_mnemonic(_("_Basic")));
 
@@ -1390,7 +1436,7 @@ create_imap_mailbox_dialog(MailboxConfWindow *mcw)
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), advanced,
                              gtk_label_new_with_mnemonic(_("_Advanced")));
 
-    gtk_widget_show_all(notebook);
+    gtk_widget_show(notebook);
     gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), 0);
     gtk_widget_grab_focus(mcw->mailbox_name? 
                           mcw->mailbox_name : mcw->mb_data.imap.bsc.server);
