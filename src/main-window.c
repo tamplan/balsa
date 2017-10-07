@@ -1941,9 +1941,6 @@ bw_add_app_action_entries(GActionMap * action_map, gpointer user_data)
                                     G_N_ELEMENTS(app_entries), user_data);
 }
 
-static void
-bw_add_win_action_entries(GActionMap * action_map)
-{
     static GActionEntry win_entries[] = {
         {"new-message",           new_message_activated},
         {"continue",              continue_activated},
@@ -2039,6 +2036,9 @@ bw_add_win_action_entries(GActionMap * action_map)
                                   show_preview_pane_change_state},
     };
 
+static void
+bw_add_win_action_entries(GActionMap * action_map)
+{
     g_action_map_add_action_entries(action_map, win_entries,
                                     G_N_ELEMENTS(win_entries), action_map);
 }
@@ -2062,13 +2062,36 @@ bw_set_menus(BalsaWindow * window)
     bw_add_win_action_entries(G_ACTION_MAP(window));
 
     builder = gtk_builder_new();
-    if (gtk_builder_add_from_resource(builder, resource_path, &err)) {
-        gtk_application_set_app_menu(application,
+    ui_file = g_build_filename(BALSA_DATA_PREFIX, "ui", "main-window.ui",
+                               NULL);
+    if (gtk_builder_add_from_file(builder, ui_file, &err)) {
+#ifndef SET_MENUBAR_SETS_A_VISIBLE_MENUBAR
+        GtkWidget *menubar;
+#endif /* SET_MENUBAR_SETS_A_VISIBLE_MENUBAR */
+        gtk_application_set_app_menu(balsa_app.application,
                                      G_MENU_MODEL(gtk_builder_get_object
                                                   (builder, "app-menu")));
-        gtk_application_set_menubar(application,
+#ifdef SET_MENUBAR_SETS_A_VISIBLE_MENUBAR
+        gtk_application_set_menubar(balsa_app.application,
                                     G_MENU_MODEL(gtk_builder_get_object
                                                  (builder, "menubar")));
+#else /* SET_MENUBAR_SETS_A_VISIBLE_MENUBAR */
+        menubar = libbalsa_window_get_menu_bar(GTK_APPLICATION_WINDOW(window),
+                                               win_entries,
+                                               G_N_ELEMENTS(win_entries),
+                                               ui_file, &err, window);
+        if (err) {
+            g_print("%s %s\n", __func__, err->message);
+            g_error_free(err);
+        } else {
+#if HAVE_MACOSX_DESKTOP
+            libbalsa_macosx_menu(window, GTK_MENU_SHELL(menubar));
+#else
+            gtk_box_pack_start(GTK_BOX(window->vbox), menubar);
+#endif
+        }
+#endif /* SET_MENUBAR_SETS_A_VISIBLE_MENUBAR */
+
     } else {
         g_print("%s error: %s\n", __func__, err->message);
         balsa_information(LIBBALSA_INFORMATION_WARNING,
@@ -2076,6 +2099,8 @@ bw_set_menus(BalsaWindow * window)
                           err->message);
         g_error_free(err);
     }
+
+    g_free(ui_file);
     g_object_unref(builder);
 }
 
@@ -2206,7 +2231,6 @@ balsa_window_new(GtkApplication *application)
                           NULL);
 
     /* Set up the GMenu structures */
-    bw_set_menus(window);
 
     /* Set up <alt>n key bindings */
     bw_set_alt_bindings(window);
@@ -2214,6 +2238,8 @@ balsa_window_new(GtkApplication *application)
     window->vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_widget_show(window->vbox);
     gtk_container_add(GTK_CONTAINER(window), window->vbox);
+
+    bw_set_menus(window);
 
     gtk_window_set_title(GTK_WINDOW(window), "Balsa");
     balsa_register_pixbufs(GTK_WIDGET(window));
