@@ -1,5 +1,5 @@
 project('balsa', 'c',
-        version         : '2.5.5',
+        version         : '2.5.3',
         default_options : 'sysconfdir=/etc')
 
 # if meson is used not in a git source tree, use project version:
