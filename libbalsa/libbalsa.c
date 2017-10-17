@@ -979,7 +979,6 @@ libbalsa_image_error_quark(void)
     return quark;
 }
 
-#if GTK_CHECK_VERSION(3, 12, 0)
 GtkDialogFlags
 libbalsa_dialog_flags(void)
 {
@@ -997,4 +996,3 @@ libbalsa_dialog_flags(void)
 	}
 	return dialog_flags;
 }
-#endif

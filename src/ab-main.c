@@ -1033,7 +1033,6 @@ bab_set_intial_address_book(LibBalsaAddressBook * ab,
     g_action_change_state(action, g_variant_new_string(ab->name));
 }
 
-#if GTK_CHECK_VERSION(3, 12, 0)
 GtkDialogFlags
 libbalsa_dialog_flags(void)
 {
@@ -1051,7 +1050,6 @@ libbalsa_dialog_flags(void)
 	}
 	return dialog_flags;
 }
-#endif
 
 /*
  * Set up GNotification for libbalsa
