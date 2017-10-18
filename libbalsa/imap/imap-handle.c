@@ -3127,7 +3127,6 @@ ir_envelope(NetClientSioBuf *sio, ImapEnvelope *env)
 
   date = imap_get_nstring(sio);
   if(date) {
-#if (GMIME_MAJOR_VERSION >= 3)
     if (env != NULL) {
       GDateTime *datetime;
 
@@ -3135,9 +3134,6 @@ ir_envelope(NetClientSioBuf *sio, ImapEnvelope *env)
       env->date = g_date_time_to_unix(datetime);
       g_date_time_unref(datetime);
     }
-#else                           /* (GMIME_MAJOR_VERSION >= 3) */
-    if(env) env->date = g_mime_utils_header_decode_date(date, NULL);
-#endif                          /* (GMIME_MAJOR_VERSION >= 3) */
     g_free(date);
   }
   if( (c=sio_getc(sio)) != ' ') return IMR_PROTOCOL;
