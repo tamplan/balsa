@@ -442,6 +442,7 @@ prepend_header_misc(GList      *res,
         "message-id references in-reply-to status lines"
         "disposition-notification-to";
     unsigned i;
+    gchar *decoded_value;
 
     if (value[0] == '\0')
 	/* Empty header */
@@ -456,10 +457,10 @@ prepend_header_misc(GList      *res,
     if(strstr(ignored_headers, lcname) != NULL)
         return res;
 
-    return
-        g_list_prepend(res,
-                       libbalsa_create_hdr_pair(name,
-                                                g_mime_utils_header_decode_text(value)));
+    decoded_value =
+        g_mime_utils_header_decode_text(libbalsa_parser_options(), value);
+
+    return g_list_prepend(res, libbalsa_create_hdr_pair(name, decoded_value));
 }
 
 /* 
