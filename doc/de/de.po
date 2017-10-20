@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: balsa help master\n"
-"POT-Creation-Date: 2017-08-31 15:02+0000\n"
-"PO-Revision-Date: 2017-10-19 21:45+0200\n"
+"POT-Creation-Date: 2017-10-19 19:47+0000\n"
+"PO-Revision-Date: 2017-10-20 15:44+0200\n"
 "Last-Translator: Mario Blättermann <mario.blaettermann@gmail.com>\n"
 "Language-Team: German <gnome-de@gnome.org>\n"
 "Language: de\n"
@@ -1521,7 +1521,6 @@ msgstr ""
 
 #. (itstool) path: item/p
 #: C/identities.page:141
-#| msgid "\"|/home/user/dynsig.pl\""
 msgid "“|/home/user/dynsig.pl”"
 msgstr "“|/home/user/dynsig.pl”"
 
@@ -3710,15 +3709,12 @@ msgid ""
 "wrapped to the specified outgoing mail wrap column."
 msgstr ""
 "<guiseq> <gui>Bearbeiten</gui> <gui>Markierten Text neu umbrechen</"
-"gui> </guiseq> <keyseq> <key>Ctrl</key> <key>R</key> </keyseq> – "
+"guimenuitem></menuchoice> <keyseq> <key>Ctrl</key> <key>R</key> </keyseq> – "
 "Erzeugt für alle ausgewählten Zeilen einen Umbruch an der für ausgehende "
 "Nachrichten festgelegten Umbruchstelle."
 
 #. (itstool) path: item/p
 #: C/win-composer.page:265
-#| msgid ""
-#| "<menuchoice><guimenu>Edit</guimenu><guimenuitem>Select All</guimenuitem></"
-#| "menuchoice> -- Select all text in the currently displayed message."
 msgid ""
 "<guiseq> <gui>Edit</gui> <gui>Check Spelling</gui> </guiseq> -- Start spell "
 "checking the current message."
@@ -3941,12 +3937,6 @@ msgstr ""
 
 #. (itstool) path: section/p
 #: C/win-composer.page:466
-#, fuzzy
-#| msgid ""
-#| "The toolbar contains buttons for the most commonly used functions when "
-#| "sending messages, including Send, Attach File..., and Save. As with the "
-#| "menu bar, some buttons are disabled if the message is not correctly setup "
-#| "to be sent."
 msgid ""
 "The toolbar contains buttons for the most commonly used functions when "
 "sending messages, including <gui>Send</gui>, <gui>Attach File…</gui>, and "
@@ -3958,18 +3948,6 @@ msgstr ""
 "beilegen …</gui> und <gui>Speichern</gui>. Wie in der Menüleiste sind auch "
 "hier einige Knöpfe deaktiviert, falls die Nachricht noch nicht korrekt "
 "sendefähig ist."
-
-#. (itstool) path: figure/media
-#. This is a reference to an external file such as an image or video. When
-#. the file changes, the md5 hash will change to let you know you need to
-#. update your localized copy. The msgstr is not used at all. Set it to
-#. whatever you like once you have updated your copy of the file.
-#: C/win-composer.page:474
-msgctxt "_"
-msgid ""
-"external ref='figures/newmsg-window-toolbar.png' "
-"md5='9a3d497c60c021ccee42871d6a700683'"
-msgstr ""
 
 #. (itstool) path: figure/media
 #. This is a reference to an external file such as an image or video. When
@@ -4876,15 +4854,6 @@ msgstr ""
 
 #. (itstool) path: item/p
 #: C/win-main.page:70
-#, fuzzy
-#| msgid ""
-#| "<menuchoice><guimenu>File</guimenu><guisubmenu>New</"
-#| "guisubmenu><guimenuitem>Mailbox...</guimenuitem></menuchoice> -- Open a "
-#| "dialog box to create a new mailbox. There are various items like this, "
-#| "corresponding to the different types of mailbox that <application>Balsa</"
-#| "application> supports. See the <link linkend=\"mbox-formats\">discussion "
-#| "of different mailbox formats</link> and their advantages and "
-#| "disadvantages."
 msgid ""
 "<guiseq> <gui> File</gui> <gui> New</gui> <gui> Mailbox…</gui> </guiseq> -- "
 "Open a dialog box to create a new mailbox. There are various items like "
@@ -4901,13 +4870,6 @@ msgstr ""
 
 #. (itstool) path: item/p
 #: C/win-main.page:84
-#, fuzzy
-#| msgid ""
-#| "<menuchoice><guimenu>File</guimenu><guisubmenu>New</"
-#| "guisubmenu><guimenuitem>Remote IMAP folder...</guimenuitem></menuchoice> "
-#| "-- Open a dialog box to create a folder for an account on an IMAP server. "
-#| "This <link linkend=\"folder-config\">IMAP folder properties</link> dialog "
-#| "can also be used to change the details of the account."
 msgid ""
 "<guiseq> <gui> File</gui> <gui> New</gui> <gui> Remote IMAP folder…</gui> </"
 "guiseq> -- Open a dialog box to create a folder for an account on an IMAP "
@@ -4922,13 +4884,6 @@ msgstr ""
 
 #. (itstool) path: item/p
 #: C/win-main.page:96
-#, fuzzy
-#| msgid ""
-#| "<menuchoice><guimenu>File</guimenu><guisubmenu>New</"
-#| "guisubmenu><guimenuitem>Remote IMAP subfolder...</guimenuitem></"
-#| "menuchoice> -- Open a dialog box to create a new subfolder in an existing "
-#| "IMAP folder tree. This <link linkend=\"subfolder-config\">IMAP subfolder "
-#| "properties</link> dialog can also be used to rename or move a subfolder."
 msgid ""
 "<guiseq> <gui> File</gui> <gui> New</gui> <gui> Remote IMAP subfolder…</gui> "
 "</guiseq> -- Open a dialog box to create a new subfolder in an existing IMAP "
@@ -5023,9 +4978,6 @@ msgstr "<gui> Bearbeiten</gui>"
 
 #. (itstool) path: item/p
 #: C/win-main.page:191
-#| msgid ""
-#| "<menuchoice><guimenu>Edit</guimenu><guimenuitem>Copy</guimenuitem></"
-#| "menuchoice> -- Copy selected text to the clipboard."
 msgid ""
 "<guiseq> <gui> Edit</gui> <gui> Copy</gui> </guiseq> <keyseq><key>Ctrl&gt;</"
 "key><key>C</key></keyseq> -- Copy selected text to the clipboard."
@@ -5243,6 +5195,9 @@ msgstr ""
 
 #. (itstool) path: item/p
 #: C/win-main.page:397
+#| msgid ""
+#| "<menuchoice><guimenu>Mailbox</guimenu><guimenuitem>Select All</"
+#| "guimenuitem></menuchoice> -- Selects all messages in the current mailbox."
 msgid ""
 "<guiseq> <gui> Mailbox</gui> <gui> Next Unread</gui> </guiseq> "
 "<keyseq><key>Ctrl</key><key>N</key></keyseq> -- Select the next unread "
@@ -5297,10 +5252,6 @@ msgstr ""
 
 #. (itstool) path: item/p
 #: C/win-main.page:443
-#, fuzzy
-#| msgid ""
-#| "<guiseq> <gui> Mailbox</gui> <gui> Edit...</gui> </guiseq> -- Edit "
-#| "mailbox properties."
 msgid ""
 "<guiseq> <gui> Mailbox</gui> <gui> Edit…</gui> </guiseq> -- Edit mailbox "
 "properties."
@@ -5310,10 +5261,6 @@ msgstr ""
 
 #. (itstool) path: item/p
 #: C/win-main.page:450
-#, fuzzy
-#| msgid ""
-#| "<guiseq> <gui> Mailbox</gui> <gui> Delete...</gui> </guiseq> -- Delete "
-#| "the currently selected mailbox."
 msgid ""
 "<guiseq> <gui> Mailbox</gui> <gui> Delete…</gui> </guiseq> -- Delete the "
 "currently selected mailbox."
@@ -5457,7 +5404,6 @@ msgstr ""
 
 #. (itstool) path: item/p
 #: C/win-main.page:580
-#, fuzzy
 #| msgid ""
 #| "<menuchoice><guimenu>Edit</guimenu><guimenuitem>Select All</guimenuitem></"
 #| "menuchoice> -- Select all text in the currently displayed message."
@@ -5466,9 +5412,9 @@ msgid ""
 "<keyseq><key>Ctrl</key><key>S</key></keyseq>-- Save the currently selected "
 "part of the message to a file."
 msgstr ""
-"<menuchoice><guimenu>Bearbeiten</guimenu><guimenuitem>Alles auswählen</"
-"guimenuitem></menuchoice> -- Wählt den gesamten Text in der gegenwärtig "
-"angezeigten Nachricht aus."
+"<guiseq> <gui> Nachricht</gui> <gui> Aktuellen Teil speichern …</gui> </"
+"guiseq> <keyseq><key>Strg</key><key>S</key></keyseq> – Speichert den aktuell "
+"ausgewählten Teil der Nachricht in eine Datei."
 
 #. (itstool) path: item/p
 #: C/win-main.page:590
