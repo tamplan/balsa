@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: balsa help master\n"
-"POT-Creation-Date: 2017-10-19 19:47+0000\n"
-"PO-Revision-Date: 2017-10-20 15:44+0200\n"
+"POT-Creation-Date: 2017-10-20 13:47+0000\n"
+"PO-Revision-Date: 2017-10-20 23:07+0200\n"
 "Last-Translator: Mario Blättermann <mario.blaettermann@gmail.com>\n"
 "Language-Team: German <gnome-de@gnome.org>\n"
 "Language: de\n"
@@ -17,8 +17,7 @@ msgstr ""
 #. Put one translator per line, in the form NAME <EMAIL>, YEAR1, YEAR2
 msgctxt "_"
 msgid "translator-credits"
-msgstr ""
-"Mario Blättermann <mario.blaettermann@gmail.com>, 2008, 2010, 2016, 2017"
+msgstr "Mario Blättermann <mario.blaettermann@gmail.com>, 2008-2010, 2016-2017"
 
 #. (itstool) path: page/title
 #: C/ab-conf.page:8
@@ -969,6 +968,8 @@ msgstr "umbenannt werden, durch Bearbeiten des Ordnernamens;"
 #: C/folder-config.page:168
 msgid "Moved, by browsing for a different parent folder in the same tree."
 msgstr ""
+"oder verschoben werden, durch Suchen nach einem übergeordneten Ordner im "
+"gleichen Ordnerbaum."
 
 #. (itstool) path: page/title
 #: C/getting-started.page:9
@@ -1002,7 +1003,7 @@ msgstr ""
 msgctxt "_"
 msgid ""
 "external ref='figures/druid-start.png' md5='68bf6bf83a3f6fa5a4099bad2d2706a5'"
-msgstr "translated"
+msgstr "translated'"
 
 #. (itstool) path: figure/title
 #: C/getting-started.page:18
@@ -1332,7 +1333,7 @@ msgstr "<gui>E-Mail-Adresse</gui>"
 #. (itstool) path: item/p
 #: C/identities.page:32
 msgid "As you wish it to appear in your “From” header."
-msgstr ""
+msgstr "Die Adresse, so wie sie in der »Von«-Kopfzeile erscheinen soll."
 
 #. (itstool) path: item/title
 #: C/identities.page:35
@@ -1515,7 +1516,7 @@ msgid ""
 "its output, appending that text to the message. List the path to the program "
 "with a “|” prepended to it. For example:"
 msgstr ""
-"Ein ausführbares Programm. <app>Balsa</app> führt das Programm aus und liest "
+"Als ausführbares Programm. <app>Balsa</app> führt das Programm aus und liest "
 "dessen Ausgabe, die als Text an die Nachricht angehängt wird. Geben Sie den "
 "Pfad zum Programm mit einem führenden »|« an. Beispiel:"
 
@@ -1841,7 +1842,7 @@ msgstr "Einführung"
 msgctxt "_"
 msgid ""
 "external ref='figures/balsa_logo.png' md5='9598e9795c931dc2e4396d41d660f916'"
-msgstr "original"
+msgstr "original'"
 
 #. (itstool) path: page/p
 #: C/introduction.page:12
@@ -2134,6 +2135,9 @@ msgid ""
 "Mail-Administrator-HOWTO-3.html#ss3.5\"> http://linuxdocs.org/HOWTOs/Mail-"
 "Administrator-HOWTO-3.html#ss3.5</link>"
 msgstr ""
+"(Aus dem Mail-Administrator-HOWTO): <link href=\"http://linuxdocs.org/HOWTOs/"
+"Mail-Administrator-HOWTO-3.html#ss3.5\"> http://linuxdocs.org/HOWTOs/Mail-"
+"Administrator-HOWTO-3.html#ss3.5</link>"
 
 #. (itstool) path: page/title
 #: C/preferences-address-books.page:9
@@ -2248,6 +2252,15 @@ msgid ""
 "administrator for the value of this. The usual values are usually similar "
 "to: “dc=theochem,dc=KTH,dc=se” or “o=Theoretical Chemistry, c=SE”."
 msgstr ""
+"Um ein LDAP-Adressbuch nutzen zu können, müssen Sie den Rechnernamen des "
+"LDAP-Servers kennen. Abhängig von der Serverkonfiguration benötigen Sie auch "
+"den sogenannten »Base Domain Name«, der Ihre bestimmte Abteilung "
+"identifiziert. Sie können immer versuchen, dieses Feld leer zu lassen, wofür "
+"dann ein Standardwert verwendet wird (OpenLDAP speichert den vorgegebenen "
+"Base Domain Name in <file>/etc/openldap/ldap.conf</file>). Falls dies nicht "
+"funktioniert, fragen Sie Ihren Administrator nach dem entsprechenden Wert. "
+"Die Werte sehen üblicherweise etwa so aus: »dc=theochem,dc=KTH,dc=se« oder "
+"»o=Theoretical Chemistry, c=SE«."
 
 #. (itstool) path: item/title
 #: C/preferences-address-books.page:62
@@ -5195,9 +5208,6 @@ msgstr ""
 
 #. (itstool) path: item/p
 #: C/win-main.page:397
-#| msgid ""
-#| "<menuchoice><guimenu>Mailbox</guimenu><guimenuitem>Select All</"
-#| "guimenuitem></menuchoice> -- Selects all messages in the current mailbox."
 msgid ""
 "<guiseq> <gui> Mailbox</gui> <gui> Next Unread</gui> </guiseq> "
 "<keyseq><key>Ctrl</key><key>N</key></keyseq> -- Select the next unread "
@@ -5404,9 +5414,6 @@ msgstr ""
 
 #. (itstool) path: item/p
 #: C/win-main.page:580
-#| msgid ""
-#| "<menuchoice><guimenu>Edit</guimenu><guimenuitem>Select All</guimenuitem></"
-#| "menuchoice> -- Select all text in the currently displayed message."
 msgid ""
 "<guiseq> <gui> Message</gui> <gui> Save Current Part…</gui> </guiseq> "
 "<keyseq><key>Ctrl</key><key>S</key></keyseq>-- Save the currently selected "
