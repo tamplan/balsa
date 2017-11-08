@@ -585,27 +585,31 @@ ask_cert_real(void *data)
                            "<b>This certificate belongs to:</b>\n"),
                     acd->explanation);
 
-    name = gnutls_get_dn(cert, gnutls_x509_crt_get_dn);
-    g_string_append(str, name);
-    g_free(name);
+    name = X509_NAME_oneline(X509_get_subject_name (cert), buf, sizeof (buf));
+    for (i = 0; i < G_N_ELEMENTS(part); i++) {
+        g_string_append(str, x509_get_part (name, part[i]));
+        g_string_append_c(str, '\n');
+    }
 
     g_string_append(str, _("\n<b>This certificate was issued by:</b>\n"));
-    name = gnutls_get_dn(cert, gnutls_x509_crt_get_issuer_dn);
-    g_string_append_printf(str, "%s\n", name);
-    g_free(name);
+    name = X509_NAME_oneline(X509_get_issuer_name(cert), buf, sizeof (buf));
+    for (i = 0; i < G_N_ELEMENTS(part); i++) {
+        g_string_append(str, x509_get_part (name, part[i]));
+        g_string_append_c(str, '\n');
+    }
 
-    name = x509_fingerprint(cert);
-    valid_from  = libbalsa_date_to_utf8(gnutls_x509_crt_get_activation_time(cert), "%x %X");
-    valid_until = libbalsa_date_to_utf8(gnutls_x509_crt_get_expiration_time(cert), "%x %X");
-    g_string_append_printf(str, _("<b>This certificate is valid</b>\n"
-    							  "from %s\n"
-    							  "to %s\n"
-                         		  "<b>Fingerprint:</b> %s"),
-                        	valid_from, valid_until, name);
-    g_free(name);
-    g_free(valid_from);
-    g_free(valid_until);
-    gnutls_x509_crt_deinit(cert);
+    buf[0] = '\0';
+    x509_fingerprint (buf, sizeof (buf), cert);
+    valid_from  = asn1time_to_string(X509_get_notBefore(cert));
+    valid_until = asn1time_to_string(X509_get_notAfter(cert)),
+    c = g_strdup_printf(_("<b>This certificate is valid</b>\n"
+                          "from %s\n"
+                          "to %s\n"
+                          "<b>Fingerprint:</b> %s"),
+                        valid_from, valid_until,
+                        buf);
+    g_string_append(str, c); g_free(c);
+    g_free(valid_from); g_free(valid_until);
 
     /* This string uses markup, so we must replace "&" with "&amp;" */
     c = str->str;
