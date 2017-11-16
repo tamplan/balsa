@@ -230,13 +230,9 @@ balsa_register_pixbufs(GtkWidget * widget)
     for (i = 0; i < G_N_ELEMENTS(icons); i++) {
         GdkPixbuf *pixbuf;
         GError *err = NULL;
-        gint width, height;
+        gint width = 16;
         const gchar *use_id = balsa_icon_id(icons[i].icon);
 
-        if (use_id == NULL) /* No icon table */
-            break;
-
-        gtk_icon_size_lookup(GTK_ICON_SIZE_MENU, &width, &height);
         pixbuf =
             gtk_icon_theme_load_icon(icon_theme, use_id, width,
                                      GTK_ICON_LOOKUP_USE_BUILTIN, &err);
