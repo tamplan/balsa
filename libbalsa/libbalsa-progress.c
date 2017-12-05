@@ -134,56 +134,11 @@ libbalsa_progress_dialog_update(ProgressDialog *progress_dialog,
 		if (message != NULL) {
 			va_list args;
 
-			va_start(args, message);
-			real_msg = g_strdup_vprintf(message, args);
-			va_end(args);
-		} else {
-			real_msg = NULL;
-		}
-
-		if (libbalsa_am_i_subthread()) {
-			update_progress_data_t *update_data;
-
-			update_data = g_malloc(sizeof(update_progress_data_t));
-			update_data->dialog = progress_dialog;
-			update_data->id = g_strdup(progress_id);
-			update_data->finished = finished;
-			update_data->fraction = fraction;
-			update_data->message = real_msg;
-			gdk_threads_add_idle((GSourceFunc) libbalsa_progress_dialog_update_cb, update_data);
-		} else {
-			libbalsa_progress_dialog_update_real(progress_dialog, progress_id, finished, fraction, real_msg);
-			g_free(real_msg);
-		}
-	}
-
-	g_mutex_unlock(&progress_dialog->mutex);
-}
-
-
-/* --- local functions --- */
-
-/* note: the mutex ProgressDialog::mutex is always locked when this function is called */
-static void
-libbalsa_progress_dialog_ensure_real(ProgressDialog *progress_dialog,
-								     const gchar    *dialog_title,
-								     GtkWindow      *parent,
-								     const gchar    *progress_id)
-{
-	GtkWidget *content_box;
-	const progress_widget_data_t *progress_data;
-
-    if (progress_dialog->dialog == NULL) {
-    	GdkGeometry hints;
-
-    	progress_dialog->dialog = gtk_dialog_new_with_buttons(dialog_title, parent,
+    if (*progress_dialog == NULL) {
+    	*progress_dialog = gtk_dialog_new_with_buttons(dialog_title, parent,
     		GTK_DIALOG_DESTROY_WITH_PARENT | libbalsa_dialog_flags(), _("_Hide"), GTK_RESPONSE_CLOSE, NULL);
-    	gtk_window_set_role(GTK_WINDOW(progress_dialog->dialog), "progress_dialog");
-        hints.min_width = PROGRESS_DIALOG_WIDTH;
-        hints.min_height = 1;
-        hints.max_width = PROGRESS_DIALOG_WIDTH;
-        hints.max_height = -1;
-        gdk_window_set_geometry_hints(gtk_widget_get_window(*progress_dialog), &hints, GDK_HINT_MIN_SIZE + GDK_HINT_MAX_SIZE);
+    	gtk_window_set_role(GTK_WINDOW(*progress_dialog), "progress_dialog");
+        gtk_window_set_default_size(GTK_WINDOW(*progress_dialog), PROGRESS_DIALOG_WIDTH, -1);
         gtk_window_set_resizable(GTK_WINDOW(*progress_dialog), FALSE);
         g_signal_connect(G_OBJECT(*progress_dialog), "response", G_CALLBACK(progress_dialog_response_cb), NULL);
         g_signal_connect(G_OBJECT(*progress_dialog), "destroy", G_CALLBACK(progress_dialog_destroy_cb), progress_dialog);
