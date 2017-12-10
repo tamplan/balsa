@@ -2237,7 +2237,7 @@ attachments_add(GtkWidget * widget,
 	    drag_result = FALSE;
     }
 
-    gtk_drag_finish(context, drag_result, FALSE, time);
+    gtk_drag_finish(context, drag_result, time);
 }
 
 /* to_add - address-view D&D callback; we assume it's a To: address */
@@ -2269,7 +2269,7 @@ to_add(GtkWidget        * widget,
         libbalsa_address_view_add_from_string(LIBBALSA_ADDRESS_VIEW(widget), "To:", address);
         drag_result = TRUE;
     }
-    gtk_drag_finish(context, drag_result, FALSE, time);
+    gtk_drag_finish(context, drag_result, time);
 }
 
 /*
@@ -2819,7 +2819,7 @@ drag_data_quote(GtkWidget        * widget,
         g_slist_free(uri_list);
     }
 
-    gtk_drag_finish(context, TRUE, FALSE, time);
+    gtk_drag_finish(context, TRUE, time);
 }
 
 /* create_text_area
