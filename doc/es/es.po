@@ -5,19 +5,20 @@
 # 
 # 
 # Daniel Mustieles <daniel.mustieles@gmail.com>, 2011.# Juan Matías Olmos <colonizare@yahoo.com.ar>, 2016, 2017.
+# Carlos Córdova <carlosab1802@gmail.com>, 2017.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: balsa-help.master\n"
-"POT-Creation-Date: 2017-08-06 12:48+0000\n"
-"PO-Revision-Date: 2017-08-28 12:18+0200\n"
-"Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
-"Language-Team: es <gnome-es-list@gnome.org>\n"
+"POT-Creation-Date: 2017-08-31 15:02+0000\n"
+"PO-Revision-Date: 2017-12-14 18:01-0200\n"
+"Last-Translator: Carlos Córdova <carlosab1802@gmail.com>\n"
+"Language-Team: Español; Castellano <gnome-es-list@gnome.org>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Gtranslator 2.91.6\n"
+"X-Generator: Gtranslator 2.91.7\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. Put one translator per line, in the form NAME <EMAIL>, YEAR1, YEAR2
@@ -55,8 +56,7 @@ msgid "External address book"
 msgstr "Libreta de direcciones externa"
 
 #. (itstool) path: section/p
-#: C/its-not-working.page:79
-#, fuzzy
+#: C/ab-conf.page:21
 #| msgid ""
 #| "<application>Balsa</application> attempts to open the file <filename>~/."
 #| "gnome/GnomeCard.gcrd</filename>. If you're not using this file, you may "
@@ -67,14 +67,19 @@ msgid ""
 "file>. If you're not using this file, you may need to create a symlink so "
 "that <app>Balsa</app> can open it."
 msgstr ""
-"<application>Balsa</application> trata de abrir el archivo <filename>~/."
-"gnome/GnomeCard.gcrd</filename>. Si no está usando éste archivo, puede que "
-"necesite crear un enlace simbólico para que <application>Balsa</application> "
-"pueda abrirlo."
+"La libreta de direcciones de Balsa soporta el ingreso desde otros programas. "
+"Por lo tanto, se puede utilizar (¡sin necesidad de importar!), por ejemplo, "
+"la libreta de direcciones pine o mutt. El cliente mutt (<link href=\"http://"
+"www.mutt.org/\">www.mutt.org</link>) utiliza un sistema idéntico para "
+"recuperar las direcciones de los programas."
+
+#. (itstool) path: section/title
+#: C/ab-conf.page:28
+msgid "Existing programs"
+msgstr "Programas existentes"
 
 #. (itstool) path: section/p
-#: C/its-not-working.page:83
-#, fuzzy
+#: C/ab-conf.page:30
 #| msgid ""
 #| "There have been slight changes in <application>GnomeCard</application>'s "
 #| "file format between its various versions. <application>Balsa</"
@@ -85,22 +90,34 @@ msgid ""
 "its various versions. <app>Balsa</app> is known to work with at least "
 "<app>GnomeCard</app> version 1.0.10 and probably most other releases."
 msgstr ""
-"Ha habido pequeños cambios en el formato de archivos de "
-"<application>GnomeCard</application> y sus versiones. Se sabe que "
-"<application>Balsa</application> funciona por lo menos con "
-"<application>GnomeCard</application> versión 1.0.10 y probablemente la "
-"mayoría de sus lanzamientos."
+"Los siguientes programas son compatibles con el lector de correos mutt y "
+"<em>deberían</em> serlo con Balsa. Envíe enlaces a más programas."
 
-#. (itstool) path: page/title
-#: C/mbox-formats.page:8
-#, fuzzy
-#| msgid "Available mailbox formats"
-msgid "Available Mailbox Formats"
-msgstr "Formatos de buzones disponibles"
+#. (itstool) path: item/p
+#: C/ab-conf.page:34
+#| msgid ""
+#| "<ulink url=\"http://www.spinnaker.de/lbdb/\" type=\"http\">http://www."
+#| "spinnaker.de/lbdb/</ulink> - The little brother database. Read "
+#| "emailaddresses and names from: finger, /etc/passwd, incoming procmail "
+#| "email, NIS, fido, the abook program, mutt addressbook, pine addressbook, "
+#| "palm addressbook, gnomecard addressbook, big brother database, ldap "
+#| "database."
+msgid ""
+"<link href=\"http://www.spinnaker.de/lbdb/\" type=\"http\">http://www."
+"spinnaker.de/lbdb/</link> - The little brother database. Read emailaddresses "
+"and names from: finger, /etc/passwd, incoming procmail email, NIS, fido, the "
+"abook program, mutt addressbook, pine addressbook, palm addressbook, "
+"gnomecard addressbook, big brother database, ldap database."
+msgstr ""
+"<link href=\"http://www.spinnaker.de/lbdb/\" type=\"http\">http://www."
+"spinnaker.de/lbdb/</ulink>: la base de datos Little Brother. Lee direcciones "
+"de correo y nombres de: finger, /etc/passwd, email procmail entrante, NIS, "
+"fido, el programa abook, libreta de direcciones mutt, libreta de direcciones "
+"pine, libreta de direcciones palm, libreta de direcciones gnomecard, base de "
+"datos big brother, base de datos ldap."
 
-#. (itstool) path: page/p
-#: C/mbox-formats.page:9
-#, fuzzy
+#. (itstool) path: item/p
+#: C/ab-conf.page:43
 #| msgid ""
 #| "<application>Balsa</application> handles several mailbox formats, "
 #| "including mbox."
@@ -108,17 +125,17 @@ msgid ""
 "<app>Balsa</app> handles several mailbox formats, including mbox. Further "
 "information can be found in the following documents:"
 msgstr ""
-"<application>Balsa</application> soporta varios formatos de buzones, "
-"incluido mbox."
+"<link href=\"http://www.fiction.net/blong/programs/mutt/\">http://www."
+"fiction.net/blong/programs/mutt/</ulink>: base de datos de direcciones palm, "
+"contenedor ldapsearch, servidor ph/qi, UIUC, ph."
 
 #. (itstool) path: item/title
 #: C/mbox-formats.page:13
 msgid "Benchmarking mbox versus maildir"
 msgstr ""
 
-#. (itstool) path: item/p
-#: C/mbox-formats.page:14
-#, fuzzy
+#. (itstool) path: section/p
+#: C/ab-conf.page:53
 #| msgid ""
 #| "Benchmarking mbox versus maildir <ulink type=\"http\" url=\"http://www."
 #| "courier-mta.org/mbox-vs-maildir/\">http://www.courier-mta.org/mbox-vs-"
@@ -135,16 +152,13 @@ msgstr ""
 #: C/mbox-formats.page:20
 msgid "Mailbox Format Characteristics"
 msgstr ""
+"<app>Balsa</app> ignora la primer línea de la salida de su programa. Se "
+"puede escribir un comentario o salida del depurador en esta línea. Las "
+"líneas restantes deberán tener este formato:"
 
 #. (itstool) path: section/p
 #: C/ab-conf.page:56
-#| msgid ""
-#| "Mailbox Format Characteristics <ulink type=\"http\" url=\"http://www."
-#| "washington.edu/imap/documentation/formats.txt.html\">http://www."
-#| "washington.edu/imap/documentation/formats.txt.html</ulink>"
-msgid ""
-"<link href=\"http://www.washington.edu/imap/documentation/formats.txt.html"
-"\"> http://www.washington.edu/imap/documentation/formats.txt.html</link>"
+msgid "<output> e-mail address full name nickname </output>"
 msgstr ""
 "<output> dirección de correo electrónico\tnombre completo\tapodo </output>"
 
@@ -153,8 +167,8 @@ msgstr ""
 msgid "Maildir format"
 msgstr ""
 
-#. (itstool) path: item/p
-#: C/mbox-formats.page:28
+#. (itstool) path: section/p
+#: C/ab-conf.page:64
 #| msgid ""
 #| "maildir(5) manual page (from qmail) <ulink type=\"http\" url=\"http://www."
 #| "qmail.org/qmail-manual-html/man5/maildir.html\">http://www.qmail.org/"
@@ -164,9 +178,9 @@ msgid ""
 "search for. A space (“ ”) is used as the first argument when creating a list "
 "of all users."
 msgstr ""
-"Página de manual de maildir(5) (de qmail) <link type=\"http\" url=\"http://"
-"www.qmail.org/qmail-manual-html/man5/maildir.html\">http://www.qmail.org/"
-"qmail-manual-html/man5/maildir.html</link>"
+"<app>Balsa</app> ejecuta el script con un argumento: el patrón que buscar. "
+"Se utiliza un espacio (« ») como primer argumento para crear una lista de "
+"todos los usuarios."
 
 #. (itstool) path: item/title
 #: C/mbox-formats.page:33
@@ -175,25 +189,16 @@ msgstr ""
 
 #. (itstool) path: section/p
 #: C/ab-conf.page:73
-#| msgid ""
-#| "\n"
-#| "lbdbq: 3 matches\n"
 msgid "<output> lbdbq: 3 matches </output>"
 msgstr "<output> lbdbq: 3 coincidencias </output>"
 
 #. (itstool) path: section/p
 #: C/ab-conf.page:76
-#| msgid ""
-#| "\n"
-#| "balsa-list@gnome.org\tBalsa List\tbalsa-list\n"
 msgid "<output> balsa-list@gnome.org Balsa List balsa-list </output>"
 msgstr "<output> balsa-list@gnome.org Balsa List balsa-list </output>"
 
 #. (itstool) path: section/p
 #: C/ab-conf.page:78
-#| msgid ""
-#| "\n"
-#| "jelmer@nl.linux.org\tJelmer Vernooij\tjelmer\n"
 msgid "<output> jelmer@nl.linux.org Jelmer Vernooij jelmer </output>"
 msgstr "<output> jelmer@nl.linux.org Jelmer Vernooij jelmer </output>"
 
@@ -208,12 +213,8 @@ msgstr ""
 "\"http://linuxdocs.org/HOWTOs/Mail-Administrator-HOWTO-3.html#ss3.5\">http://"
 "linuxdocs.org/HOWTOs/Mail-Administrator-HOWTO-3.html#ss3.5</ulink>"
 
-#. (itstool) path: media
-#. This is a reference to an external file such as an image or video. When
-#. the file changes, the md5 hash will change to let you know you need to
-#. update your localized copy. The msgstr is not used at all. Set it to
-#. whatever you like once you have updated your copy of the file.
-#: C/preferences-address-books.page:39
+#. (itstool) path: note/p
+#: C/ab-conf.page:85
 #| msgid ""
 #| "@@image: 'figures/address-book-vcard.png'; "
 #| "md5=c9eeb6585d9cb0eba42fd02b649c7239"
@@ -222,8 +223,12 @@ msgid ""
 "external ref='figures/address-book-vcard.png' "
 "md5='c9eeb6585d9cb0eba42fd02b649c7239'"
 msgstr ""
-"external ref='figures/address-book-vcard.png' "
-"md5='c9eeb6585d9cb0eba42fd02b649c7239'"
+"Su script/programa debería mostrar la salida en «stdout» y no en «stderr»."
+
+#. (itstool) path: section/title
+#: C/ab-conf.page:91
+msgid "Writing your own save scripts"
+msgstr "Escribir sus propios scripts de guardado"
 
 #. (itstool) path: media
 #. This is a reference to an external file such as an image or video. When
@@ -256,8 +261,18 @@ msgid ""
 "external ref='figures/address-book-modify.png' "
 "md5='5b5b5ea63419ea2843c9ef4ceaa5077e'"
 msgstr ""
-"external ref='figures/address-book-modify.png' "
-"md5='5b5b5ea63419ea2843c9ef4ceaa5077e'"
+"Tenga en cuenta que mutt no tiene soporte para agregar direcciones y, por "
+"consiguiente, no se cumple la compatibilidad en este caso."
+
+#. (itstool) path: section/p
+#: C/ab-conf.page:99
+#| msgid "Comments are welcome: <email>jelmer@nl.linux.org</email>"
+msgid ""
+"Comments are welcome: <link href=\"mailto:jelmer@nl.linux.org\">jelmer@nl."
+"linux.org</link>"
+msgstr ""
+"Los comentarios son bienvenidos: <link href=\"mailto:jelmer@nl.linux.org"
+"\">jelmer@nl.linux.org</link>"
 
 #. (itstool) path: page/title
 #: C/preferences-address-books.page:9
@@ -267,15 +282,12 @@ msgid "Address Book Preferences"
 msgstr "Libretas de direcciones"
 
 #. (itstool) path: page/p
-#: C/preferences-address-books.page:10
-#, fuzzy
+#: C/authors.page:9
 #| msgid ""
 #| "<application>Balsa</application> is currently developed by (in "
 #| "alphabetical order): <placeholder-1/>"
 msgid "<app>Balsa</app> is currently developed by (in alphabetical order):"
-msgstr ""
-"Actualmente <application>Balsa</application> lo desarrollan, en orden "
-"alfabético: <placeholder-1/>"
+msgstr "Actualmente <app>Balsa</app> lo desarrollan, en orden alfabético:"
 
 #. (itstool) path: item/p
 #: C/authors.page:13 C/authors.page:80
@@ -331,11 +343,8 @@ msgid ""
 "typing new messages. There are also several buttons that manipulate the list "
 "of address books:"
 msgstr ""
-"La parte principal de la página de preferencias se cubre con la lista de "
-"libretas de direcciones actuales para <application>Balsa</application>. La "
-"lista muestra el tipo de libreta, el nombre y si se incluye automáticamente "
-"en la expansión del alias al escribir mensajes nuevos. También hay varios "
-"botones para manipular la lista de libretas de direcciones:"
+"En el pasado, numerosas personas hicieron contribuciones a balsa, incluyendo "
+"(en orden alfabético):"
 
 #. (itstool) path: item/p
 #: C/authors.page:31
@@ -420,13 +429,46 @@ msgid ""
 "Peter Williams ( <link href=\"mailto:peter@newton.cx\"> peter@newton.cx</"
 "link> )"
 msgstr ""
-"Esto le permite cambiar las propiedades de la libreta de direcciones "
-"seleccionada."
+"Peter Williams ( <link href=\"mailto:peter@newton.cx\"> peter@newton.cx</"
+"link> )"
 
-#. (itstool) path: figure/title
-#: C/preferences-address-books.page:68
-msgid "Modify an Address Book"
-msgstr "Modificar una libreta de direcciones"
+#. (itstool) path: page/p
+#: C/authors.page:66
+#| msgid ""
+#| "In the past, numerous people contributed to balsa, including (in "
+#| "alphabetical order): <placeholder-1/> To find more information about it, "
+#| "please visit the <application>Balsa</application><ulink url=\"http://"
+#| "balsa.gnome.org/\" type=\"http\">Web page</ulink>. Please send all "
+#| "comments, suggestions, and bug reports to the <ulink url=\"http://bugs."
+#| "gnome.org/\" type=\"http\"><acronym>GNOME</acronym> bug tracking "
+#| "database</ulink>. Instructions for submitting bug reports can be found on-"
+#| "line at <ulink url=\"http://balsa.gnome.org/bugs.html\" type=\"http\"> "
+#| "http://balsa.gnome.org/bugs.html</ulink>. If you are using "
+#| "<acronym>GNOME</acronym> 1.1 or later, you can also use command "
+#| "<command>bug-buddy</command> for submitting bug reports."
+msgid ""
+"To find more information about it, please visit the <app>Balsa</app> <link "
+"href=\"http://balsa.gnome.org/\">Web page</link>. Please send all comments, "
+"suggestions, and bug reports to the <link href=\"http://bugs.gnome.org/"
+"\">GNOME bug tracking database</link>. Instructions for submitting bug "
+"reports can be found on-line at <link href=\"http://balsa.gnome.org/bugs.html"
+"\"> http://balsa.gnome.org/bugs.html</link>. If you are using GNOME 1.1 or "
+"later, you can also use command <cmd>bug-buddy</cmd> for submitting bug "
+"reports."
+msgstr ""
+"Para encontrar más información sobre esto, visite el <link href=\"http://"
+"balsa.gnome.org/\">sitio web</link> de <app>Balsa</app>. Envíe todos los "
+"comentarios, sugerencias e informes de fallos a la <link href=\"http://bugs."
+"gnome.org/\">base de datos del rastreador de fallos de GNOME</link>. Las "
+"instrucciones para enviar informes de fallos se encuentra disponible en "
+"línea en <link href=\"http://balsa.gnome.org/bugs.html\"> http://balsa.gnome."
+"org/bugs.html</link>. Si utiliza GNOME 1.1 o superior, también puede "
+"utilizar el comando <cmd>bug-buddy</cmd> para enviar los informes de fallos."
+
+#. (itstool) path: page/p
+#: C/authors.page:77
+msgid "The following people contributed to this manual:"
+msgstr "Las siguientes personas contribuyeron para este manual:"
 
 #. (itstool) path: item/p
 #: C/authors.page:85
@@ -456,37 +498,68 @@ msgstr ""
 "Jelmer Vernooij ( <link href=\"mailto:jelmer@nl.linux.org\"> jelmer@nl.linux."
 "org</link> )"
 
-#. (itstool) path: item/title
-#: C/preferences-address-books.page:84
-#, fuzzy
-#| msgid "Set as Default"
-msgid "<gui>Set as Default</gui>"
-msgstr "Establecer como predeterminada"
-
-#. (itstool) path: item/p
-#: C/preferences-address-books.page:87
-msgid "Set the selected address book as default."
-msgstr "Establecer la libreta de direcciones seleccionada como predeterminada."
+#. (itstool) path: page/p
+#: C/authors.page:115
+#| msgid ""
+#| "The following people contributed to this manual: <placeholder-1/> Please "
+#| "send all comments and suggestions regarding the manual to the "
+#| "<acronym>GNOME</acronym> Documentation Project at <email>docs@gnome.org</"
+#| "email> and the <application>Balsa</application> Discussion List "
+#| "<email>balsa-list@gnome.org</email>. You can also add your comments "
+#| "online by using <ulink url=\"http://library.gnome.org/devel/gdp-handbook/"
+#| "stable/gettingstarted.html.en\" type=\"http\"><acronym>GNOME</acronym> "
+#| "Documentation Status Table</ulink>."
+msgid ""
+"Please send all comments and suggestions regarding the manual to the GNOME "
+"Documentation Project at <link href=\"mailto:docs@gnome.org\">docs@gnome."
+"org</link> and the <link href=\"http://mail.gnome.org/mailman/listinfo/balsa-"
+"list\"> <app>Balsa</app> Discussion List</link>. You can also add your "
+"comments online by using <link href=\"http://library.gnome.org/devel/gdp-"
+"handbook/stable/gettingstarted.html.en\"> GNOME Documentation Status Table</"
+"link>."
+msgstr ""
+"Envíe todos los comentarios y sugerencias al proyecto de documentación de "
+"GNOME a <link href=\"mailto:docs@gnome.org\">docs@gnome.org</link> y a la "
+"<link href=\"http://mail.gnome.org/mailman/listinfo/balsa-list\">lista de "
+"discusión de <app>Balsa</app></link>. También se pueden agregar comentarios "
+"en línea utilizando <link href=\"http://library.gnome.org/devel/gdp-handbook/"
+"stable/gettingstarted.html.en\">Tabla de estado de la documentación de "
+"GNOME</link>."
 
 #. (itstool) path: page/title
 #: C/common-tasks.page:8
-#| msgid "Common Tasks with <application>Balsa</application>"
 msgid "Common Tasks with <app>Balsa</app>"
 msgstr "Tareas comunes con <app>Balsa</app>"
 
 #. (itstool) path: page/p
-#: C/preferences-display-options.page:10
-#, fuzzy
+#: C/common-tasks.page:9
 #| msgid ""
-#| "This page controls how <application>Balsa</application> appears to you."
-msgid "This page controls how <app>Balsa</app> appears to you."
+#| "This section explains many of the things you might want to do with "
+#| "<application>Balsa</application>."
+msgid ""
+"This section explains many of the things you might want to do with "
+"<app>Balsa</app>."
 msgstr ""
-"Esta página controla la forma en que <application>Balsa</application> se "
-"presenta."
+"Esta sección explica mucha de las cosas que querrá hacer con <app>Balsa</"
+"app>."
+
+#. (itstool) path: item/p
+#: C/common-tasks.page:13
+msgid ""
+"<link xref=\"common-tasks#ct-create-new-mb\">Creating new mailboxes</link>"
+msgstr ""
+"<link xref=\"common-tasks#ct-create-new-mb\">Crear nuevos buzones de "
+"correos</link>"
+
+#. (itstool) path: item/p
+#: C/common-tasks.page:19
+msgid "<link xref=\"common-tasks#ct-move-msg\">Moving messages around</link>"
+msgstr ""
+"<link xref=\"common-tasks#ct-move-msg\">Mover mensajes a distintos lugares</"
+"link>"
 
 #. (itstool) path: item/p
 #: C/common-tasks.page:24
-#| msgid "Making one of the main folders IMAP-based"
 msgid ""
 "<link xref=\"common-tasks#ct-main-folder-imap\">Making one of the main "
 "folders IMAP-based</link>"
@@ -494,12 +567,15 @@ msgstr ""
 "<link xref=\"common-tasks#ct-main-folder-imap\">Hacer que una de las "
 "carpetas principales esté basada en IMAP</link>"
 
-#. (itstool) path: item/title
-#: C/preferences-display-options.page:15
-#, fuzzy
-#| msgid "Use Preview Pane"
-msgid "<gui>Use Preview Pane</gui>"
-msgstr "Usar panel de vista previa"
+#. (itstool) path: item/p
+#: C/common-tasks.page:30
+#| msgid "Expanding e-mail addresses automatically"
+msgid ""
+"<link xref=\"common-tasks#ct-alias-expansion\">Expanding e-mail addresses "
+"automatically</link>"
+msgstr ""
+"<link xref=\"common-tasks#ct-alias-expansion\">Expandir direcciones de "
+"correo-e automáticamente</link>"
 
 #. (itstool) path: item/p
 #: C/preferences-display-options.page:18
@@ -797,13 +873,6 @@ msgstr ""
 
 #. (itstool) path: item/p
 #: C/folder-config.page:74
-#| msgid ""
-#| "<guilabel>Max. number of connections</guilabel> limits the number of "
-#| "concurrent connections open to the IMAP server. A number around 15-40 is "
-#| "a sane option as it avoids time-consuming and load-creating reselections "
-#| "of imap mailboxes. Some IMAP servers -- notably Courier -- limit the "
-#| "number of connections open from single IP number to 4 by default. The "
-#| "limit in balsa has to be in such a case adjusted accordingly."
 msgid ""
 "Using system fonts to view and compose messages makes the display consistent "
 "with other applications. If you choose this option, the message's subject "
@@ -827,15 +896,23 @@ msgid ""
 "\">ASCII art</link>."
 msgstr ""
 
-#. (itstool) path: item/title
-#: C/preferences-display-options.page:122
-#, fuzzy
-#| msgid "Quoted Text Regular Expression"
-msgid "<gui>Quoted Text Regular Expression</gui>"
-msgstr "Expresión regular de texto citado"
+#. (itstool) path: item/p
+#: C/folder-config.page:137
+msgid ""
+"<gui>Folder name</gui> is how the folder is shown in the mailbox tree on the "
+"left side."
+msgstr ""
+"El <gui>Nombre de la carpeta</gui> es el que se muestra en el árbol de "
+"buzones del lado izquierdo."
 
 #. (itstool) path: item/p
-#: C/preferences-display-options.page:125
+#: C/folder-config.page:142
+msgid "<gui>Subfolder of</gui> indicates the immediate parent of the folder."
+msgstr ""
+"<gui>Subcarpeta de</gui> indica el nivel superior inmediato de la carpeta."
+
+#. (itstool) path: section/p
+#: C/folder-config.page:147
 #, fuzzy
 #| msgid ""
 #| "The entry box allows you to set a <glossterm linkend=\"glossary-regular-"
@@ -1346,7 +1423,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/identities.page:21
-#| msgid "Full Name"
 msgid "<gui>Full Name</gui>"
 msgstr "<gui>Nombre completo</gui>"
 
@@ -1368,7 +1444,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/identities.page:29
-#| msgid "Mailing Address"
 msgid "<gui>Mailing Address</gui>"
 msgstr "<gui>Direcciones de correo</gui>"
 
@@ -1381,7 +1456,6 @@ msgstr "Cómo prefiere aparecer en la cabecera «De»."
 
 #. (itstool) path: item/title
 #: C/identities.page:35
-#| msgid "Reply-To address"
 msgid "<gui>Reply-To address</gui>"
 msgstr "<gui>Dirección de responder a</gui>"
 
@@ -1403,7 +1477,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/identities.page:43
-#| msgid "Default Domain"
 msgid "<gui>Default Domain</gui>"
 msgstr "<gui>Dominio predeterminado</gui>"
 
@@ -1479,7 +1552,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/identities.page:65
-#| msgid "Reply String"
 msgid "<gui>Reply String</gui>"
 msgstr "<gui>Cadena de respuesta</gui>"
 
@@ -1490,7 +1562,6 @@ msgstr "El servidor en el que tiene el buzón POP."
 
 #. (itstool) path: item/title
 #: C/identities.page:72
-#| msgid "Forward String"
 msgid "<gui>Forward String</gui>"
 msgstr "<gui>Cadena de reenvío</gui>"
 
@@ -1501,7 +1572,6 @@ msgstr "El nombre de usuario en el servidor de buzones."
 
 #. (itstool) path: item/title
 #: C/identities.page:79
-#| msgid "Request Message Disposition Notification"
 msgid "<gui>Request Message Disposition Notification</gui>"
 msgstr "<gui>Solicitar notificación de entrega</gui>"
 
@@ -1516,7 +1586,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/identities.page:86
-#| msgid "Face Path"
 msgid "<gui>Face Path</gui>"
 msgstr "<gui>Ruta de Face</gui>"
 
@@ -1541,7 +1610,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/identities.page:98
-#| msgid "X-Face Path"
 msgid "<gui>X-Face Path</gui>"
 msgstr "<gui>Ruta de X-Face</gui>"
 
@@ -1560,7 +1628,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/identities.page:106
-#| msgid "SMTP server"
 msgid "<gui>SMTP server</gui>"
 msgstr "<gui>Servidor SMTP</gui>"
 
@@ -1579,7 +1646,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/identities.page:119
-#| msgid "Signature Path"
 msgid "<gui>Signature Path</gui>"
 msgstr "<gui>Ruta de la firma</gui>"
 
@@ -1660,13 +1726,11 @@ msgstr ""
 
 #. (itstool) path: item/p
 #: C/identities.page:141
-#| msgid "|/home/user/dynsig.pl"
 msgid "“|/home/user/dynsig.pl”"
 msgstr "«|/home/user/dynsig.pl»"
 
 #. (itstool) path: item/title
 #: C/identities.page:146
-#| msgid "Execute Signature"
 msgid "<gui>Execute Signature</gui>"
 msgstr "<gui>Ejecutar firma</gui>"
 
@@ -1685,7 +1749,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/identities.page:155
-#| msgid "Include Signature"
 msgid "<gui>Include Signature</gui>"
 msgstr "<gui>Incluir firma</gui>"
 
@@ -1704,7 +1767,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/identities.page:161
-#| msgid "Include Signature When Forwarding"
 msgid "<gui>Include Signature When Forwarding</gui>"
 msgstr "<gui>Incluir firma al reenviar</gui>"
 
@@ -1715,7 +1777,6 @@ msgstr "Agregar firma al reenviar un mensaje existente."
 
 #. (itstool) path: item/title
 #: C/identities.page:167
-#| msgid "Include Signature When Replying"
 msgid "<gui>Include Signature When Replying</gui>"
 msgstr "<gui>Incluir firma al responder</gui>"
 
@@ -1731,7 +1792,6 @@ msgstr "Entrante"
 
 #. (itstool) path: item/title
 #: C/identities.page:173
-#| msgid "Add Signature Separator"
 msgid "<gui>Add Signature Separator</gui>"
 msgstr "<gui>Agregar separador de firma</gui>"
 
@@ -1752,7 +1812,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/identities.page:180
-#| msgid "Prepend Signature"
 msgid "<gui>Prepend Signature</gui>"
 msgstr "<gui>Anteponer firma</gui>"
 
@@ -1784,7 +1843,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/identities.page:198
-#| msgid "Encrypt messages by default."
 msgid "<gui>Encrypt messages by default.</gui>"
 msgstr "<gui>Cifrar mensajes de manera predeterminada.</gui>"
 
@@ -1803,7 +1861,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/identities.page:205
-#| msgid "Default protocol."
 msgid "<gui>Default protocol.</gui>"
 msgstr "<gui>Protocolo predeterminado.</gui>"
 
@@ -1823,7 +1880,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/identities.page:212
-#| msgid "Always trust GnuPG keys when encrypting."
 msgid "<gui>Always trust GnuPG keys when encrypting.</gui>"
 msgstr "<gui>Confiar siempre en claves GnuPG al cifrar.</gui>"
 
@@ -1842,7 +1898,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/identities.page:219
-#| msgid "Remind me if messages can be encrypted."
 msgid "<gui>Remind me if messages can be encrypted.</gui>"
 msgstr "<gui>Recordarme si se pueden cifrar los mensajes</gui>"
 
@@ -1860,7 +1915,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/identities.page:226
-#| msgid "Use secret key with this id for signing."
 msgid "<gui>Use secret key with this id for signing.</gui>"
 msgstr "<gui>Usar clave secreta con este identificador para firmar.</gui>"
 
@@ -2137,7 +2191,6 @@ msgstr "Hacer que <application>Balsa</application> sea sensible."
 
 #. (itstool) path: section/title
 #: C/its-not-working.page:48
-#| msgid "<application>Balsa</application>'s frozen!"
 msgid "<app>Balsa</app>'s frozen!"
 msgstr "<app>Balsa</app> está congelado."
 
@@ -2157,10 +2210,6 @@ msgstr ""
 
 #. (itstool) path: item/p
 #: C/its-not-working.page:57
-#| msgid ""
-#| "<application>Balsa</application> is downloading a new message or closing "
-#| "a large mailbox. This could take a while, especially when this file is "
-#| "accessed via <acronym>NFS</acronym>."
 msgid ""
 "<app>Balsa</app> is downloading a new message or closing a large mailbox. "
 "This could take a while, especially when this file is accessed via NFS."
@@ -2228,10 +2277,6 @@ msgstr ""
 
 #. (itstool) path: item/p
 #: C/mbox-formats.page:14
-#| msgid ""
-#| "Benchmarking mbox versus maildir <ulink type=\"http\" url=\"http://www."
-#| "courier-mta.org/mbox-vs-maildir/\">http://www.courier-mta.org/mbox-vs-"
-#| "maildir/</ulink>"
 msgid ""
 "Set the character encoding method to either 7 bit, 8 bit, or what the quoted "
 "message is using."
@@ -2246,11 +2291,6 @@ msgstr ""
 
 #. (itstool) path: item/p
 #: C/mbox-formats.page:21
-#| msgid ""
-#| "Toggle the output of debugging information. Depending on what "
-#| "notification priority set for it in the <link linkend=\"preferences-"
-#| "display-options\">Display</link> page, it can show up in list or dialog "
-#| "as the program runs."
 msgid ""
 "Toggle the output of debugging information. Depending on what notification "
 "priority set for it in the <link xref=\"preferences-display-options\"> "
@@ -2601,7 +2641,6 @@ msgstr "Ventana principal"
 
 #. (itstool) path: item/title
 #: C/preferences-display-options.page:15
-#| msgid "Use Preview Pane"
 msgid "<gui>Use Preview Pane</gui>"
 msgstr "<gui>Usar panel de vista previa</gui>"
 
@@ -2616,7 +2655,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-display-options.page:22
-#| msgid "Show Mailbox Info"
 msgid "<gui>Show Mailbox Info</gui>"
 msgstr "<gui>Mostrar información del buzón</gui>"
 
@@ -2645,7 +2683,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-display-options.page:33
-#| msgid "Alternative Layout"
 msgid "<gui>Alternative Layout</gui>"
 msgstr "<gui>Disposición alternativa</gui>"
 
@@ -2674,7 +2711,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-display-options.page:44
-#| msgid "Automatic View"
 msgid "<gui>Automatic View</gui>"
 msgstr "<gui>Vista automática</gui>"
 
@@ -2697,7 +2733,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-display-options.page:52
-#| msgid "Page Up and Page Down"
 msgid "<gui>Page Up and Page Down</gui>"
 msgstr "<gui>AvPág y RePág</gui>"
 
@@ -2724,7 +2759,6 @@ msgstr "Ventana Mensaje"
 
 #. (itstool) path: item/title
 #: C/preferences-display-options.page:66
-#| msgid "Moving a Message"
 msgid "<gui>Moving a Message</gui>"
 msgstr "<gui>Mover un mensaje</gui>"
 
@@ -2753,7 +2787,6 @@ msgstr "Orden y conversación"
 
 #. (itstool) path: item/title
 #: C/preferences-display-options.page:81
-#| msgid "Default sort column"
 msgid "<gui>Default sort column</gui>"
 msgstr "<gui>Columna de ordenación predeterminada</gui>"
 
@@ -2764,7 +2797,6 @@ msgstr "Elija una columna por la que prefiere que se ordene un buzón nuevo."
 
 #. (itstool) path: item/title
 #: C/preferences-display-options.page:88
-#| msgid "Default threading style"
 msgid "<gui>Default threading style</gui>"
 msgstr "<gui>Estilo de conversación predeterminado</gui>"
 
@@ -2775,7 +2807,6 @@ msgstr "Elija el estilo de conversación predeterminado para un buzón nuevo."
 
 #. (itstool) path: item/title
 #: C/preferences-display-options.page:95
-#| msgid "Expand threads"
 msgid "<gui>Expand threads</gui>"
 msgstr "<gui>Expandir conversaciones</gui>"
 
@@ -2818,7 +2849,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-display-options.page:122
-#| msgid "Quoted Text Regular Expression"
 msgid "<gui>Quoted Text Regular Expression</gui>"
 msgstr "<gui>Expresión regular de texto citado</gui>"
 
@@ -2870,7 +2900,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-display-options.page:140
-#| msgid "Alternative Parts"
 msgid "<gui>Alternative Parts</gui>"
 msgstr "<gui>Partes alternativas</gui>"
 
@@ -2894,7 +2923,6 @@ msgstr "Colores"
 
 #. (itstool) path: item/title
 #: C/preferences-display-options.page:153
-#| msgid "Message Colors"
 msgid "<gui>Message Colors</gui>"
 msgstr "<gui>Colores del mensaje</gui>"
 
@@ -2905,7 +2933,6 @@ msgstr "Elegir el color para el texto citado."
 
 #. (itstool) path: item/title
 #: C/preferences-display-options.page:159
-#| msgid "Link Color"
 msgid "<gui>Link Color</gui>"
 msgstr "<gui>Color del enlace</gui>"
 
@@ -2927,7 +2954,6 @@ msgstr "Formato"
 
 #. (itstool) path: item/title
 #: C/preferences-display-options.page:171
-#| msgid "Date Encoding"
 msgid "<gui>Date Encoding</gui>"
 msgstr "<gui>Codificación de fechas</gui>"
 
@@ -3009,7 +3035,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-display-options.page:223
-#| msgid "Selected Headers"
 msgid "<gui>Selected Headers</gui>"
 msgstr "<gui>Cabeceras seleccionadas</gui>"
 
@@ -3022,7 +3047,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-display-options.page:230
-#| msgid "Fallback codeset"
 msgid "<gui>Fallback codeset</gui>"
 msgstr "<gui>Codificación alternativa</gui>"
 
@@ -3051,7 +3075,6 @@ msgstr "Mensajes de estado"
 
 #. (itstool) path: item/title
 #: C/preferences-display-options.page:244
-#| msgid "Information Messages"
 msgid "<gui>Information Messages</gui>"
 msgstr "<gui>Mensajes de información</gui>"
 
@@ -3073,7 +3096,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-display-options.page:252
-#| msgid "Display Progress"
 msgid "<gui>Display Progress</gui>"
 msgstr "<gui>Mostrar progreso</gui>"
 
@@ -3121,7 +3143,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-mail-options.page:14
-#| msgid "Remote Mailbox Servers"
 msgid "<gui>Remote Mailbox Servers</gui>"
 msgstr "<gui>Servidores de buzones remotos</gui>"
 
@@ -3220,7 +3241,6 @@ msgstr "Indica si se debe comprobar si hay correo nuevo."
 
 #. (itstool) path: item/title
 #: C/preferences-mail-options.page:59
-#| msgid "Local Mail Directory"
 msgid "<gui>Local Mail Directory</gui>"
 msgstr "<gui>Carpeta local de correo</gui>"
 
@@ -3239,7 +3259,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-mail-options.page:66
-#| msgid "Outgoing Mail Servers"
 msgid "<gui>Outgoing Mail Servers</gui>"
 msgstr "<gui>Servidores de correo saliente</gui>"
 
@@ -3376,7 +3395,6 @@ msgstr "Entrante"
 
 #. (itstool) path: item/title
 #: C/preferences-mail-options.page:129
-#| msgid "Check Mail Automatically"
 msgid "<gui>Check Mail Automatically</gui>"
 msgstr "<gui>Comprobar correo automáticamente</gui>"
 
@@ -3397,7 +3415,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-mail-options.page:136
-#| msgid "Check IMAP mailboxes"
 msgid "<gui>Check IMAP mailboxes</gui>"
 msgstr "<gui>Comprobar buzones IMAP</gui>"
 
@@ -3429,7 +3446,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-mail-options.page:147
-#| msgid "Display message if new mail has arrived"
 msgid "<gui>Display message if new mail has arrived</gui>"
 msgstr "<gui>Mostrar un mensaje si se recibe correo nuevo</gui>"
 
@@ -3446,7 +3462,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-mail-options.page:154
-#| msgid "Do background check quietly"
 msgid "<gui>Do background check quietly</gui>"
 msgstr "<gui>Comprobar en segundo plano silenciosamente</gui>"
 
@@ -3466,7 +3481,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-mail-options.page:161
-#| msgid "Wrap Incoming Text"
 msgid "<gui>Wrap Incoming Text</gui>"
 msgstr "<gui>Ajustar texto entrante</gui>"
 
@@ -3485,7 +3499,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-mail-options.page:168
-#| msgid "Reflow messages of type `text/plain;format=flowed'"
 msgid "<gui>Reflow messages of type `text/plain;format=flowed'</gui>"
 msgstr "<gui>Refluir mensajes de tipo `text/plain;format=flowed'</gui>"
 
@@ -3563,7 +3576,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-mail-options.page:195
-#| msgid "Message Disposition Notification request"
 msgid "<gui>Message Disposition Notification request</gui>"
 msgstr "<gui>Solicitud de notificación de entrega del mensaje</gui>"
 
@@ -3590,7 +3602,6 @@ msgstr "Saliente"
 
 #. (itstool) path: item/title
 #: C/preferences-mail-options.page:212
-#| msgid "Wrap Outgoing Text"
 msgid "<gui>Wrap Outgoing Text</gui>"
 msgstr "<gui>Ajustar texto saliente</gui>"
 
@@ -3607,7 +3618,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-mail-options.page:219
-#| msgid "Reply prefix"
 msgid "<gui>Reply prefix</gui>"
 msgstr "<gui>Prefijo de respuesta</gui>"
 
@@ -3631,7 +3641,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-mail-options.page:228
-#| msgid "Automatically quote original when replying"
 msgid "<gui>Automatically quote original when replying</gui>"
 msgstr "<gui>Citar automáticamente el original al responder</gui>"
 
@@ -3669,7 +3678,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-mail-options.page:240
-#| msgid "Don't include HTML parts as text when replying or forwarding mail"
 msgid ""
 "<gui>Don't include HTML parts as text when replying or forwarding mail</gui>"
 msgstr ""
@@ -3685,7 +3693,6 @@ msgstr "Hacer que <application>Balsa</application> sea sensible."
 
 #. (itstool) path: item/title
 #: C/preferences-mail-options.page:247
-#| msgid "Forward a mail as attachment instead of quoting it"
 msgid "<gui>Forward a mail as attachment instead of quoting it</gui>"
 msgstr "<gui>Reenviar un correo como adjunto en vez de citarlo</gui>"
 
@@ -3719,7 +3726,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-mail-options.page:262
-#| msgid "Send button always queues outgoing mail in outbox"
 msgid "<gui>Send button always queues outgoing mail in outbox</gui>"
 msgstr ""
 "<gui>El botón de envío siempre encola el correo en la bandeja de salida</gui>"
@@ -3739,7 +3745,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-mail-options.page:270
-#| msgid "Copy outgoing messages to sentbox"
 msgid "<gui>Copy outgoing messages to sentbox</gui>"
 msgstr "<gui>Copiar mensajes salientes a bandeja de enviados</gui>"
 
@@ -3802,7 +3807,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-miscellaneous.page:22
-#| msgid "Empty Trash on Exit"
 msgid "<gui>Empty Trash on Exit</gui>"
 msgstr "<gui>Vaciar papelera al salir</gui>"
 
@@ -3823,7 +3827,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-miscellaneous.page:29
-#| msgid "Automatically close mailbox"
 msgid "<gui>Automatically close mailbox</gui>"
 msgstr "<gui>Cerrar buzón automáticamente</gui>"
 
@@ -3845,7 +3848,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-miscellaneous.page:37
-#| msgid "Hide messages marked as deleted"
 msgid "<gui>Hide messages marked as deleted</gui>"
 msgstr "<gui>Ocultar mensajes marcados como eliminados</gui>"
 
@@ -3892,7 +3894,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-miscellaneous.page:56
-#| msgid "Expunge deleted messages on close"
 msgid "<gui>Expunge deleted messages on close</gui>"
 msgstr "<gui>Purgar los mensajes eliminados al salir</gui>"
 
@@ -3958,7 +3959,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-startup.page:12
-#| msgid "Open Inbox upon Startup"
 msgid "<gui>Open Inbox upon Startup</gui>"
 msgstr "<gui>Abrir bandeja de entrada al inicio</gui>"
 
@@ -3975,7 +3975,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-startup.page:19
-#| msgid "Check Mail at Startup"
 msgid "<gui>Check Mail at Startup</gui>"
 msgstr "<gui>Comprobar correo al inicio</gui>"
 
@@ -4002,7 +4001,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-startup.page:27
-#| msgid "Remember Open Mailboxes Between Sessions"
 msgid "<gui>Remember Open Mailboxes Between Sessions</gui>"
 msgstr "<gui>Recordar buzones abiertos entre sesiones</gui>"
 
@@ -4023,7 +4021,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/preferences-startup.page:34
-#| msgid "Folder Scanning"
 msgid "<gui>Folder Scanning</gui>"
 msgstr "<gui>Exploración de carpetas</gui>"
 
@@ -4932,9 +4929,9 @@ msgstr ""
 #| "to be sent."
 msgid ""
 "The toolbar contains buttons for the most commonly used functions when "
-"sending messages, including <gui>Send</gui>, <gui>Attach</gui> <gui>File…</"
-"gui>, and <gui>Save</gui>. As with the menu bar, some buttons are disabled "
-"if the message is not correctly setup to be sent."
+"sending messages, including <gui>Send</gui>, <gui>Attach File…</gui>, and "
+"<gui>Save</gui>. As with the menu bar, some buttons are disabled if the "
+"message is not correctly setup to be sent."
 msgstr ""
 "La barra de herramientas contiene los botones de las funciones usadas "
 "habitualmente al enviar mensajes, incluyendo «Enviar», «Adjuntar» y "
@@ -5003,7 +5000,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/win-composer.page:503
-#| msgid "Check Spelling"
 msgid "<gui>Check Spelling</gui>"
 msgstr "<gui>Comprobar ortografía</gui>"
 
@@ -5460,7 +5456,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/win-composer.page:693
-#| msgid "Change All"
 msgid "<gui>Change All</gui>"
 msgstr "<gui>Cambiar todas</gui>"
 
@@ -5738,13 +5733,7 @@ msgstr ""
 "cuentas no válida, en los campos <guilabel>Destinatarios</guilabel>."
 
 #. (itstool) path: item/p
-#: C/win-composer.page:105
-#, fuzzy
-#| msgid ""
-#| "<menuchoice><guimenu>File</guimenu><guimenuitem>Postpone</guimenuitem></"
-#| "menuchoice> -- Save the message in the <symbol>Draftbox</symbol> for "
-#| "later revision and sending. You will be unable to postpone a message that "
-#| "is not currently valid."
+#: C/win-filters.page:63
 msgid ""
 "<guiseq> <gui>File</gui> <gui>Postpone</gui> </guiseq> -- Save the message "
 "in the <code>Draftbox</code> for later revision and sending, and close the "
@@ -5766,9 +5755,6 @@ msgstr ""
 
 #. (itstool) path: item/p
 #: C/win-filters.page:73
-#| msgid ""
-#| "<guilabel>Flag condition</guilabel>: the match is done by checking the "
-#| "flags of the message: unread, replied, deleted, flagged."
 msgid ""
 "<gui>Flag condition</gui>: the match is done by checking the flags of the "
 "message: unread, replied, deleted, flagged."
@@ -6022,15 +6008,6 @@ msgstr ""
 
 #. (itstool) path: item/p
 #: C/win-filters.page:180
-#| msgid ""
-#| "<guimenuitem>Regular expression</guimenuitem>: you can input a list of "
-#| "regular expressions. You type your regular expression in the text entry, "
-#| "then you click on the <guibutton>Add</guibutton> button to put it into "
-#| "the list. Of course the <guibutton>Remove</guibutton> button destroys the "
-#| "selected regular expression in the list. The last button <guibutton>One "
-#| "matches/None matches</guibutton> lets you specify when a message matches "
-#| "the condition: when one of the regular expression matches or when none "
-#| "matches. The sentence above te list will be updated accordingly."
 msgid ""
 "<gui>Regular expression</gui>: you can input a list of regular expressions. "
 "You type your regular expression in the text entry, then you click on the "
@@ -6044,16 +6021,14 @@ msgstr ""
 #. (itstool) path: item/p
 #: C/win-composer.page:180
 msgid ""
-"<guiseq> <gui>Edit</gui> <gui>Redo</gui> </guiseq> <keyseq> <key>Shift</key> "
-"<key>Ctrl</key> <key>Z</key> </keyseq> -- Redo an undone editing action."
+"<gui>Date interval</gui>: you can input the interval by the mean of the two "
+"text entries. A blank entry means no bound. The button tells to match when "
+"the message date is within the bounds or not. The sentence above the text "
+"entries will be updated accordingly."
 msgstr ""
 
 #. (itstool) path: item/p
-#: C/win-composer.page:192
-#, fuzzy
-#| msgid ""
-#| "<menuchoice><guimenu>Edit</guimenu><guimenuitem>Copy</guimenuitem></"
-#| "menuchoice> -- Copy selected text to the clipboard."
+#: C/win-filters.page:202
 msgid ""
 "<gui>Flag condition</gui>: the four check boxes let you select which "
 "messages will match this condition. If you want to match all replied OR "
@@ -7382,9 +7357,6 @@ msgstr ""
 #. update your localized copy. The msgstr is not used at all. Set it to
 #. whatever you like once you have updated your copy of the file.
 #: C/win-message.page:28
-#| msgid ""
-#| "@@image: 'figures/message-window.png'; "
-#| "md5=b72ce86097d5b8bc4ea8ca52f48b3205"
 msgctxt "_"
 msgid ""
 "external ref='figures/message-window.png' "
@@ -7458,9 +7430,6 @@ msgstr "Seleccionar una parte del mensaje"
 #. update your localized copy. The msgstr is not used at all. Set it to
 #. whatever you like once you have updated your copy of the file.
 #: C/win-message.page:50
-#| msgid ""
-#| "@@image: 'figures/msg-part-select.png'; "
-#| "md5=8265967b3acae486db6f90bddec897e1"
 msgctxt "_"
 msgid ""
 "external ref='figures/msg-part-select.png' "
@@ -7728,7 +7697,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/win-search.page:25
-#| msgid "Show only matching messages"
 msgid "<gui>Show only matching messages</gui>"
 msgstr "<gui>Mostrar sólo los mensajes que coincidan</gui>"
 
@@ -7751,7 +7719,6 @@ msgstr ""
 
 #. (itstool) path: item/title
 #: C/win-search.page:41
-#| msgid "Open next matching message"
 msgid "<gui>Open next matching message</gui>"
 msgstr "<gui>Abrir el siguiente mensaje coincidente</gui>"
 
