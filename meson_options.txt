@@ -15,8 +15,8 @@ option('fcntl',
 
 option('gpgme',
   type        : 'string',
-  value       : 'false',
-  description : 'build with gpgme/GnuPG support (true|false|path to gpgme-config, default=false)')
+  value       : 'true',
+  description : 'build with gpgme/GnuPG support (true|false|path to gpgme-config, default=true)')
 
 option('canberra',
   type        : 'boolean',
@@ -41,13 +41,13 @@ option('html-widget',
 
 option('gtksourceview',
   type        : 'boolean',
-  value       : false,
-  description : 'Use GtkSourceView-3 if available (default=false)')
+  value       : true,
+  description : 'Use GtkSourceView-3 if available (default=true)')
 
 option('spell-checker',
   type        : 'combo',
   choices     : ['internal', 'gspell', 'gtkspell'],
-  value       : 'internal',
+  value       : 'gspell',
   description : 'select the spell checker (default internal)')
 
 option('ldap',
@@ -82,8 +82,8 @@ option('sqlite',
 
 option('libsecret',
   type        : 'boolean',
-  value       : false,
-  description : 'Link to libsecret (default=false)')
+  value       : true,
+  description : 'Link to libsecret (default=true)')
 
 option('gcr',
   type        : 'boolean',
@@ -97,8 +97,8 @@ option('more-warnings',
 
 option('help-files',
   type        : 'boolean',
-  value       : false,
-  description : 'Install the help files (default=false)')
+  value       : true,
+  description : 'Install the help files (default=true)')
 
 option('libnetclient-docs',
   type        : 'boolean',
