@@ -626,7 +626,7 @@ libbalsa_mailbox_pop3_check(LibBalsaMailbox * mailbox)
 
 	server = LIBBALSA_MAILBOX_REMOTE_SERVER(mbox);
 
-	/* open the mailbox connection and get the messages list (note: initiates the progress dialogue) */
+	/* open the mailbox connection and get the messages list */
 	pop = libbalsa_mailbox_pop3_startup(server, mbox, mailbox->name, &msg_list);
 
 	/* proceed on success only */
@@ -651,10 +651,9 @@ libbalsa_mailbox_pop3_check(LibBalsaMailbox * mailbox)
 			fd.mailbox = mailbox;
 			fd.total_size_msg = libbalsa_size_to_gchar(fd.total_size);
 
-			msgbuf = g_strdup_printf(ngettext("%lu new message (%s)", "%lu new messages (%s)", fd.total_messages),
-			                         (unsigned long) fd.total_messages, fd.total_size_msg);
-			libbalsa_mailbox_progress_notify(mailbox, LIBBALSA_NTFY_PROGRESS, 0, 1, msgbuf);
-			g_free(msgbuf);
+			libbalsa_mailbox_progress_notify(mailbox, LIBBALSA_NTFY_UPDATE, 0.0,
+				ngettext("%lu new message (%s)", "%lu new messages (%s)", fd.total_messages),
+				(unsigned long) fd.total_messages, fd.total_size_msg);
 
 			if (mbox->filter) {
 				fd.filter_path = mbox->filter_cmd;
@@ -695,6 +694,7 @@ libbalsa_mailbox_pop3_check(LibBalsaMailbox * mailbox)
 
 		/* done - clean up */
 		g_object_unref(G_OBJECT(pop));
+		libbalsa_mailbox_progress_notify(mailbox, LIBBALSA_NTFY_FINISHED, 1.0, _("Finished"));
 	}
 
 	libbalsa_mailbox_progress_notify(mailbox, LIBBALSA_NTFY_FINISHED, 1.0, _("Finished"));
