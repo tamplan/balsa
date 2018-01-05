@@ -626,7 +626,7 @@ libbalsa_mailbox_pop3_check(LibBalsaMailbox * mailbox)
 
 	server = LIBBALSA_MAILBOX_REMOTE_SERVER(mbox);
 
-	/* open the mailbox connection and get the messages list (note: initiates the progress dialogue) */
+	/* open the mailbox connection and get the messages list */
 	pop = libbalsa_mailbox_pop3_startup(server, mbox, mailbox->name, &msg_list);
 
 	/* proceed on success only */
@@ -694,6 +694,7 @@ libbalsa_mailbox_pop3_check(LibBalsaMailbox * mailbox)
 
 		/* done - clean up */
 		g_object_unref(G_OBJECT(pop));
+		libbalsa_mailbox_progress_notify(mailbox, LIBBALSA_NTFY_FINISHED, 1.0, _("Finished"));
 	}
 
 	libbalsa_mailbox_progress_notify(mailbox, LIBBALSA_NTFY_FINISHED, 1.0, _("Finished"));
