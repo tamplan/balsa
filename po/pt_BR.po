@@ -19,8 +19,8 @@ msgstr ""
 "Project-Id-Version: balsa\n"
 "Report-Msgid-Bugs-To: https://bugzilla.gnome.org/enter_bug.cgi?product=balsa&"
 "keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2018-03-17 23:59+0000\n"
-"PO-Revision-Date: 2018-03-24 12:53-0200\n"
+"POT-Creation-Date: 2018-01-05 22:26+0000\n"
+"PO-Revision-Date: 2018-01-08 19:40-0200\n"
 "Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
 "Language-Team: Brazilian Portuguese <gnome-pt_br-list@gnome.org>\n"
 "Language: pt_BR\n"
@@ -201,7 +201,7 @@ msgid "Reply To:"
 msgstr "Responder a:"
 
 #: ../libbalsa/body.c:121 ../libbalsa/mailbox_local.c:1829
-#: ../libbalsa/message.c:848 ../libbalsa/message.h:188
+#: ../libbalsa/message.c:848
 msgid "(No subject)"
 msgstr "(Sem assunto)"
 
@@ -467,7 +467,7 @@ msgstr ""
 msgid "_Download images"
 msgstr "_Baixar imagens"
 
-#: ../libbalsa/html.c:426 ../libbalsa/html.c:1096 ../libbalsa/identity.c:1776
+#: ../libbalsa/html.c:419 ../libbalsa/html.c:1089 ../libbalsa/identity.c:1776
 #: ../src/ab-window.c:148 ../src/mailbox-node.c:1109 ../src/main-window.c:3764
 #: ../src/toolbar-prefs.c:140 ../ui/main-window.ui.h:72
 #: ../ui/message-window.ui.h:4 ../ui/sendmsg-window.ui.h:12
@@ -526,8 +526,8 @@ msgstr "A assinatura em %s não é um texto no formato UTF-8."
 msgid "_Cancel"
 msgstr "_Cancelar"
 
-#: ../libbalsa/identity.c:475 ../libbalsa/libbalsa-gpgme-cb.c:196
-#: ../libbalsa/libbalsa-gpgme-cb.c:355 ../libbalsa/smtp-server.c:470
+#: ../libbalsa/identity.c:475 ../libbalsa/libbalsa-gpgme-cb.c:190
+#: ../libbalsa/libbalsa-gpgme-cb.c:349 ../libbalsa/smtp-server.c:470
 #: ../src/ab-window.c:140 ../src/balsa-app.c:85 ../src/balsa-message.c:1767
 #: ../src/balsa-mime-widget-callbacks.c:86 ../src/filter-edit-callbacks.c:1246
 #: ../src/filter-edit-dialog.c:572 ../src/filter-export-dialog.c:78
@@ -1112,12 +1112,7 @@ msgstr "erro ao definir modo de lista de chaves"
 msgid "could not list keys for “%s”"
 msgstr "não foi possível listar as chaves para “%s”"
 
-#: ../libbalsa/libbalsa-gpgme-keys.c:173
-#, c-format
-msgid "ambiguous keys for “%s”"
-msgstr "chaves ambíguas para “%s”"
-
-#: ../libbalsa/libbalsa-gpgme-keys.c:242 ../libbalsa/libbalsa-gpgme-keys.c:282
+#: ../libbalsa/libbalsa-gpgme-keys.c:190 ../libbalsa/libbalsa-gpgme-keys.c:230
 msgid "cannot create data buffer"
 msgstr "não foi possível criar buffer de dados"
 
@@ -1303,8 +1298,35 @@ msgstr "Subchaves (%s apenas)"
 msgid "Subkeys"
 msgstr "Subchaves"
 
-#: ../libbalsa/libbalsa-gpgme-widgets.c:297
-#: ../libbalsa/libbalsa-gpgme-widgets.c:617
+#: ../libbalsa/libbalsa-gpgme-widgets.c:219 ../src/toolbar-factory.c:163
+msgid "Close"
+msgstr "Fechar"
+
+#: ../libbalsa/libbalsa-gpgme-widgets.c:223
+msgid "No"
+msgstr "Não"
+
+#: ../libbalsa/libbalsa-gpgme-widgets.c:223
+msgid "Yes"
+msgstr "Sim"
+
+#: ../libbalsa/libbalsa-gpgme-widgets.c:298
+msgid "revoked"
+msgstr "revogada"
+
+#: ../libbalsa/libbalsa-gpgme-widgets.c:301
+msgid "expired"
+msgstr "expirou"
+
+#: ../libbalsa/libbalsa-gpgme-widgets.c:304
+msgid "disabled"
+msgstr "desabilitada"
+
+#: ../libbalsa/libbalsa-gpgme-widgets.c:307
+msgid "invalid"
+msgstr "inválida"
+
+#: ../libbalsa/libbalsa-gpgme-widgets.c:445
 msgid "Status:"
 msgstr "Status:"
 
@@ -1477,16 +1499,16 @@ msgstr "de desconhecido"
 msgid "Loading…"
 msgstr "Carregando…"
 
-#: ../libbalsa/mailbox.c:3943
+#: ../libbalsa/mailbox.c:3939
 #, c-format
 msgid "Searching %s for partial messages"
 msgstr "Pesquisando %s em mensagens parciais"
 
-#: ../libbalsa/mailbox.c:4033
+#: ../libbalsa/mailbox.c:4029
 msgid "Reconstructing message"
 msgstr "Reconstruindo a mensagem"
 
-#: ../libbalsa/mailbox.c:4292
+#: ../libbalsa/mailbox.c:4288
 #, c-format
 msgid "Finding duplicate messages in source mailbox failed"
 msgstr "Procura de mensagens duplicadas na caixa de correio fonte falhou"
@@ -1789,6 +1811,7 @@ msgstr "Não foi possível carregar o arquivo de certificado %s: %s"
 #. connect server
 #: ../libbalsa/mailbox_pop3.c:508 ../libbalsa/send.c:1005
 #, c-format
+#| msgid "Connected to %s"
 msgid "Connecting %s…"
 msgstr "Conectado a %s…"
 
@@ -1798,26 +1821,27 @@ msgid "POP3 mailbox %s: cannot connect %s: %s"
 msgstr "Caixa de correio POP3 %s: não foi possível conectar %s: %s"
 
 #. load message list
-#: ../libbalsa/mailbox_pop3.c:519
+#: ../libbalsa/mailbox_pop3.c:518
+#| msgid "Print message"
 msgid "List messages…"
 msgstr "Imprimir mensagens…"
 
-#: ../libbalsa/mailbox_pop3.c:521
+#: ../libbalsa/mailbox_pop3.c:520
 #, c-format
 msgid "POP3 mailbox %s error: %s"
 msgstr "Ocorreu erro na caixa de correio POP3 %s: %s"
 
-#: ../libbalsa/mailbox_pop3.c:566
+#: ../libbalsa/mailbox_pop3.c:564
 #, c-format
 msgid "POP3 message %d oversized: %s — skipped."
 msgstr "A mensagem POP3 %d excedeu o tamanho: %s — ignorada."
 
-#: ../libbalsa/mailbox_pop3.c:640 ../libbalsa/send.c:1015
+#: ../libbalsa/mailbox_pop3.c:638 ../libbalsa/send.c:1015
 #, c-format
 msgid "Connected to %s"
 msgstr "Conectado a %s"
 
-#: ../libbalsa/mailbox_pop3.c:655
+#: ../libbalsa/mailbox_pop3.c:653
 #, c-format
 msgid "%lu new message (%s)"
 msgid_plural "%lu new messages (%s)"
@@ -1825,17 +1849,17 @@ msgstr[0] "%lu nova mensagem (%s)"
 msgstr[1] "%lu novas mensagens (%s)"
 
 # Fica melhor "Exclusão" do que "Excluindo" na interface gráfica
-#: ../libbalsa/mailbox_pop3.c:666
+#: ../libbalsa/mailbox_pop3.c:664
 msgid "Deleting messages on server…"
 msgstr "Excluindo mensagens no servidor…"
 
-#: ../libbalsa/mailbox_pop3.c:689
+#: ../libbalsa/mailbox_pop3.c:686
 #, c-format
 msgid "POP3 error: %s"
 msgstr "Erro de POP3: %s"
 
 # 26
-#: ../libbalsa/mailbox_pop3.c:699 ../libbalsa/send.c:1084
+#: ../libbalsa/mailbox_pop3.c:694 ../libbalsa/send.c:1084
 msgid "Finished"
 msgstr "Concluído"
 
@@ -3372,7 +3396,7 @@ msgstr "PGP"
 msgid "S/MIME"
 msgstr "S/MIME"
 
-#: ../src/balsa-message.c:2968
+#: ../src/balsa-message.c:2968 ../src/balsa-message.c:3095
 msgid "Detected a good signature"
 msgstr "Uma boa assinatura foi detectada"
 
@@ -3380,11 +3404,11 @@ msgstr "Uma boa assinatura foi detectada"
 msgid "Detected a good signature with insufficient validity"
 msgstr "Uma boa assinatura foi detectada com validade insuficiente"
 
-#: ../src/balsa-message.c:2979 ../src/balsa-message.c:3097
+#: ../src/balsa-message.c:2979 ../src/balsa-message.c:3099
 msgid "Detected a good signature with insufficient validity/trust"
 msgstr "Uma boa assinatura foi detectada com validade/confiança insuficiente"
 
-#: ../src/balsa-message.c:2986 ../src/balsa-message.c:3104
+#: ../src/balsa-message.c:2986 ../src/balsa-message.c:3105
 #, c-format
 msgid ""
 "Checking the signature of the message sent by %s with subject “%s” "
@@ -3511,11 +3535,11 @@ msgstr ""
 msgid "Error importing key data: %s"
 msgstr "Erro de importação de dados de chave: %s"
 
-#: ../src/balsa-mime-widget-crypto.c:306
+#: ../src/balsa-mime-widget-crypto.c:309
 msgid "(imported)"
 msgstr "(importada)"
 
-#: ../src/balsa-mime-widget-crypto.c:314
+#: ../src/balsa-mime-widget-crypto.c:317
 msgid "Import key into the local key ring"
 msgstr "Importar chave ao chaveiro local"
 
@@ -5023,6 +5047,7 @@ msgstr "Verificando correio…"
 
 #: ../src/main-window.c:3417 ../src/main-window.c:3422
 #: ../src/main-window.c:3455 ../src/main-window.c:3461
+#| msgid "Mail_boxes"
 msgid "Mailboxes"
 msgstr "Caixas de mensagens"
 
@@ -5570,10 +5595,12 @@ msgid "Display progress dialog"
 msgstr "Exibir diálogo de progresso"
 
 #: ../src/pref-manager.c:2700
+#| msgid "Display progress dialog"
 msgid "Display progress dialog when sending messages"
 msgstr "Exibir diálogo de progresso ao enviar mensagens"
 
 #: ../src/pref-manager.c:2701
+#| msgid "Display progress dialog"
 msgid "Display progress dialog when retrieving messages"
 msgstr "Exibir diálogo de progresso ao obter mensagens"
 
@@ -7356,93 +7383,6 @@ msgstr "Anexar chave pública Gnu_PG"
 #: ../ui/source-viewer.ui.h:7
 msgid "_Escape Special Characters"
 msgstr "Descartar caracteres _especiais"
-
-#~ msgid ""
-#~ "\n"
-#~ "Key owner trust: %s"
-#~ msgstr ""
-#~ "\n"
-#~ "Confiança do proprietário da chave: %s"
-
-#~ msgid ""
-#~ "\n"
-#~ "User IDs:"
-#~ msgstr ""
-#~ "\n"
-#~ "IDs de usuários:"
-
-#~ msgid ""
-#~ "\n"
-#~ "User ID:"
-#~ msgstr ""
-#~ "\n"
-#~ "ID do usuário:"
-
-#~ msgid " [Revoked]"
-#~ msgstr " [Revogada]"
-
-#~ msgid " [Invalid]"
-#~ msgstr " [Inválida]"
-
-#~ msgid ""
-#~ "\n"
-#~ "Subkey created on: %s"
-#~ msgstr ""
-#~ "\n"
-#~ "Subchave criada em: %s"
-
-#~ msgid ""
-#~ "\n"
-#~ "Subkey expires on: %s"
-#~ msgstr ""
-#~ "\n"
-#~ "A subchave expira em: %s"
-
-#~ msgid " revoked"
-#~ msgstr " revogada"
-
-#~ msgid " expired"
-#~ msgstr " expirou"
-
-#~ msgid " disabled"
-#~ msgstr " desabilitada"
-
-#~ msgid " invalid"
-#~ msgstr " inválida"
-
-#~ msgid ""
-#~ "\n"
-#~ "Subkey attribute:%s"
-#~ msgid_plural ""
-#~ "\n"
-#~ "Subkey attributes:%s"
-#~ msgstr[0] ""
-#~ "\n"
-#~ "Atributo da subchave:%s"
-#~ msgstr[1] ""
-#~ "\n"
-#~ "Atributos da subchave:%s"
-
-#~ msgid ""
-#~ "\n"
-#~ "Issuer name: %s"
-#~ msgstr ""
-#~ "\n"
-#~ "Nome do emissor: %s"
-
-#~ msgid ""
-#~ "\n"
-#~ "Issuer serial number: %s"
-#~ msgstr ""
-#~ "\n"
-#~ "Número de série do emissor: %s"
-
-#~ msgid ""
-#~ "\n"
-#~ "Chain ID: %s"
-#~ msgstr ""
-#~ "\n"
-#~ "ID da corrente: %s"
 
 #~ msgid "Connected"
 #~ msgstr "Conectado"
