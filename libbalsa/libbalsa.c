@@ -345,9 +345,10 @@ static GMutex certificate_lock;
 void
 libbalsa_certs_destroy(void)
 {
-	g_mutex_lock(&certificate_lock);
-    g_list_free_full(accepted_certs, g_object_unref);
-    accepted_certs = NULL;
+    g_mutex_lock(&certificate_lock);
+
+    libbalsa_clear_list(&accepted_certs, (GDestroyNotify) X509_free);
+
     g_mutex_unlock(&certificate_lock);
 }
 
