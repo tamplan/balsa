@@ -282,11 +282,8 @@ bm_header_tl_buttons(BalsaMessage * bm)
     button = gtk_button_new_from_icon_name(balsa_icon_id(BALSA_PIXMAP_GPG_RECHECK));
     gtk_widget_set_tooltip_text(button,
 			        _("Check cryptographic signature"));
-    g_signal_connect(G_OBJECT(button), "focus_in_event",
-		     G_CALLBACK(balsa_mime_widget_limit_focus),
-		     (gpointer) bm);
-    g_signal_connect(G_OBJECT(button), "focus_out_event",
-		     G_CALLBACK(balsa_mime_widget_unlimit_focus),
+    g_signal_connect(G_OBJECT(button), "notify::has-focus",
+		     G_CALLBACK(balsa_mime_widget_check_focus),
 		     (gpointer) bm);
     gtk_button_set_relief(GTK_BUTTON(button), GTK_RELIEF_NONE);
     g_signal_connect(button, "clicked",
@@ -297,11 +294,8 @@ bm_header_tl_buttons(BalsaMessage * bm)
     button = gtk_button_new_from_icon_name(balsa_icon_id(BALSA_PIXMAP_ATTACHMENT));
     gtk_widget_set_tooltip_text(button,
 			        _("Select message part to display"));
-    g_signal_connect(G_OBJECT(button), "focus_in_event",
-		     G_CALLBACK(balsa_mime_widget_limit_focus),
-		     (gpointer) bm);
-    g_signal_connect(G_OBJECT(button), "focus_out_event",
-		     G_CALLBACK(balsa_mime_widget_unlimit_focus),
+    g_signal_connect(G_OBJECT(button), "notify::has-focus",
+		     G_CALLBACK(balsa_mime_widget_check_focus),
 		     (gpointer) bm);
     gtk_button_set_relief(GTK_BUTTON(button), GTK_RELIEF_NONE);
     g_signal_connect(button, "clicked",
@@ -717,19 +711,9 @@ balsa_message_init(BalsaMessage * bm)
     g_free(buttons);
 
     /* Widget to hold message */
-    g_signal_connect(G_OBJECT(bm->bm_widget->widget), "focus_in_event",
-                     G_CALLBACK(balsa_mime_widget_limit_focus),
-                     (gpointer) bm);
-    g_signal_connect(G_OBJECT(bm->bm_widget->widget), "focus_out_event",
-                     G_CALLBACK(balsa_mime_widget_unlimit_focus),
-		     (gpointer) bm);
-
-    /* If we do not add the widget to a viewport, GtkContainer would
-     * provide one, but it would also set it up to scroll on grab-focus,
-     * which has been really annoying for a long time :-( */
-    viewport = gtk_viewport_new(NULL, NULL);
-    gtk_container_add(GTK_CONTAINER(viewport), bm->bm_widget->widget);
-    gtk_container_add(GTK_CONTAINER(bm->scroll), viewport);
+    g_signal_connect(bm->bm_widget->widget, "notify::has-focus",
+                     G_CALLBACK(balsa_mime_widget_check_focus), bm);
+    gtk_container_add(GTK_CONTAINER(bm->scroll), bm->bm_widget->widget);
 
     /* structure view */
     model = gtk_tree_store_new (NUM_COLUMNS,
