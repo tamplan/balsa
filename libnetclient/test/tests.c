@@ -41,11 +41,10 @@ log_dummy(const gchar G_GNUC_UNUSED *log_domain, GLogLevelFlags G_GNUC_UNUSED lo
 {
 }
 
-
 int
 main(G_GNUC_UNUSED int argc, G_GNUC_UNUSED char **argv)
 {
-	g_log_set_handler("libnetclient", G_LOG_LEVEL_MASK, log_dummy, NULL);
+	g_log_set_default_handler(log_dummy, NULL);
 
 	sput_start_testing();
 
@@ -156,52 +155,7 @@ test_basic(void)
 	sput_fail_unless((op_res == FALSE) && (error->code == NET_CLIENT_ERROR_LINE_TOO_LONG), "read line too long");
 	g_clear_error(&error);
 
-	sput_fail_unless(net_client_can_read(basic) == FALSE, "no data");
-	sput_fail_unless(net_client_write_buffer(basic, "line1\r\nline2\r\n", 14U, NULL) == TRUE, "write lines");
-	sput_fail_unless(net_client_can_read(basic) == TRUE, "data ready");
-	op_res = net_client_read_line(basic, &read_res, NULL);
-	sput_fail_unless((op_res == TRUE) && (strcmp("line1", read_res) == 0), "read line 1 ok");
-	g_free(read_res);
-	sput_fail_unless(net_client_can_read(basic) == TRUE, "data ready");
-	op_res = net_client_read_line(basic, &read_res, NULL);
-	sput_fail_unless((op_res == TRUE) && (strcmp("line2", read_res) == 0), "read line 2 ok");
-	g_free(read_res);
-	sput_fail_unless(net_client_can_read(basic) == FALSE, "no data");
-
-	sput_fail_unless(net_client_start_compression(NULL, NULL) == FALSE, "start compression w/o client");
-	op_res = net_client_execute(basic, &read_res, "COMPRESS", NULL);
-	sput_fail_unless((op_res == TRUE) && (strcmp("COMPRESS", read_res) == 0), "execute 'COMPRESS' ok");
-	g_free(read_res);
-	sput_fail_unless(net_client_start_compression(basic, NULL) == TRUE, "start compression");
-	op_res = net_client_start_compression(basic, &error);
-	sput_fail_unless((op_res == FALSE) && (error->code == NET_CLIENT_ERROR_COMP_ACTIVE), "compression already enabled");
-	g_clear_error(&error);
-
-	sput_fail_unless(net_client_can_read(basic) == FALSE, "no data");
-	sput_fail_unless(net_client_write_buffer(basic, "line1\r\nline2\r\n", 14U, NULL) == TRUE, "write lines");
-	sput_fail_unless(net_client_can_read(basic) == TRUE, "data ready");
-	op_res = net_client_read_line(basic, &read_res, NULL);
-	sput_fail_unless((op_res == TRUE) && (strcmp("line1", read_res) == 0), "read line 1 ok");
-	g_free(read_res);
-	sput_fail_unless(net_client_can_read(basic) == TRUE, "data ready");
-	op_res = net_client_read_line(basic, &read_res, NULL);
-	sput_fail_unless((op_res == TRUE) && (strcmp("line2", read_res) == 0), "read line 2 ok");
-	g_free(read_res);
-	sput_fail_unless(net_client_can_read(basic) == FALSE, "no data");
-
-	fds[0].fd = g_socket_get_fd(net_client_get_socket(basic));
-	fds[0].events = POLLIN;
-	poll(fds, 1, 0);
-	sput_fail_unless((fds[0].revents & POLLIN) == 0, "no data for reading");
-
-	sput_fail_unless(net_client_write_line(basic, "Hi There", NULL) == TRUE, "send data");
-
-	poll(fds, 1, 1000);
-	sput_fail_unless((fds[0].revents & POLLIN) == POLLIN, "data ready for reading");
-
-	op_res = net_client_read_line(basic, &read_res, NULL);
-	sput_fail_unless((op_res == TRUE) && (strcmp("Hi There", read_res) == 0), "receive data ok");
-	g_free(read_res);
+	sput_fail_unless(net_client_write_buffer(basic, "DISCONNECT\r\n", 12U, NULL) == TRUE, "disconnect");
 
 	sput_fail_unless(net_client_write_buffer(basic, "DISCONNECT\r\n", 12U, NULL) == TRUE, "disconnect");
 	op_res = net_client_read_line(basic, NULL, &error);

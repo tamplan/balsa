@@ -5,8 +5,6 @@
 # Echo server listening at port 65000, with the following non-standard
 # features:
 # - any 'x' in the received string is replaced by 'ThisIsLong'
-# - 'COMPRESS' in the received string causes the connection to be switched
-#   to deflate compression
 # - 'DISCONNECT' in the received string causes the connection to be closed
 # 
 # Copyright (C) Albrecht Dreß <mailto:albrecht.dress@arcor.de> 2017
@@ -26,7 +24,6 @@
 
 import sys
 import socket
-import zlib
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_address = ('localhost', 65000)
@@ -37,11 +34,9 @@ while True:
     connection, client_address = sock.accept()
     try:
         comp = False
-        comp_ctx = zlib.compressobj(-1, zlib.DEFLATED, -15)
-        decomp_ctx = zlib.decompressobj(-15)
         while True:
             if comp:
-                data = decomp_ctx.decompress(connection.recv(2048))
+                data = zlib.decompress(connection.recv(2048))
             else:
                 data = connection.recv(2048)
             if data:
@@ -50,12 +45,9 @@ while True:
                     break
                 data = data.replace('x', 'ThisIsLong')
                 if comp:
-                    connection.sendall(comp_ctx.compress(data) + comp_ctx.flush(zlib.Z_FULL_FLUSH))
+                    connection.sendall(zlib.compress(data))
                 else:
                     connection.sendall(data)
-                if data.startswith('COMPRESS'):
-                    print "compression enabled"
-                    comp = True
             else:
                 break
     finally:
