@@ -154,27 +154,7 @@ void
 net_client_shutdown(const NetClient *client)
 {
 	if (NET_IS_CLIENT(client)) {
-		/* Note: we must unref the GDataInputStream, but the GOutputStream only if compression is active! */
-		if (client->priv->comp != NULL) {
-			/* Note: for some strange reason, GIO decides to send a 0x03 0x00 sequence when closing a compressed connection, before
-			 * sending the usual FIN, ACK TCP reply packet.  As the remote server does not expect the former (the connection has
-			 * already been closed on its side), it replies with with a RST TCP packet.  Unref'ing client->priv->ostream and
-			 * client->priv->comp /after/ all other components of the connection fixes the issue for unencrypted connections, but
-			 * throws a critical error for TLS.  Observed with gio 2.48.2 and 2.50.3, no idea how it can be fixed.
-			 * See also https://bugzilla.gnome.org/show_bug.cgi?id=795985. */
-			if (client->priv->ostream != NULL) {
-				g_object_unref(G_OBJECT(client->priv->ostream));
-			}
-			g_object_unref(G_OBJECT(client->priv->comp));
-		}
-		if (client->priv->decomp != NULL) {
-			g_object_unref(G_OBJECT(client->priv->decomp));
-			client->priv->decomp = NULL;
-		}
-		if (client->priv->comp_istream!= NULL) {
-			g_object_unref(G_OBJECT(client->priv->comp_istream));
-			client->priv->comp_istream = NULL;
-		}
+		/* note: we must unref the GDataInputStream, but *not* the GOutputStream! */
 		if (client->priv->istream != NULL) {
 			g_object_unref(G_OBJECT(client->priv->istream));
 			client->priv->istream = NULL;
@@ -615,24 +595,15 @@ net_client_dispose(GObject *object)
 	const NetClient *client = NET_CLIENT(object);
 	const GObjectClass *parent_class = G_OBJECT_CLASS(net_client_parent_class);
 
-	/* note: we must unref the GDataInputStream, but *not* the GOutputStream! */
-        g_clear_object(&client->priv->istream);
-
-        g_clear_object(&client->priv->tls_conn);
-        g_clear_object(&client->priv->plain_conn);
-        g_clear_object(&client->priv->sock);
-        g_clear_object(&client->priv->certificate);
-
-	(*parent_class->dispose)(object);
-}
-
-
-static void
-net_client_finalise(GObject *object)
-{
-	const NetClient *client = NET_CLIENT(object);
-	const GObjectClass *parent_class = G_OBJECT_CLASS(net_client_parent_class);
-
+	net_client_shutdown(client);
+	if (client->priv->sock != NULL) {
+		g_object_unref(G_OBJECT(client->priv->sock));
+		client->priv->sock = NULL;
+	}
+	if (client->priv->certificate != NULL) {
+		g_object_unref(G_OBJECT(client->priv->certificate));
+		client->priv->certificate = NULL;
+	}
 	g_debug("finalised connection to %s", client->priv->host_and_port);
 	g_free(client->priv->host_and_port);
 	(*parent_class->finalize)(object);
