@@ -483,7 +483,7 @@ conf.set('HAVE_DECL_CTIME_R',
 
 if compiler.has_function('ctime_r')
   conf.set('HAVE_CTIME_R', 1,
-    description : 'Define to 1 if you have the ‘ctime_r’ function.')
+    description : 'Define to 1 if you have the ctime_r function.')
 endif
 
 if compiler.has_header('locale.h')
