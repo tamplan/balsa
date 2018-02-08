@@ -2761,6 +2761,7 @@ balsa_window_open_mbnode(BalsaWindow * window, BalsaMailboxNode * mbnode,
                          gboolean set_current)
 {
     g_return_if_fail(BALSA_IS_WINDOW(window));
+    g_assert(BALSA_WINDOW_GET_CLASS(window) != NULL);
 
     BALSA_WINDOW_GET_CLASS(window)->open_mbnode(window, mbnode,
                                                       set_current);
@@ -2770,6 +2771,7 @@ void
 balsa_window_close_mbnode(BalsaWindow * window, BalsaMailboxNode * mbnode)
 {
     g_return_if_fail(BALSA_IS_WINDOW(window));
+    g_assert(BALSA_WINDOW_GET_CLASS(window) != NULL);
 
     BALSA_WINDOW_GET_CLASS(window)->close_mbnode(window, mbnode);
 }
