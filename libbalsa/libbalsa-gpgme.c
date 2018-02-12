@@ -42,6 +42,12 @@
 #include "libbalsa.h"
 
 
+#ifdef G_LOG_DOMAIN
+#  undef G_LOG_DOMAIN
+#endif
+#define G_LOG_DOMAIN "crypto"
+
+
 static gboolean gpgme_add_signer(gpgme_ctx_t ctx, const gchar * signer,
 				 GtkWindow * parent, GError ** error);
 static gpgme_key_t *gpgme_build_recipients(gpgme_ctx_t ctx,
@@ -107,7 +113,7 @@ libbalsa_gpgme_init(gpgme_passphrase_cb_t get_passphrase,
     const gchar *agent_info;
 
     /* initialise the gpgme library */
-    g_message("init gpgme version %s", gpgme_check_version(NULL));
+    g_debug("init gpgme version %s", gpgme_check_version(NULL));
 
 #ifdef ENABLE_NLS
     gpgme_set_locale(NULL, LC_CTYPE, get_utf8_locale(LC_CTYPE));
@@ -144,10 +150,10 @@ libbalsa_gpgme_init(gpgme_passphrase_cb_t get_passphrase,
     }
 
     if (gpgme_engine_check_version(GPGME_PROTOCOL_CMS) == GPG_ERR_NO_ERROR) {
-    	g_message("CMS (aka S/MIME) protocol supported");
+    	g_debug("CMS (aka S/MIME) protocol supported");
     	has_proto_cms = TRUE;
     } else {
-    	g_message("CMS protocol not supported, S/MIME will not work!");
+    	g_warning("CMS protocol not supported, S/MIME will not work!");
     	has_proto_cms = FALSE;
     }
 

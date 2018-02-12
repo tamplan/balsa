@@ -104,12 +104,6 @@ gpgme_error_t libbalsa_rfc2440_decrypt(GMimePart * part,
 const gchar *libbalsa_gpgme_sig_stat_to_gchar(gpgme_error_t stat);
 const gchar *libbalsa_gpgme_validity_to_gchar(gpgme_validity_t validity);
 const gchar *libbalsa_gpgme_validity_to_gchar_short(gpgme_validity_t validity);
-gchar *libbalsa_signature_info_to_gchar(GMimeGpgmeSigstat *info,
-										const gchar 	  *date_string)
-	G_GNUC_WARN_UNUSED_RESULT;
-gchar *libbalsa_signature_info_to_gchar_short(GMimeGpgmeSigstat *info,
-				 	 	 	 	 	   	      const gchar       *date_string)
-	G_GNUC_WARN_UNUSED_RESULT;
 
 #endif				/* HAVE_GPGME */
 #endif				/* __RFC3156_H__ */
