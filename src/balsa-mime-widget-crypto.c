@@ -128,13 +128,6 @@ balsa_mime_widget_signature_widget(LibBalsaMessageBody * mime_body,
     gtk_label_set_selectable(GTK_LABEL(label), TRUE);
     gtk_widget_set_halign(label, GTK_ALIGN_START);
     gtk_box_pack_start(GTK_BOX(vbox), label);
-    if (mime_body->sig_info->key != NULL) {
-    	GtkWidget *key_widget;
-
-    	/* show only the subkey which has been used to sign the message */
-    	key_widget = libbalsa_gpgme_key(mime_body->sig_info->key, mime_body->sig_info->fingerprint, 0U, FALSE);
-        gtk_box_pack_start(GTK_BOX(vbox), key_widget);
-    }
     if (mime_body->sig_info->protocol == GPGME_PROTOCOL_OpenPGP) {
         GtkWidget *button;
 
