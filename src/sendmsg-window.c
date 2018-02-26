@@ -224,9 +224,10 @@ sw_preferred_charset(BalsaSendmsg * bsmsg)
 {
     guint i;
 
-    for (i = 0; i < G_N_ELEMENTS(locales); i++)
+    for (i = 0; i < G_N_ELEMENTS(locales); i++) {
         if (g_strcmp0(bsmsg->spell_check_lang, locales[i].locale) == 0)
             return locales[i].charset;
+    }
 
     return NULL;
 }
