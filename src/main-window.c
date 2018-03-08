@@ -303,7 +303,6 @@ bw_frame(GtkWidget * widget)
 {
     GtkWidget *frame = gtk_frame_new(NULL);
     gtk_container_add(GTK_CONTAINER(frame), widget);
-    gtk_widget_show(frame);
     return frame;
 }
 /* Filter entry widget creation code. We must carefully pass the typed
@@ -477,7 +476,6 @@ bw_create_index_widget(BalsaWindow *bw)
         gtk_combo_box_text_insert_text(GTK_COMBO_BOX_TEXT(bw->filter_choice),
                                        i, view_filters[i].str);
     gtk_combo_box_set_active(GTK_COMBO_BOX(bw->filter_choice), 0);
-    gtk_widget_show(bw->filter_choice);
     bw->sos_entry = gtk_entry_new();
     /* gtk_label_set_mnemonic_widget(GTK_LABEL(bw->filter_choice),
        bw->sos_entry); */
@@ -485,7 +483,6 @@ bw_create_index_widget(BalsaWindow *bw)
                      G_CALLBACK(bw_check_filter), bw);
     gtk_widget_set_hexpand(bw->sos_entry, TRUE);
     gtk_box_pack_start(GTK_BOX(bw->sos_bar), bw->sos_entry);
-    gtk_widget_show(bw->sos_entry);
     button = gtk_button_new_from_icon_name("gtk-ok");
     gtk_box_pack_start(GTK_BOX(bw->sos_bar), button);
     g_signal_connect(G_OBJECT(bw->sos_entry), "activate",
@@ -499,9 +496,7 @@ bw_create_index_widget(BalsaWindow *bw)
                              button);
     g_signal_connect(G_OBJECT(bw->filter_choice), "changed",
                      G_CALLBACK(bw_filter_entry_changed), button);
-    gtk_widget_show(button);
     vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-    gtk_widget_show(bw->sos_bar);
     gtk_box_pack_start(GTK_BOX(vbox), bw->sos_bar);
     gtk_widget_set_vexpand(bw->notebook, TRUE);
     gtk_box_pack_start(GTK_BOX(vbox), bw->notebook);
@@ -511,7 +506,7 @@ bw_create_index_widget(BalsaWindow *bw)
     g_list_free(focusable_widgets);
 
     gtk_widget_set_sensitive(button, FALSE);
-    gtk_widget_show(vbox);
+
     return vbox;
 }
 
@@ -2235,7 +2230,6 @@ balsa_window_new(GtkApplication *application)
     bw_set_alt_bindings(window);
 
     window->vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-    gtk_widget_show(window->vbox);
     gtk_container_add(GTK_CONTAINER(window), window->vbox);
 
     bw_set_menus(window);
@@ -2263,7 +2257,6 @@ balsa_window_new(GtkApplication *application)
                      window->statusbar);
     gtk_widget_set_hexpand(window->statusbar, TRUE);
     gtk_box_pack_start(GTK_BOX(hbox), window->statusbar);
-    gtk_widget_show(hbox);
 
     gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
     gtk_window_set_default_size(GTK_WINDOW(window), balsa_app.mw_width,
@@ -2301,7 +2294,6 @@ balsa_window_new(GtkApplication *application)
 
     /* XXX */
     balsa_app.mblist =  BALSA_MBLIST(balsa_mblist_new());
-    gtk_widget_show(GTK_WIDGET(balsa_app.mblist));
 
     g_object_get(G_OBJECT(balsa_app.mblist), "hadjustment", &hadj,
                  "vadjustment", &vadj, NULL);
@@ -2324,7 +2316,6 @@ balsa_window_new(GtkApplication *application)
                           balsa_app.show_mblist);
 
     if (balsa_app.show_mblist) {
-        gtk_widget_show(window->mblist);
         gtk_paned_set_position(GTK_PANED(window->paned_master),
                                balsa_app.mblist_width);
     } else {
@@ -2338,10 +2329,6 @@ balsa_window_new(GtkApplication *application)
     else
         /* Set it to something really high */
         gtk_paned_set_position(GTK_PANED(window->paned_slave), G_MAXINT);
-
-    gtk_widget_show(window->paned_slave);
-    gtk_widget_show(window->paned_master);
-    gtk_widget_show(window->notebook);
 
     /* set the toolbar style */
     balsa_window_refresh(window);
@@ -2831,8 +2818,6 @@ bw_notebook_label_new(BalsaMailboxNode * mbnode)
                      G_CALLBACK(bw_mailbox_tab_close_cb), mbnode);
     gtk_box_pack_start(GTK_BOX(box), but);
 
-    gtk_widget_show(box);
-
     gtk_widget_set_tooltip_text(box, mbnode->mailbox->url);
     return box;
 }
@@ -2898,7 +2883,6 @@ bw_real_open_mbnode_idle_cb(BalsaWindowRealOpenMbnodeInfo * info)
                                    GTK_POLICY_AUTOMATIC,
                                    GTK_POLICY_AUTOMATIC);
     gtk_container_add(GTK_CONTAINER(scroll), GTK_WIDGET(index));
-    gtk_widget_show(scroll);
     page_num = gtk_notebook_append_page(GTK_NOTEBOOK(window->notebook),
                                         scroll, label);
     gtk_notebook_set_tab_reorderable(GTK_NOTEBOOK(window->notebook),
@@ -3916,8 +3900,6 @@ bw_find_real(BalsaWindow * window, BalsaIndex * bindex, gboolean again)
         gtk_widget_set_hexpand(button, TRUE);
 	gtk_box_pack_start(GTK_BOX(box), button);
 
-	gtk_widget_show(vbox);
-
 	if (cnd->match.string.string)
 	    gtk_entry_set_text(GTK_ENTRY(search_entry),
                                cnd->match.string.string);
@@ -4193,9 +4175,6 @@ balsa_change_window_layout(BalsaWindow *window)
     gtk_paned_set_position(GTK_PANED(window->paned_master),
                            balsa_app.show_mblist ?
                            balsa_app.mblist_width : 0);
-    gtk_widget_show(window->paned_slave);
-    gtk_widget_show(window->paned_master);
-
 }
 
 /* PKGW: remember when they change the position of the vpaned. */

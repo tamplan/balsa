@@ -843,7 +843,7 @@ message_window_new(LibBalsaMailbox * mailbox, guint msgno)
         g_error_free(error);
         return;
     }
-    gtk_widget_show(menubar);
+    g_free(ui_file);
 #if HAVE_MACOSX_DESKTOP
     libbalsa_macosx_menu(window, GTK_MENU_SHELL(menubar));
 #else
@@ -892,7 +892,6 @@ message_window_new(LibBalsaMailbox * mailbox, guint msgno)
     
     gtk_widget_set_vexpand(mw->bmessage, TRUE);
     gtk_box_pack_start(GTK_BOX(vbox), mw->bmessage);
-    gtk_widget_show(vbox);
 
     g_signal_connect(mw->bmessage, "select-part",
 		     G_CALLBACK(mw_select_part_cb), mw);

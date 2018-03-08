@@ -224,7 +224,7 @@ verify_button(BalsaDruidPageDirectory * dir)
     button = gtk_button_new_with_mnemonic(_("_Verify locations"));
     g_signal_connect(button, "clicked",
                      G_CALLBACK(verify_button_clicked_cb), dir);
-    gtk_widget_show(button);
+
     return button;
 }
 
@@ -298,7 +298,6 @@ balsa_druid_page_directory_init(BalsaDruidPageDirectory * dir,
     }
 
     gtk_box_pack_start(GTK_BOX(page), GTK_WIDGET(grid));
-    gtk_widget_show(GTK_WIDGET(grid));
 
     gtk_box_pack_end(GTK_BOX(page), verify_button(dir));
 
