@@ -6,20 +6,20 @@
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option) 
+ * the Free Software Foundation; either version 2, or (at your option)
  * any later version.
- *  
+ *
  * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the  
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *  
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #if defined(HAVE_CONFIG_H) && HAVE_CONFIG_H
-# include "config.h"
+#   include "config.h"
 #endif                          /* HAVE_CONFIG_H */
 #include "libbalsa.h"
 
@@ -31,23 +31,25 @@
 #include <stdarg.h>
 #include <unistd.h>
 
+#ifdef HAVE_NOTIFY
+#   include <libnotify/notify.h>
+#endif
+
 #if ENABLE_LDAP
-#include <ldap.h>
+#   include <ldap.h>
 #endif
 
 #if HAVE_COMPFACE
-#include <compface.h>
+#   include <compface.h>
 #endif                          /* HAVE_COMPFACE */
 
 #if HAVE_GTKSOURCEVIEW
-#include <gtksourceview/gtksource.h>
+#   include <gtksourceview/gtksource.h>
 #endif
 
 #if HAVE_GCR
-#define GCR_API_SUBJECT_TO_CHANGE
-#include <gcr/gcr.h>
-#else
-#include <gnutls/x509.h>
+#   define GCR_API_SUBJECT_TO_CHANGE
+#   include <gcr/gcr.h>
 #endif
 
 #include "misc.h"
@@ -58,7 +60,8 @@ static GThread *main_thread_id;
 
 
 void
-libbalsa_message(const char *fmt, ...)
+libbalsa_message(const char *fmt,
+                 ...)
 {
     va_list va_args;
 
@@ -67,6 +70,7 @@ libbalsa_message(const char *fmt, ...)
                               fmt, va_args);
     va_end(va_args);
 }
+
 
 void
 libbalsa_init(void)
@@ -116,9 +120,9 @@ libbalsa_init(void)
 
 /* libbalsa_rot:
    return rot13'ed string.
-*/
+ */
 gchar *
-libbalsa_rot(const gchar * pass)
+libbalsa_rot(const gchar *pass)
 {
     gchar *buff;
     gint len = 0, i = 0;
@@ -129,12 +133,13 @@ libbalsa_rot(const gchar * pass)
     buff = g_strdup(pass);
 
     for (i = 0; i < len; i++) {
-	if ((buff[i] <= 'M' && buff[i] >= 'A')
-	    || (buff[i] <= 'm' && buff[i] >= 'a'))
-	    buff[i] += 13;
-	else if ((buff[i] <= 'Z' && buff[i] >= 'N')
-		 || (buff[i] <= 'z' && buff[i] >= 'n'))
-	    buff[i] -= 13;
+        if (((buff[i] <= 'M') && (buff[i] >= 'A'))
+            || ((buff[i] <= 'm') && (buff[i] >= 'a'))) {
+            buff[i] += 13;
+        } else if (((buff[i] <= 'Z') && (buff[i] >= 'N'))
+                   || ((buff[i] <= 'z') && (buff[i] >= 'n'))) {
+            buff[i] -= 13;
+        }
     }
     return buff;
 }
@@ -151,29 +156,29 @@ libbalsa_rot(const gchar * pass)
    3. Append the domainname to the user name.
    4. Append the hostname to the user name.
 
-*/
-gchar*
+ */
+gchar *
 libbalsa_guess_email_address(void)
 {
     /* Q: Find this location with configure? or at run-time? */
-    static const gchar* MAILNAME_FILE = "/etc/mailname";
-    gchar* preset, *domain;
+    static const gchar *MAILNAME_FILE = "/etc/mailname";
+    gchar *preset, *domain;
     gchar *mailname;
 
-    if(g_getenv("EMAIL") != NULL){                  /* 1. */
+    if (g_getenv("EMAIL") != NULL) {                 /* 1. */
         preset = g_strdup(g_getenv("EMAIL"));
     } else if (g_file_get_contents(MAILNAME_FILE, &mailname, NULL, NULL)) { /* 2. */
-    	gchar *newline;
+        gchar *newline;
 
-    	newline = strchr(mailname, '\n');
-    	if (newline != NULL) {
-    		newline[0] = '\0';
-    	}
+        newline = strchr(mailname, '\n');
+        if (newline != NULL) {
+            newline[0] = '\0';
+        }
         preset = g_strconcat(g_get_user_name(), "@", mailname, NULL);
         g_free(mailname);
-    }else if((domain = libbalsa_get_domainname())){ /* 3. */
+    } else if ((domain = libbalsa_get_domainname())) {   /* 3. */
         preset = g_strconcat(g_get_user_name(), "@", domain, NULL);
-        g_free(domain);    
+        g_free(domain);
     } else {                                        /* 4. */
         char hostbuf[512];
 
@@ -183,41 +188,44 @@ libbalsa_guess_email_address(void)
     return preset;
 }
 
+
 /* libbalsa_guess_mail_spool
 
    Returns an allocated gchar * with our best guess of the user's
    mail spool file.
-*/
+ */
 gchar *
 libbalsa_guess_mail_spool(void)
 {
     gchar *env;
     gchar *spool;
     static const gchar *guesses[] = {
-	"/var/mail/",
-	"/var/spool/mail/",
-	"/usr/spool/mail/",
-	"/usr/mail/",
-	NULL
+        "/var/mail/",
+        "/var/spool/mail/",
+        "/usr/spool/mail/",
+        "/usr/mail/",
+        NULL
     };
 
-    if ((env = getenv("MAIL")) != NULL)
-	return g_strdup(env);
+    if ((env = getenv("MAIL")) != NULL) {
+        return g_strdup(env);
+    }
 
     if ((env = getenv("USER")) != NULL) {
         int i;
 
-	for (i = 0; guesses[i] != NULL; i++) {
-	    spool = g_strconcat(guesses[i], env, NULL);
+        for (i = 0; guesses[i] != NULL; i++) {
+            spool = g_strconcat(guesses[i], env, NULL);
 
-	    if (g_file_test(spool, G_FILE_TEST_EXISTS))
-		return spool;
+            if (g_file_test(spool, G_FILE_TEST_EXISTS)) {
+                return spool;
+            }
 
-	    g_free(spool);
-	}
+            g_free(spool);
+        }
     }
 
-    /* libmutt's configure.in indicates that this 
+    /* libmutt's configure.in indicates that this
      * ($HOME/mailbox) exists on
      * some systems, and it's a good enough default if we
      * can't guess it any other way. */
@@ -225,25 +233,28 @@ libbalsa_guess_mail_spool(void)
 }
 
 
-gboolean libbalsa_ldap_exists(const gchar *server)
+gboolean
+libbalsa_ldap_exists(const gchar *server)
 {
 #if ENABLE_LDAP
     LDAP *ldap;
     ldap_initialize(&ldap, server);
 
-    if(ldap) {
-	ldap_unbind_ext(ldap, NULL, NULL);
-	return TRUE;
+    if (ldap) {
+        ldap_unbind_ext(ldap, NULL, NULL);
+        return TRUE;
     }
 #endif /* #if ENABLE_LDAP */
 
     return FALSE;
 }
 
-gchar*
-libbalsa_date_to_utf8(const time_t date, const gchar *date_string)
+
+gchar *
+libbalsa_date_to_utf8(const time_t date,
+                      const gchar *date_string)
 {
-	gchar *result;
+    gchar *result;
 
     g_return_val_if_fail(date_string != NULL, NULL);
 
@@ -251,29 +262,31 @@ libbalsa_date_to_utf8(const time_t date, const gchar *date_string)
         /* Missing "Date:" field?  It is required by RFC 2822. */
         result = NULL;
     } else {
-    	GDateTime *footime;
+        GDateTime *footime;
 
-    	footime = g_date_time_new_from_unix_local(date);
-    	result = g_date_time_format(footime, date_string);
-    	g_date_time_unref(footime);
+        footime = g_date_time_new_from_unix_local(date);
+        result = g_date_time_format(footime, date_string);
+        g_date_time_unref(footime);
     }
     return result;
 }
+
 
 LibBalsaMessageStatus
 libbalsa_get_icon_from_flags(LibBalsaMessageFlag flags)
 {
     LibBalsaMessageStatus icon;
-    if (flags & LIBBALSA_MESSAGE_FLAG_DELETED)
-	icon = LIBBALSA_MESSAGE_STATUS_DELETED;
-    else if (flags & LIBBALSA_MESSAGE_FLAG_NEW)
-	icon = LIBBALSA_MESSAGE_STATUS_UNREAD;
-    else if (flags & LIBBALSA_MESSAGE_FLAG_FLAGGED)
-	icon = LIBBALSA_MESSAGE_STATUS_FLAGGED;
-    else if (flags & LIBBALSA_MESSAGE_FLAG_REPLIED)
-	icon = LIBBALSA_MESSAGE_STATUS_REPLIED;
-    else
-	icon = LIBBALSA_MESSAGE_STATUS_ICONS_NUM;
+    if (flags & LIBBALSA_MESSAGE_FLAG_DELETED) {
+        icon = LIBBALSA_MESSAGE_STATUS_DELETED;
+    } else if (flags & LIBBALSA_MESSAGE_FLAG_NEW) {
+        icon = LIBBALSA_MESSAGE_STATUS_UNREAD;
+    } else if (flags & LIBBALSA_MESSAGE_FLAG_FLAGGED) {
+        icon = LIBBALSA_MESSAGE_STATUS_FLAGGED;
+    } else if (flags & LIBBALSA_MESSAGE_FLAG_REPLIED) {
+        icon = LIBBALSA_MESSAGE_STATUS_REPLIED;
+    } else {
+        icon = LIBBALSA_MESSAGE_STATUS_ICONS_NUM;
+    }
     return icon;
 }
 
@@ -293,7 +306,7 @@ typedef struct {
 static gboolean
 ask_idle(gpointer data)
 {
-    AskData* ad = (AskData*)data;
+    AskData *ad = (AskData *)data;
     printf("ask_idle: ENTER %p\n", data);
     ad->res = (ad->cb)(ad->arg);
     ad->done = TRUE;
@@ -302,12 +315,14 @@ ask_idle(gpointer data)
     return FALSE;
 }
 
+
 /* libbalsa_ask_mt:
    executed with GDK UNLOCKED. see mailbox_imap_open() and
    imap_dir_cb()/imap_folder_imap_dir().
-*/
+ */
 static int
-libbalsa_ask(gboolean (*cb)(void *arg), void *arg)
+libbalsa_ask(gboolean (*cb)(void *arg),
+             void      *arg)
 {
     AskData ad;
 
@@ -320,14 +335,14 @@ libbalsa_ask(gboolean (*cb)(void *arg), void *arg)
     printf("Side thread asks the following question.\n");
     g_mutex_init(&ad.lock);
     g_cond_init(&ad.condvar);
-    ad.cb  = cb;
+    ad.cb = cb;
     ad.arg = arg;
     ad.done = FALSE;
 
     g_mutex_lock(&ad.lock);
     g_idle_add(ask_idle, &ad);
     while (!ad.done) {
-    	g_cond_wait(&ad.condvar, &ad.lock);
+        g_cond_wait(&ad.condvar, &ad.lock);
     }
 
     g_cond_clear(&ad.condvar);
@@ -336,10 +351,87 @@ libbalsa_ask(gboolean (*cb)(void *arg), void *arg)
 }
 
 
-static int libbalsa_ask_for_cert_acceptance(GTlsCertificate      *cert,
-											GTlsCertificateFlags  errors);
+static int libbalsa_ask_for_cert_acceptance(X509       *cert,
+                                            const char *explanation);
 
-static GList *accepted_certs = NULL; /* GTlsCertificate items accepted for this session */
+#ifndef HAVE_GCR
+
+static char *
+asn1time_to_string(ASN1_UTCTIME *tm)
+{
+    char buf[64];
+    BIO *bio = BIO_new(BIO_s_mem());
+    strncpy(buf, _("Invalid date"), sizeof(buf));
+    buf[sizeof(buf) - 1] = '\0';
+
+    if (ASN1_TIME_print(bio, tm)) {
+        int cnt;
+        cnt = BIO_read(bio, buf, sizeof(buf) - 1);
+        buf[cnt] = '\0';
+    }
+    BIO_free(bio);
+    return g_strdup(buf);
+}
+
+
+static char *
+x509_get_part(char       *line,
+              const char *ndx)
+{
+    static char ret[256];
+    char *c;
+
+    strncpy (ret, _("Unknown"), sizeof (ret));
+    ret[sizeof(ret) - 1] = '\0';
+
+    c = strstr(line, ndx);
+    if (c) {
+        char *c2;
+
+        c += strlen (ndx);
+        c2 = strchr (c, '/');
+        if (c2) {
+            *c2 = '\0';
+        }
+        strncpy (ret, c, sizeof (ret));
+        if (c2) {
+            *c2 = '/';
+        }
+    }
+
+    return ret;
+}
+
+
+static void
+x509_fingerprint(char    *s,
+                 unsigned len,
+                 X509    *cert)
+{
+    unsigned j, i, n, c;
+    unsigned char md[EVP_MAX_MD_SIZE];
+
+
+    X509_digest(cert, EVP_md5(), md, &n);
+    if (len < 3 * n) {
+        n = len / 3;
+    }
+    for (j = i = 0; j < n; j++) {
+        c = (md[j] >> 4) & 0xF;
+        s[i++] = c < 10 ? c + '0' : c + 'A' - 10;
+        c = md[j] & 0xF;
+        s[i++] = c < 10 ? c + '0' : c + 'A' - 10;
+        if (j < n - 1) {
+            s[i++] = ':';
+        }
+    }
+    s[i] = '\0';
+}
+
+
+#endif  /* HAVE_GCR */
+
+static GList *accepted_certs = NULL; /* certs accepted for this session */
 static GMutex certificate_lock;
 
 void
@@ -353,33 +445,71 @@ libbalsa_certs_destroy(void)
 }
 
 
-#define CERT_ACCEPT_NO			0
-#define CERT_ACCEPT_SESSION		1
-#define CERT_ACCEPT_PERMANENT	2
-
-
+/* compare Example 10-7 in the OpenSSL book */
 gboolean
-libbalsa_is_cert_known(GTlsCertificate      *cert,
-					   GTlsCertificateFlags  errors)
+libbalsa_is_cert_known(X509 *cert,
+                       long  vfy_result)
 {
 	gchar *cert_file;
 	GList *cert_db;
 	gboolean cert_ok;
 	GList *lst;
 
-	/* check the list of accepted certificates for this session */
-	g_mutex_lock(&certificate_lock);
-	for (lst = accepted_certs; lst; lst = lst->next) {
-		if (g_tls_certificate_is_same(cert, G_TLS_CERTIFICATE(lst->data))) {
-			g_mutex_unlock(&certificate_lock);
-			return TRUE;
-		}
-	}
+    g_mutex_lock(&certificate_lock);
+    for (lst = accepted_certs; lst; lst = lst->next) {
+        int X509_res = X509_cmp(cert, lst->data);
+        if (X509_res == 0) {
+            g_mutex_unlock(&certificate_lock);
+            return TRUE;
+        }
+    }
 
-	/* check the database of accepted certificates */
-	cert_file = g_build_filename(g_get_home_dir(), ".balsa", "certificates", NULL);
-	cert_db = g_tls_certificate_list_new_from_file(cert_file, NULL);
-	g_mutex_unlock(&certificate_lock);
+    cert_name = g_strconcat(g_get_home_dir(), "/.balsa/certificates", NULL);
+
+    fp = fopen(cert_name, "rt");
+    g_free(cert_name);
+    if (fp) {
+        /*
+           printf("Looking for cert: %s\n",
+               X509_NAME_oneline(X509_get_subject_name (cert),
+                                 buf, sizeof (buf)));
+         */
+        res = FALSE;
+        while ((tmpcert = PEM_read_X509(fp, NULL, NULL, NULL)) != NULL) {
+            res = X509_cmp(cert, tmpcert) == 0;
+            X509_free(tmpcert);
+            if (res) {
+                break;
+            }
+        }
+        ERR_clear_error();
+        fclose(fp);
+    }
+    g_mutex_unlock(&certificate_lock);
+
+    if (!res) {
+        const char *reason = X509_verify_cert_error_string(vfy_result);
+        res = libbalsa_ask_for_cert_acceptance(cert, reason);
+        g_mutex_lock(&certificate_lock);
+        if (res == 2) {
+            cert_name = g_strconcat(g_get_home_dir(),
+                                    "/.balsa/certificates", NULL);
+            libbalsa_assure_balsa_dir();
+            fp = fopen(cert_name, "a");
+            if (fp) {
+                if (PEM_write_X509 (fp, cert)) {
+                    res = TRUE;
+                }
+                fclose(fp);
+            }
+            g_free(cert_name);
+        }
+        if (res == 1) {
+            accepted_certs =
+                g_list_prepend(accepted_certs, X509_dup(cert));
+        }
+        g_mutex_unlock(&certificate_lock);
+    }
 
 	cert_ok = FALSE;
 	for (lst = cert_db; !cert_ok && (lst != NULL); lst = g_list_next(lst)) {
@@ -420,6 +550,7 @@ libbalsa_is_cert_known(GTlsCertificate      *cert,
 	return cert_ok;
 }
 
+
 /* libbalsa_ask_for_cert_acceptance():
    returns:
    OP_EXIT on reject.
@@ -427,7 +558,7 @@ libbalsa_is_cert_known(GTlsCertificate      *cert,
    OP_MAX - on accept once.
    TODO: check treading issues.
 
-*/
+ */
 struct AskCertData {
     GTlsCertificate *certificate;
     const char *explanation;
@@ -438,7 +569,7 @@ struct AskCertData {
 static int
 ask_cert_real(void *data)
 {
-    struct AskCertData *acd = (struct AskCertData*)data;
+    struct AskCertData *acd = (struct AskCertData *)data;
     GtkWidget *dialog;
     GtkWidget *cert_widget;
     GString *str;
@@ -478,21 +609,24 @@ ask_cert_real(void *data)
     gtk_widget_set_vexpand(cert_widget, TRUE);
     gtk_box_pack_start(vbox, cert_widget);
 
-    switch(gtk_dialog_run(GTK_DIALOG(dialog))) {
+    switch (gtk_dialog_run(GTK_DIALOG(dialog))) {
     case 0:
-    	i = CERT_ACCEPT_SESSION;
-    	break;
+        i = 1;
+        break;
+
     case 1:
-    	i = CERT_ACCEPT_PERMANENT;
-    	break;
+        i = 2;
+        break;
+
     case GTK_RESPONSE_CANCEL:
     default:
-    	i = CERT_ACCEPT_NO;
-    	break;
+        i = 0;
+        break;
     }
     gtk_widget_destroy(dialog);
     return i;
 }
+
 
 #else
 
@@ -564,18 +698,20 @@ x509_fingerprint(gnutls_x509_crt_t cert)
 static int
 ask_cert_real(void *data)
 {
-    struct AskCertData *acd = (struct AskCertData*)data;
-    gnutls_x509_crt_t cert;
-    gchar *name, *c, *valid_from, *valid_until;
-    GtkWidget* dialog, *label;
+    static const char *part[] =
+    {
+        "/CN=", "/Email=", "/O=", "/OU=", "/L=", "/ST=", "/C="
+    };
+
+    struct AskCertData *acd = (struct AskCertData *)data;
+    X509 *cert = acd->certificate;
+    char buf[256]; /* fingerprint requires EVP_MAX_MD_SIZE*3 */
+    char *name = NULL, *c, *valid_from, *valid_until;
+    GtkWidget *dialog, *label;
     unsigned i;
     GtkBox *vbox;
 
-    cert = get_gnutls_cert(acd->certificate);
-    if (cert == NULL) {
-    	g_warning("%s: unable to create gnutls cert", __func__);
-    	return CERT_ACCEPT_NO;
-    }
+    GString *str = g_string_new("");
 
     str = g_string_new("");
     g_string_printf(str, _("Authenticity of this certificate "
@@ -599,7 +735,7 @@ ask_cert_real(void *data)
 
     buf[0] = '\0';
     x509_fingerprint (buf, sizeof (buf), cert);
-    valid_from  = asn1time_to_string(X509_get_notBefore(cert));
+    valid_from = asn1time_to_string(X509_get_notBefore(cert));
     valid_until = asn1time_to_string(X509_get_notAfter(cert)),
     c = g_strdup_printf(_("<b>This certificate is valid</b>\n"
                           "from %s\n"
@@ -607,8 +743,10 @@ ask_cert_real(void *data)
                           "<b>Fingerprint:</b> %s"),
                         valid_from, valid_until,
                         buf);
-    g_string_append(str, c); g_free(c);
-    g_free(valid_from); g_free(valid_until);
+    g_string_append(str, c);
+    g_free(c);
+    g_free(valid_from);
+    g_free(valid_until);
 
     /* This string uses markup, so we must replace "&" with "&amp;" */
     c = str->str;
@@ -626,7 +764,7 @@ ask_cert_real(void *data)
                                          libbalsa_dialog_flags(),
                                          _("_Accept Once"), 0,
                                          _("Accept & _Save"), 1,
-                                         _("_Reject"), GTK_RESPONSE_CANCEL, 
+                                         _("_Reject"), GTK_RESPONSE_CANCEL,
                                          NULL);
     gtk_window_set_role(GTK_WINDOW(dialog), "tls_cert_dialog");
     label = gtk_label_new(str->str);
@@ -639,45 +777,87 @@ ask_cert_real(void *data)
     gtk_widget_set_vexpand(label, TRUE);
     gtk_box_pack_start(vbox, label);
 
-    switch(gtk_dialog_run(GTK_DIALOG(dialog))) {
-    case 0: i = CERT_ACCEPT_SESSION; break;
-    case 1: i = CERT_ACCEPT_PERMANENT; break;
+    switch (gtk_dialog_run(GTK_DIALOG(dialog))) {
+    case 0: i = 1;
+        break;
+
+    case 1: i = 2;
+        break;
+
     case GTK_RESPONSE_CANCEL:
-    default: i=CERT_ACCEPT_NO; break;
+    default: i = 0;
+        break;
     }
     gtk_widget_destroy(dialog);
     /* Process some events to let the window disappear:
-     * not really necessary but helps with debugging. */
-   while(gtk_events_pending()) 
+    * not really necessary but helps with debugging. */
+    while (gtk_events_pending()) {
         gtk_main_iteration_do(FALSE);
+    }
     printf("%s returns %d\n", __FUNCTION__, i);
     return i;
 }
 
-#endif	/* HAVE_GCR */
+
+#endif  /* HAVE_GCR */
 
 static int
-libbalsa_ask_for_cert_acceptance(GTlsCertificate      *cert,
-								 GTlsCertificateFlags  errors)
+libbalsa_ask_for_cert_acceptance(X509       *cert,
+                                 const char *explanation)
 {
     struct AskCertData acd;
     acd.certificate = cert;
-    if ((errors & G_TLS_CERTIFICATE_UNKNOWN_CA) == G_TLS_CERTIFICATE_UNKNOWN_CA) {
-    	acd.explanation = _("the signing certificate authority is not known");
-    } else if ((errors & G_TLS_CERTIFICATE_BAD_IDENTITY) == G_TLS_CERTIFICATE_BAD_IDENTITY) {
-    	acd.explanation = _("the certificate does not match the expected identity of the site that it was retrieved from");
-    } else if ((errors & G_TLS_CERTIFICATE_NOT_ACTIVATED) == G_TLS_CERTIFICATE_NOT_ACTIVATED) {
-    	acd.explanation = _("the certificate’s activation time is still in the future");
-    } else if ((errors & G_TLS_CERTIFICATE_EXPIRED) == G_TLS_CERTIFICATE_EXPIRED) {
-    	acd.explanation = _("the certificate has expired");
-    } else if ((errors & G_TLS_CERTIFICATE_REVOKED) == G_TLS_CERTIFICATE_REVOKED) {
-    	acd.explanation = _("the certificate has been revoked ");
-    } else if ((errors & G_TLS_CERTIFICATE_INSECURE) == G_TLS_CERTIFICATE_INSECURE) {
-    	acd.explanation = _("the certificate’s algorithm is considered insecure");
-    } else {
-    	acd.explanation = _("an error occurred validating the certificate");
-    }
+    acd.explanation = explanation;
     return libbalsa_ask(ask_cert_real, &acd);
+}
+
+
+static int
+ask_timeout_real(void *data)
+{
+    const char *host = (const char *)data;
+    GtkWidget *dialog;
+    int i;
+
+    dialog = gtk_message_dialog_new(NULL, /* FIXME: NULL parent */
+                                    GTK_DIALOG_MODAL,
+                                    GTK_MESSAGE_INFO,
+                                    GTK_BUTTONS_YES_NO,
+                                    _("Connection to %s timed out. Abort?"),
+                                    host);
+    gtk_window_set_role(GTK_WINDOW(dialog), "timeout_dialog");
+    switch (gtk_dialog_run(GTK_DIALOG(dialog))) {
+    case GTK_RESPONSE_YES: i = 1;
+        break;
+
+    case GTK_RESPONSE_NO: i = 0;
+        break;
+
+    default: printf("Unknown response. Defaulting to 'yes'.\n");
+        i = 1;
+    }
+    gtk_widget_destroy(dialog);
+    /* Process some events to let the window disappear:
+    * not really necessary but helps with debugging. */
+    while (gtk_events_pending()) {
+        gtk_main_iteration_do(FALSE);
+    }
+    printf("%s returns %d\n", __FUNCTION__, i);
+    return i;
+}
+
+
+gboolean
+libbalsa_abort_on_timeout(const char *host)
+{
+    /* It appears not to be entirely thread safe... Some locks do not
+       get released as they should be. */
+    char *hostname;
+
+    hostname = g_alloca (strlen (host) + 1);
+    strcpy (hostname, host);
+
+    return libbalsa_ask(ask_timeout_real, hostname) != 0;
 }
 
 
@@ -687,6 +867,7 @@ libbalsa_get_main_thread(void)
     return main_thread_id;
 }
 
+
 gboolean
 libbalsa_am_i_subthread(void)
 {
@@ -694,24 +875,26 @@ libbalsa_am_i_subthread(void)
 }
 
 
-#include "libbalsa_private.h"	/* for prototypes */
+#include "libbalsa_private.h"   /* for prototypes */
 static GMutex mailbox_mutex;
-static GCond  mailbox_cond;
+static GCond mailbox_cond;
 
 /* Lock/unlock a mailbox; no argument checking--we'll assume the caller
- * took care of that. 
+ * took care of that.
  */
 #define LIBBALSA_DEBUG_THREADS FALSE
 void
-libbalsa_lock_mailbox(LibBalsaMailbox * mailbox)
+libbalsa_lock_mailbox(LibBalsaMailbox *mailbox)
 {
-	GThread *thread_id = g_thread_self();
+    GThread *thread_id = g_thread_self();
 
     g_mutex_lock(&mailbox_mutex);
 
-    if (mailbox->thread_id && mailbox->thread_id != thread_id)
-        while (mailbox->lock)
+    if (mailbox->thread_id && (mailbox->thread_id != thread_id)) {
+        while (mailbox->lock) {
             g_cond_wait(&mailbox_cond, &mailbox_mutex);
+        }
+    }
 
     /* We'll assume that no-one would destroy a mailbox while we've been
      * trying to lock it. If they have, we have larger problems than
@@ -722,22 +905,23 @@ libbalsa_lock_mailbox(LibBalsaMailbox * mailbox)
     g_mutex_unlock(&mailbox_mutex);
 }
 
+
 void
-libbalsa_unlock_mailbox(LibBalsaMailbox * mailbox)
+libbalsa_unlock_mailbox(LibBalsaMailbox *mailbox)
 {
-	GThread *self;
+    GThread *self;
 
     self = g_thread_self();
 
     g_mutex_lock(&mailbox_mutex);
 
-    if (mailbox->lock == 0 || self != mailbox->thread_id) {
-	g_warning("Not holding mailbox lock!!!");
+    if ((mailbox->lock == 0) || (self != mailbox->thread_id)) {
+        g_warning("Not holding mailbox lock!!!");
         g_mutex_unlock(&mailbox_mutex);
-	return;
+        return;
     }
 
-    if(--mailbox->lock == 0) {
+    if (--mailbox->lock == 0) {
         mailbox->thread_id = 0;
         g_cond_broadcast(&mailbox_cond);
     }
@@ -747,36 +931,44 @@ libbalsa_unlock_mailbox(LibBalsaMailbox * mailbox)
 
 
 /* Initialized by the front end. */
-void (*libbalsa_progress_set_text) (LibBalsaProgress * progress,
-                                    const gchar * text, guint total);
-void (*libbalsa_progress_set_fraction) (LibBalsaProgress * progress,
-                                        gdouble fraction);
-void (*libbalsa_progress_set_activity) (gboolean set, const gchar * text);
+void (*libbalsa_progress_set_text) (LibBalsaProgress *progress,
+                                    const gchar      *text,
+                                    guint             total);
+void (*libbalsa_progress_set_fraction) (LibBalsaProgress *progress,
+                                        gdouble           fraction);
+void (*libbalsa_progress_set_activity) (gboolean     set,
+                                        const gchar *text);
 
 /*
  * Face and X-Face header support.
  */
 gchar *
-libbalsa_get_header_from_path(const gchar * header, const gchar * path,
-                              gsize * size, GError ** err)
+libbalsa_get_header_from_path(const gchar *header,
+                              const gchar *path,
+                              gsize       *size,
+                              GError     **err)
 {
     gchar *buf, *content;
     size_t name_len;
     gchar *p, *q;
 
-    if (!g_file_get_contents(path, &buf, size, err))
+    if (!g_file_get_contents(path, &buf, size, err)) {
         return NULL;
+    }
 
     content = buf;
     name_len = strlen(header);
-    if (g_ascii_strncasecmp(content, header, name_len) == 0)
+    if (g_ascii_strncasecmp(content, header, name_len) == 0) {
         /* Skip header and trailing colon: */
         content += name_len + 1;
+    }
 
     /* Unfold. */
-    for (p = q = content; *p; p++)
-        if (*p != '\r' && *p != '\n')
+    for (p = q = content; *p; p++) {
+        if ((*p != '\r') && (*p != '\n')) {
             *q++ = *p;
+        }
+    }
     *q = '\0';
 
     content = g_strdup(content);
@@ -785,8 +977,10 @@ libbalsa_get_header_from_path(const gchar * header, const gchar * path,
     return content;
 }
 
+
 GtkWidget *
-libbalsa_get_image_from_face_header(const gchar * content, GError ** err)
+libbalsa_get_image_from_face_header(const gchar *content,
+                                    GError     **err)
 {
     GMimeStream *stream;
     GMimeStream *stream_filter;
@@ -805,19 +999,20 @@ libbalsa_get_image_from_face_header(const gchar * content, GError ** err)
     g_object_unref(stream_filter);
 
     array = GMIME_STREAM_MEM(stream)->buffer;
-    if (array->len == 0)
+    if (array->len == 0) {
         g_set_error(err, LIBBALSA_IMAGE_ERROR,
                     LIBBALSA_IMAGE_ERROR_NO_DATA, _("No image data"));
-    else {
+    } else {
         GdkPixbufLoader *loader =
             gdk_pixbuf_loader_new_with_type("png", NULL);
 
         gdk_pixbuf_loader_write(loader, array->data, array->len, err);
         gdk_pixbuf_loader_close(loader, *err ? NULL : err);
 
-        if (!*err)
+        if (!*err) {
             image = gtk_image_new_from_pixbuf(gdk_pixbuf_loader_get_pixbuf
-                                              (loader));
+                                                  (loader));
+        }
         g_object_unref(loader);
     }
     g_object_unref(stream);
@@ -825,9 +1020,11 @@ libbalsa_get_image_from_face_header(const gchar * content, GError ** err)
     return image;
 }
 
+
 #if HAVE_COMPFACE
 GtkWidget *
-libbalsa_get_image_from_x_face_header(const gchar * content, GError ** err)
+libbalsa_get_image_from_x_face_header(const gchar *content,
+                                      GError     **err)
 {
     gchar buf[2048];
     GdkPixbuf *pixbuf;
@@ -843,6 +1040,7 @@ libbalsa_get_image_from_x_face_header(const gchar * content, GError ** err)
         g_set_error(err, LIBBALSA_IMAGE_ERROR, LIBBALSA_IMAGE_ERROR_FORMAT,
                     _("Invalid input format"));
         return image;
+
     case -2:
         g_set_error(err, LIBBALSA_IMAGE_ERROR, LIBBALSA_IMAGE_ERROR_BUFFER,
                     _("Internal buffer overrun"));
@@ -866,13 +1064,14 @@ libbalsa_get_image_from_x_face_header(const gchar * content, GError ** err)
             g_object_unref(pixbuf);
             return image;
         }
-        for (j = 0, q = pixels; j < 3; j++)
-            for (k = 15; k >= 0; --k){
+        for (j = 0, q = pixels; j < 3; j++) {
+            for (k = 15; k >= 0; --k) {
                 guchar c = x[j] & (1 << k) ? 0x00 : 0xff;
                 *q++ = c;       /* red   */
                 *q++ = c;       /* green */
                 *q++ = c;       /* blue  */
             }
+        }
         p = strchr(p, '\n') + 1;
         pixels += gdk_pixbuf_get_rowstride(pixbuf);
     }
@@ -882,6 +1081,8 @@ libbalsa_get_image_from_x_face_header(const gchar * content, GError ** err)
 
     return image;
 }
+
+
 #endif                          /* HAVE_COMPFACE */
 
 #if HAVE_GTKSOURCEVIEW
@@ -892,52 +1093,57 @@ libbalsa_source_view_new(gboolean highlight_phrases)
     GtkWidget *sview;
 
 
-    static GtkSourceLanguageManager * lm = NULL;
-    static GtkSourceStyleScheme * scheme = NULL;
-    static GtkSourceLanguage * src_lang = NULL;
+    static GtkSourceLanguageManager *lm = NULL;
+    static GtkSourceStyleScheme *scheme = NULL;
+    static GtkSourceLanguage *src_lang = NULL;
 
     /* initialise the source language manager if necessary */
     if (!lm) {
-	const gchar * const * lm_dpaths;
+        const gchar *const *lm_dpaths;
 
-	if ((lm = gtk_source_language_manager_new()) &&
-	    (lm_dpaths = gtk_source_language_manager_get_search_path(lm))) {
-	    gchar ** lm_rpaths;
-	    gint n;
+        if ((lm = gtk_source_language_manager_new()) &&
+            (lm_dpaths = gtk_source_language_manager_get_search_path(lm))) {
+            gchar **lm_rpaths;
+            gint n;
 
-	    /* add the balsa share path to the language manager's paths - we
-	     * cannot simply replace it as it still wants to see the
-	     * RelaxNG schema... */
-	    for (n = 0; lm_dpaths[n]; n++);
-	    lm_rpaths = g_new0(gchar *, n + 2);
-	    for (n = 0; lm_dpaths[n]; n++)
-		lm_rpaths[n] = g_strdup(lm_dpaths[n]);
-	    lm_rpaths[n] = g_strdup(BALSA_DATA_PREFIX "/gtksourceview-3.0");
-	    gtk_source_language_manager_set_search_path(lm, lm_rpaths);
-	    g_strfreev(lm_rpaths);
+            /* add the balsa share path to the language manager's paths - we
+             * cannot simply replace it as it still wants to see the
+             * RelaxNG schema... */
+            for (n = 0; lm_dpaths[n]; n++) {
+            }
+            lm_rpaths = g_new0(gchar *, n + 2);
+            for (n = 0; lm_dpaths[n]; n++) {
+                lm_rpaths[n] = g_strdup(lm_dpaths[n]);
+            }
+            lm_rpaths[n] = g_strdup(BALSA_DATA_PREFIX "/gtksourceview-3.0");
+            gtk_source_language_manager_set_search_path(lm, lm_rpaths);
+            g_strfreev(lm_rpaths);
 
-	    /* try to load the language */
-	    if ((src_lang =
-		 gtk_source_language_manager_get_language(lm, "balsa"))) {
-		GtkSourceStyleSchemeManager *smgr =
-		    gtk_source_style_scheme_manager_get_default();
-		gchar * sm_paths[] = {
-		    BALSA_DATA_PREFIX "/gtksourceview-3.0",
-		    NULL };
-	    
-		/* try to load the colouring scheme */
-		gtk_source_style_scheme_manager_set_search_path(smgr, sm_paths);
-		scheme = gtk_source_style_scheme_manager_get_scheme(smgr, "balsa-mail");
-	    }
-	}
+            /* try to load the language */
+            if ((src_lang =
+                     gtk_source_language_manager_get_language(lm, "balsa"))) {
+                GtkSourceStyleSchemeManager *smgr =
+                    gtk_source_style_scheme_manager_get_default();
+                gchar *sm_paths[] = {
+                    BALSA_DATA_PREFIX "/gtksourceview-3.0",
+                    NULL
+                };
+
+                /* try to load the colouring scheme */
+                gtk_source_style_scheme_manager_set_search_path(smgr, sm_paths);
+                scheme = gtk_source_style_scheme_manager_get_scheme(smgr, "balsa-mail");
+            }
+        }
     }
 
     /* create a new buffer and set the language and scheme */
     sbuffer = gtk_source_buffer_new(NULL);
-    if (src_lang)
-	gtk_source_buffer_set_language(sbuffer, src_lang);
-    if (scheme)
-	gtk_source_buffer_set_style_scheme(sbuffer, scheme);
+    if (src_lang) {
+        gtk_source_buffer_set_language(sbuffer, src_lang);
+    }
+    if (scheme) {
+        gtk_source_buffer_set_style_scheme(sbuffer, scheme);
+    }
     gtk_source_buffer_set_highlight_syntax(sbuffer, TRUE);
     gtk_source_buffer_set_highlight_matching_brackets(sbuffer, FALSE);
 
@@ -947,6 +1153,8 @@ libbalsa_source_view_new(gboolean highlight_phrases)
 
     return sview;
 }
+
+
 #endif  /* HAVE_GTKSOURCEVIEW */
 
 /*
@@ -957,43 +1165,49 @@ GQuark
 libbalsa_scanner_error_quark(void)
 {
     static GQuark quark = 0;
-    if (quark == 0)
+    if (quark == 0) {
         quark = g_quark_from_static_string("libbalsa-scanner-error-quark");
+    }
     return quark;
 }
+
 
 GQuark
 libbalsa_mailbox_error_quark(void)
 {
     static GQuark quark = 0;
-    if (quark == 0)
+    if (quark == 0) {
         quark = g_quark_from_static_string("libbalsa-mailbox-error-quark");
+    }
     return quark;
 }
+
 
 GQuark
 libbalsa_image_error_quark(void)
 {
     static GQuark quark = 0;
-    if (quark == 0)
+    if (quark == 0) {
         quark = g_quark_from_static_string("libbalsa-image-error-quark");
+    }
     return quark;
 }
+
 
 GtkDialogFlags
 libbalsa_dialog_flags(void)
 {
-	static GtkDialogFlags dialog_flags = GTK_DIALOG_USE_HEADER_BAR;
-	static gint check_done = 0;
+    static GtkDialogFlags dialog_flags = GTK_DIALOG_USE_HEADER_BAR;
+    static gint check_done = 0;
 
-	if (g_atomic_int_get(&check_done) == 0) {
-		const gchar *dialog_env;
+    if (g_atomic_int_get(&check_done) == 0) {
+        const gchar *dialog_env;
 
-		dialog_env = g_getenv("BALSA_DIALOG_HEADERBAR");
-		if ((dialog_env != NULL) && (atoi(dialog_env) == 0)) {
-			dialog_flags = (GtkDialogFlags) 0;
-		}
-		g_atomic_int_set(&check_done, 1);
-	}
-	return dialog_flags;
+        dialog_env = g_getenv("BALSA_DIALOG_HEADERBAR");
+        if ((dialog_env != NULL) && (atoi(dialog_env) == 0)) {
+            dialog_flags = (GtkDialogFlags) 0;
+        }
+        g_atomic_int_set(&check_done, 1);
+    }
+    return dialog_flags;
 }
