@@ -706,7 +706,13 @@ balsa_message_init(BalsaMessage * bm)
     widget = balsa_mime_widget_get_widget(bm->bm_widget);
     g_signal_connect(widget, "notify::has-focus",
                      G_CALLBACK(balsa_mime_widget_check_focus), bm);
-    gtk_container_add(GTK_CONTAINER(bm->scroll), widget);
+
+    /* If we do not add the widget to a viewport, GtkContainer would
+     * provide one, but it would also set it up to scroll on grab-focus,
+     * which has been really annoying for a long time :-( */
+    viewport = gtk_viewport_new(NULL, NULL);
+    gtk_container_add(GTK_CONTAINER(viewport), widget);
+    gtk_container_add(GTK_CONTAINER(bm->scroll), viewport);
 
     /* structure view */
     model = gtk_tree_store_new (NUM_COLUMNS,
