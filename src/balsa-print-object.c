@@ -228,36 +228,34 @@ p_string_height_from_layout(PangoLayout * layout, const gchar * text)
 }
 
 
-/* print a cairo_surface_t to cairo at the specified position and with the
+/* print a GdkPixbuf to cairo at the specified position and with the
  * specified scale */
 gboolean
-cairo_print_surface(cairo_t * cairo_ctx, cairo_surface_t * surface,
-		    gdouble c_at_x, gdouble c_at_y, gdouble scale)
+cairo_print_pixbuf(cairo_t * cairo_ctx, GdkPixbuf * pixbuf,
+                   gdouble c_at_x, gdouble c_at_y, gdouble scale)
 {
+    gint n_chans;
     gint width;
     gint height;
-    cairo_format_t format;
     cairo_pattern_t *pattern;
     cairo_matrix_t matrix;
 
     /* paranoia checks */
     g_return_val_if_fail(cairo_ctx != NULL, FALSE);
-    g_return_val_if_fail(surface   != NULL, FALSE);
+    g_return_val_if_fail(pixbuf    != NULL, FALSE);
 
     /* must have 3 (no alpha) or 4 (with alpha) channels */
-    format = cairo_image_surface_get_format(surface);
-    g_return_val_if_fail(format == CAIRO_FORMAT_ARGB32 ||
-                         format == CAIRO_FORMAT_RGB24,
-                         FALSE);
+    n_chans = gdk_pixbuf_get_n_channels(pixbuf);
+    g_return_val_if_fail(n_chans == 3 || n_chans == 4, FALSE);
 
-    width  = cairo_image_surface_get_width(surface);
-    height = cairo_image_surface_get_height(surface);
+    width  = gdk_pixbuf_get_width(pixbuf);
+    height = gdk_pixbuf_get_height(pixbuf);
 
     /* save current state */
     cairo_save(cairo_ctx);
 
     /* set the curface */
-    cairo_set_source_surface(cairo_ctx, surface, c_at_x, c_at_y);
+    gdk_cairo_set_source_pixbuf(cairo_ctx, pixbuf, c_at_x, c_at_y);
 
     /* scale */
     pattern = cairo_get_source(cairo_ctx);
@@ -286,32 +284,6 @@ cairo_print_surface(cairo_t * cairo_ctx, cairo_surface_t * surface,
 }
 
 
-/* print a GdkPixbuf to cairo at the specified position and with the
- * specified scale */
-gboolean
-cairo_print_pixbuf(cairo_t * cairo_ctx, const GdkPixbuf * pixbuf,
-		   gdouble c_at_x, gdouble c_at_y, gdouble scale)
-{
-    gint n_chans;
-    cairo_surface_t *surface;
-
-    /* paranoia checks */
-    g_return_val_if_fail(cairo_ctx && pixbuf, FALSE);
-
-    /* must have 8 bpp */
-    g_return_val_if_fail(gdk_pixbuf_get_bits_per_sample(pixbuf) == 8,
-			 FALSE);
-
-    /* must have 3 (no alpha) or 4 (with alpha) channels */
-    n_chans = gdk_pixbuf_get_n_channels(pixbuf);
-    g_return_val_if_fail(n_chans == 3 || n_chans == 4, FALSE);
-
-    surface = gdk_cairo_surface_create_from_pixbuf(pixbuf, 1, NULL);
-    cairo_print_surface(cairo_ctx, surface, c_at_x, c_at_y, scale);
-    cairo_surface_destroy(surface);
-
-    return TRUE;
-}
 
 
 /* split a text buffer into chunks using the passed Pango layout */

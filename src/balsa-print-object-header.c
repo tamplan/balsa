@@ -106,9 +106,7 @@ balsa_print_object_header_finalize(GObject * self)
     BalsaPrintObjectHeader *po = BALSA_PRINT_OBJECT_HEADER(self);
 
     g_free(po->headers);
-    if (po->face) {
-	g_clear_pointer(&po->face, (GDestroyNotify) cairo_surface_destroy);
-    }
+    g_clear_object(&po->face);
 
     G_OBJECT_CLASS(parent_class)->finalize(self);
 }
@@ -138,7 +136,7 @@ balsa_print_object_header_new_real(GList * list,
     gint p_label_width;
     gint p_layout_width;
     gdouble c_face_height;
-    cairo_surface_t *face;
+    GdkPixbuf *face;
 
     g_return_val_if_fail(headers != NULL, NULL);
 
@@ -184,7 +182,7 @@ balsa_print_object_header_new_real(GList * list,
     /* user headers */
     p = headers->user_hdrs;
     face = NULL;
-    while (p) {
+    while (p != NULL) {
 	gchar **pair, *curr_hdr;
 
 	pair = p->data;
@@ -194,25 +192,19 @@ balsa_print_object_header_new_real(GList * list,
 	g_free(curr_hdr);
 
 	/* check for face and x-face */
-	if (!face) {
+	if (face == NULL) {
 	    GError *err = NULL;
-	    GdkPixbuf *f_pixbuf = NULL;
 
 	    if (g_ascii_strcasecmp("Face", pair[0]) == 0)
-		f_pixbuf = libbalsa_get_pixbuf_from_face_header(pair[1], &err);
+		face = libbalsa_get_pixbuf_from_face_header(pair[1], &err);
 #if HAVE_COMPFACE
 	    else if (g_ascii_strcasecmp("X-Face", pair[0]) == 0)
-		f_pixbuf = libbalsa_get_pixbuf_from_x_face_header(pair[1], &err);
+		face = libbalsa_get_pixbuf_from_x_face_header(pair[1], &err);
 #endif                          /* HAVE_COMPFACE */
 	    if (err != NULL)
                 /* FIXME report something? */
 		g_error_free(err);
 
-	    if (f_pixbuf != NULL) {
-		face = gdk_cairo_surface_create_from_pixbuf(f_pixbuf, 0, NULL);
-		cairo_surface_reference(face);
-		g_object_unref(f_pixbuf);
-	    }
 	}
 
 	/* next */
@@ -246,9 +238,9 @@ balsa_print_object_header_new_real(GList * list,
 
     /* check if we have a face */
     c_use_width = psetup->c_width - 2 * psetup->curr_depth * C_LABEL_SEP;
-    if (face) {
-	p_layout_width = C_TO_P(c_use_width - cairo_image_surface_get_width(face) - C_LABEL_SEP);
-	c_face_height = cairo_image_surface_get_height(face);
+    if (face != NULL) {
+	p_layout_width = C_TO_P(c_use_width - gdk_pixbuf_get_width(face) - C_LABEL_SEP);
+	c_face_height = gdk_pixbuf_get_height(face);
     } else {
 	p_layout_width = C_TO_P(c_use_width);
 	c_face_height = 0;
@@ -299,9 +291,11 @@ balsa_print_object_header_new_real(GList * list,
 	po->headers = (gchar *) this_chunk->data;
 	po->p_label_width = p_label_width;
 	po->p_layout_width = p_layout_width;
-	if (face) {
+	if (face != NULL) {
 	    po->face = face;
-	    if (!this_chunk->next) {
+	    face = NULL;
+
+	    if (this_chunk->next == NULL) {
 		gint p_height;
 
 		/* verify that the image is not higher than the headers
@@ -312,7 +306,6 @@ balsa_print_object_header_new_real(GList * list,
 		if (c_face_height > P_TO_C(p_height))
 		    psetup->c_y_pos += c_face_height - P_TO_C(p_height);
 	    }
-	    face = NULL;
 	}
 	list = g_list_append(list, po);
 
@@ -489,12 +482,12 @@ balsa_print_object_header_draw(BalsaPrintObject * self,
 	gdouble c_face_h;
 	gdouble c_face_w;
 
-	c_face_h = cairo_image_surface_get_height(po->face);
-	c_face_w = cairo_image_surface_get_width(po->face);
+	c_face_h = gdk_pixbuf_get_height(po->face);
+	c_face_w = gdk_pixbuf_get_width(po->face);
 
-	cairo_print_surface(cairo_ctx, po->face,
-			    self->c_at_x + self->c_width - c_face_w,
-			    self->c_at_y, 1.0);
+	cairo_print_pixbuf(cairo_ctx, po->face,
+			   self->c_at_x + self->c_width - c_face_w,
+			   self->c_at_y, 1.0);
 	if (c_face_h > self->c_height)
 	    self->c_height = c_face_h;
     }
