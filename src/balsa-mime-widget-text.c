@@ -116,7 +116,7 @@ static void bm_widget_on_url(const gchar *url);
 static void phrase_highlight(GtkTextBuffer * buffer, const gchar * id,
 			     gunichar tag_char, const gchar * property,
 			     gint value);
-static gboolean draw_cite_bars(gpointer    user_data);
+static gboolean draw_cite_bars(gpointer user_data);
 static gchar *check_text_encoding(BalsaMessage * bm, gchar *text_buf);
 static void fill_text_buf_cited(BalsaMimeWidgetText *mwt,
                                 GtkWidget           *widget,
@@ -953,8 +953,10 @@ phrase_highlight(GtkTextBuffer * buffer, const gchar * id, gunichar tag_char,
 /* --- citation bar stuff --- */
 
 static void
-draw_cite_bar_real(cite_bar_t * bar, BalsaMimeWidgetText * mwt)
+draw_cite_bar_real(gpointer data, gpointer user_data)
 {
+    cite_bar_t *bar = data;
+    BalsaMimeWidgetText *mwt = user_data;
     GtkTextView * view;
     GtkTextBuffer * buffer;
     gint dimension;
@@ -1032,7 +1034,7 @@ draw_cite_bars(gpointer user_data)
 {
     BalsaMimeWidgetText *mwt = user_data;
 
-    g_list_foreach(mwt->cite_bar_list, (GFunc) draw_cite_bar_real, mwt);
+    g_list_foreach(mwt->cite_bar_list, draw_cite_bar_real, mwt);
 
     return G_SOURCE_REMOVE;
 }
