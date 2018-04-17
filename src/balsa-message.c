@@ -813,8 +813,7 @@ balsa_message_destroy(GObject * object)
     g_clear_object(&bm->html_find_info);
 #endif                          /* HAVE_HTML_WIDGET */
 
-    if (G_OBJECT_CLASS(parent_class)->dispose)
-        (*G_OBJECT_CLASS(parent_class)->dispose) (object);
+    G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 GtkWidget *

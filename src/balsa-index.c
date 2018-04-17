@@ -244,8 +244,7 @@ bndx_destroy(GObject * obj)
     g_clear_object(&index->popup_menu);
     g_clear_object(&index->gesture);
 
-    if (G_OBJECT_CLASS(parent_class)->dispose != NULL)
-        G_OBJECT_CLASS(parent_class)->dispose(obj);
+    G_OBJECT_CLASS(parent_class)->dispose(obj);
 }
 
 /* Widget class popup menu method. */

@@ -831,9 +831,7 @@ balsa_spell_check_destroy(GObject * object)
     g_clear_pointer(&spell_check->language_tag, g_free);
     g_clear_pointer(&quoted_rex, g_regex_unref);
 
-    if (G_OBJECT_CLASS(balsa_spell_check_parent_class)->dispose)
-        (*G_OBJECT_CLASS(balsa_spell_check_parent_class)->
-         dispose) (object);
+    G_OBJECT_CLASS(balsa_spell_check_parent_class)->dispose(object);
 }
 
 
