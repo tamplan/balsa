@@ -426,7 +426,7 @@ bndx_instance_init(BalsaIndex * index)
 
     /* we want to handle button presses to pop up context menus if
      * necessary */
-    gesture = gtk_gesture_multi_press_new(GTK_WIDGET(index));
+    index->gesture = gesture = gtk_gesture_multi_press_new(GTK_WIDGET(index));
     gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(gesture), 0);
     g_signal_connect(gesture, "pressed",
 		     G_CALLBACK(bndx_gesture_pressed_cb), NULL);
@@ -434,7 +434,6 @@ bndx_instance_init(BalsaIndex * index)
      * so we jump in at the capture phase: */
     gtk_event_controller_set_propagation_phase(GTK_EVENT_CONTROLLER(gesture),
                                                GTK_PHASE_CAPTURE);
-    index->gesture = gesture;
 
     g_signal_connect(tree_view, "row-activated",
 		     G_CALLBACK(bndx_row_activated), NULL);

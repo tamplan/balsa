@@ -99,6 +99,8 @@ struct _BalsaMessage {
 #ifdef HAVE_HTML_WIDGET
         gpointer html_find_info;
 #endif				/* HAVE_HTML_WIDGET */
+
+        GtkGesture *gesture;
 };
 
 struct _BalsaMessageClass {

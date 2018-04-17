@@ -42,6 +42,8 @@ struct _BalsaMBList {
     /* to set sort order in an idle callback */
     gint  sort_column_id;
     guint sort_idle_id;
+
+    GtkGesture *gesture;
 };
 
 struct _BalsaMBListClass {

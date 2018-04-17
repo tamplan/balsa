@@ -725,9 +725,8 @@ balsa_message_init(BalsaMessage * bm)
     g_signal_connect(bm->treeview, "row-activated",
                      G_CALLBACK(tree_activate_row_cb), bm);
 
-    gesture = gtk_gesture_multi_press_new(GTK_WIDGET(bm->treeview));
+    bm->gesture = gesture = gtk_gesture_multi_press_new(GTK_WIDGET(bm->treeview));
     gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(gesture), 0);
-    g_object_set_data_full(G_OBJECT(bm->treeview), "balsa-gesture", gesture, g_object_unref);
     g_signal_connect(gesture, "pressed",
                      G_CALLBACK(bm_gesture_pressed_cb), NULL);
 
@@ -808,6 +807,7 @@ balsa_message_destroy(GObject * object)
     g_clear_object(&bm->save_all_popup);
     g_clear_object(&bm->parts_popup);
     g_clear_object(&bm->bm_widget);
+    g_clear_object(&bm->gesture);
 
 #ifdef HAVE_HTML_WIDGET
     g_clear_object(&bm->html_find_info);

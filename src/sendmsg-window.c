@@ -636,14 +636,12 @@ balsa_sendmsg_destroy_handler(BalsaSendmsg * bsmsg)
     if (balsa_app.debug)
 	printf("balsa_sendmsg_destroy_handler: Freeing bsmsg\n");
     gtk_widget_destroy(bsmsg->window);
-    quit_on_close = bsmsg->quit_on_close;
     g_free(bsmsg->fcc_url);
     g_free(bsmsg->in_reply_to);
     libbalsa_clear_list(&bsmsg->references, g_free);
 
 #if !(HAVE_GSPELL || HAVE_GTKSPELL)
-    if (bsmsg->spell_checker)
-        gtk_widget_destroy(bsmsg->spell_checker);
+    g_clear_pointer(&bsmsg->spell_checker, gtk_widget_destroy);
 #endif                          /* HAVE_GTKSPELL */
     libbalsa_clear_source_id(&bsmsg->autosave_timeout_id);
 
@@ -658,8 +656,9 @@ balsa_sendmsg_destroy_handler(BalsaSendmsg * bsmsg)
                                           bsmsg->ident);
 
     g_free(bsmsg->spell_check_lang);
-    bsmsg->spell_check_lang = NULL;
+    g_clear_object(&bsmsg->gesture);
 
+    quit_on_close = bsmsg->quit_on_close;
     g_free(bsmsg);
 
     if (quit_on_close) {
@@ -2721,9 +2720,8 @@ sw_attachment_list(BalsaSendmsg *bsmsg)
     gtk_tree_selection_set_mode(gtk_tree_view_get_selection(view),
 				GTK_SELECTION_SINGLE);
 
-    gesture = gtk_gesture_multi_press_new(tree_view);
+    bsmsg->gesture = gesture = gtk_gesture_multi_press_new(tree_view);
     gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(gesture), 0);
-    g_object_set_data_full(G_OBJECT(tree_view), "balsa-gesture", gesture, g_object_unref);
     g_signal_connect(gesture, "pressed",
                      G_CALLBACK(sw_gesture_pressed_cb), NULL);
 
@@ -6646,6 +6644,7 @@ sendmsg_window_new()
     bsmsg->update_config = FALSE;
     bsmsg->quit_on_close = FALSE;
     bsmsg->state = SENDMSG_STATE_CLEAN;
+    bsmsg->gesture = NULL;
 
     bsmsg->window = window =
         gtk_application_window_new(balsa_app.application);

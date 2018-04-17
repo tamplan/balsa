@@ -166,6 +166,15 @@ balsa_mblist_get_type(void)
     return mblist_type;
 }
 
+static void
+bmbl_dispose(GObject * object)
+{
+    BalsaMBList *mblist = (BalsaMBList *) object;
+
+    g_clear_object(&mblist->gesture);
+
+    G_OBJECT_CLASS(parent_class)->dispose(object);
+}
 
 static void
 bmbl_class_init(BalsaMBListClass * klass)
@@ -193,6 +202,7 @@ bmbl_class_init(BalsaMBListClass * klass)
     /* GObject signals */
     object_class->set_property = bmbl_set_property;
     object_class->get_property = bmbl_get_property;
+    object_class->dispose      = bmbl_dispose;
 
     /* GtkWidget signals */
     widget_class->drag_motion = bmbl_drag_motion;
@@ -687,12 +697,14 @@ bmbl_gesture_pressed_cb(GtkGestureMultiPress *multi_press,
     GtkTreePath *path;
 
     gesture = GTK_GESTURE(multi_press);
-    event = gtk_gesture_get_last_event(gesture, gtk_gesture_get_last_updated_sequence(gesture));
+    event = gtk_gesture_get_last_event(gesture,
+                                       gtk_gesture_get_last_updated_sequence(gesture));
     g_return_if_fail(event != NULL);
     if (!gdk_event_triggers_context_menu(event))
         return;
 
-    tree_view = GTK_TREE_VIEW(gtk_event_controller_get_widget(GTK_EVENT_CONTROLLER(gesture)));
+    tree_view =
+        GTK_TREE_VIEW(gtk_event_controller_get_widget(GTK_EVENT_CONTROLLER(gesture)));
 
     if (!gtk_tree_view_get_path_at_pos(tree_view, (gint) x, (gint) y,
                                        &path, NULL, NULL, NULL))
@@ -1174,9 +1186,8 @@ balsa_mblist_default_signal_bindings(BalsaMBList * mblist)
     GtkGesture *gesture;
     GdkContentFormats *formats;
 
-    gesture = gtk_gesture_multi_press_new(GTK_WIDGET(mblist));
+    mblist->gesture= gesture = gtk_gesture_multi_press_new(GTK_WIDGET(mblist));
     gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(gesture), 0);
-    g_object_set_data_full(G_OBJECT(mblist), "balsa-gesture", gesture, g_object_unref);
     g_signal_connect(gesture, "pressed",
                      G_CALLBACK(bmbl_gesture_pressed_cb), NULL);
 
