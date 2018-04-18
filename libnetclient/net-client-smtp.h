@@ -22,19 +22,17 @@
 G_BEGIN_DECLS
 
 
-#define NET_CLIENT_SMTP_TYPE				(net_client_smtp_get_type())
-#define NET_CLIENT_SMTP(obj)				(G_TYPE_CHECK_INSTANCE_CAST((obj), NET_CLIENT_SMTP_TYPE, NetClientSmtp))
-#define NET_IS_CLIENT_SMTP(obj)				(G_TYPE_CHECK_INSTANCE_TYPE((obj), NET_CLIENT_SMTP_TYPE))
-#define NET_CLIENT_SMTP_CLASS(klass)		(G_TYPE_CHECK_CLASS_CAST((klass), NET_CLIENT_SMTP_TYPE, NetClientSmtpClass))
-#define NET_IS_CLIENT_SMTP_CLASS(klass)		(G_TYPE_CHECK_CLASS_TYPE((klass), NET_CLIENT_SMTP_TYPE))
-#define NET_CLIENT_SMTP_GET_CLASS(obj)		(G_TYPE_INSTANCE_GET_CLASS((obj), NET_CLIENT_SMTP_TYPE, NetClientSmtpClass))
+#define NET_CLIENT_SMTP_TYPE net_client_smtp_get_type()
 
-#define NET_CLIENT_SMTP_ERROR_QUARK			(g_quark_from_static_string("net-client-smtp"))
+G_DECLARE_FINAL_TYPE(NetClientSmtp,
+                     net_client_smtp,
+                     NET,
+                     CLIENT_SMTP,
+                     NetClient)
+
+#define NET_CLIENT_SMTP_ERROR_QUARK (g_quark_from_static_string("net-client-smtp"))
 
 
-typedef struct _NetClientSmtp NetClientSmtp;
-typedef struct _NetClientSmtpClass NetClientSmtpClass;
-typedef struct _NetClientSmtpPrivate NetClientSmtpPrivate;
 typedef struct _NetClientSmtpMessage NetClientSmtpMessage;
 typedef enum _NetClientSmtpDsnMode NetClientSmtpDsnMode;
 
@@ -71,17 +69,6 @@ enum _NetClientSmtpError {
 /** Mask of all authentication methods which do not require a password. */
 #define NET_CLIENT_SMTP_AUTH_NO_PWD			NET_CLIENT_SMTP_AUTH_GSSAPI
 /** @} */
-
-
-struct _NetClientSmtp {
-    NetClient parent;
-    NetClientSmtpPrivate *priv;
-};
-
-
-struct _NetClientSmtpClass {
-	NetClientClass parent;
-};
 
 
 /** @brief Delivery Status Notification mode

@@ -18,6 +18,8 @@
 #include "net-client-smtp.h"
 
 
+typedef struct _NetClientSmtpPrivate NetClientSmtpPrivate;
+
 struct _NetClientSmtpPrivate {
 	NetClientCryptMode crypt_mode;
 	guint auth_allowed[2];			/** 0: encrypted, 1: unencrypted */
@@ -47,6 +49,17 @@ typedef struct {
  * 12288 octets as safe maximum length for SASL authentication. */
 #define MAX_SMTP_LINE_LEN			12288U
 #define SMTP_DATA_BUF_SIZE			8192U
+
+
+struct _NetClientSmtp {
+    NetClient parent;
+    NetClientSmtpPrivate *priv;
+};
+
+
+struct _NetClientSmtpClass {
+	NetClientClass parent;
+};
 
 
 G_DEFINE_TYPE(NetClientSmtp, net_client_smtp, NET_CLIENT_TYPE)
@@ -355,7 +368,7 @@ net_client_smtp_init(NetClientSmtp *self)
 static void
 net_client_smtp_dispose(GObject *object)
 {
-	const NetClientSmtp *client = NET_CLIENT_SMTP(object);
+	NetClientSmtp *client = NET_CLIENT_SMTP(object);
 	const GObjectClass *parent_class = G_OBJECT_CLASS(net_client_smtp_parent_class);
 
 	/* send the 'QUIT' command unless we are in 'DATA' state where the server will probably fail to reply - no need to evaluate the
@@ -365,7 +378,7 @@ net_client_smtp_dispose(GObject *object)
                 client->priv->data_state = TRUE;
 	}
 
-	(*parent_class->dispose)(object);
+	parent_class->dispose(object);
 }
 
 
@@ -377,7 +390,7 @@ net_client_smtp_finalise(GObject *object)
 
 	g_free(client->priv);
 
-	(*parent_class->finalize)(object);
+	parent_class->finalize(object);
 }
 
 

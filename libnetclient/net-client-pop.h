@@ -22,20 +22,17 @@
 G_BEGIN_DECLS
 
 
-#define NET_CLIENT_POP_TYPE					(net_client_pop_get_type())
-#define NET_CLIENT_POP(obj)					(G_TYPE_CHECK_INSTANCE_CAST((obj), NET_CLIENT_POP_TYPE, NetClientPop))
-#define NET_IS_CLIENT_POP(obj)				(G_TYPE_CHECK_INSTANCE_TYPE((obj), NET_CLIENT_POP_TYPE))
-#define NET_CLIENT_POP_CLASS(klass)			(G_TYPE_CHECK_CLASS_CAST((klass), NET_CLIENT_POP_TYPE, NetClientPopClass))
-#define NET_IS_CLIENT_POP_CLASS(klass)		(G_TYPE_CHECK_CLASS_TYPE((klass), NET_CLIENT_POP_TYPE))
-#define NET_CLIENT_POP_GET_CLASS(obj)		(G_TYPE_INSTANCE_GET_CLASS((obj), NET_CLIENT_POP_TYPE, NetClientPopClass))
+#define NET_CLIENT_POP_TYPE net_client_pop_get_type()
 
-#define NET_CLIENT_POP_ERROR_QUARK			(g_quark_from_static_string("net-client-pop"))
+G_DECLARE_FINAL_TYPE(NetClientPop,
+                     net_client_pop,
+                     NET,
+                     CLIENT_POP,
+                     NetClient)
+
+#define NET_CLIENT_POP_ERROR_QUARK (g_quark_from_static_string("net-client-pop"))
 
 
-typedef struct _NetClientPop NetClientPop;
-typedef struct _NetClientPopClass NetClientPopClass;
-typedef struct _NetClientPopPrivate NetClientPopPrivate;
-typedef struct _NetClientPopMessage NetClientPopMessage;
 typedef struct _NetClientPopMessageInfo NetClientPopMessageInfo;
 
 
@@ -77,17 +74,6 @@ enum _NetClientPopError {
 /** Mask of all authentication methods which do not require a password. */
 #define NET_CLIENT_POP_AUTH_NO_PWD			NET_CLIENT_POP_AUTH_GSSAPI
 /** @} */
-
-
-struct _NetClientPop {
-    NetClient parent;
-    NetClientPopPrivate *priv;
-};
-
-
-struct _NetClientPopClass {
-	NetClientClass parent;
-};
 
 
 /** @brief Message information

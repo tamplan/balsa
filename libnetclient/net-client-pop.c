@@ -18,6 +18,7 @@
 #include "net-client-utils.h"
 #include "net-client-pop.h"
 
+typedef struct _NetClientPopPrivate NetClientPopPrivate;
 
 struct _NetClientPopPrivate {
 	NetClientCryptMode crypt_mode;
@@ -42,6 +43,17 @@ struct _NetClientPopPrivate {
  * allow conversion of GList data pointer, MISRA C:2012, Rules 11.3, 11.5 */
 #define POP_MSG_INFO(list)				((NetClientPopMessageInfo *) ((list)->data))
 /*lint -restore */
+
+
+struct _NetClientPop {
+    NetClient parent;
+    NetClientPopPrivate *priv;
+};
+
+
+struct _NetClientPopClass {
+	NetClientClass parent;
+};
 
 
 G_DEFINE_TYPE(NetClientPop, net_client_pop, NET_CLIENT_TYPE)
@@ -392,7 +404,7 @@ net_client_pop_init(NetClientPop *self)
 static void
 net_client_pop_dispose(GObject *object)
 {
-	const NetClientPop *client = NET_CLIENT_POP(object);
+	NetClientPop *client = NET_CLIENT_POP(object);
 	const GObjectClass *parent_class = G_OBJECT_CLASS(net_client_pop_parent_class);
 
 	/* send the 'QUIT' command - no need to evaluate the reply or check for errors */
@@ -400,7 +412,7 @@ net_client_pop_dispose(GObject *object)
 		(void) net_client_execute(NET_CLIENT(client), NULL, "QUIT", NULL);
 	}
 
-	(*parent_class->dispose)(object);
+	parent_class->dispose(object);
 }
 
 
@@ -413,7 +425,7 @@ net_client_pop_finalise(GObject *object)
 	g_free(client->priv->apop_banner);
 	g_free(client->priv);
 
-	(*parent_class->finalize)(object);
+	parent_class->finalize(object);
 }
 
 
