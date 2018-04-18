@@ -53,7 +53,6 @@ typedef struct {
 
 struct _NetClientSmtp {
     NetClient parent;
-    NetClientSmtpPrivate *priv;
 };
 
 
@@ -62,7 +61,7 @@ struct _NetClientSmtpClass {
 };
 
 
-G_DEFINE_TYPE(NetClientSmtp, net_client_smtp, NET_CLIENT_TYPE)
+G_DEFINE_TYPE_WITH_PRIVATE(NetClientSmtp, net_client_smtp, NET_CLIENT_TYPE)
 
 
 static void net_client_smtp_dispose(GObject *object);
@@ -80,7 +79,7 @@ static gboolean net_client_smtp_auth_cram(NetClientSmtp *client, GChecksumType c
 static gboolean net_client_smtp_auth_gssapi(NetClientSmtp *client, const gchar *user, GError **error);
 static gboolean net_client_smtp_read_reply(NetClientSmtp *client, gint expect_code, gchar **last_reply, GError **error);
 static gboolean net_client_smtp_eval_rescode(gint res_code, const gchar *reply, GError **error);
-static gchar *net_client_smtp_dsn_to_string(const NetClientSmtp *client, NetClientSmtpDsnMode dsn_mode);
+static gchar *net_client_smtp_dsn_to_string(NetClientSmtp *client, NetClientSmtpDsnMode dsn_mode);
 static void smtp_rcpt_free(smtp_rcpt_t *rcpt);
 
 
@@ -88,17 +87,19 @@ NetClientSmtp *
 net_client_smtp_new(const gchar *host, guint16 port, NetClientCryptMode crypt_mode)
 {
 	NetClientSmtp *client;
+        NetClientSmtpPrivate *priv;
 
 	g_return_val_if_fail((host != NULL) && (crypt_mode >= NET_CLIENT_CRYPT_ENCRYPTED) && (crypt_mode <= NET_CLIENT_CRYPT_NONE),
 		NULL);
 
 	client = NET_CLIENT_SMTP(g_object_new(NET_CLIENT_SMTP_TYPE, NULL));
+        priv = net_client_smtp_get_instance_private(client);
 	if (client != NULL) {
 		if (!net_client_configure(NET_CLIENT(client), host, port, MAX_SMTP_LINE_LEN, NULL)) {
 			g_object_unref(G_OBJECT(client));
 			client = NULL;
 		} else {
-			client->priv->crypt_mode = crypt_mode;
+			priv->crypt_mode = crypt_mode;
 		}
 	}
 
@@ -109,12 +110,14 @@ net_client_smtp_new(const gchar *host, guint16 port, NetClientCryptMode crypt_mo
 gboolean
 net_client_smtp_allow_auth(NetClientSmtp *client, gboolean encrypted, guint allow_auth)
 {
+        NetClientSmtpPrivate *priv = net_client_smtp_get_instance_private(client);
+
 	/* paranoia check */
 	g_return_val_if_fail(NET_IS_CLIENT_SMTP(client), FALSE);
 	if (encrypted) {
-		client->priv->auth_allowed[0] = allow_auth;
+		priv->auth_allowed[0] = allow_auth;
 	} else {
-		client->priv->auth_allowed[1] = allow_auth;
+		priv->auth_allowed[1] = allow_auth;
 	}
 	return TRUE;
 }
@@ -123,6 +126,7 @@ net_client_smtp_allow_auth(NetClientSmtp *client, gboolean encrypted, guint allo
 gboolean
 net_client_smtp_connect(NetClientSmtp *client, gchar **greeting, GError **error)
 {
+        NetClientSmtpPrivate *priv = net_client_smtp_get_instance_private(client);
 	gboolean result;
 	gboolean can_starttls = FALSE;
 	guint auth_supported = 0U;
@@ -132,7 +136,7 @@ net_client_smtp_connect(NetClientSmtp *client, gchar **greeting, GError **error)
 
 	/* establish connection, and immediately switch to TLS if required */
 	result = net_client_connect(NET_CLIENT(client), error);
-	if (result && (client->priv->crypt_mode == NET_CLIENT_CRYPT_ENCRYPTED)) {
+	if (result && (priv->crypt_mode == NET_CLIENT_CRYPT_ENCRYPTED)) {
 		result = net_client_start_tls(NET_CLIENT(client), error);
 	}
 
@@ -149,9 +153,9 @@ net_client_smtp_connect(NetClientSmtp *client, gchar **greeting, GError **error)
 
 	/* perform STARTTLS if required, and send EHLO again */
 	if (result &&
-		((client->priv->crypt_mode == NET_CLIENT_CRYPT_STARTTLS) || (client->priv->crypt_mode == NET_CLIENT_CRYPT_STARTTLS_OPT))) {
+		((priv->crypt_mode == NET_CLIENT_CRYPT_STARTTLS) || (priv->crypt_mode == NET_CLIENT_CRYPT_STARTTLS_OPT))) {
 		if (!can_starttls) {
-			if (client->priv->crypt_mode == NET_CLIENT_CRYPT_STARTTLS) {
+			if (priv->crypt_mode == NET_CLIENT_CRYPT_STARTTLS) {
 				g_set_error(error, NET_CLIENT_SMTP_ERROR_QUARK, (gint) NET_CLIENT_ERROR_SMTP_NO_STARTTLS,
 					_("remote server does not support STARTTLS"));
 				result = FALSE;
@@ -190,13 +194,16 @@ net_client_smtp_connect(NetClientSmtp *client, gchar **greeting, GError **error)
 gboolean
 net_client_smtp_can_dsn(NetClientSmtp *client)
 {
-	return NET_IS_CLIENT_SMTP(client) ? client->priv->can_dsn : FALSE;
+        NetClientSmtpPrivate *priv = net_client_smtp_get_instance_private(client);
+
+	return NET_IS_CLIENT_SMTP(client) ? priv->can_dsn : FALSE;
 }
 
 
 gboolean
 net_client_smtp_send_msg(NetClientSmtp *client, const NetClientSmtpMessage *message, GError **error)
 {
+        NetClientSmtpPrivate *priv = net_client_smtp_get_instance_private(client);
 	NetClient *netclient;
 	gboolean result;
 	const GList *rcpt;
@@ -208,7 +215,7 @@ net_client_smtp_send_msg(NetClientSmtp *client, const NetClientSmtpMessage *mess
 	/* set the RFC 5321 sender and recipient(s) */
 	netclient = NET_CLIENT(client);		/* convenience pointer */
 	(void) net_client_set_timeout(netclient, 5U * 60U);	/* RFC 5321, Sect. 4.5.3.2.2., 4.5.3.2.3.: 5 minutes timeout */
-	if (client->priv->can_dsn && message->have_dsn_rcpt) {
+	if (priv->can_dsn && message->have_dsn_rcpt) {
 		if (message->dsn_envid != NULL) {
 			result = net_client_smtp_execute(client, "MAIL FROM:<%s> RET=%s ENVID=%s", NULL, error, message->sender,
 											 (message->dsn_ret_full) ? "FULL" : "HDRS", message->dsn_envid);
@@ -244,7 +251,7 @@ net_client_smtp_send_msg(NetClientSmtp *client, const NetClientSmtpMessage *mess
 		gchar last_char = '\0';
 
 		(void) net_client_set_timeout(netclient, 3U * 60U);	/* RFC 5321, Sect. 4.5.3.2.5.: 3 minutes timeout */
-		client->priv->data_state = TRUE;
+		priv->data_state = TRUE;
 		do {
 			count = message->data_callback(buffer, SMTP_DATA_BUF_SIZE, message->user_data, error);
 			if (count < 0) {
@@ -266,7 +273,7 @@ net_client_smtp_send_msg(NetClientSmtp *client, const NetClientSmtpMessage *mess
 	if (result) {
 		(void) net_client_set_timeout(netclient, 10U * 60U);	/* RFC 5321, Sect 4.5.3.2.6.: 10 minutes timeout */
 		result = net_client_smtp_read_reply(client, -1, NULL, error);
-		client->priv->data_state = FALSE;
+		priv->data_state = FALSE;
 	}
 
 	return result;
@@ -359,9 +366,11 @@ net_client_smtp_class_init(NetClientSmtpClass *klass)
 static void
 net_client_smtp_init(NetClientSmtp *self)
 {
-	self->priv = g_new0(NetClientSmtpPrivate, 1U);
-	self->priv->auth_allowed[0] = NET_CLIENT_SMTP_AUTH_ALL;
-	self->priv->auth_allowed[1] = NET_CLIENT_SMTP_AUTH_SAFE;
+        NetClientSmtpPrivate *priv = net_client_smtp_get_instance_private(self);
+
+	priv = g_new0(NetClientSmtpPrivate, 1U);
+	priv->auth_allowed[0] = NET_CLIENT_SMTP_AUTH_ALL;
+	priv->auth_allowed[1] = NET_CLIENT_SMTP_AUTH_SAFE;
 }
 
 
@@ -369,13 +378,14 @@ static void
 net_client_smtp_dispose(GObject *object)
 {
 	NetClientSmtp *client = NET_CLIENT_SMTP(object);
+        NetClientSmtpPrivate *priv = net_client_smtp_get_instance_private(client);
 	const GObjectClass *parent_class = G_OBJECT_CLASS(net_client_smtp_parent_class);
 
 	/* send the 'QUIT' command unless we are in 'DATA' state where the server will probably fail to reply - no need to evaluate the
 	 * reply or check for errors */
-	if (net_client_is_connected(NET_CLIENT(client)) && !client->priv->data_state) {
+	if (net_client_is_connected(NET_CLIENT(client)) && !priv->data_state) {
 		(void) net_client_execute(NET_CLIENT(client), NULL, "QUIT", NULL);
-                client->priv->data_state = TRUE;
+                priv->data_state = TRUE;
 	}
 
 	parent_class->dispose(object);
@@ -385,10 +395,11 @@ net_client_smtp_dispose(GObject *object)
 static void
 net_client_smtp_finalise(GObject *object)
 {
-	const NetClientSmtp *client = NET_CLIENT_SMTP(object);
+	NetClientSmtp *client = NET_CLIENT_SMTP(object);
+        NetClientSmtpPrivate *priv = net_client_smtp_get_instance_private(client);
 	const GObjectClass *parent_class = G_OBJECT_CLASS(net_client_smtp_parent_class);
 
-	g_free(client->priv);
+	g_free(priv);
 
 	parent_class->finalize(object);
 }
@@ -411,14 +422,15 @@ net_client_smtp_starttls(NetClientSmtp *client, GError **error)
 static gboolean
 net_client_smtp_auth(NetClientSmtp *client, const gchar *user, const gchar *passwd, guint auth_supported, GError **error)
 {
+        NetClientSmtpPrivate *priv = net_client_smtp_get_instance_private(client);
 	gboolean result = FALSE;
 	guint auth_mask;
 
 	/* calculate the possible authentication methods */
 	if (net_client_is_encrypted(NET_CLIENT(client))) {
-		auth_mask = client->priv->auth_allowed[0] & auth_supported;
+		auth_mask = priv->auth_allowed[0] & auth_supported;
 	} else {
-		auth_mask = client->priv->auth_allowed[1] & auth_supported;
+		auth_mask = priv->auth_allowed[1] & auth_supported;
 	}
 
 	if (((auth_mask & NET_CLIENT_SMTP_AUTH_NO_PWD) == 0U) && (passwd == NULL)) {
@@ -589,6 +601,7 @@ net_client_smtp_execute(NetClientSmtp *client, const gchar *request_fmt, gchar *
 static gboolean
 net_client_smtp_ehlo(NetClientSmtp *client, guint *auth_supported, gboolean *can_starttls, GError **error)
 {
+        NetClientSmtpPrivate *priv = net_client_smtp_get_instance_private(client);
 	gboolean result;
 	gboolean done;
 
@@ -596,7 +609,7 @@ net_client_smtp_ehlo(NetClientSmtp *client, guint *auth_supported, gboolean *can
 
 	/* clear all capability flags */
 	*auth_supported = 0U;
-	client->priv->can_dsn = FALSE;
+	priv->can_dsn = FALSE;
 	*can_starttls = FALSE;
 
 	/* evaluate the response */
@@ -616,7 +629,7 @@ net_client_smtp_ehlo(NetClientSmtp *client, guint *auth_supported, gboolean *can
 				result = FALSE;
 			} else {
 				if (strcmp(&endptr[1], "DSN") == 0) {
-					client->priv->can_dsn = TRUE;
+					priv->can_dsn = TRUE;
 				} else if (strcmp(&endptr[1], "STARTTLS") == 0) {
 					*can_starttls = TRUE;
 				} else if ((strncmp(&endptr[1], "AUTH ", 5U) == 0) || (strncmp(&endptr[1], "AUTH=", 5U) == 0)) {
@@ -735,12 +748,13 @@ net_client_smtp_eval_rescode(gint res_code, const gchar *reply, GError **error)
 
 
 static gchar *
-net_client_smtp_dsn_to_string(const NetClientSmtp *client, NetClientSmtpDsnMode dsn_mode)
+net_client_smtp_dsn_to_string(NetClientSmtp *client, NetClientSmtpDsnMode dsn_mode)
 {
+        NetClientSmtpPrivate *priv = net_client_smtp_get_instance_private(client);
 	gchar *result;
 
 	/* create the RFC 3461 DSN string */
-	if (client->priv->can_dsn && (dsn_mode != NET_CLIENT_SMTP_DSN_NEVER)) {
+	if (priv->can_dsn && (dsn_mode != NET_CLIENT_SMTP_DSN_NEVER)) {
 		GString *dsn_buf;
 		gsize start_len;
 
