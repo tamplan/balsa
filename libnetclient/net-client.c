@@ -544,7 +544,7 @@ net_client_dispose(GObject *object)
 	g_clear_object(&priv->certificate);
 	g_debug("disposed connection to %s", priv->host_and_port);
 
-	(*parent_class->dispose)(object);
+	parent_class->dispose(object);
 }
 
 
@@ -558,7 +558,7 @@ net_client_finalise(GObject *object)
 	g_debug("finalised connection to %s", priv->host_and_port);
 	g_free(priv->host_and_port);
 
-	(*parent_class->finalize)(object);
+	parent_class->finalize(object);
 }
 
 
