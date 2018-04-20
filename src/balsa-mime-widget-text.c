@@ -150,7 +150,7 @@ struct _BalsaMimeWidgetText {
     message_url_t       *current_url;
     LibBalsaMessageBody *mime_body;
     GtkGesture          *gesture;
-    GtkEventController  *controller;
+    GtkEventController  *motion_controller;
     GList               *cite_bar_list;
     gint                 cite_bar_dimension;
     gint                 phrase_hl;
@@ -165,7 +165,7 @@ balsa_mime_widget_text_dispose(GObject * object) {
     mwt = BALSA_MIME_WIDGET_TEXT(object);
 
     g_clear_object(&mwt->gesture);
-    g_clear_object(&mwt->controller);
+    g_clear_object(&mwt->motion_controller);
 
     G_OBJECT_CLASS(balsa_mime_widget_text_parent_class)->dispose(object);
 }
@@ -329,10 +329,10 @@ balsa_mime_widget_new_text(BalsaMessage * bm, LibBalsaMessageBody * mime_body,
 	g_signal_connect(mwt->gesture, "released",
 			 G_CALLBACK(check_call_url), mwt);
 
-        mwt->controller = gtk_event_controller_motion_new(widget);
-        g_signal_connect(mwt->controller, "motion",
+        mwt->motion_controller = gtk_event_controller_motion_new(widget);
+        g_signal_connect(mwt->motion_controller, "motion",
                          G_CALLBACK(mwt_controller_motion_cb), mwt);
-        g_signal_connect(mwt->controller, "leave",
+        g_signal_connect(mwt->motion_controller, "leave",
                          G_CALLBACK(mwt_controller_leave_cb), mwt);
     }
 
