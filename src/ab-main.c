@@ -68,12 +68,16 @@ struct ABMainWindow {
     LibBalsaAddress *displayed_address;
 
     GMenu *file_menu;
+
+    GtkEventController *key_controller;
 } contacts_app;
 
 
 static void
 bab_cleanup(void)
 {
+    g_object_unref(contacts_app.key_controller);
+
     gtk_main_quit();
 }
 
@@ -923,12 +927,17 @@ bab_get_filter_box(void)
                              button);
     return search_hbox;
 }
-static gboolean
-ew_key_pressed(GtkEntry * entry, GdkEvent * event, struct ABMainWindow *abmw)
-{
-    guint keyval;
 
-    if (!(gdk_event_get_keyval(event, &keyval) && keyval == GDK_KEY_Escape))
+static gboolean
+ew_key_pressed(GtkEventControllerKey *key_controller,
+               guint                  keyval,
+               guint                  keycode,
+               GdkModifierType        state,
+               gpointer               user_data)
+{
+    struct ABMainWindow *abmw = user_data;
+
+    if (keyval != GDK_KEY_Escape)
 	return FALSE;
 
     gtk_button_clicked(GTK_BUTTON(abmw->cancel_button));
@@ -991,7 +1000,8 @@ bab_window_new(GtkApplication * application)
     g_signal_connect(G_OBJECT(find_entry), "changed",
 		     G_CALLBACK(balsa_ab_window_find), ab);
     */
-    g_signal_connect(wnd, "key-press-event",
+    contacts_app.key_controller = gtk_event_controller_key_new(wnd);
+    g_signal_connect(contacts_app.key_controller, "key-pressed",
 		     G_CALLBACK(ew_key_pressed), &contacts_app);
     gtk_window_set_default_size(GTK_WINDOW(wnd), 500, 400);
 
