@@ -135,7 +135,7 @@ balsa_cite_bar_snapshot(GtkWidget * widget, GtkSnapshot * snapshot)
                        (float) cite_bar->width, (float) cite_bar->height);
 
     for (n = 0; n < cite_bar->bars; n++) {
-        gtk_snapshot_append_color(snapshot, &rgba, &bounds, "CiteBar");
+        gtk_snapshot_append_color(snapshot, &rgba, &bounds);
         bounds.origin.x += (float) (cite_bar->width + cite_bar->space);
     }
 }
