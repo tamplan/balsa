@@ -305,9 +305,9 @@ balsa_mime_widget_new_text(BalsaMessage * bm, LibBalsaMessageBody * mime_body,
 	       )
 	libbalsa_wrap_string(ptr, balsa_app.browse_wrap_length);
 
-    g_signal_connect(G_OBJECT(widget), "key_press_event",
-		     G_CALLBACK(balsa_mime_widget_key_press_event),
-		     (gpointer) bm);
+    bm->text_key_controller = gtk_event_controller_key_new(widget);
+    g_signal_connect(bm->text_key_controller, "key-pressed",
+		     G_CALLBACK(balsa_mime_widget_key_press_event), bm);
 
     mwt->mime_body = mime_body;
     g_signal_connect(G_OBJECT(widget), "populate-popup",

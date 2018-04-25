@@ -194,21 +194,17 @@ scroll_change(GtkAdjustment * adj, gint diff, BalsaMessage * bm)
 }
 
 gboolean
-balsa_mime_widget_key_press_event(GtkWidget * widget, GdkEvent * event,
-				  BalsaMessage * bm)
+balsa_mime_widget_key_press_event(GtkEventControllerKey *key_controller,
+                                  guint                  keyval,
+                                  guint                  keycode,
+                                  GdkModifierType        state,
+                                  gpointer               user_data)
 {
+    BalsaMessage *bm = user_data;
     GtkAdjustment *adj;
     int page_adjust;
-    guint keyval;
-    GdkModifierType state;
 
-    if (!gdk_event_get_keyval(event, &keyval) ||
-        !gdk_event_get_state(event, &state)) {
-        return FALSE;
-    }
-
-    adj = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW
-                                              (bm->scroll));
+    adj = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(bm->scroll));
 
     page_adjust = balsa_app.pgdownmod ?
         (gtk_adjustment_get_page_size(adj) * balsa_app.pgdown_percent) /

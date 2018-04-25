@@ -300,7 +300,8 @@ bm_header_tl_buttons(BalsaMessage * bm)
     gtk_button_set_relief(GTK_BUTTON(button), GTK_RELIEF_NONE);
     g_signal_connect(button, "clicked",
 		     G_CALLBACK(balsa_headers_attachments_popup), bm);
-    g_signal_connect(button, "key_press_event",
+    bm->button_key_controller = gtk_event_controller_key_new(button);
+    g_signal_connect(bm->button_key_controller, "key-pressed",
 		     G_CALLBACK(balsa_mime_widget_key_press_event), bm);
     g_object_set_data(G_OBJECT(bm), BALSA_MESSAGE_ATTACH_BTN, button);
     g_ptr_array_add(array, button);
@@ -692,7 +693,8 @@ balsa_message_init(BalsaMessage * bm)
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll),
                                    GTK_POLICY_AUTOMATIC,
                                    GTK_POLICY_AUTOMATIC);
-    g_signal_connect(scroll, "key_press_event",
+    bm->scroll_key_controller = gtk_event_controller_key_new(scroll);
+    g_signal_connect(bm->scroll_key_controller, "key-pressed",
 		     G_CALLBACK(balsa_mime_widget_key_press_event), bm);
     gtk_widget_set_vexpand(scroll, TRUE);
     gtk_box_pack_start(GTK_BOX(vbox), scroll);
@@ -808,6 +810,10 @@ balsa_message_destroy(GObject * object)
     g_clear_object(&bm->parts_popup);
     g_clear_object(&bm->bm_widget);
     g_clear_object(&bm->gesture);
+    g_clear_object(&bm->scroll_key_controller);
+    g_clear_object(&bm->button_key_controller);
+    g_clear_object(&bm->header_key_controller);
+    g_clear_object(&bm->text_key_controller);
 
 #ifdef HAVE_HTML_WIDGET
     g_clear_object(&bm->html_find_info);

@@ -101,6 +101,10 @@ struct _BalsaMessage {
 #endif				/* HAVE_HTML_WIDGET */
 
         GtkGesture *gesture;
+        GtkEventController *scroll_key_controller;
+        GtkEventController *button_key_controller;
+        GtkEventController *header_key_controller;
+        GtkEventController *text_key_controller;
 };
 
 struct _BalsaMessageClass {
