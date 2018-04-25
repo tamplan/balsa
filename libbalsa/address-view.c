@@ -40,86 +40,6 @@
 #include "address-book.h"
 #include "misc.h"
 
-/*************************************************************
- *
- * LibBalsaAddressViewEntry
- *
- * Subclass of GtkEntry with a key-binding for GDK_KEY_Escape
- *
- ************************************************************/
-typedef struct {
-    GtkEntry parent;
-
-    LibBalsaAddressView *address_view;
-} LibBalsaAddressViewEntry;
-
-typedef struct {
-    GtkEntryClass parent_class;
-} LibBalsaAddressViewEntryClass;
-
-static void lbav_popup_completions(LibBalsaAddressViewEntry * entry);
-
-/*
- *     GObject class boilerplate
- */
-
-enum {
-    POPUP_COMPLETIONS,
-    ENTRY_LAST_SIGNAL
-};
-
-static guint address_view_entry_signals[ENTRY_LAST_SIGNAL] = { 0 };
-
-static void
-libbalsa_address_view_entry_init(LibBalsaAddressViewEntry * entry)
-{
-}
-
-static GType libbalsa_address_view_entry_get_type(void);
-
-G_DEFINE_TYPE(LibBalsaAddressViewEntry, libbalsa_address_view_entry, GTK_TYPE_ENTRY)
-
-static void
-libbalsa_address_view_entry_class_init(LibBalsaAddressViewEntryClass * klass)
-{
-    GtkBindingSet *binding_set;
-
-    /**
-    * LibBalsaAddressViewEntry::popup-completions:
-    * @entry: the object which received the signal
-    *
-    * The ::popup-completions signal is bound to the Esc key.
-    **/
-     address_view_entry_signals[POPUP_COMPLETIONS] =
-         g_signal_new_class_handler("popup-completions",
-                                    G_OBJECT_CLASS_TYPE(klass),
-                                    G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
-                                    G_CALLBACK(lbav_popup_completions),
-                                    NULL, NULL, NULL,
-                                    G_TYPE_NONE, 0);
-
-     binding_set = gtk_binding_set_by_class(klass);
-     gtk_binding_entry_add_signal(binding_set,
-                                  GDK_KEY_Escape, 0,
-                                  "popup-completions", 0);
-}
-
-static GtkWidget *
-libbalsa_address_view_entry_new(LibBalsaAddressView * address_view)
-{
-    LibBalsaAddressViewEntry *entry;
-
-    entry = g_object_new(libbalsa_address_view_entry_get_type(), NULL);
-    entry->address_view = address_view;
-
-    return (GtkWidget *) entry;
-}
-
-/*************************************************************
- *
- * LibBalsaAddressView
- *
- ************************************************************/
 struct _LibBalsaAddressView {
     GtkGrid parent;
 
@@ -132,6 +52,8 @@ struct _LibBalsaAddressView {
     GList *address_book_list;
 
     gchar *domain;
+
+    GtkEventController *key_controller;
 
     /*
      * Ephemera
@@ -169,6 +91,7 @@ libbalsa_address_view_finalize(GObject * object)
     LibBalsaAddressView *address_view = LIBBALSA_ADDRESS_VIEW(object);
 
     g_free(address_view->domain);
+    g_object_unref(address_view->key_controller);
 
     G_OBJECT_CLASS(libbalsa_address_view_parent_class)->finalize(object);
 }
@@ -269,6 +192,13 @@ static gboolean lbav_completion_match_selected_cb(GtkEntryCompletion * completio
                                                   LibBalsaAddressView * address_view);
 
 static void lbav_entry_changed_cb(GtkEntry * entry, LibBalsaAddressView * address_view);
+
+static gboolean lbav_key_pressed_cb(GtkEventControllerKey *key_controller,
+                                    guint                  keyval,
+                                    guint                  keycode,
+                                    GdkModifierType        state,
+                                    gpointer               user_data);
+
 
 static void lbav_insert_text_cb(GtkEditable * editable,
                                 const gchar * text,
@@ -607,7 +537,7 @@ lbav_insert_row(LibBalsaAddressView * address_view, gint row,
     /*
      * Attach an entry for the address
      */
-    entry = libbalsa_address_view_entry_new(address_view);
+    entry = gtk_entry_new();
     gtk_widget_set_hexpand(entry, TRUE);
 
     completion = gtk_entry_completion_new();
@@ -631,6 +561,9 @@ lbav_insert_row(LibBalsaAddressView * address_view, gint row,
                      G_CALLBACK(lbav_entry_activated), address_view);
     g_signal_connect(entry, "changed",
                      G_CALLBACK(lbav_entry_changed_cb), address_view);
+    address_view->key_controller = gtk_event_controller_key_new(entry);
+    g_signal_connect(address_view->key_controller, "key-pressed",
+                     G_CALLBACK(lbav_key_pressed_cb), address_view);
     g_signal_connect(entry, "insert-text",
                      G_CALLBACK(lbav_insert_text_cb), address_view);
     g_signal_connect_after(entry, "notify::has-focus",
@@ -855,21 +788,31 @@ lbav_entry_changed_cb(GtkEntry * entry, LibBalsaAddressView * address_view)
 }
 
 /*
- *     Class method for LibBalsaAddressViewEntry::popup-completions
+ *     Callback for the entry's "key-pressed" event
  */
-static void
-lbav_popup_completions(LibBalsaAddressViewEntry * view_entry)
+static gboolean
+lbav_key_pressed_cb(GtkEventControllerKey *key_controller,
+                    guint                  keyval,
+                    guint                  keycode,
+                    GdkModifierType        state,
+                    gpointer               user_data)
 {
-    LibBalsaAddressView *address_view = view_entry->address_view;
-    GtkEntry *entry = (GtkEntry *) view_entry;
+    LibBalsaAddressView *address_view = user_data;
+    GtkWidget *widget;
+    GtkEntry *entry;
     GtkEntryCompletion *completion;
+
+    if (keyval != GDK_KEY_Escape)
+        return FALSE;
 
     if (address_view->last_was_escape) {
         address_view->last_was_escape = FALSE;
-        return;
+        return FALSE;
     }
     address_view->last_was_escape = TRUE;
 
+    widget = gtk_event_controller_get_widget((GtkEventController *) key_controller);
+    entry = GTK_ENTRY(widget);
     completion = gtk_entry_get_completion(entry);
     g_signal_handlers_block_by_func(entry, lbav_entry_changed_cb,
                                     address_view);
@@ -878,6 +821,8 @@ lbav_popup_completions(LibBalsaAddressViewEntry * view_entry)
     g_signal_emit_by_name(entry, "changed");
     g_signal_handlers_unblock_by_func(entry, lbav_entry_changed_cb,
                                       address_view);
+
+    return TRUE;
 }
 
 /*
