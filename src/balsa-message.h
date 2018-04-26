@@ -105,6 +105,7 @@ struct _BalsaMessage {
         GtkEventController *button_key_controller;
         GtkEventController *header_key_controller;
         GtkEventController *find_key_controller;
+        gulong key_pressed_id;
 };
 
 struct _BalsaMessageClass {

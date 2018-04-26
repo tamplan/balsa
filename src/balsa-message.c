@@ -675,11 +675,9 @@ bm_disable_find_entry(BalsaMessage * bm)
     if (GTK_IS_APPLICATION_WINDOW(toplevel))
         libbalsa_window_block_accels((GtkApplicationWindow *) toplevel, FALSE);
 
-     if (bm->find_key_controller != NULL) {
-         g_signal_handlers_disconnect_by_func(bm->find_key_controller,
-                                              G_CALLBACK(bm_find_pass_to_entry),
-                                              bm);
-    }
+    if (bm->find_key_controller != NULL &&  bm->key_pressed_id != 0)
+        g_signal_handler_disconnect(bm->find_key_controller, bm->key_pressed_id);
+    bm->key_pressed_id = 0;
 
     gtk_widget_hide(bm->find_bar);
 }
@@ -3312,8 +3310,11 @@ balsa_message_find_in_message(BalsaMessage * bm)
             bm->find_key_controller =
                 gtk_event_controller_key_new(gtk_widget_get_toplevel(GTK_WIDGET(bm)));
         }
-        g_signal_connect(bm->find_key_controller, "key-pressed",
-                         G_CALLBACK(bm_find_pass_to_entry), bm);
+        if (bm->key_pressed_id == 0) {
+            bm->key_pressed_id =
+                g_signal_connect(bm->find_key_controller, "key-pressed",
+                                 G_CALLBACK(bm_find_pass_to_entry), bm);
+        }
 
         bm_find_set_status(bm, BM_FIND_STATUS_INIT);
 
