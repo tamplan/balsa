@@ -311,27 +311,14 @@ bw_frame(GtkWidget * widget)
    process them, pass them further to main window, menu etc.
    Otherwise, typing eg. 'c' would open the draftbox instead of
    actually insert the 'c' character in the entry. */
-static gboolean
-bw_pass_to_filter(BalsaWindow *bw, GdkEventKey *event, gpointer data)
-{
-    gboolean res = FALSE;
-    g_signal_emit_by_name(bw->sos_entry, "key_press_event", event, &res, data);
-    return res;
-}
 
 static void
 bw_check_filter(GtkWidget *widget, GParamSpec *pspec, gpointer data)
 {
     BalsaWindow *window = data;
 
-    if (gtk_widget_has_focus(widget)) {
-        g_signal_connect(window, "key_press_event",
-                         G_CALLBACK(bw_pass_to_filter), NULL);
-    } else {
-        g_signal_handlers_disconnect_by_func(window,
-                                             G_CALLBACK(bw_pass_to_filter),
-                                             NULL);
-    }
+    libbalsa_window_block_accels((GtkApplicationWindow *) window,
+                                 gtk_widget_has_focus(widget));
 }
 
 static void
