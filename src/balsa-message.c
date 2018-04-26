@@ -568,6 +568,7 @@ bm_find_bar_new(BalsaMessage * bm)
 {
     GtkWidget *toolbar;
     GtkWidget *hbox;
+    GtkCssProvider *css_provider;
     GtkToolItem *tool_item;
     GtkWidget *image;
 
@@ -577,6 +578,27 @@ bm_find_bar_new(BalsaMessage * bm)
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
     gtk_box_pack_start(GTK_BOX(hbox), gtk_label_new(_("Find:")));
     bm->find_entry = gtk_entry_new();
+
+    /* Make sure we see "Esc" and "Return" key presses: */
+    css_provider = gtk_css_provider_new();
+    gtk_css_provider_load_from_data(css_provider,
+                                    "@binding-set BalsaEntry"
+                                    "{"
+                                    "  unbind \"Escape\";"
+                                    "  unbind \"Return\";"
+                                    "  unbind \"KP_Enter\";"
+                                    "  unbind \"ISO_Enter\";"
+                                    "}"
+                                    "entry"
+                                    "{"
+                                    "  -gtk-key-bindings: BalsaEntry;"
+                                    "}",
+                                    -1);
+    gtk_style_context_add_provider(gtk_widget_get_style_context(bm->find_entry) ,
+                                   GTK_STYLE_PROVIDER(css_provider),
+                                   GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    g_object_unref(css_provider);
+
     g_signal_connect(bm->find_entry, "changed",
                      G_CALLBACK(bm_find_entry_changed_cb), bm);
     gtk_box_pack_start(GTK_BOX(hbox), bm->find_entry);
@@ -613,36 +635,33 @@ bm_find_bar_new(BalsaMessage * bm)
 static void bm_disable_find_entry(BalsaMessage * bm);
 
 static gboolean
-bm_find_pass_to_entry(BalsaMessage * bm, GdkEvent * event)
-{
-    gboolean res = TRUE;
-    guint keyval;
-    GdkModifierType state;
+bm_find_pass_to_entry(GtkEventControllerKey *key_controller,
+                      guint                  keyval,
+                      guint                  keycode,
+                      GdkModifierType        state,
+                      gpointer               user_data)
 
-    if (!gdk_event_get_keyval(event, &keyval) ||
-        !gdk_event_get_state(event, &state))
-        return FALSE;
+{
+    BalsaMessage *bm = user_data;
+    gboolean res = TRUE;
 
     switch (keyval) {
     case GDK_KEY_Escape:
     case GDK_KEY_Return:
     case GDK_KEY_KP_Enter:
+    case GDK_KEY_ISO_Enter:
         bm_disable_find_entry(bm);
-        return res;
+        break;
     case GDK_KEY_g:
         if ((state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK)) == GDK_CONTROL_MASK &&
             gtk_widget_get_sensitive(bm->find_next)) {
             bm_find_again(bm, bm->find_forward);
-            return res;
+            break;
         }
     default:
+        res = gtk_event_controller_key_forward(key_controller, bm->find_entry);
         break;
     }
-
-    res = FALSE;
-    if (gtk_widget_has_focus(bm->find_entry))
-        g_signal_emit_by_name(bm->find_entry, "key-press-event", event,
-                              &res, NULL);
 
     return res;
 }
@@ -653,10 +672,14 @@ bm_disable_find_entry(BalsaMessage * bm)
     GtkWidget *toplevel;
 
     toplevel = gtk_widget_get_toplevel(GTK_WIDGET(bm));
-    g_signal_handlers_disconnect_by_func(toplevel,
-                                         G_CALLBACK(bm_find_pass_to_entry), bm);
     if (GTK_IS_APPLICATION_WINDOW(toplevel))
         libbalsa_window_block_accels((GtkApplicationWindow *) toplevel, FALSE);
+
+     if (bm->find_key_controller != NULL) {
+         g_signal_handlers_disconnect_by_func(bm->find_key_controller,
+                                              G_CALLBACK(bm_find_pass_to_entry),
+                                              bm);
+    }
 
     gtk_widget_hide(bm->find_bar);
 }
@@ -820,6 +843,7 @@ balsa_message_destroy(GObject * object)
     g_clear_object(&bm->button_key_controller);
     g_clear_object(&bm->header_key_controller);
     g_clear_object(&bm->text_key_controller);
+    g_clear_object(&bm->find_key_controller);
 
 #ifdef HAVE_HTML_WIDGET
     g_clear_object(&bm->html_find_info);
@@ -3284,8 +3308,13 @@ balsa_message_find_in_message(BalsaMessage * bm)
         toplevel = gtk_widget_get_toplevel(GTK_WIDGET(bm));
         if (GTK_IS_APPLICATION_WINDOW(toplevel))
             libbalsa_window_block_accels((GtkApplicationWindow *) toplevel, TRUE);
-        g_signal_connect_swapped(toplevel, "key-press-event",
-                                 G_CALLBACK(bm_find_pass_to_entry), bm);
+
+        if (bm->find_key_controller == NULL) {
+            bm->find_key_controller =
+                gtk_event_controller_key_new(gtk_widget_get_toplevel(GTK_WIDGET(bm)));
+        }
+        g_signal_connect(bm->find_key_controller, "key-pressed",
+                         G_CALLBACK(bm_find_pass_to_entry), bm);
 
         bm_find_set_status(bm, BM_FIND_STATUS_INIT);
 
