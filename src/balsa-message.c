@@ -842,7 +842,6 @@ balsa_message_destroy(GObject * object)
     g_clear_object(&bm->scroll_key_controller);
     g_clear_object(&bm->button_key_controller);
     g_clear_object(&bm->header_key_controller);
-    g_clear_object(&bm->text_key_controller);
     g_clear_object(&bm->find_key_controller);
 
 #ifdef HAVE_HTML_WIDGET

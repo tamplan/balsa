@@ -151,6 +151,7 @@ struct _BalsaMimeWidgetText {
     LibBalsaMessageBody *mime_body;
     GtkGesture          *gesture;
     GtkEventController  *motion_controller;
+    GtkEventController  *key_controller;
     GList               *cite_bar_list;
     gint                 cite_bar_dimension;
     gint                 phrase_hl;
@@ -166,6 +167,7 @@ balsa_mime_widget_text_dispose(GObject * object) {
 
     g_clear_object(&mwt->gesture);
     g_clear_object(&mwt->motion_controller);
+    g_clear_object(&mwt->key_controller);
 
     G_OBJECT_CLASS(balsa_mime_widget_text_parent_class)->dispose(object);
 }
@@ -305,8 +307,8 @@ balsa_mime_widget_new_text(BalsaMessage * bm, LibBalsaMessageBody * mime_body,
 	       )
 	libbalsa_wrap_string(ptr, balsa_app.browse_wrap_length);
 
-    bm->text_key_controller = gtk_event_controller_key_new(widget);
-    g_signal_connect(bm->text_key_controller, "key-pressed",
+    mwt->key_controller = gtk_event_controller_key_new(widget);
+    g_signal_connect(mwt->key_controller, "key-pressed",
 		     G_CALLBACK(balsa_mime_widget_key_press_event), bm);
 
     mwt->mime_body = mime_body;
@@ -1216,8 +1218,9 @@ bm_widget_new_html(BalsaMessage * bm, LibBalsaMessageBody * mime_body)
                           (LibBalsaHtmlCallback) handle_url);
     g_object_set_data(G_OBJECT(widget), "mime-body", mime_body);
 
-    g_signal_connect(libbalsa_html_get_view_widget(widget),
-                     "key_press_event",
+    mwt->key_controller =
+        gtk_event_controller_key_new(libbalsa_html_get_view_widget(widget));
+    g_signal_connect(mwt->key_controller, "key-pressed",
                      G_CALLBACK(balsa_mime_widget_key_press_event), bm);
     if ((popup_menu = libbalsa_html_popup_menu_widget(widget)) != NULL) {
         g_object_set_data(G_OBJECT(popup_menu), "balsa-message", bm);

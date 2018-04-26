@@ -104,7 +104,6 @@ struct _BalsaMessage {
         GtkEventController *scroll_key_controller;
         GtkEventController *button_key_controller;
         GtkEventController *header_key_controller;
-        GtkEventController *text_key_controller;
         GtkEventController *find_key_controller;
 };
 
