@@ -43,6 +43,7 @@
 #include <gdk/gdkkeysyms.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
+#include "application-helpers.h"
 #include "send.h"
 #include "quote-color.h"
 #include "sendmsg-window.h"
@@ -649,9 +650,14 @@ bm_find_pass_to_entry(BalsaMessage * bm, GdkEvent * event)
 static void
 bm_disable_find_entry(BalsaMessage * bm)
 {
-    g_signal_handlers_disconnect_by_func
-        (gtk_widget_get_toplevel(GTK_WIDGET(bm)),
-         G_CALLBACK(bm_find_pass_to_entry), bm);
+    GtkWidget *toplevel;
+
+    toplevel = gtk_widget_get_toplevel(GTK_WIDGET(bm));
+    g_signal_handlers_disconnect_by_func(toplevel,
+                                         G_CALLBACK(bm_find_pass_to_entry), bm);
+    if (GTK_IS_APPLICATION_WINDOW(toplevel))
+        libbalsa_window_block_accels((GtkApplicationWindow *) toplevel, FALSE);
+
     gtk_widget_hide(bm->find_bar);
 }
 
@@ -3263,6 +3269,8 @@ balsa_message_find_in_message(BalsaMessage * bm)
             || libbalsa_html_can_search(widget)
 #endif                          /* HAVE_HTML_WIDGET */
             )) {
+        GtkWidget *toplevel;
+
         if (GTK_IS_TEXT_VIEW(widget)) {
             GtkTextView *text_view = (GtkTextView *) widget;
             GtkTextBuffer *buffer = gtk_text_view_get_buffer(text_view);
@@ -3272,8 +3280,11 @@ balsa_message_find_in_message(BalsaMessage * bm)
 
         bm->find_forward = TRUE;
         gtk_entry_set_text(GTK_ENTRY(bm->find_entry), "");
-        g_signal_connect_swapped(gtk_widget_get_toplevel(GTK_WIDGET(bm)),
-                                 "key-press-event",
+
+        toplevel = gtk_widget_get_toplevel(GTK_WIDGET(bm));
+        if (GTK_IS_APPLICATION_WINDOW(toplevel))
+            libbalsa_window_block_accels((GtkApplicationWindow *) toplevel, TRUE);
+        g_signal_connect_swapped(toplevel, "key-press-event",
                                  G_CALLBACK(bm_find_pass_to_entry), bm);
 
         bm_find_set_status(bm, BM_FIND_STATUS_INIT);
@@ -3281,5 +3292,8 @@ balsa_message_find_in_message(BalsaMessage * bm)
         gtk_widget_show(bm->find_bar);
         if (gtk_widget_get_realized(bm->find_entry))
             gtk_widget_grab_focus(bm->find_entry);
+        else
+            g_signal_connect(bm->find_entry, "realize",
+                             G_CALLBACK(gtk_widget_grab_focus), NULL);
     }
 }
