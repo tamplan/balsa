@@ -86,30 +86,40 @@ struct _BalsaAbWindowClass
     GtkDialogClass parent_class;
 };
 
-GType
-balsa_ab_window_get_type(void)
+struct _BalsaAbWindow
 {
-    static GType ab_type = 0;
+    GtkDialog parent;
 
-    if ( !ab_type ) {
-	static const GTypeInfo ab_info = {
-	    sizeof(BalsaAbWindowClass),
-            NULL,               /* base_init */
-            NULL,               /* base_finalize */
-	    (GClassInitFunc) balsa_ab_window_class_init,
-            NULL,               /* class_finalize */
-            NULL,               /* class_data */
-	    sizeof(BalsaAbWindow),
-            0,                  /* n_preallocs */
-	    (GInstanceInitFunc) balsa_ab_window_init
-	};
-        ab_type =
-            g_type_register_static(GTK_TYPE_DIALOG, "BalsaAbWindow",
-                                   &ab_info, 0);
-    }
-    return ab_type;
-}
+    /* Are we composing? */
+    gboolean composing;
 
+    /* The current address book */
+    LibBalsaAddressBook *current_address_book;
+
+    /* the filter entry */
+    GtkWidget *filter_entry;
+
+    /* The address list */
+    GtkWidget *address_list;
+
+    /* The send to list */
+    GtkWidget *recipient_list;
+
+    /* Radio buttons for dist list mode */
+    GtkWidget *single_address_mode_radio;
+    GtkWidget *dist_address_mode_radio;
+    guint      toggle_handler_id;
+
+    /* Stuff to hide when not in compose mode */
+    GtkWidget *send_to_label;
+    GtkWidget *send_to_list;
+    GtkWidget *arrow_box;
+
+    /* The address book list */
+    GtkWidget *combo_box;
+};
+
+G_DEFINE_TYPE(BalsaAbWindow, balsa_ab_window, GTK_TYPE_DIALOG)
 
 GtkWidget *
 balsa_ab_window_new(gboolean composing, GtkWindow* parent)
