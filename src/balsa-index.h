@@ -28,22 +28,21 @@ G_BEGIN_DECLS
 
     GType balsa_index_get_type(void);
 
-#define BALSA_TYPE_INDEX          (balsa_index_get_type ())
-#define BALSA_INDEX(obj)          (G_TYPE_CHECK_INSTANCE_CAST (obj, BALSA_TYPE_INDEX, BalsaIndex))
-#define BALSA_INDEX_CLASS(klass)  (G_TYPE_CHECK_CLASS_CAST (klass, BALSA_TYPE_INDEX, BalsaIndexClass))
-#define BALSA_IS_INDEX(obj)       (G_TYPE_CHECK_INSTANCE_TYPE (obj, BALSA_TYPE_INDEX))
-#define BALSA_IS_INDEX_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE (klass, BALSA_TYPE_INDEX))
+#define BALSA_TYPE_INDEX balsa_index_get_type()
+
+G_DECLARE_FINAL_TYPE(BalsaIndex,
+                     balsa_index,
+                     BALSA,
+                     INDEX,
+                     GtkTreeView)
 
 
     typedef enum { BALSA_INDEX_WIDE, BALSA_INDEX_NARROW }
         BalsaIndexWidthPreference;
 
-    typedef struct _BalsaIndex BalsaIndex;
-    typedef struct _BalsaIndexClass BalsaIndexClass;
-
     struct _BalsaIndex {
         GtkTreeView tree_view;
-        
+
         /* the popup menu and some items we need to refer to */
         GtkWidget *popup_menu;
         GtkWidget *delete_item;
@@ -73,12 +72,6 @@ G_BEGIN_DECLS
         BalsaIndexWidthPreference width_preference;
 
         GtkGesture *gesture;
-    };
-
-    struct _BalsaIndexClass {
-	GtkTreeViewClass parent_class;
-
-        void (*index_changed) (BalsaIndex* bindex);
     };
 
 /* tree model columns */
