@@ -31,10 +31,6 @@ struct _BalsaCiteBar {
     gint space;
 };
 
-struct _BalsaCiteBarClass {
-    GtkWidgetClass parent_class;
-};
-
 static void balsa_cite_bar_measure  (GtkWidget    * widget,
                                      GtkOrientation orientation,
                                      gint           for_size,

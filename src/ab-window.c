@@ -81,10 +81,6 @@ static gint balsa_ab_window_compare_entries(GtkTreeModel * model,
                                                GtkTreeIter * iter2,
                                                gpointer data);
 
-struct _BalsaAbWindowClass
-{
-    GtkDialogClass parent_class;
-};
 
 struct _BalsaAbWindow
 {

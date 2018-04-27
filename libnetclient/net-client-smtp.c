@@ -56,11 +56,6 @@ struct _NetClientSmtp {
 };
 
 
-struct _NetClientSmtpClass {
-	NetClientClass parent;
-};
-
-
 G_DEFINE_TYPE_WITH_PRIVATE(NetClientSmtp, net_client_smtp, NET_CLIENT_TYPE)
 
 

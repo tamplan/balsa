@@ -79,10 +79,6 @@ struct _LibbalsaVfs {
     struct _LibbalsaVfsPriv * priv;
 };
 
-struct _LibbalsaVfsClass {
-    GObjectClass parent;
-};
-
 G_DEFINE_TYPE(LibbalsaVfs, libbalsa_vfs, G_TYPE_OBJECT)
 
 static void

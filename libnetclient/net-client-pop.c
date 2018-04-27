@@ -50,11 +50,6 @@ struct _NetClientPop {
 };
 
 
-struct _NetClientPopClass {
-	NetClientClass parent;
-};
-
-
 G_DEFINE_TYPE_WITH_PRIVATE(NetClientPop, net_client_pop, NET_CLIENT_TYPE)
 
 

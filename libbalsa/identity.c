@@ -44,10 +44,6 @@
  * The class.
  */
 
-struct _LibBalsaIdentityClass {
-    GObjectClass parent_class;
-};
-
 struct _LibBalsaIdentity {
     GObject object;
 

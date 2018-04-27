@@ -90,10 +90,6 @@ static gboolean parse_extern_file(LibBalsaAddressBookExtern *addr_extern,
 static GList *libbalsa_address_book_extern_alias_complete(LibBalsaAddressBook *ab, 
                                                            const gchar * prefix);
 
-struct _LibBalsaAddressBookExternClass {
-    LibBalsaAddressBookClass parent_class;
-};
-
 struct _LibBalsaAddressBookExtern {
     LibBalsaAddressBook parent;
 

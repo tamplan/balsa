@@ -47,10 +47,6 @@ struct _LibBalsaSmtpServer {
     gint lock_state;	/* 0 means unlocked; access via atomic operations */
 };
 
-struct _LibBalsaSmtpServerClass {
-    LibBalsaServerClass parent_class;
-};
-
 /* Class boilerplate */
 
 G_DEFINE_TYPE(LibBalsaSmtpServer, libbalsa_smtp_server, LIBBALSA_TYPE_SERVER)

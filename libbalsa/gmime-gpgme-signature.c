@@ -62,10 +62,6 @@ struct _GMimeGpgmeSigstat {
     gpgme_key_t key;
 };
 
-struct _GMimeGpgmeSigstatClass {
-    GObjectClass parent;
-};
-
 G_DEFINE_TYPE(GMimeGpgmeSigstat, g_mime_gpgme_sigstat, G_TYPE_OBJECT)
 
 static void

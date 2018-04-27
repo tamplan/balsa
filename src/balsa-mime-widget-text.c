@@ -138,10 +138,6 @@ static void fill_text_buf_cited(BalsaMimeWidgetText *mwt,
  * Class definition
  */
 
-struct _BalsaMimeWidgetTextClass {
-    BalsaMimeWidgetClass parent_class;
-};
-
 struct _BalsaMimeWidgetText {
     BalsaMimeWidget      parent_instance;
 

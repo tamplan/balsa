@@ -62,10 +62,6 @@ struct _LibBalsaAddressView {
     gboolean last_was_escape;   /* keystroke    */
 };
 
-struct _LibBalsaAddressViewClass {
-    GtkGridClass parent_class;
-};
-
 /*
  *     GObject class boilerplate
  */

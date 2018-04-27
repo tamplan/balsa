@@ -104,10 +104,6 @@ struct _LibBalsaVCal {
     GList *vevent;
 };
 
-struct _LibBalsaVCalClass {
-    GObjectClass parent;
-};
-
 G_DEFINE_TYPE(LibBalsaVCal, libbalsa_vcal, G_TYPE_OBJECT)
 
 static void
@@ -159,11 +155,6 @@ struct _LibBalsaVEvent {
     gchar *summary;
     gchar *location;
     gchar *description;
-};
-
-
-struct _LibBalsaVEventClass {
-    GObjectClass parent;
 };
 
 G_DEFINE_TYPE(LibBalsaVEvent, libbalsa_vevent, G_TYPE_OBJECT)

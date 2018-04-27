@@ -84,10 +84,6 @@ struct _LibBalsaAddressBookGpe {
 #endif                          /* HAVE_SQLITE3 */
 };
 
-struct _LibBalsaAddressBookGpeClass {
-    LibBalsaAddressBookClass parent_class;
-};
-
 G_DEFINE_TYPE(LibBalsaAddressBookGpe, libbalsa_address_book_gpe,
         LIBBALSA_TYPE_ADDRESS_BOOK)
 

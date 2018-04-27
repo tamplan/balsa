@@ -67,10 +67,6 @@ struct _LibBalsaAddress {
     GList *addr_list;
 };
 
-struct _LibBalsaAddressClass {
-    GObjectClass parent_class;
-};
-
 G_DEFINE_TYPE(LibBalsaAddress, libbalsa_address, G_TYPE_OBJECT)
 
 static void

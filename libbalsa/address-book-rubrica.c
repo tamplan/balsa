@@ -110,10 +110,6 @@ struct _LibBalsaAddressBookRubrica {
     LibBalsaCompletion *name_complete;
 };
 
-struct _LibBalsaAddressBookRubricaClass {
-    LibBalsaAddressBookTextClass parent_class;
-};
-
 G_DEFINE_TYPE(LibBalsaAddressBookRubrica, libbalsa_address_book_rubrica,
         LIBBALSA_TYPE_ADDRESS_BOOK_TEXT);
 

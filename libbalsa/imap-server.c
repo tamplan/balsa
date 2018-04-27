@@ -68,10 +68,6 @@ struct _LibBalsaImapServer {
     unsigned use_idle:1;  /**< IDLE will work: no dummy firewall on the way */
 };
 
-struct _LibBalsaImapServerClass {
-    LibBalsaServerClass parent_class;
-};
-
 G_DEFINE_TYPE(LibBalsaImapServer, libbalsa_imap_server, LIBBALSA_TYPE_SERVER)
 
 static void libbalsa_imap_server_finalize(GObject * object);

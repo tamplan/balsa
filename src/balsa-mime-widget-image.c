@@ -39,10 +39,6 @@ struct _BalsaMimeWidgetImage {
     GtkGesture *gesture;
 };
 
-struct _BalsaMimeWidgetImageClass {
-    BalsaMimeWidgetClass parent;
-};
-
 G_DEFINE_TYPE(BalsaMimeWidgetImage,
               balsa_mime_widget_image,
               BALSA_TYPE_MIME_WIDGET);
