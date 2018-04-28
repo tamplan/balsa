@@ -30,14 +30,14 @@
 G_BEGIN_DECLS
 
 
-#define BALSA_TYPE_MESSAGE          (balsa_message_get_type ())
-#define BALSA_MESSAGE(obj)          G_TYPE_CHECK_INSTANCE_CAST (obj, BALSA_TYPE_MESSAGE, BalsaMessage)
-#define BALSA_MESSAGE_CLASS(klass)  G_TYPE_CHECK_CLASS_CAST (klass, BALSA_TYPE_MESSAGE, BalsaMessageClass)
-#define BALSA_IS_MESSAGE(obj)       G_TYPE_CHECK_INSTANCE_TYPE (obj, BALSA_TYPE_MESSAGE)
+#define BALSA_TYPE_MESSAGE balsa_message_get_type()
 
+G_DECLARE_FINAL_TYPE(BalsaMessage,
+                     balsa_message,
+                     BALSA,
+                     MESSAGE,
+                     GtkBox)
 
-typedef struct _BalsaMessage BalsaMessage;
-typedef struct _BalsaMessageClass BalsaMessageClass;
 
 typedef struct _BalsaPartInfo BalsaPartInfo;
 
@@ -69,7 +69,7 @@ struct _BalsaMessage {
         gint info_count;
         GList *save_all_list;
         GtkWidget *save_all_popup;
-    
+
 	gboolean wrap_text;
 
         BalsaPartInfo *current_part;
@@ -108,13 +108,7 @@ struct _BalsaMessage {
         gulong key_pressed_id;
 };
 
-struct _BalsaMessageClass {
-	GtkNotebookClass parent_class;
 
-	void (*select_part) (BalsaMessage * message);
-};
-
-GType balsa_message_get_type(void);
 GtkWidget *balsa_message_new(void);
 
 gboolean balsa_message_set(BalsaMessage * bmessage,

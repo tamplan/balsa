@@ -77,8 +77,6 @@ enum {
     NUM_COLUMNS
 };
 
-typedef struct _BalsaPartInfoClass BalsaPartInfoClass;
-
 struct _BalsaPartInfo {
     GObject parent_object;
 
@@ -94,24 +92,17 @@ struct _BalsaPartInfo {
     GtkTreePath *path;
 };
 
-struct _BalsaPartInfoClass {
-    GObjectClass parent_class;
-};
+#define TYPE_BALSA_PART_INFO balsa_part_info_get_type()
 
-static GType balsa_part_info_get_type();
-
-#define TYPE_BALSA_PART_INFO          \
-        (balsa_part_info_get_type ())
-#define BALSA_PART_INFO(obj)          \
-        (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_BALSA_PART_INFO, BalsaPartInfo))
-#define IS_BALSA_PART_INFO(obj)       \
-        (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_BALSA_PART_INFO))
+G_DECLARE_FINAL_TYPE(BalsaPartInfo,
+                     balsa_part_info,
+                     BALSA,
+                     PART_INFO,
+                     GObject)
 
 static gint balsa_message_signals[LAST_SIGNAL];
 
 /* widget */
-static void balsa_message_class_init(BalsaMessageClass * klass);
-static void balsa_message_init(BalsaMessage * bm);
 
 static void balsa_message_destroy(GObject * object);
 
@@ -133,12 +124,9 @@ static void bm_gesture_pressed_cb(GtkGestureMultiPress *multi_press,
                                   gdouble               y,
                                   gpointer              user_data);
 
-static void part_info_init(BalsaMessage * bm, BalsaPartInfo * info);
 static void part_context_save_all_cb(GtkWidget * menu_item, GList * info_list);
 static void part_context_dump_all_cb(GtkWidget * menu_item, GList * info_list);
 static void part_create_menu (BalsaPartInfo* info);
-
-static GtkNotebookClass *parent_class = NULL;
 
 /* stuff needed for sending Message Disposition Notifications */
 static void handle_mdn_request(GtkWindow *parent, LibBalsaMessage *message);
@@ -152,7 +140,6 @@ static GtkWidget* create_mdn_dialog (GtkWindow *parent, gchar *sender,
 static void mdn_dialog_response(GtkWidget * dialog, gint response,
                                 gpointer user_data);
 
-static void balsa_part_info_init(GObject *object, gpointer data);
 static BalsaPartInfo* balsa_part_info_new(LibBalsaMessageBody* body);
 static void balsa_part_info_dispose(GObject * object);
 static void balsa_part_info_finalize(GObject * object);
@@ -167,68 +154,18 @@ static GdkPixbuf * get_crypto_content_icon(LibBalsaMessageBody * body,
 static void message_recheck_crypto_cb(GtkWidget * button, BalsaMessage * bm);
 #endif /* HAVE_GPGME */
 
-static GObjectClass *part_info_parent_class;
-
 static void
 balsa_part_info_class_init(BalsaPartInfoClass *klass)
 {
     GObjectClass *object_class = G_OBJECT_CLASS(klass);
 
-    part_info_parent_class = g_type_class_peek_parent(object_class);
-
     object_class->dispose  = balsa_part_info_dispose;
     object_class->finalize = balsa_part_info_finalize;
 }
 
-static GType
-balsa_part_info_get_type()
-{
-    static GType balsa_part_info_type = 0 ;
+G_DEFINE_TYPE(BalsaPartInfo, balsa_part_info, G_TYPE_OBJECT)
 
-    if (!balsa_part_info_type) {
-        static const GTypeInfo balsa_part_info_info =
-            {
-                sizeof (BalsaPartInfoClass),
-                (GBaseInitFunc) NULL,
-                (GBaseFinalizeFunc) NULL,
-                (GClassInitFunc) balsa_part_info_class_init,
-                (GClassFinalizeFunc) NULL,
-                NULL,
-                sizeof(BalsaPartInfo),
-                0,
-                (GInstanceInitFunc) balsa_part_info_init
-            };
-        balsa_part_info_type =
-           g_type_register_static (G_TYPE_OBJECT, "BalsaPartInfo",
-                                   &balsa_part_info_info, 0);
-    }
-    return balsa_part_info_type;
-}
-
-GType
-balsa_message_get_type()
-{
-    static GType balsa_message_type = 0;
-
-    if (!balsa_message_type) {
-        static const GTypeInfo balsa_message_info = {
-            sizeof(BalsaMessageClass),
-            NULL,               /* base_init */
-            NULL,               /* base_finalize */
-            (GClassInitFunc) balsa_message_class_init,
-            NULL,               /* class_finalize */
-            NULL,               /* class_data */
-            sizeof(BalsaMessage),
-            0,                  /* n_preallocs */
-            (GInstanceInitFunc) balsa_message_init
-        };
-
-        balsa_message_type =
-        	g_type_register_static(GTK_TYPE_BOX, "BalsaMessage", &balsa_message_info, 0);
-    }
-
-    return balsa_message_type;
-}
+G_DEFINE_TYPE(BalsaMessage, balsa_message, GTK_TYPE_BOX)
 
 static void
 balsa_message_class_init(BalsaMessageClass * klass)
@@ -241,17 +178,10 @@ balsa_message_class_init(BalsaMessageClass * klass)
         g_signal_new("select-part",
                      G_TYPE_FROM_CLASS(object_class),
                      G_SIGNAL_RUN_FIRST,
-                     G_STRUCT_OFFSET(BalsaMessageClass, select_part),
-                     NULL, NULL,
-                     g_cclosure_marshal_VOID__VOID,
+                     0, NULL, NULL, NULL,
                      G_TYPE_NONE, 0);
 
     object_class->dispose = balsa_message_destroy;
-
-    parent_class = g_type_class_peek_parent(klass);
-
-    klass->select_part = NULL;
-
 }
 
 /* Helpers for balsa_message_init. */
@@ -846,7 +776,7 @@ balsa_message_destroy(GObject * object)
     g_clear_object(&bm->html_find_info);
 #endif                          /* HAVE_HTML_WIDGET */
 
-    G_OBJECT_CLASS(parent_class)->dispose(object);
+    G_OBJECT_CLASS(balsa_message_parent_class)->dispose(object);
 }
 
 GtkWidget *
@@ -1296,17 +1226,6 @@ display_headers(BalsaMessage * bm)
 }
 
 
-static void
-part_info_init(BalsaMessage * bm, BalsaPartInfo * info)
-{
-    g_return_if_fail(bm != NULL);
-    g_return_if_fail(info != NULL);
-    g_return_if_fail(info->body != NULL);
-
-    info->mime_widget = balsa_mime_widget_new(bm, info->body, info->popup_menu);
-}
-
-
 static inline gchar *
 mpart_content_name(const gchar *content_type)
 {
@@ -1664,14 +1583,8 @@ part_create_menu (BalsaPartInfo* info)
 
 
 static void
-balsa_part_info_init(GObject *object, gpointer data)
+balsa_part_info_init(BalsaPartInfo * info)
 {
-    BalsaPartInfo * info = BALSA_PART_INFO(object);
-
-    info->body = NULL;
-    info->mime_widget = NULL;
-    info->popup_menu = NULL;
-    info->path = NULL;
 }
 
 static BalsaPartInfo*
@@ -1691,7 +1604,7 @@ balsa_part_info_dispose(GObject * object)
     g_clear_object(&info->mime_widget);
     g_clear_object(&info->popup_menu);
 
-    part_info_parent_class->dispose(object);
+    G_OBJECT_CLASS(balsa_part_info_parent_class)->dispose(object);
 }
 
 static void
@@ -1700,12 +1613,12 @@ balsa_part_info_finalize(GObject * object)
     BalsaPartInfo * info;
 
     g_return_if_fail(object != NULL);
-    g_return_if_fail(IS_BALSA_PART_INFO(object));
+    g_return_if_fail(BALSA_IS_PART_INFO(object));
     info = BALSA_PART_INFO(object);
 
     gtk_tree_path_free(info->path);
 
-    part_info_parent_class->finalize(object);
+    G_OBJECT_CLASS(balsa_part_info_parent_class)->finalize(object);
 }
 
 static void
@@ -2199,7 +2112,7 @@ add_part(BalsaMessage * bm, BalsaPartInfo * info, GtkWidget * container)
 	gtk_tree_selection_select_path(selection, info->path);
 
     if (info->mime_widget == NULL)
-	part_info_init(bm, info);
+        info->mime_widget = balsa_mime_widget_new(bm, info->body, info->popup_menu);
 
     if ((widget = balsa_mime_widget_get_widget(info->mime_widget)) != NULL) {
         gtk_widget_set_vexpand(widget, TRUE);
