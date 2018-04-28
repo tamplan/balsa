@@ -26,8 +26,6 @@
 
 G_BEGIN_DECLS
 
-    GType balsa_index_get_type(void);
-
 #define BALSA_TYPE_INDEX balsa_index_get_type()
 
 G_DECLARE_FINAL_TYPE(BalsaIndex,
