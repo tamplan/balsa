@@ -79,10 +79,7 @@ static const gchar * bmbl_drop_types[] = {
     "x-application/x-message-list"
 };
 
-static GtkTreeViewClass *parent_class = NULL;
-
 /* class methods */
-static void bmbl_class_init(BalsaMBListClass * klass);
 static void bmbl_set_property(GObject * object, guint prop_id,
                               const GValue * value, GParamSpec * pspec);
 static void bmbl_get_property(GObject * object, guint prop_id,
@@ -91,7 +88,6 @@ static gboolean bmbl_drag_motion(GtkWidget * mblist,
                                  GdkDragContext * context, gint x, gint y,
                                  guint time);
 static gboolean bmbl_popup_menu(GtkWidget * widget);
-static void bmbl_init(BalsaMBList * mblist);
 static gboolean bmbl_selection_func(GtkTreeSelection * selection,
                                     GtkTreeModel * model,
                                     GtkTreePath * path,
@@ -139,32 +135,7 @@ static void bmbl_expand_to_row(BalsaMBList * mblist, GtkTreePath * path);
 
 /* class methods */
 
-GType
-balsa_mblist_get_type(void)
-{
-    static GType mblist_type = 0;
-
-    if (!mblist_type) {
-	static const GTypeInfo mblist_info = {
-	    sizeof(BalsaMBListClass),
-            NULL,               /* base_init */
-            NULL,               /* base_finalize */
-	    (GClassInitFunc) bmbl_class_init,
-            NULL,               /* class_finalize */
-            NULL,               /* class_data */
-	    sizeof(BalsaMBList),
-            0,                  /* n_preallocs */
-	    (GInstanceInitFunc) bmbl_init
-	};
-
-	mblist_type =
-            g_type_register_static(GTK_TYPE_TREE_VIEW,
-	                           "BalsaMBList",
-                                   &mblist_info, 0);
-    }
-
-    return mblist_type;
-}
+G_DEFINE_TYPE(BalsaMBList, balsa_mblist, GTK_TYPE_TREE_VIEW)
 
 static void
 bmbl_dispose(GObject * object)
@@ -173,16 +144,14 @@ bmbl_dispose(GObject * object)
 
     g_clear_object(&mblist->gesture);
 
-    G_OBJECT_CLASS(parent_class)->dispose(object);
+    G_OBJECT_CLASS(balsa_mblist_parent_class)->dispose(object);
 }
 
 static void
-bmbl_class_init(BalsaMBListClass * klass)
+balsa_mblist_class_init(BalsaMBListClass * klass)
 {
     GObjectClass *object_class;
     GtkWidgetClass *widget_class;
-
-    parent_class = g_type_class_peek_parent(klass);
 
     object_class = (GObjectClass *) klass;
     widget_class = (GtkWidgetClass *) klass;
@@ -193,9 +162,7 @@ bmbl_class_init(BalsaMBListClass * klass)
         g_signal_new("has-unread-mailbox",
                      G_TYPE_FROM_CLASS(object_class),
                      G_SIGNAL_RUN_FIRST,
-                     G_STRUCT_OFFSET(BalsaMBListClass, has_unread_mailbox),
-                     NULL, NULL,
-                     g_cclosure_marshal_VOID__INT,
+                     0, NULL, NULL, NULL,
                      G_TYPE_NONE,
                      1, G_TYPE_INT);
 
@@ -207,9 +174,6 @@ bmbl_class_init(BalsaMBListClass * klass)
     /* GtkWidget signals */
     widget_class->drag_motion = bmbl_drag_motion;
     widget_class->popup_menu = bmbl_popup_menu;
-
-    /* Signals */
-    klass->has_unread_mailbox = NULL;
 
     /* Properties */
     g_object_class_install_property(object_class, PROP_SHOW_CONTENT_INFO,
@@ -318,8 +282,10 @@ bmbl_drag_motion(GtkWidget * mblist, GdkDragContext * context, gint x,
     gboolean can_drop;
 
     ret_val =
-        GTK_WIDGET_CLASS(parent_class)->drag_motion(mblist, context, x, y,
-                                                    time);
+        GTK_WIDGET_CLASS(balsa_mblist_parent_class)->drag_motion(mblist,
+                                                                 context,
+                                                                 x, y,
+                                                                 time);
 
     gtk_tree_view_get_drag_dest_row(tree_view, &path, NULL);
     if (!path)
@@ -343,7 +309,7 @@ bmbl_drag_motion(GtkWidget * mblist, GdkDragContext * context, gint x,
  * callbacks
  */
 static void
-bmbl_init(BalsaMBList * mblist)
+balsa_mblist_init(BalsaMBList * mblist)
 {
     GtkTreeStore *store = balsa_mblist_get_store();
     GtkTreeView *tree_view = GTK_TREE_VIEW(mblist);
