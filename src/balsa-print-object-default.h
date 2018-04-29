@@ -24,43 +24,27 @@
 
 G_BEGIN_DECLS
 
-#define BALSA_TYPE_PRINT_OBJECT_DEFAULT \
-    (balsa_print_object_default_get_type())
-#define BALSA_PRINT_OBJECT_DEFAULT(obj)                         \
-    G_TYPE_CHECK_INSTANCE_CAST(obj, BALSA_TYPE_PRINT_OBJECT_DEFAULT, BalsaPrintObjectDefault)
-#define BALSA_PRINT_OBJECT_DEFAULT_CLASS(klass)                 \
-    G_TYPE_CHECK_CLASS_CAST(klass, BALSA_TYPE_PRINT_OBJECT_DEFAULT, \
-                            BalsaPrintObjectDefaultClass)
-#define BALSA_IS_PRINT_OBJECT_DEFAULT(obj)                      \
-    G_TYPE_CHECK_INSTANCE_TYPE(obj, BALSA_TYPE_PRINT_OBJECT_DEFAULT)
+#define BALSA_TYPE_PRINT_OBJECT_DEFAULT balsa_print_object_default_get_type()
+
+G_DECLARE_FINAL_TYPE(BalsaPrintObjectDefault,
+                     balsa_print_object_default,
+                     BALSA,
+                     PRINT_OBJECT_DEFAULT,
+                     BalsaPrintObject)
 
 
-typedef struct _BalsaPrintObjectDefaultClass BalsaPrintObjectDefaultClass;
-typedef struct _BalsaPrintObjectDefault BalsaPrintObjectDefault;
-
-
-struct _BalsaPrintObjectDefault {
-    BalsaPrintObject parent;
-
-    gint p_label_width;
-    gdouble c_image_width;
-    gdouble c_image_height;
-    gdouble c_text_height;
-    gchar *description;
-    GdkPixbuf *pixbuf;
-};
-
-
-struct _BalsaPrintObjectDefaultClass {
-    BalsaPrintObjectClass parent;
-};
-
-
-GType  balsa_print_object_default_get_type(void);
 GList *balsa_print_object_default(GList               *list,
                                   GtkPrintContext     *context,
                                   LibBalsaMessageBody *body,
                                   BalsaPrintSetup     *psetup);
+GList *balsa_print_object_vcard(GList               *list,
+                                GtkPrintContext     *context,
+                                LibBalsaMessageBody *body,
+                                BalsaPrintSetup     *psetup);
+GList *balsa_print_object_calendar(GList               *list,
+                                   GtkPrintContext     *context,
+                                   LibBalsaMessageBody *body,
+                                   BalsaPrintSetup     *psetup);
 
 
 G_END_DECLS
