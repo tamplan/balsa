@@ -24,17 +24,13 @@
 
 G_BEGIN_DECLS
 
-#define BALSA_TYPE_PRINT_OBJECT_DECOR   \
-    (balsa_print_object_decor_get_type())
-#define BALSA_PRINT_OBJECT_DECOR(obj)                           \
-    G_TYPE_CHECK_INSTANCE_CAST(obj, BALSA_TYPE_PRINT_OBJECT_DECOR, BalsaPrintObjectDecor)
-#define BALSA_PRINT_OBJECT_DECOR_CLASS(klass)                   \
-    G_TYPE_CHECK_CLASS_CAST(klass, BALSA_TYPE_PRINT_OBJECT_DECOR, BalsaPrintObjectDecorClass)
-#define BALSA_IS_PRINT_OBJECT_DECOR(obj)                        \
-    G_TYPE_CHECK_INSTANCE_TYPE(obj, BALSA_TYPE_PRINT_OBJECT_DECOR)
+#define BALSA_TYPE_PRINT_OBJECT_DECOR balsa_print_object_decor_get_type()
 
-typedef struct _BalsaPrintObjectDecorClass BalsaPrintObjectDecorClass;
-typedef struct _BalsaPrintObjectDecor BalsaPrintObjectDecor;
+G_DECLARE_FINAL_TYPE(BalsaPrintObjectDecor,
+                     balsa_print_object_decor,
+                     BALSA,
+                     PRINT_OBJECT_DECOR,
+                     BalsaPrintObject)
 
 typedef enum {
     BALSA_PRINT_DECOR_FRAME_BEGIN,
@@ -50,12 +46,6 @@ struct _BalsaPrintObjectDecor {
 };
 
 
-struct _BalsaPrintObjectDecorClass {
-    BalsaPrintObjectClass parent;
-};
-
-
-GType  balsa_print_object_decor_get_type(void);
 GList *balsa_print_object_separator(GList           *list,
                                     BalsaPrintSetup *psetup);
 GList *balsa_print_object_frame_begin(GList           *list,

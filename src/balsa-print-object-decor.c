@@ -27,8 +27,6 @@
 
 /* object related functions */
 static void balsa_print_object_decor_class_init(BalsaPrintObjectDecorClass *klass);
-static void balsa_print_object_decor_init(GTypeInstance *instance,
-                                          gpointer       g_class);
 static void balsa_print_object_decor_finalize(GObject *self);
 
 static void balsa_print_object_decor_draw(BalsaPrintObject *self,
@@ -36,53 +34,22 @@ static void balsa_print_object_decor_draw(BalsaPrintObject *self,
                                           cairo_t          *cairo_ctx);
 
 
-static BalsaPrintObjectClass *parent_class = NULL;
-
-
-GType
-balsa_print_object_decor_get_type()
-{
-    static GType balsa_print_object_decor_type = 0;
-
-    if (!balsa_print_object_decor_type) {
-        static const GTypeInfo balsa_print_object_decor_info = {
-            sizeof(BalsaPrintObjectDecorClass),
-            NULL,               /* base_init */
-            NULL,               /* base_finalize */
-            (GClassInitFunc) balsa_print_object_decor_class_init,
-            NULL,               /* class_finalize */
-            NULL,               /* class_data */
-            sizeof(BalsaPrintObjectDecor),
-            0,                  /* n_preallocs */
-            (GInstanceInitFunc) balsa_print_object_decor_init
-        };
-
-        balsa_print_object_decor_type =
-            g_type_register_static(BALSA_TYPE_PRINT_OBJECT,
-                                   "BalsaPrintObjectDecor",
-                                   &balsa_print_object_decor_info, 0);
-    }
-
-    return balsa_print_object_decor_type;
-}
+G_DEFINE_TYPE(BalsaPrintObjectDecor,
+              balsa_print_object_decor,
+              BALSA_TYPE_PRINT_OBJECT)
 
 
 static void
 balsa_print_object_decor_class_init(BalsaPrintObjectDecorClass *klass)
 {
-    parent_class                          = g_type_class_ref(BALSA_TYPE_PRINT_OBJECT);
-    BALSA_PRINT_OBJECT_CLASS(klass)->draw =
-        balsa_print_object_decor_draw;
+    BALSA_PRINT_OBJECT_CLASS(klass)->draw = balsa_print_object_decor_draw;
     G_OBJECT_CLASS(klass)->finalize = balsa_print_object_decor_finalize;
 }
 
 
 static void
-balsa_print_object_decor_init(GTypeInstance *instance,
-                              gpointer       g_class)
+balsa_print_object_decor_init(BalsaPrintObjectDecor *pod)
 {
-    BalsaPrintObjectDecor *pod = BALSA_PRINT_OBJECT_DECOR(instance);
-
     pod->label = NULL;
 }
 
@@ -94,7 +61,7 @@ balsa_print_object_decor_finalize(GObject *self)
 
     g_free(pod->label);
 
-    G_OBJECT_CLASS(parent_class)->finalize(self);
+    G_OBJECT_CLASS(balsa_print_object_decor_parent_class)->finalize(self);
 }
 
 
