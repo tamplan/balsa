@@ -7,18 +7,18 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
  * any later version.
- *  
+ *
  * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the  
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *  
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #if defined(HAVE_CONFIG_H) && HAVE_CONFIG_H
-# include "config.h"
+#   include "config.h"
 #endif                          /* HAVE_CONFIG_H */
 #include "balsa-print-object.h"
 
@@ -35,122 +35,111 @@
 
 
 /* object related functions */
-static void balsa_print_object_init(GTypeInstance * instance,
-				    gpointer g_class);
-static void balsa_print_object_class_init(BalsaPrintObjectClass * klass);
+
+typedef struct _BalsaPrintObjectPrivate BalsaPrintObjectPrivate;
+
+struct _BalsaPrintObjectPrivate {
+    gint on_page;
+    guint depth;
+
+    gdouble c_at_x;
+    gdouble c_at_y;
+    gdouble c_width;
+    gdouble c_height;
+};
+
+G_DEFINE_TYPE_WITH_PRIVATE(BalsaPrintObject, balsa_print_object, G_TYPE_OBJECT)
 
 
-static GObjectClass *parent_class = NULL;
-
-
-GType
-balsa_print_object_get_type()
+static void
+balsa_print_object_init(BalsaPrintObject *self)
 {
-    static GType balsa_print_object_type = 0;
+    BalsaPrintObjectPrivate *priv = balsa_print_object_get_instance_private(self);
 
-    if (!balsa_print_object_type) {
-	static const GTypeInfo balsa_print_object_info = {
-	    sizeof(BalsaPrintObjectClass),
-	    NULL,		/* base_init */
-	    NULL,		/* base_finalize */
-	    (GClassInitFunc) balsa_print_object_class_init,
-	    NULL,		/* class_finalize */
-	    NULL,		/* class_data */
-	    sizeof(BalsaPrintObject),
-	    0,			/* n_preallocs */
-	    (GInstanceInitFunc) balsa_print_object_init
-	};
-
-	balsa_print_object_type =
-	    g_type_register_static(G_TYPE_OBJECT, "BalsaPrintObject",
-				   &balsa_print_object_info, 0);
-    }
-
-    return balsa_print_object_type;
+    priv->on_page  = 0;
+    priv->depth    = 0;
+    priv->c_at_x   = 0.0;
+    priv->c_at_y   = 0.0;
+    priv->c_width  = 0.0;
+    priv->c_height = 0.0;
 }
 
 
 static void
-balsa_print_object_init(GTypeInstance * instance, gpointer g_class)
+balsa_print_object_class_init(BalsaPrintObjectClass *klass)
 {
-    BalsaPrintObject *self = (BalsaPrintObject *) instance;
-
-    self->on_page = 0;
-    self->depth = 0;
-    self->c_at_x = 0.0;
-    self->c_at_y = 0.0;
-    self->c_width = 0.0;
-    self->c_height = 0.0;
-}
-
-
-static void
-balsa_print_object_class_init(BalsaPrintObjectClass * klass)
-{
-    parent_class = g_type_class_ref(G_TYPE_OBJECT);
     klass->draw = balsa_print_object_draw;
 }
 
 
 static GList *
-balsa_print_object_emb_message(GList * list, GtkPrintContext * context,
-				     LibBalsaMessageBody * mime_body,
-				     BalsaPrintSetup * psetup)
+balsa_print_object_emb_message(GList               *list,
+                               GtkPrintContext     *context,
+                               LibBalsaMessageBody *mime_body,
+                               BalsaPrintSetup     *psetup)
 {
     list = balsa_print_object_frame_begin(list, NULL, psetup);
     return balsa_print_object_header_from_body(list, context, mime_body, psetup);
 }
 
+
 static GList *
-balsa_print_object_emb_headers(GList * list, GtkPrintContext * context,
-	     LibBalsaMessageBody * mime_body,
-	     BalsaPrintSetup * psetup)
+balsa_print_object_emb_headers(GList               *list,
+                               GtkPrintContext     *context,
+                               LibBalsaMessageBody *mime_body,
+                               BalsaPrintSetup     *psetup)
 {
     list = balsa_print_object_frame_begin(list, _("message headers"), psetup);
     list = balsa_print_object_header_from_body(list, context, mime_body, psetup);
     return balsa_print_object_frame_end(list, psetup);
 }
 
+
 #ifdef HAVE_GPGME
 static GList *
-balsa_print_object_mp_crypto(GList * list, GtkPrintContext * context,
-                               LibBalsaMessageBody * mime_body,
-                               BalsaPrintSetup * psetup)
+balsa_print_object_mp_crypto(GList               *list,
+                             GtkPrintContext     *context,
+                             LibBalsaMessageBody *mime_body,
+                             BalsaPrintSetup     *psetup)
 {
     return balsa_print_object_header_crypto(list, context, mime_body, NULL, psetup);
 }
+
+
 #endif                          /* HAVE_GPGME */
 
 
 GList *
-balsa_print_objects_append_from_body(GList * list,
-				     GtkPrintContext * context,
-				     LibBalsaMessageBody * mime_body,
-				     BalsaPrintSetup * psetup)
+balsa_print_objects_append_from_body(GList               *list,
+                                     GtkPrintContext     *context,
+                                     LibBalsaMessageBody *mime_body,
+                                     BalsaPrintSetup     *psetup)
 {
     static const struct {
-        char * type;  /* MIME type */
+        char *type;   /* MIME type */
         int use_len;  /* length for strncasecmp or -1 for strcasecmp */
-        GList * (*handler)(GList *, GtkPrintContext *, LibBalsaMessageBody *,
+        GList * (*handler)(GList *,
+                           GtkPrintContext *,
+                           LibBalsaMessageBody *,
                            BalsaPrintSetup *);
     } pr_handlers[] = {
-        { "text/html",                     -1, balsa_print_object_default },
-        { "text/enriched",                 -1, balsa_print_object_default },
-        { "text/richtext",                 -1, balsa_print_object_default },
-        { "text/x-vcard",                  -1, balsa_print_object_text_vcard },
-        { "text/directory",                -1, balsa_print_object_text_vcard },
-        { "text/calendar",                 -1, balsa_print_object_text_calendar },
-        { "text/plain",                    -1, balsa_print_object_text_plain },
-        { "text/rfc822-headers",	   -1, balsa_print_object_emb_headers },
-        { "text/",                          5, balsa_print_object_text },
-        { "image/",                         6, balsa_print_object_image },
-        { "message/rfc822",                -1, balsa_print_object_emb_message },
+        { "text/html", -1, balsa_print_object_default },
+        { "text/enriched", -1, balsa_print_object_default },
+        { "text/richtext", -1, balsa_print_object_default },
+        { "text/x-vcard", -1, balsa_print_object_text_vcard },
+        { "text/directory", -1, balsa_print_object_text_vcard },
+        { "text/calendar", -1, balsa_print_object_text_calendar },
+        { "text/plain", -1, balsa_print_object_text_plain },
+        { "text/rfc822-headers", -1, balsa_print_object_emb_headers },
+        { "text/", 5, balsa_print_object_text },
+        { "image/", 6, balsa_print_object_image },
+        { "message/rfc822", -1, balsa_print_object_emb_message },
 #ifdef HAVE_GPGME
-        { "application/pgp-signature",     -1, balsa_print_object_mp_crypto },
-        { "application/pkcs7-signature",   -1, balsa_print_object_mp_crypto },
+        { "application/pgp-signature", -1, balsa_print_object_mp_crypto },
+        { "application/pkcs7-signature", -1, balsa_print_object_mp_crypto },
         { "application/x-pkcs7-signature", -1, balsa_print_object_mp_crypto },
-#endif				/* HAVE_GPGME */
-        { NULL,                            -1, balsa_print_object_default }
+#endif                          /* HAVE_GPGME */
+        { NULL, -1, balsa_print_object_default }
     };
     gchar *conttype;
     GList *result;
@@ -159,11 +148,12 @@ balsa_print_objects_append_from_body(GList * list,
     conttype = libbalsa_message_body_get_mime_type(mime_body);
     for (n = 0;
          pr_handlers[n].type &&
-             ((pr_handlers[n].use_len == -1 &&
-               g_ascii_strcasecmp(pr_handlers[n].type, conttype)) ||
-              (pr_handlers[n].use_len > 0 &&
-               g_ascii_strncasecmp(pr_handlers[n].type, conttype, pr_handlers[n].use_len)));
-         n++);
+         ((pr_handlers[n].use_len == -1 &&
+           g_ascii_strcasecmp(pr_handlers[n].type, conttype)) ||
+          (pr_handlers[n].use_len > 0 &&
+           g_ascii_strncasecmp(pr_handlers[n].type, conttype, pr_handlers[n].use_len)));
+         n++) {
+    }
     result = pr_handlers[n].handler(list, context, mime_body, psetup);
     g_free(conttype);
     return result;
@@ -171,31 +161,33 @@ balsa_print_objects_append_from_body(GList * list,
 
 
 void
-balsa_print_object_draw(BalsaPrintObject * self, GtkPrintContext * context,
-			cairo_t * cairo_ctx)
+balsa_print_object_draw(BalsaPrintObject *self,
+                        GtkPrintContext  *context,
+                        cairo_t          *cairo_ctx)
 {
+    BalsaPrintObjectPrivate *priv = balsa_print_object_get_instance_private(self);
     guint level;
 
     BALSA_PRINT_OBJECT_CLASS(G_OBJECT_GET_CLASS(self))->draw(self, context, cairo_ctx);
 
     /* print borders if the depth is > 0 */
-    if (self->depth == 0)
-	return;
+    if (priv->depth == 0)
+        return;
 
     /* print the requested number of border lines */
     cairo_save(cairo_ctx);
     cairo_set_line_width(cairo_ctx, 0.25);
     cairo_new_path(cairo_ctx);
-    for (level = self->depth; level; level--) {
-	gdouble level_sep = level * C_LABEL_SEP;
+    for (level = priv->depth; level; level--) {
+        gdouble level_sep = level * C_LABEL_SEP;
 
-	cairo_move_to(cairo_ctx, self->c_at_x - level_sep, self->c_at_y);
-	cairo_line_to(cairo_ctx, self->c_at_x - level_sep,
-		      self->c_at_y + self->c_height);
-	cairo_move_to(cairo_ctx, self->c_at_x + self->c_width + level_sep,
-		      self->c_at_y);
-	cairo_line_to(cairo_ctx, self->c_at_x + self->c_width + level_sep,
-		      self->c_at_y + self->c_height);
+        cairo_move_to(cairo_ctx, priv->c_at_x - level_sep, priv->c_at_y);
+        cairo_line_to(cairo_ctx, priv->c_at_x - level_sep,
+                      priv->c_at_y + priv->c_height);
+        cairo_move_to(cairo_ctx, priv->c_at_x + priv->c_width + level_sep,
+                      priv->c_at_y);
+        cairo_line_to(cairo_ctx, priv->c_at_x + priv->c_width + level_sep,
+                      priv->c_at_y + priv->c_height);
     }
     cairo_stroke(cairo_ctx);
     cairo_restore(cairo_ctx);
@@ -206,7 +198,8 @@ balsa_print_object_draw(BalsaPrintObject * self, GtkPrintContext * context,
 
 /* return the width of the passed string in Pango units */
 gint
-p_string_width_from_layout(PangoLayout * layout, const gchar * text)
+p_string_width_from_layout(PangoLayout *layout,
+                           const gchar *text)
 {
     gint width;
 
@@ -218,7 +211,8 @@ p_string_width_from_layout(PangoLayout * layout, const gchar * text)
 
 /* return the height of the passed string in Pango units */
 gint
-p_string_height_from_layout(PangoLayout * layout, const gchar * text)
+p_string_height_from_layout(PangoLayout *layout,
+                            const gchar *text)
 {
     gint height;
 
@@ -231,8 +225,11 @@ p_string_height_from_layout(PangoLayout * layout, const gchar * text)
 /* print a GdkPixbuf to cairo at the specified position and with the
  * specified scale */
 gboolean
-cairo_print_pixbuf(cairo_t * cairo_ctx, GdkPixbuf * pixbuf,
-                   gdouble c_at_x, gdouble c_at_y, gdouble scale)
+cairo_print_pixbuf(cairo_t   *cairo_ctx,
+                   GdkPixbuf *pixbuf,
+                   gdouble    c_at_x,
+                   gdouble    c_at_y,
+                   gdouble    scale)
 {
     gint n_chans;
     gint width;
@@ -242,7 +239,7 @@ cairo_print_pixbuf(cairo_t * cairo_ctx, GdkPixbuf * pixbuf,
 
     /* paranoia checks */
     g_return_val_if_fail(cairo_ctx != NULL, FALSE);
-    g_return_val_if_fail(pixbuf    != NULL, FALSE);
+    g_return_val_if_fail(pixbuf != NULL, FALSE);
 
     /* must have 3 (no alpha) or 4 (with alpha) channels */
     n_chans = gdk_pixbuf_get_n_channels(pixbuf);
@@ -271,7 +268,7 @@ cairo_print_pixbuf(cairo_t * cairo_ctx, GdkPixbuf * pixbuf,
     cairo_move_to(cairo_ctx, c_at_x, c_at_y);
     cairo_line_to(cairo_ctx, c_at_x + width * scale, c_at_y);
     cairo_line_to(cairo_ctx, c_at_x + width * scale,
-		  c_at_y + height * scale);
+                  c_at_y + height * scale);
     cairo_line_to(cairo_ctx, c_at_x, c_at_y + height * scale);
     cairo_close_path(cairo_ctx);
     cairo_clip(cairo_ctx);
@@ -284,13 +281,14 @@ cairo_print_pixbuf(cairo_t * cairo_ctx, GdkPixbuf * pixbuf,
 }
 
 
-
-
 /* split a text buffer into chunks using the passed Pango layout */
 GList *
-split_for_layout(PangoLayout * layout, const gchar * text,
-		 PangoAttrList * attributes, BalsaPrintSetup * psetup,
-		 gboolean is_header, GArray ** offsets)
+split_for_layout(PangoLayout     *layout,
+                 const gchar     *text,
+                 PangoAttrList   *attributes,
+                 BalsaPrintSetup *psetup,
+                 gboolean         is_header,
+                 GArray         **offsets)
 {
     GList *split_list = NULL;
     PangoLayoutIter *iter;
@@ -305,70 +303,71 @@ split_for_layout(PangoLayout * layout, const gchar * text,
     /* set the text and its attributes, then get an iter */
     pango_layout_set_text(layout, text, -1);
     if (attributes)
-	pango_layout_set_attributes(layout, attributes);
+        pango_layout_set_attributes(layout, attributes);
     if (offsets)
-	*offsets = g_array_new(FALSE, FALSE, sizeof(guint));
+        *offsets = g_array_new(FALSE, FALSE, sizeof(guint));
     iter = pango_layout_get_iter(layout);
 
     /* loop over lines */
-    start = text;
+    start    = text;
     p_offset = 0;
-    add_tab = FALSE;
-    p_y_pos = C_TO_P(psetup->c_y_pos);
+    add_tab  = FALSE;
+    p_y_pos  = C_TO_P(psetup->c_y_pos);
     p_height = C_TO_P(psetup->c_height);
     do {
-	pango_layout_iter_get_line_yrange(iter, &p_y0, &p_y1);
-	if (p_y_pos + p_y1 - p_offset > p_height) {
-	    gint index;
-	    gint tr;
-	    gchar *chunk;
-	    gboolean ends_with_nl;
+        pango_layout_iter_get_line_yrange(iter, &p_y0, &p_y1);
+        if (p_y_pos + p_y1 - p_offset > p_height) {
+            gint index;
+            gint tr;
+            gchar *chunk;
+            gboolean ends_with_nl;
 
-	    if (offsets) {
-		guint offs = start - text;
+            if (offsets) {
+                guint offs = start - text;
 
-		*offsets = g_array_append_val(*offsets, offs);
-	    }
-	    pango_layout_xy_to_index(layout, 0, p_y0, &index, &tr);
-	    ends_with_nl = text[index - 1] == '\n';
-	    if (ends_with_nl)
-		index--;
-	    chunk = g_strndup(start, text + index - start);
-	    if (add_tab)
-		split_list =
-		    g_list_append(split_list,
-				  g_strconcat("\t", chunk, NULL));
-	    else
-		split_list = g_list_append(split_list, g_strdup(chunk));
-	    add_tab = is_header && !ends_with_nl;
-	    g_free(chunk);
-	    start = text + index;
-	    if (ends_with_nl)
-		start++;
-	    if (*start == '\0')
-		p_y_pos = p_height;
-	    else {
-		p_y_pos = 0;
-		psetup->page_count++;
-	    }
-	    p_offset = p_y0;
-	}
+                *offsets = g_array_append_val(*offsets, offs);
+            }
+            pango_layout_xy_to_index(layout, 0, p_y0, &index, &tr);
+            ends_with_nl = text[index - 1] == '\n';
+            if (ends_with_nl)
+                index--;
+            chunk = g_strndup(start, text + index - start);
+            if (add_tab) {
+                split_list =
+                    g_list_append(split_list,
+                                  g_strconcat("\t", chunk, NULL));
+            } else {
+                split_list = g_list_append(split_list, g_strdup(chunk));
+            }
+            add_tab = is_header && !ends_with_nl;
+            g_free(chunk);
+            start = text + index;
+            if (ends_with_nl)
+                start++;
+            if (*start == '\0') {
+                p_y_pos = p_height;
+            } else {
+                p_y_pos = 0;
+                psetup->page_count++;
+            }
+            p_offset = p_y0;
+        }
     } while (pango_layout_iter_next_line(iter));
     pango_layout_iter_free(iter);
 
     /* append any remaining stuff */
     if (*start != '\0') {
-	p_y_pos += p_y1 - p_offset;
-	if (offsets) {
-	    guint offs = start - text;
+        p_y_pos += p_y1 - p_offset;
+        if (offsets) {
+            guint offs = start - text;
 
-	    *offsets = g_array_append_val(*offsets, offs);
-	}
-	if (add_tab)
-	    split_list =
-		g_list_append(split_list, g_strconcat("\t", start, NULL));
-	else
-	    split_list = g_list_append(split_list, g_strdup(start));
+            *offsets = g_array_append_val(*offsets, offs);
+        }
+        if (add_tab)
+            split_list =
+                g_list_append(split_list, g_strconcat("\t", start, NULL));
+        else
+            split_list = g_list_append(split_list, g_strdup(start));
     }
 
     /* remember the new y position in cairo units */
@@ -376,4 +375,126 @@ split_for_layout(PangoLayout * layout, const gchar * text,
 
     /* return the list */
     return split_list;
+}
+
+
+/*
+ * Getters
+ */
+
+gint
+balsa_print_object_get_on_page(BalsaPrintObject *self)
+{
+    BalsaPrintObjectPrivate *priv = balsa_print_object_get_instance_private(self);
+
+    return priv->on_page;
+}
+
+
+guint
+balsa_print_object_get_depth(BalsaPrintObject *self)
+{
+    BalsaPrintObjectPrivate *priv = balsa_print_object_get_instance_private(self);
+
+    return priv->depth;
+}
+
+
+gdouble
+balsa_print_object_get_c_at_x(BalsaPrintObject *self)
+{
+    BalsaPrintObjectPrivate *priv = balsa_print_object_get_instance_private(self);
+
+    return priv->c_at_x;
+}
+
+
+gdouble
+balsa_print_object_get_c_at_y(BalsaPrintObject *self)
+{
+    BalsaPrintObjectPrivate *priv = balsa_print_object_get_instance_private(self);
+
+    return priv->c_at_y;
+}
+
+
+gdouble
+balsa_print_object_get_c_width(BalsaPrintObject *self)
+{
+    BalsaPrintObjectPrivate *priv = balsa_print_object_get_instance_private(self);
+
+    return priv->c_width;
+}
+
+
+gdouble
+balsa_print_object_get_c_height(BalsaPrintObject *self)
+{
+    BalsaPrintObjectPrivate *priv = balsa_print_object_get_instance_private(self);
+
+    return priv->c_height;
+}
+
+
+/*
+ * Setters
+ */
+
+void
+balsa_print_object_set_on_page(BalsaPrintObject *self,
+                               gint              on_page)
+{
+    BalsaPrintObjectPrivate *priv = balsa_print_object_get_instance_private(self);
+
+    priv->on_page = on_page;
+}
+
+
+void
+balsa_print_object_set_depth(BalsaPrintObject *self,
+                             guint             depth)
+{
+    BalsaPrintObjectPrivate *priv = balsa_print_object_get_instance_private(self);
+
+    priv->depth = depth;
+}
+
+
+void
+balsa_print_object_set_c_at_x(BalsaPrintObject *self,
+                              gdouble           c_at_x)
+{
+    BalsaPrintObjectPrivate *priv = balsa_print_object_get_instance_private(self);
+
+    priv->c_at_x = c_at_x;
+}
+
+
+void
+balsa_print_object_set_c_at_y(BalsaPrintObject *self,
+                              gdouble           c_at_y)
+{
+    BalsaPrintObjectPrivate *priv = balsa_print_object_get_instance_private(self);
+
+    priv->c_at_y = c_at_y;
+}
+
+
+void
+balsa_print_object_set_c_width(BalsaPrintObject *self,
+                               gdouble           c_width)
+{
+    BalsaPrintObjectPrivate *priv = balsa_print_object_get_instance_private(self);
+
+    priv->c_width = c_width;
+}
+
+
+void
+balsa_print_object_set_c_height(BalsaPrintObject *self,
+                                gdouble           c_height)
+{
+    BalsaPrintObjectPrivate *priv = balsa_print_object_get_instance_private(self);
+
+    priv->c_height = c_height;
 }
