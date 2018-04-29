@@ -30,9 +30,6 @@
 
 
 /* object related functions */
-static void balsa_print_object_header_class_init(BalsaPrintObjectHeaderClass *klass);
-static void balsa_print_object_header_init(GTypeInstance *instance,
-                                           gpointer       g_class);
 static void balsa_print_object_header_finalize(GObject *self);
 
 static void balsa_print_object_header_draw(BalsaPrintObject *self,
@@ -55,53 +52,22 @@ static void header_add_list(PangoLayout         *layout,
                             gboolean             print_all_headers);
 
 
-static BalsaPrintObjectClass *parent_class = NULL;
-
-
-GType
-balsa_print_object_header_get_type()
-{
-    static GType balsa_print_object_header_type = 0;
-
-    if (!balsa_print_object_header_type) {
-        static const GTypeInfo balsa_print_object_header_info = {
-            sizeof(BalsaPrintObjectHeaderClass),
-            NULL,               /* base_init */
-            NULL,               /* base_finalize */
-            (GClassInitFunc) balsa_print_object_header_class_init,
-            NULL,               /* class_finalize */
-            NULL,               /* class_data */
-            sizeof(BalsaPrintObjectHeader),
-            0,                  /* n_preallocs */
-            (GInstanceInitFunc) balsa_print_object_header_init
-        };
-
-        balsa_print_object_header_type =
-            g_type_register_static(BALSA_TYPE_PRINT_OBJECT,
-                                   "BalsaPrintObjectHeader",
-                                   &balsa_print_object_header_info, 0);
-    }
-
-    return balsa_print_object_header_type;
-}
+G_DEFINE_TYPE(BalsaPrintObjectHeader,
+              balsa_print_object_header,
+              BALSA_TYPE_PRINT_OBJECT)
 
 
 static void
 balsa_print_object_header_class_init(BalsaPrintObjectHeaderClass *klass)
 {
-    parent_class                          = g_type_class_ref(BALSA_TYPE_PRINT_OBJECT);
-    BALSA_PRINT_OBJECT_CLASS(klass)->draw =
-        balsa_print_object_header_draw;
+    BALSA_PRINT_OBJECT_CLASS(klass)->draw = balsa_print_object_header_draw;
     G_OBJECT_CLASS(klass)->finalize = balsa_print_object_header_finalize;
 }
 
 
 static void
-balsa_print_object_header_init(GTypeInstance *instance,
-                               gpointer       g_class)
+balsa_print_object_header_init(BalsaPrintObjectHeader *poh)
 {
-    BalsaPrintObjectHeader *poh = BALSA_PRINT_OBJECT_HEADER(instance);
-
     poh->headers = NULL;
 }
 
@@ -109,12 +75,12 @@ balsa_print_object_header_init(GTypeInstance *instance,
 static void
 balsa_print_object_header_finalize(GObject *self)
 {
-    BalsaPrintObjectHeader *po = BALSA_PRINT_OBJECT_HEADER(self);
+    BalsaPrintObjectHeader *poh = BALSA_PRINT_OBJECT_HEADER(self);
 
-    g_free(po->headers);
-    g_clear_object(&po->face);
+    g_free(poh->headers);
+    g_clear_object(&poh->face);
 
-    G_OBJECT_CLASS(parent_class)->finalize(self);
+    G_OBJECT_CLASS(balsa_print_object_header_parent_class)->finalize(self);
 }
 
 

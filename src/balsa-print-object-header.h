@@ -28,18 +28,13 @@
 
 G_BEGIN_DECLS
 
-#define BALSA_TYPE_PRINT_OBJECT_HEADER  \
-    (balsa_print_object_header_get_type())
-#define BALSA_PRINT_OBJECT_HEADER(obj)                          \
-    G_TYPE_CHECK_INSTANCE_CAST(obj, BALSA_TYPE_PRINT_OBJECT_HEADER, BalsaPrintObjectHeader)
-#define BALSA_PRINT_OBJECT_HEADER_CLASS(klass)                  \
-    G_TYPE_CHECK_CLASS_CAST(klass, BALSA_TYPE_PRINT_OBJECT_HEADER, BalsaPrintObjectHeaderClass)
-#define BALSA_IS_PRINT_OBJECT_HEADER(obj)                       \
-    G_TYPE_CHECK_INSTANCE_TYPE(obj, BALSA_TYPE_PRINT_OBJECT_HEADER)
+#define BALSA_TYPE_PRINT_OBJECT_HEADER balsa_print_object_header_get_type()
 
-
-typedef struct _BalsaPrintObjectHeaderClass BalsaPrintObjectHeaderClass;
-typedef struct _BalsaPrintObjectHeader BalsaPrintObjectHeader;
+G_DECLARE_FINAL_TYPE(BalsaPrintObjectHeader,
+                     balsa_print_object_header,
+                     BALSA,
+                     PRINT_OBJECT_HEADER,
+                     BalsaPrintObject)
 
 
 struct _BalsaPrintObjectHeader {
@@ -52,12 +47,6 @@ struct _BalsaPrintObjectHeader {
 };
 
 
-struct _BalsaPrintObjectHeaderClass {
-    BalsaPrintObjectClass parent;
-};
-
-
-GType  balsa_print_object_header_get_type(void);
 GList *balsa_print_object_header_from_message(GList           *list,
                                               GtkPrintContext *context,
                                               LibBalsaMessage *message,
