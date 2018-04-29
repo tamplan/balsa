@@ -33,10 +33,10 @@ G_DECLARE_FINAL_TYPE(BalsaPrintObjectText,
                      BalsaPrintObject)
 
 
-GList *balsa_print_object_text_plain(GList               *list,
-                                     GtkPrintContext     *context,
-                                     LibBalsaMessageBody *body,
-                                     BalsaPrintSetup     *psetup);
+GList * balsa_print_object_text_plain(GList * list,
+                                      GtkPrintContext * context,
+                                      LibBalsaMessageBody * body,
+                                      BalsaPrintSetup * psetup);
 GList *balsa_print_object_text(GList               *list,
                                GtkPrintContext     *context,
                                LibBalsaMessageBody *body,

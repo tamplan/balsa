@@ -33,10 +33,10 @@ G_DECLARE_FINAL_TYPE(BalsaPrintObjectImage,
                      BalsaPrintObject)
 
 
-GList *balsa_print_object_image(GList               *list,
-                                GtkPrintContext     *context,
-                                LibBalsaMessageBody *body,
-                                BalsaPrintSetup     *psetup);
+GList * balsa_print_object_image(GList * list,
+                                 GtkPrintContext * context,
+                                 LibBalsaMessageBody * body,
+                                 BalsaPrintSetup * psetup);
 
 
 G_END_DECLS

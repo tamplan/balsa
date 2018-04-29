@@ -51,7 +51,7 @@ static void
 balsa_print_object_image_class_init(BalsaPrintObjectImageClass *klass)
 {
     BALSA_PRINT_OBJECT_CLASS(klass)->draw = balsa_print_object_image_draw;
-    G_OBJECT_CLASS(klass)->dispose = balsa_print_object_image_dispose;
+    G_OBJECT_CLASS(klass)->dispose        = balsa_print_object_image_dispose;
 }
 
 

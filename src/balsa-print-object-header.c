@@ -61,7 +61,7 @@ static void
 balsa_print_object_header_class_init(BalsaPrintObjectHeaderClass *klass)
 {
     BALSA_PRINT_OBJECT_CLASS(klass)->draw = balsa_print_object_header_draw;
-    G_OBJECT_CLASS(klass)->finalize = balsa_print_object_header_finalize;
+    G_OBJECT_CLASS(klass)->finalize       = balsa_print_object_header_finalize;
 }
 
 

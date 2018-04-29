@@ -81,7 +81,7 @@ static void
 balsa_print_object_text_class_init(BalsaPrintObjectTextClass *klass)
 {
     BALSA_PRINT_OBJECT_CLASS(klass)->draw = balsa_print_object_text_draw;
-    G_OBJECT_CLASS(klass)->finalize = balsa_print_object_text_finalize;
+    G_OBJECT_CLASS(klass)->finalize       = balsa_print_object_text_finalize;
 }
 
 

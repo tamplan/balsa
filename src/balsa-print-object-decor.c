@@ -43,7 +43,7 @@ static void
 balsa_print_object_decor_class_init(BalsaPrintObjectDecorClass *klass)
 {
     BALSA_PRINT_OBJECT_CLASS(klass)->draw = balsa_print_object_decor_draw;
-    G_OBJECT_CLASS(klass)->finalize = balsa_print_object_decor_finalize;
+    G_OBJECT_CLASS(klass)->finalize       = balsa_print_object_decor_finalize;
 }
 
 

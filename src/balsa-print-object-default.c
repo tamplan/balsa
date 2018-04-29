@@ -61,8 +61,8 @@ static void
 balsa_print_object_default_class_init(BalsaPrintObjectDefaultClass *klass)
 {
     BALSA_PRINT_OBJECT_CLASS(klass)->draw = balsa_print_object_default_draw;
-    G_OBJECT_CLASS(klass)->dispose  = balsa_print_object_default_dispose;
-    G_OBJECT_CLASS(klass)->finalize = balsa_print_object_default_finalize;
+    G_OBJECT_CLASS(klass)->dispose        = balsa_print_object_default_dispose;
+    G_OBJECT_CLASS(klass)->finalize       = balsa_print_object_default_finalize;
 }
 
 
@@ -241,6 +241,7 @@ balsa_print_object_default_draw(BalsaPrintObject *self,
     pango_cairo_show_layout(cairo_ctx, layout);
     g_object_unref(G_OBJECT(layout));
 }
+
 
 /*
  * Following code was moved from balsa-print-object-text, because it

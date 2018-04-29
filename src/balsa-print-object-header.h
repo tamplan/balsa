@@ -29,7 +29,6 @@
 G_BEGIN_DECLS
 
 #define BALSA_TYPE_PRINT_OBJECT_HEADER balsa_print_object_header_get_type()
-
 G_DECLARE_FINAL_TYPE(BalsaPrintObjectHeader,
                      balsa_print_object_header,
                      BALSA,
