@@ -24,35 +24,15 @@
 
 G_BEGIN_DECLS
 
-#define BALSA_TYPE_PRINT_OBJECT_IMAGE   \
-    (balsa_print_object_image_get_type())
-#define BALSA_PRINT_OBJECT_IMAGE(obj)                           \
-    G_TYPE_CHECK_INSTANCE_CAST(obj, BALSA_TYPE_PRINT_OBJECT_IMAGE, BalsaPrintObjectImage)
-#define BALSA_PRINT_OBJECT_IMAGE_CLASS(klass)                   \
-    G_TYPE_CHECK_CLASS_CAST(klass, BALSA_TYPE_PRINT_OBJECT_IMAGE, BalsaPrintObjectImageClass)
-#define BALSA_IS_PRINT_OBJECT_IMAGE(obj)                        \
-    G_TYPE_CHECK_INSTANCE_TYPE(obj, BALSA_TYPE_PRINT_OBJECT_IMAGE)
+#define BALSA_TYPE_PRINT_OBJECT_IMAGE balsa_print_object_image_get_type()
+
+G_DECLARE_FINAL_TYPE(BalsaPrintObjectImage,
+                     balsa_print_object_image,
+                     BALSA,
+                     PRINT_OBJECT_IMAGE,
+                     BalsaPrintObject)
 
 
-typedef struct _BalsaPrintObjectImageClass BalsaPrintObjectImageClass;
-typedef struct _BalsaPrintObjectImage BalsaPrintObjectImage;
-
-
-struct _BalsaPrintObjectImage {
-    BalsaPrintObject parent;
-
-    GdkPixbuf *pixbuf;
-    gdouble c_img_offs;
-    gdouble scale;
-};
-
-
-struct _BalsaPrintObjectImageClass {
-    BalsaPrintObjectClass parent;
-};
-
-
-GType  balsa_print_object_image_get_type(void);
 GList *balsa_print_object_image(GList               *list,
                                 GtkPrintContext     *context,
                                 LibBalsaMessageBody *body,
