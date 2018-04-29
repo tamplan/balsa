@@ -93,11 +93,10 @@ struct _BalsaPrintObjectClass {
 };
 
 
-GList *balsa_print_objects_append_from_body(GList           *list,
-                                            GtkPrintContext *context,
-                                            LibBalsaMessageBody *
-                                            mime_body,
-                                            BalsaPrintSetup *psetup);
+GList *balsa_print_objects_append_from_body(GList               *list,
+                                            GtkPrintContext     *context,
+                                            LibBalsaMessageBody *mime_body,
+                                            BalsaPrintSetup     *psetup);
 void balsa_print_object_draw(BalsaPrintObject *self,
                              GtkPrintContext  *context,
                              cairo_t          *cairo_ctx);
