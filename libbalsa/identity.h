@@ -33,14 +33,15 @@
 G_BEGIN_DECLS
 
 #define LIBBALSA_TYPE_IDENTITY (libbalsa_identity_get_type ())
+
 G_DECLARE_FINAL_TYPE(LibBalsaIdentity,
                      libbalsa_identity,
                      LIBBALSA,
                      IDENTITY,
-                     GObject)
+                     GObject);
 
 /* Function prototypes */
-LibBalsaIdentity * libbalsa_identity_new(void);
+LibBalsaIdentity *libbalsa_identity_new(void);
 LibBalsaIdentity *libbalsa_identity_new_with_name(const gchar *ident_name);
 LibBalsaIdentity *libbalsa_identity_new_from_config(const gchar *name);
 void              libbalsa_identity_save(LibBalsaIdentity *ident,

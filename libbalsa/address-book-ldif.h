@@ -28,10 +28,14 @@
 #include "address-book-text.h"
 
 #define LIBBALSA_TYPE_ADDRESS_BOOK_LDIF (libbalsa_address_book_ldif_get_type())
-G_DECLARE_FINAL_TYPE(LibBalsaAddressBookLdif, libbalsa_address_book_ldif,
-                     LIBBALSA, ADDRESS_BOOK_LDIF, LibBalsaAddressBookText)
 
-LibBalsaAddressBook *libbalsa_address_book_ldif_new(const gchar * name,
-                                                    const gchar * path);
+G_DECLARE_FINAL_TYPE(LibBalsaAddressBookLdif,
+                     libbalsa_address_book_ldif,
+                     LIBBALSA,
+                     ADDRESS_BOOK_LDIF,
+                     LibBalsaAddressBookText);
+
+LibBalsaAddressBook *libbalsa_address_book_ldif_new(const gchar *name,
+                                                    const gchar *path);
 
 #endif /* __LIBBALSA_ADDRESS_BOOK_LDIF_H__ */

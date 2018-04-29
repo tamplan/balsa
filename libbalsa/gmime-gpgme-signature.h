@@ -33,9 +33,9 @@ G_DECLARE_FINAL_TYPE(GMimeGpgmeSigstat,
                      g_mime_gpgme_sigstat,
                      GMIME,
                      GPGME_SIGSTAT,
-                     GObject)
+                     GObject);
 
-GMimeGpgmeSigstat * g_mime_gpgme_sigstat_new(gpgme_ctx_t ctx)
+GMimeGpgmeSigstat *g_mime_gpgme_sigstat_new(gpgme_ctx_t ctx)
 G_GNUC_WARN_UNUSED_RESULT;
 GMimeGpgmeSigstat *g_mime_gpgme_sigstat_new_from_gpgme_ctx(gpgme_ctx_t ctx)
 G_GNUC_WARN_UNUSED_RESULT;

@@ -26,20 +26,20 @@ G_DECLARE_FINAL_TYPE(LibBalsaMailboxImap,
                      libbalsa_mailbox_imap,
                      LIBBALSA,
                      MAILBOX_IMAP,
-                     LibBalsaMailboxRemote)
+                     LibBalsaMailboxRemote);
 
 #define POINTER_TO_UID(p) GPOINTER_TO_UINT(p)
 #define UID_TO_POINTER(p) GUINT_TO_POINTER(p)
 
-LibBalsaMailbox * libbalsa_mailbox_imap_new(void);
+LibBalsaMailbox *libbalsa_mailbox_imap_new(void);
 
-void         libbalsa_mailbox_imap_update_url(LibBalsaMailboxImap *mailbox);
-void         libbalsa_mailbox_imap_set_path(LibBalsaMailboxImap *mailbox,
-                                            const gchar         *path);
-const gchar *libbalsa_mailbox_imap_get_path(LibBalsaMailboxImap *mailbox);
+void             libbalsa_mailbox_imap_update_url(LibBalsaMailboxImap *mailbox);
+void             libbalsa_mailbox_imap_set_path(LibBalsaMailboxImap *mailbox,
+                                                const gchar         *path);
+const gchar     *libbalsa_mailbox_imap_get_path(LibBalsaMailboxImap *mailbox);
 
-gboolean     libbalsa_mailbox_imap_subscribe(LibBalsaMailboxImap *mailbox,
-                                             gboolean             subscribe);
+gboolean         libbalsa_mailbox_imap_subscribe(LibBalsaMailboxImap *mailbox,
+                                                 gboolean             subscribe);
 
 GHashTable *libbalsa_mailbox_imap_get_matchings(LibBalsaMailboxImap *mbox,
                                                 LibBalsaCondition   *condition,

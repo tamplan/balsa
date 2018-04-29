@@ -29,7 +29,7 @@ G_DECLARE_FINAL_TYPE(BalsaPrintObjectDecor,
                      balsa_print_object_decor,
                      BALSA,
                      PRINT_OBJECT_DECOR,
-                     BalsaPrintObject)
+                     BalsaPrintObject);
 
 typedef enum {
     BALSA_PRINT_DECOR_FRAME_BEGIN,

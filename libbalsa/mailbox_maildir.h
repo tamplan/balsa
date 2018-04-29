@@ -27,9 +27,9 @@ G_DECLARE_FINAL_TYPE(LibBalsaMailboxMaildir,
                      libbalsa_mailbox_maildir,
                      LIBBALSA,
                      MAILBOX_MAILDIR,
-                     LibBalsaMailboxLocal)
+                     LibBalsaMailboxLocal);
 
-LibBalsaMailbox * libbalsa_mailbox_maildir_new(const gchar * path,
-                                               gboolean create);
+LibBalsaMailbox *libbalsa_mailbox_maildir_new(const gchar *path,
+                                              gboolean     create);
 
 #endif

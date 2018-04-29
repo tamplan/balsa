@@ -33,7 +33,7 @@ G_DECLARE_FINAL_TYPE(BalsaPrintObjectHeader,
                      balsa_print_object_header,
                      BALSA,
                      PRINT_OBJECT_HEADER,
-                     BalsaPrintObject)
+                     BalsaPrintObject);
 
 
 struct _BalsaPrintObjectHeader {

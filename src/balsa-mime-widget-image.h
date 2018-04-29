@@ -32,18 +32,22 @@ G_BEGIN_DECLS
 
 #define BALSA_TYPE_MIME_WIDGET_IMAGE balsa_mime_widget_image_get_type()
 
-G_DECLARE_FINAL_TYPE(BalsaMimeWidgetImage, balsa_mime_widget_image,
-                     BALSA, MIME_WIDGET_IMAGE, BalsaMimeWidget)
+G_DECLARE_FINAL_TYPE(BalsaMimeWidgetImage,
+                     balsa_mime_widget_image,
+                     BALSA,
+                     MIME_WIDGET_IMAGE,
+                     BalsaMimeWidget);
 
 /*
  * End of GObject class definitions
  */
 
-BalsaMimeWidget *balsa_mime_widget_new_image(BalsaMessage * bm,
-					     LibBalsaMessageBody * mime_body,
-					     const gchar * content_type, gpointer data);
+BalsaMimeWidget *balsa_mime_widget_new_image(BalsaMessage        *bm,
+                                             LibBalsaMessageBody *mime_body,
+                                             const gchar         *content_type,
+                                             gpointer             data);
 
 
 G_END_DECLS
 
-#endif				/* __BALSA_MIME_WIDGET_IMAGE_H__ */
+#endif                          /* __BALSA_MIME_WIDGET_IMAGE_H__ */

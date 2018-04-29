@@ -81,7 +81,7 @@ G_DECLARE_DERIVABLE_TYPE(BalsaPrintObject,
                          balsa_print_object,
                          BALSA,
                          PRINT_OBJECT,
-                         GObject)
+                         GObject);
 
 
 struct _BalsaPrintObjectClass {

@@ -29,7 +29,7 @@ G_DECLARE_DERIVABLE_TYPE(LibBalsaMailboxLocal,
                          libbalsa_mailbox_local,
                          LIBBALSA,
                          MAILBOX_LOCAL,
-                         LibBalsaMailbox)
+                         LibBalsaMailbox);
 
 struct _LibBalsaMailboxLocalPool {
     LibBalsaMessage *message;

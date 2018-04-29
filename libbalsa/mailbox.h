@@ -34,7 +34,7 @@ G_DECLARE_DERIVABLE_TYPE(LibBalsaMailbox,
                          libbalsa_mailbox,
                          LIBBALSA,
                          MAILBOX,
-                         GObject)
+                         GObject);
 
 #define MAILBOX_OPEN(mailbox) \
     (libbalsa_mailbox_get_state(mailbox) != LB_MAILBOX_STATE_CLOSED)
@@ -114,7 +114,7 @@ typedef enum {
 
 typedef enum {
     LB_FETCH_RFC822_HEADERS = 1 << 0, /* prepare all rfc822 headers */
-    LB_FETCH_STRUCTURE = 1 << 1     /* prepare message structure */
+        LB_FETCH_STRUCTURE  = 1 << 1 /* prepare message structure */
 } LibBalsaFetchFlag;
 
 typedef enum {

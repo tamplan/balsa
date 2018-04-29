@@ -39,7 +39,7 @@ G_DECLARE_DERIVABLE_TYPE(LibBalsaMailboxRemote,
                          libbalsa_mailbox_remote,
                          LIBBALSA,
                          MAILBOX_REMOTE,
-                         LibBalsaMailbox)
+                         LibBalsaMailbox);
 
 struct _LibBalsaMailboxRemoteClass {
     LibBalsaMailboxClass parent_class;

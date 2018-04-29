@@ -5,12 +5,12 @@
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option) 
+ * the Free Software Foundation; either version 2, or (at your option)
  * any later version.
- *  
+ *
  * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the  
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -32,14 +32,16 @@ G_DECLARE_FINAL_TYPE(BalsaCiteBar,
                      balsa_cite_bar,
                      BALSA,
                      CITE_BAR,
-                     GtkWidget)
+                     GtkWidget);
 
-GtkWidget* balsa_cite_bar_new    (gint height, gint bars, gint dimension);
-void       balsa_cite_bar_resize (BalsaCiteBar *cite_bar, gint height);
+GtkWidget *balsa_cite_bar_new(gint height,
+                              gint bars,
+                              gint dimension);
+void balsa_cite_bar_resize(BalsaCiteBar *cite_bar,
+                           gint          height);
 
 
 G_END_DECLS
 
 
 #endif /* __BALSA_CITE_BAR_H__ */
-

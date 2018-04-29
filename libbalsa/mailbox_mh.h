@@ -27,9 +27,9 @@ G_DECLARE_FINAL_TYPE(LibBalsaMailboxMh,
                      libbalsa_mailbox_mh,
                      LIBBALSA,
                      MAILBOX_MH,
-                     LibBalsaMailboxLocal)
+                     LibBalsaMailboxLocal);
 
-LibBalsaMailbox * libbalsa_mailbox_mh_new(const gchar * path,
-                                          gboolean create);
+LibBalsaMailbox *libbalsa_mailbox_mh_new(const gchar *path,
+                                         gboolean     create);
 
 #endif

@@ -43,7 +43,7 @@ G_DECLARE_FINAL_TYPE(LibBalsaMessage,
                      libbalsa_message,
                      LIBBALSA,
                      MESSAGE,
-                     GObject)
+                     GObject);
 
 typedef enum _LibBalsaMessageFlag LibBalsaMessageFlag;
 

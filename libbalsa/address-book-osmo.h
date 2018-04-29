@@ -32,8 +32,12 @@
 #include "address-book.h"
 
 #define LIBBALSA_TYPE_ADDRESS_BOOK_OSMO (libbalsa_address_book_osmo_get_type())
-G_DECLARE_FINAL_TYPE(LibBalsaAddressBookOsmo, libbalsa_address_book_osmo,
-                     LIBBALSA, ADDRESS_BOOK_OSMO, LibBalsaAddressBook)
+
+G_DECLARE_FINAL_TYPE(LibBalsaAddressBookOsmo,
+                     libbalsa_address_book_osmo,
+                     LIBBALSA,
+                     ADDRESS_BOOK_OSMO,
+                     LibBalsaAddressBook);
 
 LibBalsaAddressBook *libbalsa_address_book_osmo_new(const gchar *name);
 

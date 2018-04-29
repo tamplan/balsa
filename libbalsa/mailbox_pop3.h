@@ -27,11 +27,11 @@ G_DECLARE_FINAL_TYPE(LibBalsaMailboxPop3,
                      libbalsa_mailbox_pop3,
                      LIBBALSA,
                      MAILBOX_POP3,
-                     LibBalsaMailboxRemote)
+                     LibBalsaMailboxRemote);
 
-LibBalsaMailboxPop3 * libbalsa_mailbox_pop3_new(void);
-void libbalsa_mailbox_pop3_set_inbox(LibBalsaMailbox *mailbox,
-                                     LibBalsaMailbox *inbox);
+LibBalsaMailboxPop3 *libbalsa_mailbox_pop3_new(void);
+void                 libbalsa_mailbox_pop3_set_inbox(LibBalsaMailbox *mailbox,
+                                                     LibBalsaMailbox *inbox);
 
 /*
  * Getters
