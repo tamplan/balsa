@@ -45,10 +45,17 @@ typedef struct {
 } PhraseRegion;
 
 
+struct _BalsaPrintObjectText {
+    BalsaPrintObject parent;
+
+    gint p_label_width;
+    gchar *text;
+    guint cite_level;
+    GList *attributes;
+};
+
+
 /* object related functions */
-static void balsa_print_object_text_class_init(BalsaPrintObjectTextClass *klass);
-static void balsa_print_object_text_init(GTypeInstance *instance,
-                                         gpointer       g_class);
 static void balsa_print_object_text_finalize(GObject *self);
 
 static void balsa_print_object_text_draw(BalsaPrintObject *self,
@@ -65,53 +72,22 @@ static GList         *phrase_highlight(const gchar *buffer,
                                        GList       *phrase_list);
 
 
-static BalsaPrintObjectClass *parent_class = NULL;
-
-
-GType
-balsa_print_object_text_get_type()
-{
-    static GType balsa_print_object_text_type = 0;
-
-    if (!balsa_print_object_text_type) {
-        static const GTypeInfo balsa_print_object_text_info = {
-            sizeof(BalsaPrintObjectTextClass),
-            NULL,               /* base_init */
-            NULL,               /* base_finalize */
-            (GClassInitFunc) balsa_print_object_text_class_init,
-            NULL,               /* class_finalize */
-            NULL,               /* class_data */
-            sizeof(BalsaPrintObjectText),
-            0,                  /* n_preallocs */
-            (GInstanceInitFunc) balsa_print_object_text_init
-        };
-
-        balsa_print_object_text_type =
-            g_type_register_static(BALSA_TYPE_PRINT_OBJECT,
-                                   "BalsaPrintObjectText",
-                                   &balsa_print_object_text_info, 0);
-    }
-
-    return balsa_print_object_text_type;
-}
+G_DEFINE_TYPE(BalsaPrintObjectText,
+              balsa_print_object_text,
+              BALSA_TYPE_PRINT_OBJECT)
 
 
 static void
 balsa_print_object_text_class_init(BalsaPrintObjectTextClass *klass)
 {
-    parent_class                          = g_type_class_ref(BALSA_TYPE_PRINT_OBJECT);
-    BALSA_PRINT_OBJECT_CLASS(klass)->draw =
-        balsa_print_object_text_draw;
+    BALSA_PRINT_OBJECT_CLASS(klass)->draw = balsa_print_object_text_draw;
     G_OBJECT_CLASS(klass)->finalize = balsa_print_object_text_finalize;
 }
 
 
 static void
-balsa_print_object_text_init(GTypeInstance *instance,
-                             gpointer       g_class)
+balsa_print_object_text_init(BalsaPrintObjectText *pot)
 {
-    BalsaPrintObjectText *pot = BALSA_PRINT_OBJECT_TEXT(instance);
-
     pot->text       = NULL;
     pot->attributes = NULL;
 }
@@ -125,7 +101,7 @@ balsa_print_object_text_finalize(GObject *self)
     g_list_free_full(pot->attributes, g_free);
     g_free(pot->text);
 
-    G_OBJECT_CLASS(parent_class)->finalize(self);
+    G_OBJECT_CLASS(balsa_print_object_text_parent_class)->finalize(self);
 }
 
 

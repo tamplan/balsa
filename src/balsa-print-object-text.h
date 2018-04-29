@@ -24,36 +24,15 @@
 
 G_BEGIN_DECLS
 
-#define BALSA_TYPE_PRINT_OBJECT_TEXT    \
-    (balsa_print_object_text_get_type())
-#define BALSA_PRINT_OBJECT_TEXT(obj)                            \
-    G_TYPE_CHECK_INSTANCE_CAST(obj, BALSA_TYPE_PRINT_OBJECT_TEXT, BalsaPrintObjectText)
-#define BALSA_PRINT_OBJECT_TEXT_CLASS(klass)                    \
-    G_TYPE_CHECK_CLASS_CAST(klass, BALSA_TYPE_PRINT_OBJECT_TEXT, BalsaPrintObjectTextClass)
-#define BALSA_IS_PRINT_OBJECT_TEXT(obj)                 \
-    G_TYPE_CHECK_INSTANCE_TYPE(obj, BALSA_TYPE_PRINT_OBJECT_TEXT)
+#define BALSA_TYPE_PRINT_OBJECT_TEXT balsa_print_object_text_get_type()
+
+G_DECLARE_FINAL_TYPE(BalsaPrintObjectText,
+                     balsa_print_object_text,
+                     BALSA,
+                     PRINT_OBJECT_TEXT,
+                     BalsaPrintObject)
 
 
-typedef struct _BalsaPrintObjectTextClass BalsaPrintObjectTextClass;
-typedef struct _BalsaPrintObjectText BalsaPrintObjectText;
-
-
-struct _BalsaPrintObjectText {
-    BalsaPrintObject parent;
-
-    gint p_label_width;
-    gchar *text;
-    guint cite_level;
-    GList *attributes;
-};
-
-
-struct _BalsaPrintObjectTextClass {
-    BalsaPrintObjectClass parent;
-};
-
-
-GType  balsa_print_object_text_get_type(void);
 GList *balsa_print_object_text_plain(GList               *list,
                                      GtkPrintContext     *context,
                                      LibBalsaMessageBody *body,
