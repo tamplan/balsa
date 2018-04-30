@@ -332,7 +332,7 @@ config_mailbox_delete(LibBalsaMailbox * mailbox)
 }				/* config_mailbox_delete */
 
 gint
-config_folder_delete(const BalsaMailboxNode * mbnode)
+config_folder_delete(BalsaMailboxNode * mbnode)
 {
     gchar *tmp;			/* the key in the mailbox section name */
     gint res;
