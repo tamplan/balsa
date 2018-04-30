@@ -304,9 +304,9 @@ libbalsa_utf8_sanitize(gchar **text, gboolean fallback,
 {
     gchar *p;
 
-    if (target)
+    if (target != NULL)
 	*target = NULL;
-    if (!*text || g_utf8_validate(*text, -1, NULL))
+    if (*text == NULL || g_utf8_validate(*text, -1, NULL))
 	return TRUE;
 
     if (fallback) {
@@ -317,10 +317,10 @@ libbalsa_utf8_sanitize(gchar **text, gboolean fallback,
 	p = g_convert(*text, strlen(*text), "utf-8", use_enc, NULL,
                       &b_written, &conv_error);
 
-	if (p) {
+	if (p != NULL) {
 	    g_free(*text);
 	    *text = p;
-	    if (target)
+	    if (target != NULL)
 		*target = use_enc;
 	    return FALSE;
 	}
@@ -328,9 +328,10 @@ libbalsa_utf8_sanitize(gchar **text, gboolean fallback,
                   conv_error->message);
 	g_error_free(conv_error);
     }
-    p = *text;
-    while (!g_utf8_validate(p, -1, (const gchar **) &p))
-	*p++ = '?';
+
+    p = g_utf8_make_valid(*text, -1);
+    g_free(*text);
+    *text = p;
 
     return FALSE;
 }
