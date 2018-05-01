@@ -62,7 +62,7 @@ static LibBalsaAddress *cal_address_2445_to_lbaddress(const gchar * uri,
 						      is_organizer);
 
 /* conversion helpers */
-static time_t date_time_2445_to_time_t(const gchar * date_time);
+static time_t date_time_2445_to_time_t(const gchar *date_time, const gchar *modifier, gboolean *date_only);
 static gchar *time_t_to_date_time_2445(time_t ttime);
 static gchar *text_2445_unescape(const gchar * text);
 static gchar *text_2445_escape(const gchar * text);
@@ -150,7 +150,9 @@ struct _LibBalsaVEvent {
     GList *attendee;
     time_t stamp;
     time_t start;
+    gboolean start_date_only;
     time_t end;
+    gboolean end_date_only;
     gchar *uid;
     gchar *summary;
     gchar *location;
@@ -342,11 +344,11 @@ libbalsa_vcal_new_from_body(LibBalsaMessageBody * body)
                 in_embedded = TRUE;
             else if (!in_embedded) {
                 if (!g_ascii_strcasecmp(entry[0], "DTSTART"))
-                    event->start = date_time_2445_to_time_t(value);
+                    event->start = date_time_2445_to_time_t(value, entry[1], &event->start_date_only);
                 else if (!g_ascii_strcasecmp(entry[0], "DTEND"))
-                    event->end = date_time_2445_to_time_t(value);
+                    event->end = date_time_2445_to_time_t(value, entry[1], &event->end_date_only);
                 else if (!g_ascii_strcasecmp(entry[0], "DTSTAMP"))
-                    event->stamp = date_time_2445_to_time_t(value);
+                    event->stamp = date_time_2445_to_time_t(value, entry[1], NULL);
                 else if (!g_ascii_strcasecmp(entry[0], "UID"))
                     STR_REPL_2445_TXT(event->uid, value);
                 else if (!g_ascii_strcasecmp(entry[0], "SUMMARY"))
@@ -507,7 +509,7 @@ static time_t
 date_time_2445_to_time_t(const gchar *date_time, const gchar *modifier, gboolean *date_only)
 {
     gint len;
-    time_t the_time = (time_t) (-1);;
+    time_t the_time = (time_t) (-1);
 
     g_return_val_if_fail(date_time != NULL, (time_t) (-1));
     len = strlen(date_time);
@@ -520,6 +522,9 @@ date_time_2445_to_time_t(const gchar *date_time, const gchar *modifier, gboolean
         /* the rfc2445 date-time is a special case of an iso8901 date/time value... */
         if (g_time_val_from_iso8601(date_time, &timeval)) {
         	the_time = timeval.tv_sec;
+        	if (date_only != NULL) {
+        		*date_only = FALSE;
+        	}
         }
     } else if ((modifier!= NULL) && (g_ascii_strcasecmp(modifier, "VALUE=DATE") == 0) && (len == 8)) {
     	struct tm tm;
@@ -801,10 +806,22 @@ libbalsa_vevent_get_start(LibBalsaVEvent *vevent)
     return vevent->start;
 }
 
+gboolean
+libbalsa_vevent_get_start_date_only(LibBalsaVEvent *vevent)
+{
+    return vevent->start_date_only;
+}
+
 time_t
 libbalsa_vevent_get_end(LibBalsaVEvent *vevent)
 {
     return vevent->end;
+}
+
+gboolean
+libbalsa_vevent_get_end_date_only(LibBalsaVEvent *vevent)
+{
+    return vevent->end_date_only;
 }
 
 const gchar *

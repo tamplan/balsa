@@ -121,11 +121,12 @@ balsa_mime_widget_new_vcalendar(BalsaMessage * bm,
         }                                                               \
     } while (0)
 
-#define GRID_ATTACH_DATE(g,date,label)                                  \
+#define GRID_ATTACH_DATE(g,date,date_only,label)                        \
     do {                                                                \
         if (date != (time_t) -1) {                                      \
             gchar * _dstr =                                             \
-                libbalsa_date_to_utf8(date, balsa_app.date_string);     \
+                libbalsa_date_to_utf8(date, 							\
+                	date_only ? "%x" : balsa_app.date_string);     		\
             GRID_ATTACH(g, _dstr, label);                               \
             g_free(_dstr);                                              \
         }                                                               \
@@ -173,8 +174,14 @@ balsa_vevent_widget(LibBalsaVEvent * event, gboolean may_reply,
     gtk_grid_set_column_spacing(grid, 12);
     GRID_ATTACH(grid, libbalsa_vevent_get_summary(event), _("Summary:"));
     GRID_ATTACH_ADDRESS(grid, libbalsa_vevent_get_organizer(event), _("Organizer:"));
-    GRID_ATTACH_DATE(grid, libbalsa_vevent_get_start(event), _("Start:"));
-    GRID_ATTACH_DATE(grid, libbalsa_vevent_get_end(event), _("End:"));
+    GRID_ATTACH_DATE(grid,
+                     libbalsa_vevent_get_start(event),
+                     libbalsa_vevent_get_start_date_only(event),
+                     _("Start:"));
+    GRID_ATTACH_DATE(grid,
+                     libbalsa_vevent_get_end(event),
+                     libbalsa_vevent_get_end_date_only(event),
+                     _("End:"));
     GRID_ATTACH(grid, libbalsa_vevent_get_location(event), _("Location:"));
     if (libbalsa_vevent_get_attendee(event)) {
 	GList *att;
