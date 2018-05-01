@@ -261,9 +261,6 @@ enum {
     ATTACH_NUM_COLUMNS
 };
 
-typedef struct _BalsaAttachInfo BalsaAttachInfo;
-typedef struct _BalsaAttachInfoClass BalsaAttachInfoClass;
-
 static const gchar * const attach_modes[] =
     {NULL, N_("Attachment"), N_("Inline"), N_("Reference") };
 
@@ -282,26 +279,24 @@ struct _BalsaAttachInfo {
     LibBalsaMessageHeaders *headers;  /* information about a forwarded message */
 };
 
-struct _BalsaAttachInfoClass {
-    GObjectClass parent_class;
-};
 
-
-static GType balsa_attach_info_get_type();
-static void balsa_attach_info_init(GObject *object, gpointer data);
-static BalsaAttachInfo* balsa_attach_info_new();
 static void balsa_attach_info_finalize(GObject * object);
 
 
 #define BALSA_MSG_ATTACH_MODEL(x)   gtk_tree_view_get_model(GTK_TREE_VIEW((x)->tree_view))
 
 
-#define TYPE_BALSA_ATTACH_INFO          \
-        (balsa_attach_info_get_type ())
-#define BALSA_ATTACH_INFO(obj)          \
-        (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_BALSA_ATTACH_INFO, BalsaAttachInfo))
-#define IS_BALSA_ATTACH_INFO(obj)       \
-        (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_BALSA_ATTACH_INFO))
+#define BALSA_TYPE_ATTACH_INFO balsa_attach_info_get_type()
+
+G_DECLARE_FINAL_TYPE(BalsaAttachInfo,
+                     balsa_attach_info,
+                     BALSA,
+                     ATTACH_INFO,
+                     GObject);
+
+G_DEFINE_TYPE(BalsaAttachInfo,
+              balsa_attach_info,
+              G_TYPE_OBJECT)
 
 static void
 balsa_attach_info_class_init(BalsaAttachInfoClass *klass)
@@ -311,36 +306,10 @@ balsa_attach_info_class_init(BalsaAttachInfoClass *klass)
     object_class->finalize = balsa_attach_info_finalize;
 }
 
-static GType
-balsa_attach_info_get_type()
-{
-    static GType balsa_attach_info_type = 0 ;
-
-    if (!balsa_attach_info_type) {
-        static const GTypeInfo balsa_attach_info_info =
-            {
-                sizeof (BalsaAttachInfoClass),
-                (GBaseInitFunc) NULL,
-                (GBaseFinalizeFunc) NULL,
-                (GClassInitFunc) balsa_attach_info_class_init,
-                (GClassFinalizeFunc) NULL,
-                NULL,
-                sizeof(BalsaAttachInfo),
-                0,
-                (GInstanceInitFunc) balsa_attach_info_init
-            };
-        balsa_attach_info_type =
-           g_type_register_static (G_TYPE_OBJECT, "BalsaAttachInfo",
-                                   &balsa_attach_info_info, 0);
-    }
-    return balsa_attach_info_type;
-}
 
 static void
-balsa_attach_info_init(GObject *object, gpointer data)
+balsa_attach_info_init(BalsaAttachInfo * info)
 {
-    BalsaAttachInfo * info = BALSA_ATTACH_INFO(object);
-
     info->popup_menu = NULL;
     info->file_uri = NULL;
     info->force_mime_type = NULL;
@@ -353,7 +322,7 @@ balsa_attach_info_init(GObject *object, gpointer data)
 static BalsaAttachInfo*
 balsa_attach_info_new(BalsaSendmsg *bm)
 {
-    BalsaAttachInfo * info = g_object_new(TYPE_BALSA_ATTACH_INFO, NULL);
+    BalsaAttachInfo * info = g_object_new(BALSA_TYPE_ATTACH_INFO, NULL);
 
     info->bm = bm;
     return info;
@@ -366,7 +335,7 @@ balsa_attach_info_finalize(GObject * object)
     GObjectClass *parent_class;
 
     g_return_if_fail(object != NULL);
-    g_return_if_fail(IS_BALSA_ATTACH_INFO(object));
+    g_return_if_fail(BALSA_IS_ATTACH_INFO(object));
     info = BALSA_ATTACH_INFO(object);
 
     /* unlink the file if necessary */
@@ -2656,7 +2625,7 @@ sw_attachment_list(BalsaSendmsg *bsmsg)
 				   GTK_POLICY_AUTOMATIC);
 
     store = gtk_list_store_new(ATTACH_NUM_COLUMNS,
-			       TYPE_BALSA_ATTACH_INFO,
+			       BALSA_TYPE_ATTACH_INFO,
 			       GDK_TYPE_PIXBUF,
 			       G_TYPE_STRING,
 			       G_TYPE_INT,
