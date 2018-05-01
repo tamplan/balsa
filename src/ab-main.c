@@ -68,16 +68,12 @@ struct ABMainWindow {
     LibBalsaAddress *displayed_address;
 
     GMenu *file_menu;
-
-    GtkEventController *key_controller;
 } contacts_app;
 
 
 static void
 bab_cleanup(void)
 {
-    g_object_unref(contacts_app.key_controller);
-
     gtk_main_quit();
 }
 
@@ -953,6 +949,7 @@ bab_window_new(GtkApplication * application)
     GtkWidget *scroll;
     GtkWidget *browse_widget;
     GtkWidget *edit_widget;
+    GtkEventController *controller;
 
     contacts_app.window =
         GTK_WINDOW(wnd = gtk_application_window_new(application));
@@ -1000,9 +997,11 @@ bab_window_new(GtkApplication * application)
     g_signal_connect(G_OBJECT(find_entry), "changed",
 		     G_CALLBACK(balsa_ab_window_find), ab);
     */
-    contacts_app.key_controller = gtk_event_controller_key_new(wnd);
-    g_signal_connect(contacts_app.key_controller, "key-pressed",
+    controller = gtk_event_controller_key_new();
+    g_signal_connect(controller, "key-pressed",
 		     G_CALLBACK(ew_key_pressed), &contacts_app);
+    gtk_widget_add_controller(wnd, controller);
+
     gtk_window_set_default_size(GTK_WINDOW(wnd), 500, 400);
 
     gtk_widget_show(wnd);

@@ -145,28 +145,12 @@ struct _BalsaMimeWidgetText {
     GList               *url_list;
     message_url_t       *current_url;
     LibBalsaMessageBody *mime_body;
-    GtkGesture          *gesture;
-    GtkEventController  *motion_controller;
-    GtkEventController  *key_controller;
     GList               *cite_bar_list;
     gint                 cite_bar_dimension;
     gint                 phrase_hl;
 };
 
 G_DEFINE_TYPE(BalsaMimeWidgetText, balsa_mime_widget_text, BALSA_TYPE_MIME_WIDGET)
-
-static void
-balsa_mime_widget_text_dispose(GObject * object) {
-    BalsaMimeWidgetText *mwt;
-
-    mwt = BALSA_MIME_WIDGET_TEXT(object);
-
-    g_clear_object(&mwt->gesture);
-    g_clear_object(&mwt->motion_controller);
-    g_clear_object(&mwt->key_controller);
-
-    G_OBJECT_CLASS(balsa_mime_widget_text_parent_class)->dispose(object);
-}
 
 static void
 balsa_mime_widget_text_finalize(GObject * object) {
@@ -184,7 +168,6 @@ balsa_mime_widget_text_class_init(BalsaMimeWidgetTextClass * klass)
 {
     GObjectClass *object_class = (GObjectClass *) klass;
 
-    object_class->dispose  = balsa_mime_widget_text_dispose;
     object_class->finalize = balsa_mime_widget_text_finalize;
 }
 
@@ -238,7 +221,7 @@ balsa_mime_widget_new_text(BalsaMessage * bm, LibBalsaMessageBody * mime_body,
     GError *err = NULL;
     gboolean is_text_plain;
     GtkWidget *widget;
-
+    GtkEventController *controller;
 
     g_return_val_if_fail(mime_body != NULL, NULL);
     g_return_val_if_fail(content_type != NULL, NULL);
@@ -303,9 +286,10 @@ balsa_mime_widget_new_text(BalsaMessage * bm, LibBalsaMessageBody * mime_body,
 	       )
 	libbalsa_wrap_string(ptr, balsa_app.browse_wrap_length);
 
-    mwt->key_controller = gtk_event_controller_key_new(widget);
-    g_signal_connect(mwt->key_controller, "key-pressed",
+    controller = gtk_event_controller_key_new();
+    g_signal_connect(controller, "key-pressed",
 		     G_CALLBACK(balsa_mime_widget_key_press_event), bm);
+    gtk_widget_add_controller(widget, controller);
 
     mwt->mime_body = mime_body;
     g_signal_connect(G_OBJECT(widget), "populate-popup",
@@ -321,17 +305,21 @@ balsa_mime_widget_new_text(BalsaMessage * bm, LibBalsaMessageBody * mime_body,
     g_signal_connect_after(G_OBJECT(widget), "realize",
 			   G_CALLBACK(fix_text_widget), mwt->url_list);
     if (mwt->url_list != NULL) {
-        mwt->gesture = gtk_gesture_multi_press_new(widget);
-        g_signal_connect(mwt->gesture, "pressed",
-                         G_CALLBACK(store_button_coords), NULL);
-	g_signal_connect(mwt->gesture, "released",
-			 G_CALLBACK(check_call_url), mwt);
+        GtkGesture *gesture;
 
-        mwt->motion_controller = gtk_event_controller_motion_new(widget);
-        g_signal_connect(mwt->motion_controller, "motion",
+        gesture = gtk_gesture_multi_press_new();
+        g_signal_connect(gesture, "pressed",
+                         G_CALLBACK(store_button_coords), NULL);
+        g_signal_connect(gesture, "released",
+                G_CALLBACK(check_call_url), mwt);
+        gtk_widget_add_controller(widget, GTK_EVENT_CONTROLLER(gesture));
+
+        controller = gtk_event_controller_motion_new();
+        g_signal_connect(controller, "motion",
                          G_CALLBACK(mwt_controller_motion_cb), mwt);
-        g_signal_connect(mwt->motion_controller, "leave",
+        g_signal_connect(controller, "leave",
                          G_CALLBACK(mwt_controller_leave_cb), mwt);
+        gtk_widget_add_controller(widget, controller);
     }
 
     if (is_text_plain) {

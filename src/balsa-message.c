@@ -206,6 +206,7 @@ bm_header_tl_buttons(BalsaMessage * bm)
 {
     GPtrArray *array;
     GtkWidget *button;
+    GtkEventController *controller;
 
     array = g_ptr_array_new();
 
@@ -231,9 +232,12 @@ bm_header_tl_buttons(BalsaMessage * bm)
     gtk_button_set_relief(GTK_BUTTON(button), GTK_RELIEF_NONE);
     g_signal_connect(button, "clicked",
 		     G_CALLBACK(balsa_headers_attachments_popup), bm);
-    bm->button_key_controller = gtk_event_controller_key_new(button);
-    g_signal_connect(bm->button_key_controller, "key-pressed",
+
+    controller = gtk_event_controller_key_new();
+    g_signal_connect(controller, "key-pressed",
 		     G_CALLBACK(balsa_mime_widget_key_press_event), bm);
+    gtk_widget_add_controller(button, controller);
+
     g_object_set_data(G_OBJECT(bm), BALSA_MESSAGE_ATTACH_BTN, button);
     g_ptr_array_add(array, button);
 
@@ -629,6 +633,7 @@ balsa_message_init(BalsaMessage * bm)
     GtkCellRenderer *renderer;
     GtkTreeSelection *selection;
     GtkWidget *widget;
+    GtkEventController *controller;
 
     bm->switcher = gtk_stack_switcher_new();
     gtk_box_pack_start(GTK_BOX(bm), bm->switcher);
@@ -650,9 +655,12 @@ balsa_message_init(BalsaMessage * bm)
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll),
                                    GTK_POLICY_AUTOMATIC,
                                    GTK_POLICY_AUTOMATIC);
-    bm->scroll_key_controller = gtk_event_controller_key_new(scroll);
-    g_signal_connect(bm->scroll_key_controller, "key-pressed",
+
+    controller = gtk_event_controller_key_new();
+    g_signal_connect(controller, "key-pressed",
 		     G_CALLBACK(balsa_mime_widget_key_press_event), bm);
+    gtk_widget_add_controller(scroll, controller);
+
     gtk_widget_set_vexpand(scroll, TRUE);
     gtk_box_pack_start(GTK_BOX(vbox), scroll);
 
@@ -684,10 +692,12 @@ balsa_message_init(BalsaMessage * bm)
     g_signal_connect(bm->treeview, "row-activated",
                      G_CALLBACK(tree_activate_row_cb), bm);
 
-    bm->gesture = gesture = gtk_gesture_multi_press_new(GTK_WIDGET(bm->treeview));
+    gesture = gtk_gesture_multi_press_new();
     gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(gesture), 0);
     g_signal_connect(gesture, "pressed",
                      G_CALLBACK(bm_gesture_pressed_cb), NULL);
+    gtk_widget_add_controller(GTK_WIDGET(bm->treeview),
+                              GTK_EVENT_CONTROLLER(gesture));
 
     g_signal_connect(bm->treeview, "popup-menu",
                      G_CALLBACK(tree_menu_popup_key_cb), bm);
@@ -766,11 +776,6 @@ balsa_message_destroy(GObject * object)
     g_clear_object(&bm->save_all_popup);
     g_clear_object(&bm->parts_popup);
     g_clear_object(&bm->bm_widget);
-    g_clear_object(&bm->gesture);
-    g_clear_object(&bm->scroll_key_controller);
-    g_clear_object(&bm->button_key_controller);
-    g_clear_object(&bm->header_key_controller);
-    g_clear_object(&bm->find_key_controller);
 
 #ifdef HAVE_HTML_WIDGET
     g_clear_object(&bm->html_find_info);
@@ -944,18 +949,23 @@ bm_gesture_pressed_cb(GtkGestureMultiPress *multi_press,
                       gpointer              user_data)
 {
     GtkGesture *gesture;
+    GdkEventSequence *sequence;
     const GdkEvent *event;
+    GtkEventController *controller;
     GtkTreeView *tree_view;
     BalsaMessage * bm = (BalsaMessage *) user_data;
     GtkTreePath *path;
 
     gesture = GTK_GESTURE(multi_press);
-    event = gtk_gesture_get_last_event(gesture, gtk_gesture_get_last_updated_sequence(gesture));
+    sequence = gtk_gesture_get_last_updated_sequence(gesture);
+    event = gtk_gesture_get_last_event(gesture, sequence);
+
     g_return_if_fail(event != NULL);
     if (!gdk_event_triggers_context_menu(event))
         return;
 
-    tree_view = GTK_TREE_VIEW(gtk_event_controller_get_widget(GTK_EVENT_CONTROLLER(gesture)));
+    controller = GTK_EVENT_CONTROLLER(gesture);
+    tree_view = GTK_TREE_VIEW(gtk_event_controller_get_widget(controller));
 
     /* If the part which received the click is already selected, don't change
      * the selection and check if more than one part is selected. Pop up the
@@ -3220,8 +3230,8 @@ balsa_message_find_in_message(BalsaMessage * bm)
             libbalsa_window_block_accels((GtkApplicationWindow *) toplevel, TRUE);
 
         if (bm->find_key_controller == NULL) {
-            bm->find_key_controller =
-                gtk_event_controller_key_new(gtk_widget_get_toplevel(GTK_WIDGET(bm)));
+            bm->find_key_controller = gtk_event_controller_key_new();
+            gtk_widget_add_controller(toplevel, bm->find_key_controller);
         }
         if (bm->key_pressed_id == 0) {
             bm->key_pressed_id =

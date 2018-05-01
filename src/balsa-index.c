@@ -210,7 +210,6 @@ bndx_destroy(GObject * obj)
     g_clear_pointer(&index->filter_string, g_free);
 
     g_clear_object(&index->popup_menu);
-    g_clear_object(&index->gesture);
 
     G_OBJECT_CLASS(balsa_index_parent_class)->dispose(obj);
 }
@@ -259,12 +258,14 @@ bndx_string_width(const gchar * text)
 static void
 balsa_index_init(BalsaIndex * index)
 {
+    GtkWidget *widget = GTK_WIDGET(index);
     GtkTreeView *tree_view = GTK_TREE_VIEW(index);
     GtkTreeSelection *selection = gtk_tree_view_get_selection(tree_view);
     GtkCellRenderer *renderer;
     GtkTreeViewColumn *column;
     GdkContentFormats *formats;
     GtkGesture *gesture;
+    GtkEventController *controller;
 
 #if defined(TREE_VIEW_FIXED_HEIGHT)
     gtk_tree_view_set_fixed_height_mode(tree_view, TRUE);
@@ -393,14 +394,15 @@ balsa_index_init(BalsaIndex * index)
 
     /* we want to handle button presses to pop up context menus if
      * necessary */
-    index->gesture = gesture = gtk_gesture_multi_press_new(GTK_WIDGET(index));
+    gesture = gtk_gesture_multi_press_new();
     gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(gesture), 0);
     g_signal_connect(gesture, "pressed",
 		     G_CALLBACK(bndx_gesture_pressed_cb), NULL);
     /* We need to claim the event sequence before GtkTreeView gets it,
      * so we jump in at the capture phase: */
-    gtk_event_controller_set_propagation_phase(GTK_EVENT_CONTROLLER(gesture),
-                                               GTK_PHASE_CAPTURE);
+    controller = GTK_EVENT_CONTROLLER(gesture);
+    gtk_event_controller_set_propagation_phase(controller, GTK_PHASE_CAPTURE);
+    gtk_widget_add_controller(widget, controller);
 
     g_signal_connect(tree_view, "row-activated",
 		     G_CALLBACK(bndx_row_activated), NULL);
@@ -433,7 +435,7 @@ balsa_index_init(BalsaIndex * index)
                      G_CALLBACK(bndx_drag_cb), NULL);
 
     balsa_index_set_column_widths(index);
-    gtk_widget_show (GTK_WIDGET(index));
+    gtk_widget_show(widget);
 }
 
 /*

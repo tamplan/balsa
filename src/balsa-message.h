@@ -100,10 +100,6 @@ struct _BalsaMessage {
     gpointer html_find_info;
 #endif                          /* HAVE_HTML_WIDGET */
 
-    GtkGesture *gesture;
-    GtkEventController *scroll_key_controller;
-    GtkEventController *button_key_controller;
-    GtkEventController *header_key_controller;
     GtkEventController *find_key_controller;
     gulong key_pressed_id;
 };

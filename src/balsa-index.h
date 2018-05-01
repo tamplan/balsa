@@ -70,8 +70,6 @@ struct _BalsaIndex {
 
     LibBalsaMailboxSearchIter *search_iter;
     BalsaIndexWidthPreference width_preference;
-
-    GtkGesture *gesture;
 };
 
 /* tree model columns */

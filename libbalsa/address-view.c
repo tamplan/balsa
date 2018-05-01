@@ -53,8 +53,6 @@ struct _LibBalsaAddressView {
 
     gchar *domain;
 
-    GtkEventController *key_controller;
-
     /*
      * Ephemera
      */
@@ -87,7 +85,6 @@ libbalsa_address_view_finalize(GObject * object)
     LibBalsaAddressView *address_view = LIBBALSA_ADDRESS_VIEW(object);
 
     g_free(address_view->domain);
-    g_object_unref(address_view->key_controller);
 
     G_OBJECT_CLASS(libbalsa_address_view_parent_class)->finalize(object);
 }
@@ -501,6 +498,7 @@ lbav_insert_row(LibBalsaAddressView * address_view, gint row,
     GtkWidget *entry;
     GtkEntryCompletion *completion;
     GtkListStore *store;
+    GtkEventController *controller;
 
     gtk_grid_insert_row(grid, row);
 
@@ -557,9 +555,12 @@ lbav_insert_row(LibBalsaAddressView * address_view, gint row,
                      G_CALLBACK(lbav_entry_activated), address_view);
     g_signal_connect(entry, "changed",
                      G_CALLBACK(lbav_entry_changed_cb), address_view);
-    address_view->key_controller = gtk_event_controller_key_new(entry);
-    g_signal_connect(address_view->key_controller, "key-pressed",
+
+    controller = gtk_event_controller_key_new();
+    g_signal_connect(controller, "key-pressed",
                      G_CALLBACK(lbav_key_pressed_cb), address_view);
+    gtk_widget_add_controller(entry, controller);
+
     g_signal_connect(entry, "insert-text",
                      G_CALLBACK(lbav_insert_text_cb), address_view);
     g_signal_connect_after(entry, "notify::has-focus",

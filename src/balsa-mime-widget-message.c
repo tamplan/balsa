@@ -472,6 +472,7 @@ static GtkWidget *
 bm_header_widget_new(BalsaMessage * bm, GtkWidget * const * buttons)
 {
     GtkWidget *grid;
+    GtkEventController *controller;
 #ifdef GTK_INFO_BAR_WRAPPING_IS_BROKEN
     GtkWidget *hbox;
 #else                           /* GTK_INFO_BAR_WRAPPING_IS_BROKEN */
@@ -487,9 +488,11 @@ bm_header_widget_new(BalsaMessage * bm, GtkWidget * const * buttons)
 
     g_signal_connect(grid, "notify::has-focus",
 		     G_CALLBACK(balsa_mime_widget_check_focus), bm);
-    bm->header_key_controller = gtk_event_controller_key_new(grid);
-    g_signal_connect(bm->header_key_controller, "key-pressed",
+
+    controller = gtk_event_controller_key_new();
+    g_signal_connect(controller, "key-pressed",
 		     G_CALLBACK(balsa_mime_widget_key_press_event), bm);
+    gtk_widget_add_controller(grid, controller);
 
 #ifdef GTK_INFO_BAR_WRAPPING_IS_BROKEN
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);

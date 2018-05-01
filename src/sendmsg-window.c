@@ -656,7 +656,6 @@ balsa_sendmsg_destroy_handler(BalsaSendmsg * bsmsg)
                                           bsmsg->ident);
 
     g_free(bsmsg->spell_check_lang);
-    g_clear_object(&bsmsg->gesture);
 
     quit_on_close = bsmsg->quit_on_close;
     g_free(bsmsg);
@@ -2720,10 +2719,11 @@ sw_attachment_list(BalsaSendmsg *bsmsg)
     gtk_tree_selection_set_mode(gtk_tree_view_get_selection(view),
 				GTK_SELECTION_SINGLE);
 
-    bsmsg->gesture = gesture = gtk_gesture_multi_press_new(tree_view);
+    gesture = gtk_gesture_multi_press_new();
     gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(gesture), 0);
     g_signal_connect(gesture, "pressed",
                      G_CALLBACK(sw_gesture_pressed_cb), NULL);
+    gtk_widget_add_controller(tree_view, GTK_EVENT_CONTROLLER(gesture));
 
     g_signal_connect(view, "popup-menu",
                      G_CALLBACK(attachment_popup_cb), NULL);
@@ -6644,7 +6644,6 @@ sendmsg_window_new()
     bsmsg->update_config = FALSE;
     bsmsg->quit_on_close = FALSE;
     bsmsg->state = SENDMSG_STATE_CLEAN;
-    bsmsg->gesture = NULL;
 
     bsmsg->window = window =
         gtk_application_window_new(balsa_app.application);

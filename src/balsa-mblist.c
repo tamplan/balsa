@@ -138,16 +138,6 @@ static void bmbl_expand_to_row(BalsaMBList * mblist, GtkTreePath * path);
 G_DEFINE_TYPE(BalsaMBList, balsa_mblist, GTK_TYPE_TREE_VIEW)
 
 static void
-bmbl_dispose(GObject * object)
-{
-    BalsaMBList *mblist = (BalsaMBList *) object;
-
-    g_clear_object(&mblist->gesture);
-
-    G_OBJECT_CLASS(balsa_mblist_parent_class)->dispose(object);
-}
-
-static void
 balsa_mblist_class_init(BalsaMBListClass * klass)
 {
     GObjectClass *object_class;
@@ -169,7 +159,6 @@ balsa_mblist_class_init(BalsaMBListClass * klass)
     /* GObject signals */
     object_class->set_property = bmbl_set_property;
     object_class->get_property = bmbl_get_property;
-    object_class->dispose      = bmbl_dispose;
 
     /* GtkWidget signals */
     widget_class->drag_motion = bmbl_drag_motion;
@@ -1152,12 +1141,13 @@ balsa_mblist_default_signal_bindings(BalsaMBList * mblist)
     GtkGesture *gesture;
     GdkContentFormats *formats;
 
-    mblist->gesture= gesture = gtk_gesture_multi_press_new(GTK_WIDGET(mblist));
+    gesture = gtk_gesture_multi_press_new();
     gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(gesture), 0);
     g_signal_connect(gesture, "pressed",
                      G_CALLBACK(bmbl_gesture_pressed_cb), NULL);
+    gtk_widget_add_controller(GTK_WIDGET(mblist), GTK_EVENT_CONTROLLER(gesture));
 
-    g_signal_connect_after(G_OBJECT(mblist), "size-allocate",
+    g_signal_connect_after(mblist, "size-allocate",
                            G_CALLBACK(bmbl_column_resize), NULL);
 
     formats = gdk_content_formats_new(bmbl_drop_types, G_N_ELEMENTS(bmbl_drop_types));
@@ -1168,10 +1158,10 @@ balsa_mblist_default_signal_bindings(BalsaMBList * mblist)
                                          GDK_ACTION_MOVE);
     gdk_content_formats_unref(formats);
 
-    g_signal_connect(G_OBJECT(mblist), "drag-data-received",
+    g_signal_connect(mblist, "drag-data-received",
                      G_CALLBACK(bmbl_drag_cb), NULL);
 
-    g_signal_connect(G_OBJECT(mblist), "row-activated",
+    g_signal_connect(mblist, "row-activated",
                      G_CALLBACK(bmbl_row_activated_cb), NULL);
 }
 

@@ -107,8 +107,6 @@ G_BEGIN_DECLS
 
         GtkWidget *paned;
         gboolean ready_to_send;
-
-        GtkGesture *gesture;
     };
 
     BalsaSendmsg *sendmsg_window_compose(void);

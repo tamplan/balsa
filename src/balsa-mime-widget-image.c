@@ -36,7 +36,6 @@ struct _BalsaMimeWidgetImage {
 
     guint img_check_size_id;
     GdkPixbuf *pixbuf;
-    GtkGesture *gesture;
 };
 
 G_DEFINE_TYPE(BalsaMimeWidgetImage,
@@ -48,7 +47,6 @@ balsa_mime_widget_image_init(BalsaMimeWidgetImage * mwi)
 {
     mwi->img_check_size_id = 0;
     mwi->pixbuf = NULL;
-    mwi->gesture = NULL;
 }
 
 static void
@@ -58,7 +56,6 @@ balsa_mime_widget_image_dispose(GObject * object)
 
     libbalsa_clear_source_id(&mwi->img_check_size_id);
     g_clear_object(&mwi->pixbuf);
-    g_clear_object(&mwi->gesture);
 
     G_OBJECT_CLASS(balsa_mime_widget_image_parent_class)->dispose(object);
 }
@@ -83,10 +80,12 @@ balsa_mime_widget_image_gesture_pressed_cb(GtkGestureMultiPress *multi_press,
 {
     GtkMenu *menu = user_data;
     GtkGesture *gesture;
+    GdkEventSequence *sequence;
     const GdkEvent *event;
 
     gesture = GTK_GESTURE(multi_press);
-    event = gtk_gesture_get_last_event(gesture, gtk_gesture_get_last_updated_sequence(gesture));
+    sequence = gtk_gesture_get_last_updated_sequence(gesture);
+    event = gtk_gesture_get_last_event(gesture, sequence);
     g_return_if_fail(event != NULL);
 
     if (gdk_event_triggers_context_menu(event)) {
@@ -177,6 +176,7 @@ balsa_mime_widget_new_image(BalsaMessage * bm,
     GtkWidget *image;
     GError * load_err = NULL;
     BalsaMimeWidgetImage *mwi;
+    GtkGesture *gesture;
     BalsaMimeWidget *mw;
 
     g_return_val_if_fail(mime_body != NULL, NULL);
@@ -200,10 +200,11 @@ balsa_mime_widget_new_image(BalsaMessage * bm,
     g_signal_connect_swapped(image, "size-allocate",
                              G_CALLBACK(img_size_allocate_cb), mwi);
 
-    mwi->gesture = gtk_gesture_multi_press_new(GTK_WIDGET(image));
-    gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(mwi->gesture), 0);
-    g_signal_connect(mwi->gesture, "pressed",
+    gesture = gtk_gesture_multi_press_new();
+    gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(gesture), 0);
+    g_signal_connect(gesture, "pressed",
                      G_CALLBACK(balsa_mime_widget_image_gesture_pressed_cb), data);
+    gtk_widget_add_controller(image, GTK_EVENT_CONTROLLER(gesture));
 
     mw = (BalsaMimeWidget *) mwi;
     balsa_mime_widget_set_widget(mw, image);
