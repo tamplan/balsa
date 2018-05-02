@@ -811,14 +811,17 @@ find_url(BalsaMimeWidgetText * mwt, gint x, gint y)
 static gboolean
 statusbar_pop(gpointer data)
 {
-    if (BALSA_IS_WINDOW(balsa_app.main_window)
-        && GTK_IS_STATUSBAR(balsa_app.main_window->statusbar)) {
+    if (BALSA_IS_WINDOW(balsa_app.main_window)) {
         GtkStatusbar *statusbar;
-        guint context_id;
 
-        statusbar = (GtkStatusbar *) balsa_app.main_window->statusbar;
-        context_id = gtk_statusbar_get_context_id(statusbar, "BalsaMimeWidget message");
-        gtk_statusbar_pop(statusbar, context_id);
+        statusbar = balsa_window_get_statusbar(balsa_app.main_window);
+        if (GTK_IS_STATUSBAR(statusbar)) {
+            guint context_id;
+
+            context_id = gtk_statusbar_get_context_id(statusbar,
+                                                      "BalsaMimeWidget message");
+            gtk_statusbar_pop(statusbar, context_id);
+        }
     }
 
     return FALSE;
@@ -839,7 +842,7 @@ handle_url(const gchar * url)
         gchar *notice = g_strdup_printf(_("Calling URL %s…"), url);
         GError *err = NULL;
 
-        statusbar = GTK_STATUSBAR(balsa_app.main_window->statusbar);
+        statusbar = balsa_window_get_statusbar(balsa_app.main_window);
         context_id =
             gtk_statusbar_get_context_id(statusbar,
                                          "BalsaMimeWidget message");
@@ -1033,14 +1036,15 @@ bm_widget_on_url(const gchar *url)
     GtkStatusbar *statusbar;
     guint context_id;
 
-    statusbar = GTK_STATUSBAR(balsa_app.main_window->statusbar);
+    statusbar = balsa_window_get_statusbar(balsa_app.main_window);
     context_id = gtk_statusbar_get_context_id(statusbar, "BalsaMimeWidget URL");
 
-    if( url ) {
+    if (url != NULL) {
         gtk_statusbar_push(statusbar, context_id, url);
         SCHEDULE_BAR_REFRESH();
-    } else 
+    } else {
         gtk_statusbar_pop(statusbar, context_id);
+    }
 }
 
 #ifdef HAVE_HTML_WIDGET

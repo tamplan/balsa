@@ -33,58 +33,20 @@
 #include "mailbox-node.h"
 #include "toolbar-factory.h"
 
-#define BALSA_TYPE_WINDOW		       (balsa_window_get_type ())
-#define BALSA_WINDOW(obj)		       (G_TYPE_CHECK_INSTANCE_CAST (obj, BALSA_TYPE_WINDOW, BalsaWindow))
-#define BALSA_WINDOW_CLASS(klass)	       (G_TYPE_CHECK_CLASS_CAST (klass, BALSA_TYPE_WINDOW, BalsaWindowClass))
-#define BALSA_IS_WINDOW(obj)		       (G_TYPE_CHECK_INSTANCE_TYPE (obj, BALSA_TYPE_WINDOW))
-#define BALSA_IS_WINDOW_CLASS(klass)	       (G_TYPE_CHECK_CLASS_TYPE (klass, BALSA_TYPE_WINDOW))
-#define BALSA_WINDOW_GET_CLASS(window)                       \
-    (G_TYPE_INSTANCE_GET_CLASS ((window), BALSA_TYPE_WINDOW, \
-				BalsaWindowClass))
+#define BALSA_TYPE_WINDOW balsa_window_get_type()
 
-typedef struct _BalsaWindow BalsaWindow;
-typedef struct _BalsaWindowClass BalsaWindowClass;
+G_DECLARE_DERIVABLE_TYPE(BalsaWindow,
+                         balsa_window,
+                         BALSA,
+                         WINDOW,
+                         GtkApplicationWindow)
+
 typedef enum {
     BALSA_PROGRESS_NONE = 0,
     BALSA_PROGRESS_ACTIVITY,
     BALSA_PROGRESS_INCREMENT
 } BalsaWindowProgress;
 
-
-struct _BalsaWindow {
-    GtkApplicationWindow window;
-
-    GtkWidget *toolbar;
-    GtkWidget *sos_bar;
-    GtkWidget *bottom_bar;
-    GtkWidget *progress_bar;
-    GtkWidget *statusbar;
-    GtkWidget *mblist;
-    GtkWidget *sos_entry;       /* SenderOrSubject filter entry */
-    GtkWidget *notebook;
-    GtkWidget *preview;		/* message is child */
-    GtkWidget *paned_master;
-    GtkWidget *paned_slave;
-    GtkWidget *current_index;
-    GtkWidget *filter_choice;
-    GtkWidget *vbox;
-    GtkWidget *content;
-
-    guint set_message_id;
-
-    /* Progress bar stuff: */
-    BalsaWindowProgress progress_type;
-    guint activity_handler;
-    guint activity_counter;
-    GSList *activity_messages;
-
-    gboolean new_mail_notification_sent;
-
-    /* Support GNetworkMonitor: */
-    gboolean network_available;
-    time_t last_check_time;
-    guint network_changed_source_id;
-};
 
 struct _BalsaWindowClass {
     GtkApplicationWindowClass parent_class;
@@ -153,6 +115,12 @@ void balsa_window_decrease_activity(BalsaWindow * window,
                                     const gchar * message);
 void balsa_window_set_statusbar(BalsaWindow     * window,
                                 LibBalsaMailbox * mailbox);
+
+/*
+ * Getter
+ */
+
+GtkStatusbar * balsa_window_get_statusbar(BalsaWindow * window);
 
 #if defined(__FILE__) && defined(__LINE__)
 # ifdef __FUNCTION__
