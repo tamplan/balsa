@@ -1139,7 +1139,7 @@ void
 libbalsa_address_book_ldap_set_enable_tls(LibBalsaAddressBookLdap * ab_ldap,
                                           gboolean                  enable_tls)
 {
-    ab_ldap->enable_tls = enable_tls;
+    ab_ldap->enable_tls = !!enable_tls;
 }
 
 #endif				/*LDAP_ENABLED */
