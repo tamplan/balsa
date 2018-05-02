@@ -368,7 +368,7 @@ libbalsa_address_book_set_dist_list_mode(LibBalsaAddressBook * ab,
 {
     LibBalsaAddressBookPrivate *priv = libbalsa_address_book_get_instance_private(ab);
 
-    priv->dist_list_mode = dist_list_mode;
+    priv->dist_list_mode = !!dist_list_mode;
 }
 
 void
@@ -377,7 +377,7 @@ libbalsa_address_book_set_expand_aliases(LibBalsaAddressBook * ab,
 {
     LibBalsaAddressBookPrivate *priv = libbalsa_address_book_get_instance_private(ab);
 
-    priv->expand_aliases = expand_aliases;
+    priv->expand_aliases = !!expand_aliases;
 }
 
 void
@@ -386,7 +386,7 @@ libbalsa_address_book_set_is_expensive(LibBalsaAddressBook * ab,
 {
     LibBalsaAddressBookPrivate *priv = libbalsa_address_book_get_instance_private(ab);
 
-    priv->is_expensive = is_expensive;
+    priv->is_expensive = !!is_expensive;
 }
 
 void
