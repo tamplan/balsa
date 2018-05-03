@@ -854,7 +854,7 @@ new_message_activated(GSimpleAction * action,
 
     smwindow = sendmsg_window_compose();
 
-    g_signal_connect(G_OBJECT(smwindow->window), "destroy",
+    g_signal_connect(sendmsg_window_get_window(smwindow), "destroy",
                      G_CALLBACK(bw_send_msg_window_destroy_cb), user_data);
 }
 

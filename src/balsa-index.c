@@ -652,8 +652,8 @@ bndx_row_activated(GtkTreeView * tree_view, GtkTreePath * path,
          * balsa_message_continue: */
         BalsaSendmsg *sm =
             sendmsg_window_continue(mailbox, msgno);
-        if (sm)
-            g_signal_connect(G_OBJECT(sm->window), "destroy",
+        if (sm != NULL)
+            g_signal_connect(sendmsg_window_get_window(sm), "destroy",
                              G_CALLBACK(sendmsg_window_destroy_cb), NULL);
     } else
         message_window_new(mailbox, msgno);
@@ -1534,8 +1534,8 @@ bndx_compose_foreach(BalsaIndex * index, SendType send_type)
             g_assert_not_reached();
             sm = NULL; /** silence invalid warnings */
         }
-        if (sm)
-            g_signal_connect(G_OBJECT(sm->window), "destroy",
+        if (sm != NULL)
+            g_signal_connect(sendmsg_window_get_window(sm), "destroy",
                              G_CALLBACK(sendmsg_window_destroy_cb), NULL);
     }
     balsa_index_selected_msgnos_free(index, selected);
@@ -1591,7 +1591,7 @@ bndx_compose_from_list(BalsaIndex * index, SendType send_type)
                                      selected, send_type);
 
     balsa_index_selected_msgnos_free(index, selected);
-    g_signal_connect(G_OBJECT(sm->window), "destroy",
+    g_signal_connect(sendmsg_window_get_window(sm), "destroy",
                      G_CALLBACK(sendmsg_window_destroy_cb), NULL);
 }
 

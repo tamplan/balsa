@@ -592,7 +592,6 @@ balsa_ab_window_activate_address(GtkTreeView * view,
                                            GTK_TREE_VIEW(ab->
                                                          recipient_list));
     } else {
-        BalsaSendmsg *snd;
         GtkTreeModel *model =
             gtk_tree_view_get_model(GTK_TREE_VIEW(ab->address_list));
         GtkTreeIter iter;
@@ -606,10 +605,8 @@ balsa_ab_window_activate_address(GtkTreeView * view,
                            LIST_COLUMN_WHICH, &which_multiple, -1);
         addr = libbalsa_address_to_gchar(address, which_multiple);
 	g_object_unref(G_OBJECT(address));
-        snd = sendmsg_window_compose_with_address(addr);
+        (void) sendmsg_window_compose_with_address(addr);
         g_free(addr);
-
-        gtk_widget_grab_focus(snd->subject[1]);
     }
 }
 
