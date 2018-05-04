@@ -1081,7 +1081,7 @@ mailbox_conf_update(MailboxConfWindow *mcw)
 	gchar *path;
 	gchar *name;
 
-	mbnode = balsa_find_mailbox(mailbox);
+	mbnode = balsa_mailbox_node_find_from_mailbox(mailbox);
         filename =
             gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(mcw->window));
 	path =
@@ -1112,7 +1112,7 @@ mailbox_conf_update(MailboxConfWindow *mcw)
 		balsa_mailbox_local_append(mailbox);
 
 		/* We might have moved a subtree. */
-		mbnode = balsa_find_mailbox(mailbox);
+		mbnode = balsa_mailbox_node_find_from_mailbox(mailbox);
 		balsa_mailbox_node_rescan(mbnode);
             } 
 

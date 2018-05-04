@@ -213,7 +213,7 @@ config_mailbox_set_as_special(LibBalsaMailbox * mailbox, specialType which)
         g_object_weak_unref(G_OBJECT(old_mailbox),
                             (GWeakNotify) sr_special_notify, special);
 
-        mbnode = balsa_find_mailbox(old_mailbox);
+        mbnode = balsa_mailbox_node_find_from_mailbox(old_mailbox);
 	balsa_mblist_mailbox_node_redraw(mbnode);
 	g_object_unref(mbnode);
     }
@@ -225,7 +225,7 @@ config_mailbox_set_as_special(LibBalsaMailbox * mailbox, specialType which)
     g_object_weak_ref(G_OBJECT(mailbox), (GWeakNotify) sr_special_notify,
                       special);
 
-    mbnode = balsa_find_mailbox(mailbox);
+    mbnode = balsa_mailbox_node_find_from_mailbox(mailbox);
     balsa_mblist_mailbox_node_redraw(mbnode);
     g_object_unref(mbnode);
 

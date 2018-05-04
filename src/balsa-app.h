@@ -394,9 +394,6 @@ gchar *ask_password(LibBalsaServer * server, LibBalsaMailbox * mbox);
 void balsa_open_mailbox_list(gchar ** urls);
 
 /* Search functions */
-BalsaMailboxNode *balsa_find_mailbox(LibBalsaMailbox * mailbox);
-BalsaMailboxNode *balsa_find_dir(LibBalsaServer *server, const gchar * path);
-BalsaMailboxNode *balsa_find_url(const gchar * url);
 LibBalsaMailbox *balsa_find_mailbox_by_url(const gchar * url);
 LibBalsaMailbox *balsa_find_sentbox_by_url(const gchar * url);
 void balsa_add_open_mailbox_urls(GPtrArray * url_array);
@@ -407,8 +404,6 @@ void balsa_add_open_mailbox_urls(GPtrArray * url_array);
 gchar *balsa_get_short_mailbox_name(const gchar * url);
 gboolean balsa_find_iter_by_data(GtkTreeIter * iter, gpointer data);
 BalsaIndex* balsa_find_index_by_mailbox(LibBalsaMailbox* mailbox);
-
-void  balsa_remove_children_mailbox_nodes(BalsaMailboxNode * mbnode);
 
 GRegex *balsa_quote_regex_new(void);
 

@@ -1015,7 +1015,7 @@ bmbl_open_mailbox(LibBalsaMailbox * mailbox, gboolean set_current)
     GtkWidget *index;
     BalsaMailboxNode *mbnode;
 
-    mbnode = balsa_find_mailbox(mailbox);
+    mbnode = balsa_mailbox_node_find_from_mailbox(mailbox);
     if (!mbnode) {
         g_warning(_("Failed to find mailbox"));
         return;
@@ -1065,7 +1065,7 @@ balsa_mblist_close_mailbox(LibBalsaMailbox * mailbox)
 {
     BalsaMailboxNode *mbnode;
 
-    mbnode = balsa_find_mailbox(mailbox);
+    mbnode = balsa_mailbox_node_find_from_mailbox(mailbox);
     if (!mbnode)  {
         g_warning(_("Failed to find mailbox"));
         return;

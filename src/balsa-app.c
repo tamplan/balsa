@@ -537,135 +537,6 @@ balsa_add_open_mailbox_urls(GPtrArray * url_array)
                                 append_url_if_open, url_array);
 }
 
-/* 
- * Utilities for searching a GNode tree of BalsaMailboxNodes
- *
- * First a structure for the search info
- */
-struct _BalsaFind {
-    gconstpointer data;
-    LibBalsaServer   *server;
-    BalsaMailboxNode *mbnode;
-};
-typedef struct _BalsaFind BalsaFind;
-
-static gint
-find_mailbox(GtkTreeModel * model, GtkTreePath * path, GtkTreeIter * iter,
-	     gpointer user_data)
-{
-    BalsaFind *bf = user_data;
-    BalsaMailboxNode *mbnode;
-
-    gtk_tree_model_get(model, iter, 0, &mbnode, -1);
-    if (mbnode->mailbox == bf->data) {
-	bf->mbnode = mbnode;
-	return TRUE;
-    }
-    g_object_unref(mbnode);
-
-    return FALSE;
-}
-
-/* balsa_find_mailbox:
-   looks for given mailbox in the GNode tree, usually but not limited to
-   balsa_app.mailbox_nodes; caller must unref mbnode if non-NULL.
-*/
-BalsaMailboxNode *
-balsa_find_mailbox(LibBalsaMailbox * mailbox)
-{
-    BalsaFind bf;
-
-    bf.data = mailbox;
-    bf.mbnode = NULL;
-    if (balsa_app.mblist_tree_store)
-        gtk_tree_model_foreach(GTK_TREE_MODEL(balsa_app.mblist_tree_store),
-                               find_mailbox, &bf);
-
-    return bf.mbnode;
-}
-
-/* balsa_find_dir:
-   looks for a mailbox node with dir equal to path.
-   returns NULL on failure; caller must unref mbnode when non-NULL.
-*/
-static gint
-find_path(GtkTreeModel * model, GtkTreePath * path, GtkTreeIter * iter,
-	  BalsaFind * bf)
-{
-    BalsaMailboxNode *mbnode;
-
-    gtk_tree_model_get(model, iter, 0, &mbnode, -1);
-    if (mbnode->server == bf->server &&
-        g_strcmp0(mbnode->dir, (const gchar *) bf->data) == 0) {
-	bf->mbnode = mbnode;
-	return TRUE;
-    }
-    g_object_unref(mbnode);
-
-    return FALSE;
-}
-
-BalsaMailboxNode *
-balsa_find_dir(LibBalsaServer *server, const gchar * path)
-{
-    BalsaFind bf;
-
-    bf.data = path;
-    bf.server = server;
-    bf.mbnode = NULL;
-    gtk_tree_model_foreach(GTK_TREE_MODEL(balsa_app.mblist_tree_store),
-			   (GtkTreeModelForeachFunc) find_path, &bf);
-
-    return bf.mbnode;
-}
-
-static gint
-find_url(GtkTreeModel * model, GtkTreePath * path, GtkTreeIter * iter,
-	 BalsaFind * bf)
-{
-    BalsaMailboxNode *mbnode;
-    LibBalsaMailbox *mailbox;
-
-    gtk_tree_model_get(model, iter, 0, &mbnode, -1);
-    if ((mailbox = mbnode->mailbox) != NULL &&
-        strcmp(libbalsa_mailbox_get_url(mailbox), bf->data) == 0) {
-        bf->mbnode = mbnode;
-        return TRUE;
-    }
-    g_object_unref(mbnode);
-
-    return FALSE;
-}
-
-/* balsa_find_url:
- * looks for a mailbox node with the given url.
- * returns NULL on failure; caller must unref mbnode when non-NULL.
- */
-
-BalsaMailboxNode *
-balsa_find_url(const gchar * url)
-{
-    BalsaFind bf;
-
-    bf.data = url;
-    bf.mbnode = NULL;
-
-    if (balsa_app.mblist_tree_store)
-        g_object_ref(balsa_app.mblist_tree_store);
-    /*
-     * Check again, in case the main thread managed to finalize
-     * balsa_app.mblist_tree_store between the check and the object-ref.
-     */
-    if (balsa_app.mblist_tree_store) {
-        gtk_tree_model_foreach(GTK_TREE_MODEL(balsa_app.mblist_tree_store),
-                               (GtkTreeModelForeachFunc) find_url,
-                               &bf);
-        g_object_unref(balsa_app.mblist_tree_store);
-    }
-
-    return bf.mbnode;
-}
-
 /* balsa_find_mailbox_by_url:
  * looks for a mailbox with the given url.
  * returns NULL on failure
@@ -676,7 +547,7 @@ balsa_find_mailbox_by_url(const gchar * url)
     BalsaMailboxNode *mbnode;
     LibBalsaMailbox *mailbox = NULL;
 
-    if ((mbnode = balsa_find_url(url))) {
+    if ((mbnode = balsa_mailbox_node_find_from_url(url))) {
 	mailbox = mbnode->mailbox;
 	g_object_unref(mbnode);
     }
@@ -695,7 +566,7 @@ balsa_get_short_mailbox_name(const gchar *url)
 {
     BalsaMailboxNode *mbnode;
 
-    if ((mbnode = balsa_find_url(url)) && mbnode->mailbox) {
+    if ((mbnode = balsa_mailbox_node_find_from_url(url)) && mbnode->mailbox) {
         if (mbnode->server) {
             return g_strconcat(libbalsa_server_get_host(mbnode->server), ":",
                                libbalsa_mailbox_get_name(mbnode->mailbox), NULL);
@@ -753,69 +624,6 @@ balsa_find_iter_by_data(GtkTreeIter * iter , gpointer data)
 }
 
 /* End of search utilities. */
-
-/* balsa_remove_children_mailbox_nodes:
-   remove all children of given node leaving the node itself intact.
- */
-static void
-ba_remove_children_mailbox_nodes(GtkTreeModel * model, GtkTreeIter * parent,
-				 GSList ** specials)
-{
-    GtkTreeIter iter;
-    BalsaMailboxNode *mbnode;
-    gboolean valid;
-
-    if (!gtk_tree_model_iter_children(model, &iter, parent))
-	return;
-
-    do {
-	gtk_tree_model_get(model, &iter, 0, &mbnode, -1);
-	if (mbnode->parent) {
-	    LibBalsaMailbox *mailbox = mbnode->mailbox;
-	    if (mailbox == balsa_app.inbox
-		|| mailbox == balsa_app.outbox
-		|| mailbox == balsa_app.sentbox
-		|| mailbox == balsa_app.draftbox
-		|| mailbox == balsa_app.trash) {
-		g_object_ref(mailbox);
-		*specials = g_slist_prepend(*specials, mailbox);
-	    }
-	    ba_remove_children_mailbox_nodes(model, &iter, specials);
-	    valid =
-		gtk_tree_store_remove(balsa_app.mblist_tree_store, &iter);
-	} else {
-	    printf("sparing %s %s\n",
-		   mbnode->mailbox ? "mailbox" : "folder ",
-		   mbnode->mailbox ? libbalsa_mailbox_get_name(mbnode->mailbox) : mbnode->name);
-	    valid = gtk_tree_model_iter_next(model, &iter);
-	}
-	g_object_unref(mbnode); 
-    } while (valid);
-}
-
-void
-balsa_remove_children_mailbox_nodes(BalsaMailboxNode * mbnode)
-{
-    GtkTreeModel *model = GTK_TREE_MODEL(balsa_app.mblist_tree_store);
-    GtkTreeIter parent;
-    GtkTreeIter *iter = NULL;
-    GSList *specials = NULL, *l;
-
-    if (balsa_app.debug)
-	printf("Destroying children of %p %s\n",
-	       mbnode, mbnode && mbnode->name ? mbnode->name : "");
-
-    if (mbnode && balsa_find_iter_by_data(&parent, mbnode))
-	iter = &parent;
-
-    ba_remove_children_mailbox_nodes(model, iter, &specials);
-
-    for (l = specials; l; l = l->next)
-        balsa_mblist_mailbox_node_append(NULL,
-                                         balsa_mailbox_node_new_from_mailbox
-                                         (l->data));
-    g_slist_free(specials);
-}
 
 /* balsa_find_index_by_mailbox:
    returns BalsaIndex displaying passed mailbox, or NULL, if mailbox is 

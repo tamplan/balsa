@@ -682,7 +682,7 @@ folder, parent);
                     && !strncmp(parent, sdd->old_parent, strlen(parent))) {
                     /* moved it up the tree */
 		    BalsaMailboxNode *mbnode =
-                        balsa_find_dir(sdd->parent->server, parent);
+                        balsa_mailbox_node_find_from_dir(sdd->parent->server, parent);
                     if (mbnode) {
                         balsa_mailbox_node_rescan(mbnode);
 			g_object_unref(mbnode);
@@ -693,7 +693,7 @@ folder, parent);
                                        strlen(sdd->old_parent))) {
                     /* moved it down the tree */
 		    BalsaMailboxNode *mbnode =
-			balsa_find_dir(sdd->parent->server, sdd->old_parent);
+			balsa_mailbox_node_find_from_dir(sdd->parent->server, sdd->old_parent);
                     if (mbnode) {
                         balsa_mailbox_node_rescan(mbnode);
 			g_object_unref(mbnode);

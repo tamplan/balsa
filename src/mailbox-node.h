@@ -101,4 +101,8 @@ void balsa_mailbox_node_clear_children_cache(BalsaMailboxNode *mbnode);
 /* applicable to any mailbox node */
 void balsa_mailbox_node_scan_children(BalsaMailboxNode *mbnode);
 
+BalsaMailboxNode *balsa_mailbox_node_find_from_mailbox(LibBalsaMailbox * mailbox);
+BalsaMailboxNode *balsa_mailbox_node_find_from_dir(LibBalsaServer *server, const gchar * path);
+BalsaMailboxNode *balsa_mailbox_node_find_from_url(const gchar * url);
+
 #endif
