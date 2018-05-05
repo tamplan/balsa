@@ -1053,8 +1053,8 @@ continue_activated(GSimpleAction * action,
 
     index = balsa_window_find_current_index(window);
 
-    if (index
-        && BALSA_INDEX(index)->mailbox_node->mailbox == balsa_app.draftbox)
+    if (index != NULL
+        && balsa_index_get_mailbox(BALSA_INDEX(index)) == balsa_app.draftbox)
         balsa_message_continue(BALSA_INDEX(index));
     else
         balsa_mblist_open_mailbox(balsa_app.draftbox);
@@ -1119,14 +1119,17 @@ print_activated(GSimpleAction * action,
         return;
 
     bindex = BALSA_INDEX(index);
-    if (bindex->current_msgno) {
-        LibBalsaMessage *message =
-            libbalsa_mailbox_get_message(bindex->mailbox_node->mailbox,
-                                         bindex->current_msgno);
-        if (!message)
-            return;
-        message_print(message, GTK_WINDOW(window));
-        g_object_unref(message);
+    if (bindex->current_msgno != 0) {
+        LibBalsaMailbox *mailbox;
+        LibBalsaMessage *message;
+
+        mailbox = balsa_index_get_mailbox(bindex);
+        message = libbalsa_mailbox_get_message(mailbox, bindex->current_msgno);
+
+        if (message != NULL) {
+            message_print(message, GTK_WINDOW(window));
+            g_object_unref(message);
+        }
     }
 }
 
@@ -1400,9 +1403,14 @@ mailbox_close_activated(GSimpleAction * action,
     GtkWidget *index;
 
     index = balsa_window_find_current_index(window);
-    if (index)
-        balsa_mblist_close_mailbox(BALSA_INDEX(index)->mailbox_node->
-                                   mailbox);
+    if (index != NULL) {
+        BalsaMailboxNode *mbnode;
+        LibBalsaMailbox *mailbox;
+
+        mbnode = BALSA_INDEX(index)->mailbox_node;
+        mailbox = balsa_mailbox_node_get_mailbox(mbnode);
+        balsa_mblist_close_mailbox(mailbox);
+    }
 }
 
 static void
@@ -1424,15 +1432,20 @@ select_filters_activated(GSimpleAction * action,
     GtkWidget *index;
 
     index = balsa_window_find_current_index(window);
-    if (index)
-        filters_run_dialog(BALSA_INDEX(index)->mailbox_node->mailbox,
-                           GTK_WINDOW(balsa_app.main_window));
-    else
+    if (index != NULL) {
+        BalsaMailboxNode *mbnode;
+        LibBalsaMailbox *mailbox;
+
+        mbnode = BALSA_INDEX(index)->mailbox_node;
+        mailbox = balsa_mailbox_node_get_mailbox(mbnode);
+        filters_run_dialog(mailbox, GTK_WINDOW(balsa_app.main_window));
+    } else {
 	/* FIXME : Perhaps should we be able to apply filters on folders (ie recurse on all mailboxes in it),
 	   but there are problems of infinite recursion (when one mailbox being filtered is also the destination
 	   of the filter action (eg a copy)). So let's see that later :) */
 	balsa_information(LIBBALSA_INFORMATION_WARNING,
                           _("You can apply filters only on mailbox\n"));
+    }
 }
 
 static void
@@ -1444,19 +1457,22 @@ remove_duplicates_activated(GSimpleAction * action,
     GtkWidget *index;
 
     index = balsa_window_find_current_index(window);
-    if (index) {
-        LibBalsaMailbox *mailbox =
-            BALSA_INDEX(index)->mailbox_node->mailbox;
+    if (index != NULL) {
+        BalsaMailboxNode *mbnode;
+        LibBalsaMailbox *mailbox;
+        gint dup_count;
         GError *err = NULL;
-        gint dup_count =
-            libbalsa_mailbox_move_duplicates(mailbox, NULL, &err);
-        if (err) {
+
+        mbnode = BALSA_INDEX(index)->mailbox_node;
+        mailbox = balsa_mailbox_node_get_mailbox(mbnode);
+        dup_count = libbalsa_mailbox_move_duplicates(mailbox, NULL, &err);
+        if (err != NULL) {
             balsa_information(LIBBALSA_INFORMATION_WARNING,
                               _("Removing duplicates failed: %s"),
                               err->message);
             g_error_free(err);
         } else {
-	    if(dup_count)
+	    if (dup_count != 0)
                 balsa_information(LIBBALSA_INFORMATION_MESSAGE,
                                   ngettext("Removed %d duplicate",
                                            "Removed %d duplicates",
@@ -1943,8 +1959,9 @@ threading_change_state(GSimpleAction * action,
     /* bw->current_index may have been destroyed and cleared during
      * set-threading: */
     index = balsa_window_find_current_index(window);
-    if (index && (mbnode = BALSA_INDEX(index)->mailbox_node)
-        && (mailbox = mbnode->mailbox))
+    if (index != NULL &&
+        (mbnode = BALSA_INDEX(index)->mailbox_node) != NULL &&
+        (mailbox = balsa_mailbox_node_get_mailbox(mbnode)))
         bw_enable_expand_collapse(window, mailbox);
 
     g_simple_action_set_state(action, state);
@@ -2504,7 +2521,7 @@ bw_enable_mailbox_menus(BalsaWindow * window, BalsaIndex * index)
     enable = (index != NULL);
     if (enable) {
         mbnode = index->mailbox_node;
-        mailbox = mbnode->mailbox;
+        mailbox = balsa_mailbox_node_get_mailbox(mbnode);
     }
     bw_action_set_enabled(window, "mailbox-expunge",
     /* cppcheck-suppress nullPointer */
@@ -2554,42 +2571,34 @@ static void
 bw_enable_message_menus(BalsaWindow * window, guint msgno)
 {
     BalsaWindowPrivate *priv = balsa_window_get_instance_private(window);
-    gboolean enable, enable_mod, enable_store;
     BalsaIndex *bindex = BALSA_INDEX(priv->current_index);
+    gboolean enable_current_message_actions = FALSE;
+    gboolean enable_message_actions = FALSE;
+    gboolean enable_modify_message_actions = FALSE;
+    gboolean enable_store = FALSE;
 
-    enable = (msgno != 0 && bindex != NULL);
-    bw_actions_set_enabled(window, current_message_actions,
-                           G_N_ELEMENTS(current_message_actions), enable);
+    if (bindex != NULL) {
+        LibBalsaMailbox *mailbox;
 
-    enable_reply_group = FALSE;
-    if (enable) {
-        GList *messages, *list;
+        enable_current_message_actions = (msgno != 0);
+        enable_message_actions = (balsa_index_count_selected_messages(bindex) > 0);
 
-        messages = balsa_index_selected_list(BALSA_INDEX(bindex));
-        for (list = messages; list != NULL; list = list->next) {
-            LibBalsaMessage *message = list->data;
+        mailbox = balsa_index_get_mailbox(bindex);
+        enable_modify_message_actions =
+            (mailbox != NULL && !libbalsa_mailbox_get_readonly(mailbox));
 
-            if (libbalsa_message_get_user_header(message, "list-post") != NULL) {
-                enable_reply_group = TRUE;
-                break;
-            }
-        }
-        g_list_free_full(messages, g_object_unref);
+        enable_store = (balsa_app.address_book_list != NULL);
     }
-    bw_action_set_enabled(window, "reply-group", enable_reply_group);
 
-    enable = (bindex != NULL
-              && balsa_index_count_selected_messages(bindex) > 0);
+    bw_actions_set_enabled(window, current_message_actions,
+                           G_N_ELEMENTS(current_message_actions),
+                           enable_current_message_actions);
     bw_actions_set_enabled(window, message_actions,
-                           G_N_ELEMENTS(message_actions), enable);
-
-    enable_mod =
-        (enable && !libbalsa_mailbox_get_readonly(bindex->mailbox_node->mailbox));
+                           G_N_ELEMENTS(message_actions),
+                           enable_message_actions);
     bw_actions_set_enabled(window, modify_message_actions,
                            G_N_ELEMENTS(modify_message_actions),
-                           enable_mod);
-
-    enable_store = (enable && balsa_app.address_book_list != NULL);
+                           enable_modify_message_actions);
     bw_action_set_enabled(window, "store-address", enable_store);
 
     balsa_window_enable_continue(window);
@@ -2724,7 +2733,7 @@ bw_set_threading_menu(BalsaWindow * window, int option)
 
     if ((index = balsa_window_find_current_index(window))
 	&& (mbnode = BALSA_INDEX(index)->mailbox_node)
-	&& (mailbox = mbnode->mailbox))
+	&& (mailbox = balsa_mailbox_node_get_mailbox(mbnode)))
 	bw_enable_expand_collapse(window, mailbox);
 }
 
@@ -2837,7 +2846,7 @@ bw_notebook_label_new(BalsaMailboxNode * mbnode)
 
     box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
 
-    lab = gtk_label_new(libbalsa_mailbox_get_name(mbnode->mailbox));
+    lab = gtk_label_new(libbalsa_mailbox_get_name(balsa_mailbox_node_get_mailbox(mbnode)));
     gtk_widget_set_name(lab, "balsa-notebook-tab-label");
 
     /* Try to make text not bold: */
@@ -2855,8 +2864,8 @@ bw_notebook_label_new(BalsaMailboxNode * mbnode)
     g_object_unref(css_provider);
 
     bw_notebook_label_style(GTK_LABEL(lab),
-                            libbalsa_mailbox_get_unread(mbnode->mailbox) > 0);
-    g_signal_connect_object(mbnode->mailbox, "changed",
+                            libbalsa_mailbox_get_unread(balsa_mailbox_node_get_mailbox(mbnode)) > 0);
+    g_signal_connect_object(balsa_mailbox_node_get_mailbox(mbnode), "changed",
                             G_CALLBACK(bw_mailbox_changed), lab, 0);
     gtk_widget_set_hexpand(lab, TRUE);
     gtk_box_pack_start(GTK_BOX(box), lab);
@@ -2868,7 +2877,7 @@ bw_notebook_label_new(BalsaMailboxNode * mbnode)
                      G_CALLBACK(bw_mailbox_tab_close_cb), mbnode);
     gtk_box_pack_start(GTK_BOX(box), but);
 
-    gtk_widget_set_tooltip_text(box, libbalsa_mailbox_get_url(mbnode->mailbox));
+    gtk_widget_set_tooltip_text(box, libbalsa_mailbox_get_url(balsa_mailbox_node_get_mailbox(mbnode)));
     return box;
 }
 
@@ -2891,7 +2900,7 @@ bw_real_open_mbnode_idle_cb(BalsaWindowRealOpenMbnodeInfo * info)
     BalsaMailboxNode *mbnode  = info->mbnode;
     BalsaWindow      *window  = info->window;
     BalsaWindowPrivate *priv = balsa_window_get_instance_private(window);
-    LibBalsaMailbox  *mailbox = mbnode->mailbox;
+    LibBalsaMailbox  *mailbox = balsa_mailbox_node_get_mailbox(mbnode);
     GtkWidget        *label;
     GtkWidget        *scroll;
     gint              page_num;
@@ -2968,7 +2977,7 @@ bw_real_open_mbnode_thread(BalsaWindowRealOpenMbnodeInfo * info)
 {
     static GMutex open_lock;
     gint try_cnt;
-    LibBalsaMailbox *mailbox = info->mbnode->mailbox;
+    LibBalsaMailbox *mailbox = balsa_mailbox_node_get_mailbox(info->mbnode);
     GError *err = NULL;
     gboolean successp;
 
@@ -3027,7 +3036,7 @@ balsa_window_real_open_mbnode(BalsaWindow * window,
     GThread *open_thread;
     BalsaWindowRealOpenMbnodeInfo *info;
 
-    if (bw_is_open_mailbox(mailbox = mbnode->mailbox))
+    if (bw_is_open_mailbox(mailbox = balsa_mailbox_node_get_mailbox(mbnode)))
         return;
 
     index = BALSA_INDEX(balsa_index_new());
@@ -3083,13 +3092,13 @@ balsa_window_real_close_mbnode(BalsaWindow * window,
     gint i;
     LibBalsaMailbox **mailbox;
 
-    g_return_if_fail(mbnode->mailbox);
+    g_return_if_fail(balsa_mailbox_node_get_mailbox(mbnode));
 
-    i = balsa_find_notebook_page_num(mbnode->mailbox);
+    i = balsa_find_notebook_page_num(balsa_mailbox_node_get_mailbox(mbnode));
 
     if (i != -1) {
         gtk_notebook_remove_page(GTK_NOTEBOOK(priv->notebook), i);
-        bw_unregister_open_mailbox(mbnode->mailbox);
+        bw_unregister_open_mailbox(balsa_mailbox_node_get_mailbox(mbnode));
 
         /* If this is the last notebook page clear the message preview
            and the status bar */
@@ -3124,7 +3133,7 @@ balsa_window_real_close_mbnode(BalsaWindow * window,
     index = balsa_window_find_current_index(window);
     mailbox = g_new(LibBalsaMailbox *, 1);
     if (index) {
-	*mailbox = BALSA_INDEX(index)->mailbox_node-> mailbox;
+	*mailbox = balsa_index_get_mailbox(BALSA_INDEX(index));
 	g_object_add_weak_pointer(G_OBJECT(*mailbox), (gpointer) mailbox);
     } else
 	*mailbox = NULL;
@@ -3167,7 +3176,8 @@ bw_close_mailbox_on_timer(BalsaWindow * window)
             continue;
 
         if (balsa_app.close_mailbox_auto &&
-            (delta_time = current_time - index->mailbox_node->last_use) >
+            (delta_time = current_time -
+             balsa_mailbox_node_get_last_use(index->mailbox_node)) >
             balsa_app.close_mailbox_timeout) {
             if (balsa_app.debug)
                 fprintf(stderr, "Closing Page %d unused for %d s\n",
@@ -3320,9 +3330,14 @@ bw_check_mailbox_list(struct check_messages_thread_info *info, GList *mailbox_li
     }
 
     for ( ; mailbox_list; mailbox_list = mailbox_list->next) {
-        LibBalsaMailbox *mailbox = BALSA_MAILBOX_NODE(mailbox_list->data)->mailbox;
-        LibBalsaMailboxPop3 *pop3 = LIBBALSA_MAILBOX_POP3(mailbox);
+        BalsaMailboxNode *mbnode;
+        LibBalsaMailbox *mailbox;
+        LibBalsaMailboxPop3 *pop3;
         bw_pop_mbox_t *bw_pop_mbox;
+
+        mbnode = BALSA_MAILBOX_NODE(mailbox_list->data);
+        mailbox = balsa_mailbox_node_get_mailbox(mbnode);
+        pop3 = LIBBALSA_MAILBOX_POP3(mailbox);
 
         bw_pop_mbox = g_malloc0(sizeof(bw_pop_mbox_t));
         bw_pop_mbox->mailbox = g_object_ref(mailbox);
@@ -3354,9 +3369,9 @@ bw_add_mbox_to_checklist(GtkTreeModel * model, GtkTreePath * path,
     gtk_tree_model_get(model, iter, 0, &mbnode, -1);
     g_return_val_if_fail(mbnode, FALSE);
 
-    if ((mailbox = mbnode->mailbox)) {	/* mailbox, not a folder */
+    if ((mailbox = balsa_mailbox_node_get_mailbox(mbnode))) {	/* mailbox, not a folder */
 	if (!LIBBALSA_IS_MAILBOX_IMAP(mailbox) ||
-	    bw_imap_check_test(mbnode->dir ? mbnode->dir :
+	    bw_imap_check_test(balsa_mailbox_node_get_dir(mbnode) ? balsa_mailbox_node_get_dir(mbnode) :
 			    libbalsa_mailbox_imap_get_path
 			    (LIBBALSA_MAILBOX_IMAP(mailbox))))
 	    *list = g_slist_prepend(*list, g_object_ref(mailbox));
@@ -3737,10 +3752,11 @@ mw_mbox_change_connection_status(GtkTreeModel * model, GtkTreePath * path,
     gtk_tree_model_get(model, iter, 0, &mbnode, -1);
     g_return_val_if_fail(mbnode, FALSE);
 
-    if ((mailbox = mbnode->mailbox)) {  /* mailbox, not a folder */
+    if ((mailbox = balsa_mailbox_node_get_mailbox(mbnode))) {  /* mailbox, not a folder */
         if (LIBBALSA_IS_MAILBOX_IMAP(mailbox) &&
-            bw_imap_check_test(mbnode->dir ? mbnode->dir :
-                               libbalsa_mailbox_imap_get_path(LIBBALSA_MAILBOX_IMAP(mailbox)))) {
+            bw_imap_check_test(balsa_mailbox_node_get_dir(mbnode) ?
+                balsa_mailbox_node_get_dir(mbnode) :
+                libbalsa_mailbox_imap_get_path(LIBBALSA_MAILBOX_IMAP(mailbox)))) {
             libbalsa_mailbox_test_can_reach(g_object_ref(mailbox),
                                             mw_mbox_can_reach_cb, NULL);
         }
@@ -3795,7 +3811,7 @@ bw_change_connection_status_idle(gpointer user_data)
         return FALSE;
     if ((mbnode = balsa_app.inbox_input->data) == NULL)
         return FALSE;
-    if ((mailbox = mbnode->mailbox) == NULL)
+    if ((mailbox = balsa_mailbox_node_get_mailbox(mbnode)) == NULL)
         return FALSE;
 
     libbalsa_mailbox_test_can_reach(mailbox, bw_change_connection_status_can_reach_cb,
@@ -4057,7 +4073,7 @@ bw_find_real(BalsaWindow * window, BalsaIndex * bindex, gboolean again)
 
         if(ok == FIND_RESPONSE_FILTER) {
             LibBalsaMailbox *mailbox =
-                BALSA_INDEX(bindex)->mailbox_node->mailbox;
+                balsa_index_get_mailbox(BALSA_INDEX(bindex));
             LibBalsaCondition *filter, *res;
             filter = bw_get_view_filter(window);
             res = libbalsa_condition_new_bool_ptr(FALSE, CONDITION_AND,
@@ -4128,7 +4144,7 @@ bw_hide_changed_set_view_filter(BalsaWindow * window)
     if(!index)
         return;
 
-    mailbox = BALSA_INDEX(index)->mailbox_node->mailbox;
+    mailbox = balsa_index_get_mailbox(BALSA_INDEX(index));
     /* Store the new filter mask in the mailbox view before we set the
      * view filter; rethreading triggers bw_set_filter_menu,
      * which retrieves the mask from the mailbox view, and we want it to
@@ -4291,7 +4307,7 @@ bw_notebook_switch_page_cb(GtkWidget * notebook,
 	g_object_remove_weak_pointer(G_OBJECT(priv->current_index),
 				     (gpointer) &priv->current_index);
 	/* Note when this mailbox was hidden, for use in auto-closing. */
-	time(&BALSA_INDEX(priv->current_index)->mailbox_node->last_use);
+        balsa_mailbox_node_set_last_use(BALSA_INDEX(priv->current_index)->mailbox_node);
         priv->current_index = NULL;
     }
 
@@ -4306,9 +4322,9 @@ bw_notebook_switch_page_cb(GtkWidget * notebook,
     g_object_add_weak_pointer(G_OBJECT(index),
 			      (gpointer) &priv->current_index);
     /* Note when this mailbox was exposed, for use in auto-expunge. */
-    time(&index->mailbox_node->last_use);
+    balsa_mailbox_node_set_last_use(index->mailbox_node);
 
-    mailbox = index->mailbox_node->mailbox;
+    mailbox = balsa_index_get_mailbox(index);
     if (libbalsa_mailbox_get_name(mailbox)) {
         if (libbalsa_mailbox_get_readonly(mailbox)) {
             title =
@@ -4411,7 +4427,7 @@ bw_idle_cb(BalsaWindow * window)
     index = (BalsaIndex *) priv->current_index;
     if (index)
         balsa_message_set(BALSA_MESSAGE(priv->preview),
-                          index->mailbox_node->mailbox,
+                          balsa_index_get_mailbox(index),
                           index->current_msgno);
     else
         balsa_message_set(BALSA_MESSAGE(priv->preview), NULL, 0);
@@ -4522,14 +4538,14 @@ bw_notebook_drag_received_cb(GtkWidget        * widget,
         return;
     }
 
-    orig_mailbox = orig_index->mailbox_node->mailbox;
+    orig_mailbox = balsa_index_get_mailbox(orig_index);
 
     index = bw_notebook_find_page (GTK_NOTEBOOK(widget), x, y);
 
     if (index == NULL)
         return;
 
-    mailbox = index->mailbox_node->mailbox;
+    mailbox = balsa_index_get_mailbox(index);
 
     if (mailbox != NULL && mailbox != orig_mailbox)
         balsa_index_transfer(orig_index, selected, mailbox,
@@ -4750,7 +4766,7 @@ update_view_menu(BalsaWindow * window)
 void
 balsa_window_update_tab(BalsaMailboxNode * mbnode)
 {
-    gint i = balsa_find_notebook_page_num(mbnode->mailbox);
+    gint i = balsa_find_notebook_page_num(balsa_mailbox_node_get_mailbox(mbnode));
     if (i != -1) {
 	GtkWidget *page =
 	    gtk_notebook_get_nth_page(GTK_NOTEBOOK(balsa_app.notebook), i);
@@ -4861,7 +4877,7 @@ balsa_window_next_unread(BalsaWindow * window)
 {
     BalsaIndex *index =
         BALSA_INDEX(balsa_window_find_current_index(window));
-    LibBalsaMailbox *mailbox = index ? index->mailbox_node->mailbox : NULL;
+    LibBalsaMailbox *mailbox = index ? balsa_index_get_mailbox(index) : NULL;
 
     if (libbalsa_mailbox_get_unread(mailbox) > 0) {
         if (!balsa_index_select_next_unread(index)) {

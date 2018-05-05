@@ -122,8 +122,7 @@ static gboolean bmbl_find_all_unread_mboxes_func(GtkTreeModel * model,
                                                  GtkTreePath * path,
                                                  GtkTreeIter * iter,
                                                  gpointer data);
-static void bmbl_real_disconnect_mbnode_signals(BalsaMailboxNode * mbnode,
-					      GtkTreeModel * model);
+static void bmbl_real_disconnect_mbnode_signals(BalsaMailboxNode * mbnode);
 static gboolean bmbl_store_redraw_mbnode(GtkTreeIter * iter,
 					 BalsaMailboxNode * mbnode);
 static void bmbl_node_style(GtkTreeModel * model, GtkTreeIter * iter);
@@ -467,14 +466,17 @@ bmbl_selection_func(GtkTreeSelection * selection, GtkTreeModel * model,
     BalsaMailboxNode *mbnode;
     gboolean retval;
 
-    gtk_tree_model_get_iter(model, &iter, path);
-    gtk_tree_model_get(model, &iter, MBNODE_COLUMN, &mbnode, -1);
-
     /* If the node is selected, allow it to be deselected, whether or
      * not it has a mailbox (if it doesn't, it shouldn't have been
      * selected in the first place, but you never know...). */
-    retval = (path_currently_selected || (mbnode && mbnode->mailbox));
+    if (path_currently_selected)
+        return TRUE;
+
+    gtk_tree_model_get_iter(model, &iter, path);
+    gtk_tree_model_get(model, &iter, MBNODE_COLUMN, &mbnode, -1);
+    retval = balsa_mailbox_node_get_mailbox(mbnode) != NULL;
     g_object_unref(mbnode);
+
     return retval;
 }
 
@@ -503,7 +505,7 @@ bmbl_tree_expand(GtkTreeView * tree_view, GtkTreeIter * iter,
     gtk_tree_model_get(model, iter, MBNODE_COLUMN, &mbnode, -1);
     balsa_mailbox_node_scan_children(mbnode);
 
-    if (!mbnode->mailbox)
+    if (balsa_mailbox_node_get_mailbox(mbnode) == NULL)
         gtk_tree_store_set(GTK_TREE_STORE(model), iter,
                            ICON_COLUMN,
                            balsa_icon_id(BALSA_PIXMAP_MBOX_DIR_OPEN),
@@ -514,22 +516,25 @@ bmbl_tree_expand(GtkTreeView * tree_view, GtkTreeIter * iter,
 	GtkWidget *current_index =
 	    balsa_window_find_current_index(balsa_app.main_window);
 	LibBalsaMailbox *current_mailbox =
-	    current_index ?
-	    BALSA_INDEX(current_index)->mailbox_node->mailbox :
+	    current_index != NULL ?
+	    balsa_index_get_mailbox(BALSA_INDEX(current_index)) :
 	    NULL;
 	gboolean first_mailbox = TRUE;
 
         do {
+            LibBalsaMailbox *mailbox;
+
             gtk_tree_model_get(model, &child_iter,
                                MBNODE_COLUMN, &mbnode, -1);
-            if (mbnode && mbnode->mailbox) {
+            if (mbnode != NULL &&
+                (mailbox = balsa_mailbox_node_get_mailbox(mbnode)) != NULL) {
 		/* Mark only one mailbox as exposed. */
 		if (first_mailbox) {
-		    libbalsa_mailbox_set_exposed(mbnode->mailbox, TRUE);
+		    libbalsa_mailbox_set_exposed(mailbox, TRUE);
 		    first_mailbox = FALSE;
 		} else
-		    libbalsa_mailbox_set_exposed(mbnode->mailbox, FALSE);
-		if (mbnode->mailbox == current_mailbox) {
+		    libbalsa_mailbox_set_exposed(mailbox, FALSE);
+		if (mailbox == current_mailbox) {
 		    GtkTreeSelection *selection =
 			gtk_tree_view_get_selection(tree_view);
 		    gtk_tree_selection_select_iter(selection, &child_iter);
@@ -552,8 +557,8 @@ bmbl_tree_collapse_helper(GtkTreeModel * model, GtkTreeIter * iter)
 
             gtk_tree_model_get(model, &child_iter,
                                MBNODE_COLUMN, &mbnode, -1);
-            if (mbnode->mailbox)
-		libbalsa_mailbox_set_exposed(mbnode->mailbox, FALSE);
+            if (balsa_mailbox_node_get_mailbox(mbnode))
+		libbalsa_mailbox_set_exposed(balsa_mailbox_node_get_mailbox(mbnode), FALSE);
 	    g_object_unref(mbnode);
             bmbl_tree_collapse_helper(model, &child_iter);
         } while (gtk_tree_model_iter_next(model, &child_iter));
@@ -569,7 +574,7 @@ bmbl_tree_collapse(GtkTreeView * tree_view, GtkTreeIter * iter,
 
     gtk_tree_model_get(model, iter, MBNODE_COLUMN, &mbnode, -1);
 
-    if (!mbnode->mailbox)
+    if (!balsa_mailbox_node_get_mailbox(mbnode))
         gtk_tree_store_set(GTK_TREE_STORE(model), iter,
                            ICON_COLUMN,
                            balsa_icon_id(BALSA_PIXMAP_MBOX_DIR_CLOSED),
@@ -602,12 +607,12 @@ bmbl_row_compare(GtkTreeModel * model, GtkTreeIter * iter1,
 
     gtk_tree_model_get(model, iter1,
                        MBNODE_COLUMN, &mbnode, NAME_COLUMN, &name1, -1);
-    m1 = mbnode->mailbox;
+    m1 = balsa_mailbox_node_get_mailbox(mbnode);
     g_object_unref(mbnode);
 
     gtk_tree_model_get(model, iter2,
                        MBNODE_COLUMN, &mbnode, NAME_COLUMN, &name2, -1);
-    m2 = mbnode->mailbox;
+    m2 = balsa_mailbox_node_get_mailbox(mbnode);
     g_object_unref(mbnode);
 
     switch (sort_column) {
@@ -793,7 +798,7 @@ bmbl_drag_cb(GtkWidget        * widget,
         return;
     }
 
-    orig_mailbox = orig_index->mailbox_node->mailbox;
+    orig_mailbox = balsa_index_get_mailbox(orig_index);
 
     /* find the node and mailbox */
 
@@ -807,7 +812,7 @@ bmbl_drag_cb(GtkWidget        * widget,
 
         gtk_tree_model_get_iter(model, &iter, path);
         gtk_tree_model_get(model, &iter, MBNODE_COLUMN, &mbnode, -1);
-        mailbox = mbnode->mailbox;
+        mailbox = balsa_mailbox_node_get_mailbox(mbnode);
 	g_object_unref(mbnode);
 
         /* cannot transfer to the originating mailbox */
@@ -843,8 +848,8 @@ bmbl_row_activated_cb(GtkTreeView * tree_view, GtkTreePath * path,
     gtk_tree_model_get(model, &iter, MBNODE_COLUMN, &mbnode, -1);
     g_return_if_fail(mbnode != NULL);
 
-    if (mbnode->mailbox)
-        balsa_mblist_open_mailbox(mbnode->mailbox);
+    if (balsa_mailbox_node_get_mailbox(mbnode))
+        balsa_mblist_open_mailbox(balsa_mailbox_node_get_mailbox(mbnode));
     g_object_unref(mbnode);
 }
 
@@ -969,7 +974,7 @@ bmbl_find_all_unread_mboxes_func(GtkTreeModel * model, GtkTreePath * path,
     gtk_tree_model_get(model, iter, MBNODE_COLUMN, &mbnode, -1);
     if(!mbnode) /* this node has no MBNODE associated at this time */
         return FALSE;
-    mailbox = mbnode->mailbox;
+    mailbox = balsa_mailbox_node_get_mailbox(mbnode);
     g_object_unref(mbnode);
 
     if (mailbox
@@ -1024,9 +1029,8 @@ bmbl_open_mailbox(LibBalsaMailbox * mailbox, gboolean set_current)
     index = balsa_window_find_current_index(balsa_app.main_window);
 
     /* If we currently have a page open, update the time last visited */
-    if (index) {
-	time(&BALSA_INDEX(index)->mailbox_node->last_use);
-    }
+    if (index != NULL)
+        balsa_mailbox_node_set_last_use(BALSA_INDEX(index)->mailbox_node);
 
     i = balsa_find_notebook_page_num(mailbox);
     if (i != -1) {
@@ -1034,7 +1038,7 @@ bmbl_open_mailbox(LibBalsaMailbox * mailbox, gboolean set_current)
             gtk_notebook_set_current_page(GTK_NOTEBOOK(balsa_app.notebook),
                                           i);
             index = balsa_window_find_current_index(balsa_app.main_window);
-            time(&BALSA_INDEX(index)->mailbox_node->last_use);
+            balsa_mailbox_node_set_last_use(BALSA_INDEX(index)->mailbox_node);
             balsa_index_set_column_widths(BALSA_INDEX(index));
         }
     } else { /* page with mailbox not found, open it */
@@ -1093,15 +1097,18 @@ get_lru_descendant(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter,
     if(!gtk_tree_path_is_descendant(path, dt->ancestor_path))
         return FALSE;
     gtk_tree_model_get(model, iter, MBNODE_COLUMN, &mbnode, -1);
-    if(mbnode->mailbox && libbalsa_mailbox_is_open(mbnode->mailbox) &&
-       (!dt->mbnode || (mbnode->last_use < dt->mbnode->last_use)) )
+
+    if (balsa_mailbox_node_get_mailbox(mbnode) != NULL &&
+        libbalsa_mailbox_is_open(balsa_mailbox_node_get_mailbox(mbnode)) &&
+        (dt->mbnode == NULL ||
+         (balsa_mailbox_node_get_last_use(mbnode)
+          < balsa_mailbox_node_get_last_use(dt->mbnode))))
     {
-        if (dt->mbnode)
-            g_object_unref(dt->mbnode);
-        dt->mbnode = mbnode;
+        g_set_object(&dt->mbnode, mbnode);
     }
 
-    else g_object_unref(mbnode);
+    g_object_unref(mbnode);
+
     return FALSE;
 }
 
@@ -1170,14 +1177,17 @@ balsa_mblist_default_signal_bindings(BalsaMBList * mblist)
  * Remove the signals we attached to the mailboxes.
  */
 static void
-bmbl_real_disconnect_mbnode_signals(BalsaMailboxNode * mbnode,
-				    GtkTreeModel * model)
+bmbl_real_disconnect_mbnode_signals(BalsaMailboxNode * mbnode)
 {
-    if (mbnode->mailbox)
-        g_signal_handlers_disconnect_by_func(mbnode->mailbox,
+    LibBalsaMailbox *mailbox;
+
+    mailbox = balsa_mailbox_node_get_mailbox(mbnode);
+    if (mailbox != NULL) {
+        g_signal_handlers_disconnect_by_func(mailbox,
                                              G_CALLBACK
                                              (bmbl_mailbox_changed_cb),
                                              NULL);
+    }
 }
 
 /* bmbl_store_redraw_mbnode
@@ -1195,8 +1205,8 @@ bmbl_store_redraw_mbnode(GtkTreeIter * iter, BalsaMailboxNode * mbnode)
 
     g_return_val_if_fail(mbnode, FALSE);
 
-    if (mbnode->mailbox) {
-        LibBalsaMailbox *mailbox = mbnode->mailbox;
+    if (balsa_mailbox_node_get_mailbox(mbnode)) {
+        LibBalsaMailbox *mailbox = balsa_mailbox_node_get_mailbox(mbnode);
 	static guint mailbox_changed_signal = 0;
 
 	if (LIBBALSA_IS_MAILBOX_POP3(mailbox)) {
@@ -1243,10 +1253,10 @@ bmbl_store_redraw_mbnode(GtkTreeIter * iter, BalsaMailboxNode * mbnode)
 	if (!mailbox_changed_signal)
 	    mailbox_changed_signal =
 		g_signal_lookup("changed", LIBBALSA_TYPE_MAILBOX);
-	if (!g_signal_has_handler_pending(G_OBJECT(mbnode->mailbox),
+	if (!g_signal_has_handler_pending(G_OBJECT(balsa_mailbox_node_get_mailbox(mbnode)),
                                           mailbox_changed_signal, 0, TRUE)) {
 	    /* Now we have a mailbox: */
-	    g_signal_connect(mbnode->mailbox, "changed",
+	    g_signal_connect(balsa_mailbox_node_get_mailbox(mbnode), "changed",
 			     G_CALLBACK(bmbl_mailbox_changed_cb),
 			     NULL);
             if (libbalsa_mailbox_get_unread(mailbox) > 0
@@ -1257,12 +1267,12 @@ bmbl_store_redraw_mbnode(GtkTreeIter * iter, BalsaMailboxNode * mbnode)
                               0, TRUE);
 	    /* If necessary, expand rows to expose this mailbox after
 	     * setting its mbnode in the tree-store. */
-	    expose = libbalsa_mailbox_get_exposed(mbnode->mailbox);
+	    expose = libbalsa_mailbox_get_exposed(balsa_mailbox_node_get_mailbox(mbnode));
 	}
     } else {
 	/* new directory, but not a mailbox */
 	icon = BALSA_PIXMAP_MBOX_DIR_CLOSED;
-        name = tmp = g_path_get_basename(mbnode->name);
+        name = tmp = g_path_get_basename(balsa_mailbox_node_get_name(mbnode));
     }
 
     gtk_tree_store_set(balsa_app.mblist_tree_store, iter,
@@ -1276,7 +1286,7 @@ bmbl_store_redraw_mbnode(GtkTreeIter * iter, BalsaMailboxNode * mbnode)
                        -1);
     g_free(tmp);
 
-    if (mbnode->mailbox) {
+    if (balsa_mailbox_node_get_mailbox(mbnode) != NULL) {
 	GtkTreeModel *model = GTK_TREE_MODEL(balsa_app.mblist_tree_store);
 	if (expose) {
 	    GtkTreePath *path = gtk_tree_model_get_path(model, iter);
@@ -1314,7 +1324,8 @@ bmbl_update_mailbox(GtkTreeStore * store, LibBalsaMailbox * mailbox)
     bmbl_node_style(model, &iter);
 
     bindex = balsa_window_find_current_index(balsa_app.main_window);
-    if (!bindex || mailbox != BALSA_INDEX(bindex)->mailbox_node->mailbox)
+    if (bindex == NULL ||
+        mailbox != balsa_index_get_mailbox(BALSA_INDEX(bindex)))
         return;
 
     balsa_window_set_statusbar(balsa_app.main_window, mailbox);
@@ -1350,10 +1361,10 @@ bmbl_node_style(GtkTreeModel * model, GtkTreeIter * iter)
     gchar *text_total = NULL;
 
     gtk_tree_model_get(model, iter, MBNODE_COLUMN, &mbnode, -1);
-    if (!mbnode || !mbnode->mailbox)
+    if (!mbnode || !balsa_mailbox_node_get_mailbox(mbnode))
         return;
 
-    mailbox = mbnode->mailbox;
+    mailbox = balsa_mailbox_node_get_mailbox(mbnode);
     unread_messages = libbalsa_mailbox_get_unread(mailbox);
     total_messages = libbalsa_mailbox_get_total(mailbox);
 
@@ -1381,12 +1392,12 @@ bmbl_node_style(GtkTreeModel * model, GtkTreeIter * iter)
                 name = tmp = g_strdup_printf("%s (%d)", name, unread_messages);
 
             weight = PANGO_WEIGHT_BOLD;
-            mbnode->style |= MBNODE_STYLE_NEW_MAIL;
+            balsa_mailbox_node_change_style(mbnode, MBNODE_STYLE_NEW_MAIL, 0);
         } else {
             icon = (mailbox == balsa_app.inbox) ?
                 BALSA_PIXMAP_MBOX_IN : BALSA_PIXMAP_MBOX_TRAY_EMPTY;
             weight = PANGO_WEIGHT_NORMAL;
-            mbnode->style &= ~MBNODE_STYLE_NEW_MAIL;
+            balsa_mailbox_node_change_style(mbnode, 0, MBNODE_STYLE_NEW_MAIL);
         }
 
         gtk_tree_store_set(GTK_TREE_STORE(model), iter,
@@ -1426,18 +1437,18 @@ bmbl_node_style(GtkTreeModel * model, GtkTreeIter * iter)
 	    do {
 		BalsaMailboxNode *mn;
 		gtk_tree_model_get(model, &child, MBNODE_COLUMN, &mn, -1);
-		if (mn->style & (MBNODE_STYLE_NEW_MAIL |
-				 MBNODE_STYLE_UNREAD_CHILD))
+		if (balsa_mailbox_node_get_style(mn) &
+                        (MBNODE_STYLE_NEW_MAIL | MBNODE_STYLE_UNREAD_CHILD))
 		    has_unread_child = TRUE;
 		g_object_unref(mn);
 	    } while (!has_unread_child && gtk_tree_model_iter_next(model, &child));
 	}
 	if (has_unread_child) {
-	    mbnode->style |= MBNODE_STYLE_UNREAD_CHILD;
+            balsa_mailbox_node_change_style(mbnode, MBNODE_STYLE_UNREAD_CHILD, 0);
 	    gtk_tree_store_set(GTK_TREE_STORE(model), &parent,
 			       STYLE_COLUMN, PANGO_STYLE_OBLIQUE, -1);
 	} else {
-	    mbnode->style &= ~MBNODE_STYLE_UNREAD_CHILD;
+            balsa_mailbox_node_change_style(mbnode, 0, MBNODE_STYLE_UNREAD_CHILD);
 	    gtk_tree_store_set(GTK_TREE_STORE(model), &parent,
 			       STYLE_COLUMN, PANGO_STYLE_NORMAL, -1);
 	}
@@ -1521,12 +1532,10 @@ balsa_mblist_mailbox_node_remove(BalsaMailboxNode* mbnode)
 {
     GtkTreeIter iter;
 
-    g_return_val_if_fail(mbnode, FALSE);
+    g_return_val_if_fail(mbnode != NULL, FALSE);
 
     if (balsa_find_iter_by_data(&iter, mbnode)) {
-	bmbl_real_disconnect_mbnode_signals(mbnode,
-					    GTK_TREE_MODEL
-					    (balsa_app.mblist_tree_store));
+	bmbl_real_disconnect_mbnode_signals(mbnode);
         gtk_tree_store_remove(balsa_app.mblist_tree_store, &iter);
 
         return TRUE;
@@ -1796,9 +1805,9 @@ bmbl_mru_activated_cb(GtkTreeView * tree_view, GtkTreePath * path,
     gtk_tree_model_get(model, &iter, MBNODE_COLUMN, &mbnode, -1);
     g_return_if_fail(mbnode != NULL);
 
-    if (mbnode->mailbox) {
+    if (balsa_mailbox_node_get_mailbox(mbnode)) {
         ((BalsaMBListMRUEntry *) data)->url =
-            g_strdup(libbalsa_mailbox_get_url(mbnode->mailbox));
+            g_strdup(libbalsa_mailbox_get_url(balsa_mailbox_node_get_mailbox(mbnode)));
         bmbl_mru_activate_cb(NULL, data);
 
         gtk_dialog_response(GTK_DIALOG
@@ -2095,11 +2104,9 @@ balsa_mblist_mailbox_node_append(BalsaMailboxNode * root,
         GtkTreePath *parent_path =
             gtk_tree_model_get_path(model, parent_iter);
         if (gtk_tree_view_row_expanded(GTK_TREE_VIEW(balsa_app.mblist),
-                                       parent_path)
-            && !mbnode->scanned) {
+                                       parent_path)) {
             /* Check this node for children. */
             balsa_mailbox_node_append_subtree(mbnode);
-            mbnode->scanned = TRUE;
         }
         gtk_tree_path_free(parent_path);
     }

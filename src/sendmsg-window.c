@@ -2352,7 +2352,7 @@ attachments_add(GtkWidget        *widget,
     if (target == g_intern_static_string("x-application/x-message-list")) {
         BalsaIndex *index =
             *(BalsaIndex **) gtk_selection_data_get_data(selection_data);
-        LibBalsaMailbox *mailbox = index->mailbox_node->mailbox;
+        LibBalsaMailbox *mailbox = balsa_index_get_mailbox(index);
         GArray *selected         = balsa_index_selected_msgnos_new(index);
         guint i;
 
@@ -2958,7 +2958,7 @@ drag_data_quote(GtkWidget        *widget,
     if (target == g_intern_static_string(drop_types[TARGET_MESSAGES])) {
         index =
             *(BalsaIndex **) gtk_selection_data_get_data(selection_data);
-        mailbox  = index->mailbox_node->mailbox;
+        mailbox  = balsa_index_get_mailbox(index);
         selected = balsa_index_selected_msgnos_new(index);
         buffer   = gtk_text_view_get_buffer(GTK_TEXT_VIEW(widget));
 

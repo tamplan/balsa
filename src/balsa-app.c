@@ -174,25 +174,31 @@ set_passwd_from_matching_server(GtkTreeModel *model,
 {
     LibBalsaServer *server;
     LibBalsaServer *master;
-    LibBalsaMailbox *mbox;
-    BalsaMailboxNode *node;
+    BalsaMailboxNode *mbnode;
 
-    gtk_tree_model_get(model, iter, 0, &node, -1);
-    g_return_val_if_fail(node != NULL, FALSE);
-    if(node->server) {
-        server = node->server;
-	g_object_unref(node);
-    } else {
-        mbox = node->mailbox;
-	g_object_unref(node);
-        if(!mbox) /* eg. a collection of mboxes */
+    gtk_tree_model_get(model, iter, 0, &mbnode, -1);
+    g_return_val_if_fail(mbnode != NULL, FALSE);
+
+    server = balsa_mailbox_node_get_server(mbnode);
+    if (server == NULL) {
+        LibBalsaMailbox *mailbox;
+
+        mailbox = balsa_mailbox_node_get_mailbox(mbnode);
+        if(mailbox == NULL) { /* eg. a collection of mailboxes */
+            g_object_unref(mbnode);
             return FALSE;
-        g_return_val_if_fail(LIBBALSA_IS_MAILBOX(mbox), FALSE);
+        }
+        g_return_val_if_fail(LIBBALSA_IS_MAILBOX(mailbox), FALSE);
 
-        if (!LIBBALSA_IS_MAILBOX_REMOTE(mbox)) return FALSE;
-        server = LIBBALSA_MAILBOX_REMOTE_GET_SERVER(mbox);
+        if (!LIBBALSA_IS_MAILBOX_REMOTE(mailbox)) {
+            g_object_unref(mbnode);
+            return FALSE;
+        }
+        server = LIBBALSA_MAILBOX_REMOTE_GET_SERVER(mailbox);
         g_return_val_if_fail(server != NULL, FALSE);
     }
+    g_object_unref(mbnode);
+
     g_return_val_if_fail(libbalsa_server_get_host(server) != NULL, FALSE);
     g_return_val_if_fail(libbalsa_server_get_username(server) != NULL, FALSE);
     if (libbalsa_server_get_password(server) == NULL) return FALSE;
@@ -547,8 +553,8 @@ balsa_find_mailbox_by_url(const gchar * url)
     BalsaMailboxNode *mbnode;
     LibBalsaMailbox *mailbox = NULL;
 
-    if ((mbnode = balsa_mailbox_node_find_from_url(url))) {
-	mailbox = mbnode->mailbox;
+    if ((mbnode = balsa_mailbox_node_find_from_url(url)) != NULL) {
+	mailbox = balsa_mailbox_node_get_mailbox(mbnode);
 	g_object_unref(mbnode);
     }
     return mailbox;
@@ -561,20 +567,32 @@ balsa_find_sentbox_by_url(const gchar *url)
     return res ? res : balsa_app.sentbox;
 }
 
-gchar*
-balsa_get_short_mailbox_name(const gchar *url)
+gchar *
+balsa_get_short_mailbox_name(const gchar * url)
 {
+    gchar *retval = NULL;
     BalsaMailboxNode *mbnode;
 
-    if ((mbnode = balsa_mailbox_node_find_from_url(url)) && mbnode->mailbox) {
-        if (mbnode->server) {
-            return g_strconcat(libbalsa_server_get_host(mbnode->server), ":",
-                               libbalsa_mailbox_get_name(mbnode->mailbox), NULL);
-        } else {
-            return g_strdup(libbalsa_mailbox_get_name(mbnode->mailbox));
+    if ((mbnode = balsa_mailbox_node_find_from_url(url)) != NULL) {
+        LibBalsaMailbox *mailbox;
+
+        mailbox = balsa_mailbox_node_get_mailbox(mbnode);
+        if (mailbox != NULL) {
+            LibBalsaServer *server;
+
+            server = balsa_mailbox_node_get_server(mbnode);
+            if (server != NULL) {
+                retval =
+                    g_strconcat(libbalsa_server_get_host(server),
+                                ":",
+                                libbalsa_mailbox_get_name(mailbox), NULL);
+            } else {
+                retval = g_strdup(libbalsa_mailbox_get_name(mailbox));
+            }
         }
     }
-    return g_strdup(url);
+
+    return retval != NULL ? retval : g_strdup(url);
 }
 
 struct balsa_find_iter_by_data_info {
@@ -593,7 +611,7 @@ balsa_find_iter_by_data_func(GtkTreeModel * model, GtkTreePath * path,
     gtk_tree_model_get(model, iter, 0, &mbnode, -1);
     if(!mbnode)
         return FALSE;
-    if (mbnode == bf->data || mbnode->mailbox == bf->data) {
+    if (mbnode == bf->data || balsa_mailbox_node_get_mailbox(mbnode) == bf->data) {
 	*bf->iter = *iter;
 	bf->found = TRUE;
     }
@@ -642,8 +660,8 @@ balsa_find_index_by_mailbox(LibBalsaMailbox * mailbox)
 	  gtk_notebook_get_nth_page(GTK_NOTEBOOK(balsa_app.notebook), i));
 	 i++) {
         index = gtk_bin_get_child(GTK_BIN(page));
-	if (index && BALSA_INDEX(index)->mailbox_node
-            && BALSA_INDEX(index)->mailbox_node->mailbox == mailbox)
+	if (index  != NULL &&
+            balsa_index_get_mailbox(BALSA_INDEX(index)) == mailbox)
 	    return BALSA_INDEX(index);
     }
 

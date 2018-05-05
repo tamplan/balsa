@@ -44,32 +44,14 @@ G_DECLARE_FINAL_TYPE(BalsaMailboxNode,
  *      is being displayed in the mailbox list
  *
  * */
+
 typedef enum _BalsaMailboxNodeStyle BalsaMailboxNodeStyle;
+
 enum _BalsaMailboxNodeStyle {
     MBNODE_STYLE_NEW_MAIL        = 1 << 1,
     MBNODE_STYLE_UNREAD_MESSAGES = 1 << 2,
     MBNODE_STYLE_TOTAL_MESSAGES  = 1 << 3,
     MBNODE_STYLE_UNREAD_CHILD    = 1 << 4
-};
-
-struct _BalsaMailboxNode {
-    GObject object;
-
-    BalsaMailboxNode *parent; /* NULL for root-level folders & mailboxes */
-    LibBalsaMailbox *mailbox; /* != NULL for leaves only */
-    gchar *name;       /* used for folders, i.e. when mailbox == NULL */
-    time_t last_use;   /* for closing least recently used mailboxes */
-    BalsaMailboxNodeStyle style;
-    /* folder data */
-    gchar *config_prefix;
-    gchar *dir;
-    LibBalsaServer *server;  /* Used only by remote; is referenced */
-    char delim; /* IMAP delimiter so that we do not need to check it
-                 * too often. */
-
-    unsigned subscribed : 1;     /* Used only by remote */
-    unsigned list_inbox : 1;     /* Used only by remote */
-    unsigned scanned : 1;        /* IMAP flag */
 };
 
 BalsaMailboxNode *balsa_mailbox_node_new(void);
@@ -104,5 +86,31 @@ void balsa_mailbox_node_scan_children(BalsaMailboxNode *mbnode);
 BalsaMailboxNode *balsa_mailbox_node_find_from_mailbox(LibBalsaMailbox * mailbox);
 BalsaMailboxNode *balsa_mailbox_node_find_from_dir(LibBalsaServer *server, const gchar * path);
 BalsaMailboxNode *balsa_mailbox_node_find_from_url(const gchar * url);
+
+/*
+ * Setters
+ */
+void balsa_mailbox_node_set_dir(BalsaMailboxNode * mbnode, const gchar * dir);
+void balsa_mailbox_node_set_name(BalsaMailboxNode * mbnode, const gchar * name);
+void balsa_mailbox_node_set_last_use(BalsaMailboxNode * mbnode);
+void balsa_mailbox_node_change_style(BalsaMailboxNode * mbnode,
+                                     BalsaMailboxNodeStyle set,
+                                     BalsaMailboxNodeStyle clear);
+void balsa_mailbox_node_set_subscribed(BalsaMailboxNode * mbnode, guint subscribed);
+void balsa_mailbox_node_set_list_inbox(BalsaMailboxNode * mbnode, guint list_inbox);
+
+/*
+ * Getters
+ */
+LibBalsaMailbox * balsa_mailbox_node_get_mailbox(BalsaMailboxNode * mbnode);
+const gchar * balsa_mailbox_node_get_dir(BalsaMailboxNode * mbnode);
+const gchar * balsa_mailbox_node_get_name(BalsaMailboxNode * mbnode);
+const gchar * balsa_mailbox_node_get_config_prefix(BalsaMailboxNode * mbnode);
+time_t balsa_mailbox_node_get_last_use(BalsaMailboxNode * mbnode);
+LibBalsaServer * balsa_mailbox_node_get_server(BalsaMailboxNode * mbnode);
+BalsaMailboxNodeStyle balsa_mailbox_node_get_style(BalsaMailboxNode * mbnode);
+guint balsa_mailbox_node_get_subscribed(BalsaMailboxNode * mbnode);
+guint balsa_mailbox_node_get_list_inbox(BalsaMailboxNode * mbnode);
+BalsaMailboxNode * balsa_mailbox_node_get_parent(BalsaMailboxNode * mbnode);
 
 #endif

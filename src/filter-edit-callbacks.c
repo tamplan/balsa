@@ -1330,7 +1330,7 @@ update_filters_mailbox(GtkTreeModel * model, GtkTreePath * path,
     const gchar *url;
 
     gtk_tree_model_get(model, iter, 0, &mbnode, -1);
-    mailbox = mbnode->mailbox;
+    mailbox = balsa_mailbox_node_get_mailbox(mbnode);
     g_object_unref(mbnode);
     if (!mailbox)
 	return FALSE;

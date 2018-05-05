@@ -190,7 +190,8 @@ bndx_destroy(GObject * obj)
     if (index->mailbox_node) {
 	LibBalsaMailbox* mailbox;
 
-	if ((mailbox = index->mailbox_node->mailbox)) {
+	mailbox = balsa_index_get_mailbox(index);
+	if (mailbox != NULL) {
 	    g_signal_handlers_disconnect_matched(mailbox,
 						 G_SIGNAL_MATCH_DATA,
 						 0, 0, NULL, NULL, index);
@@ -481,7 +482,7 @@ bndx_selection_changed_idle(BalsaIndex * index)
 
     if (!index->mailbox_node)
         return FALSE;
-    mailbox = index->mailbox_node->mailbox;
+    mailbox = balsa_index_get_mailbox(index);
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(index));
 
     /* Save next_msgno, because changing flags may zero it. */
@@ -543,10 +544,11 @@ bndx_selection_changed(GtkTreeSelection * selection, BalsaIndex * index)
                                         &index->next_msgno);
 
     if (index->current_msgno) {
+        LibBalsaMailbox *mailbox;
         GtkTreePath *path;
 
-        if (libbalsa_mailbox_msgno_find(index->mailbox_node->mailbox,
-                                        index->current_msgno,
+        mailbox = balsa_index_get_mailbox(index);
+        if (libbalsa_mailbox_msgno_find(mailbox, index->current_msgno,
                                         &path, NULL)) {
             gboolean update_preview = TRUE;
 
@@ -661,11 +663,21 @@ bndx_row_activated(GtkTreeView * tree_view, GtkTreePath * path,
 
 static gboolean
 bndx_find_current_msgno(BalsaIndex * bindex,
-                        GtkTreePath ** path , GtkTreeIter * iter)
+                        GtkTreePath ** path, GtkTreeIter * iter)
 {
-    return bindex->current_msgno > 0
-        && libbalsa_mailbox_msgno_find(bindex->mailbox_node->mailbox,
-                                       bindex->current_msgno, path, iter);
+    gboolean retval = FALSE;
+
+    if (bindex->current_msgno > 0) {
+        LibBalsaMailbox *mailbox;
+
+        mailbox = balsa_index_get_mailbox(bindex);
+
+        retval =
+            libbalsa_mailbox_msgno_find(mailbox, bindex->current_msgno,
+                                        path, iter);
+    }
+
+    return retval;
 }
 
 /* bndx_tree_expand_cb:
@@ -806,7 +818,7 @@ bndx_scroll_on_open_idle(BalsaIndex *index)
         return FALSE;
 
     balsa_index_update_tree(index, balsa_app.expand_tree);
-    mailbox = index->mailbox_node->mailbox;
+    mailbox = balsa_index_get_mailbox(index);
     if ((msgno = libbalsa_mailbox_get_first_unread(mailbox))) {
 	libbalsa_mailbox_set_first_unread(mailbox, 0);
         if(!libbalsa_mailbox_msgno_find(mailbox, msgno, &path, NULL))
@@ -948,9 +960,8 @@ balsa_index_load_mailbox_node(BalsaIndex * index,
     g_return_val_if_fail(BALSA_IS_INDEX(index), TRUE);
     g_return_val_if_fail(index->mailbox_node == NULL, TRUE);
     g_return_val_if_fail(BALSA_IS_MAILBOX_NODE(mbnode), TRUE);
-    g_return_val_if_fail(LIBBALSA_IS_MAILBOX(mbnode->mailbox), TRUE);
-
-    mailbox = mbnode->mailbox;
+    mailbox = balsa_mailbox_node_get_mailbox(mbnode);
+    g_return_val_if_fail(LIBBALSA_IS_MAILBOX(mailbox), TRUE);
 
     /*
      * set the new mailbox
@@ -989,7 +1000,7 @@ balsa_index_load_mailbox_node(BalsaIndex * index,
                                              LIBBALSA_MESSAGE_FLAG_DELETED);
     index->search_iter = libbalsa_mailbox_search_iter_new(cond_undeleted);
     /* Note when this mailbox was opened, for use in auto-closing. */
-    time(&index->mailbox_node->last_use);
+    balsa_mailbox_node_set_last_use(index->mailbox_node);
 
     return FALSE;
 }
@@ -1092,33 +1103,32 @@ bndx_find_root(BalsaIndex * index, GtkTreeIter * iter)
 
 static gboolean
 bndx_search_iter(BalsaIndex * index,
-		 LibBalsaMailboxSearchIter * search_iter,
-		 GtkTreeIter * iter,
-		 BndxSearchDirection direction,
-		 BndxSearchViewable viewable,
-		 guint stop_msgno)
+                 LibBalsaMailboxSearchIter * search_iter,
+                 GtkTreeIter * iter,
+                 BndxSearchDirection direction,
+                 BndxSearchViewable viewable, guint stop_msgno)
 {
+    LibBalsaMailbox *mailbox;
     gboolean found;
 
+    mailbox = balsa_index_get_mailbox(index);
+
     do {
-	GtkTreePath *path;
+        GtkTreePath *path;
 
-	found =
-	    libbalsa_mailbox_search_iter_step(index->mailbox_node->mailbox,
-					      search_iter, iter,
-					      direction ==
-					      BNDX_SEARCH_DIRECTION_NEXT,
-					      stop_msgno);
-	if (!found)
-	    break;
-	if (viewable == BNDX_SEARCH_VIEWABLE_ANY)
-	    break;
+        found =
+            libbalsa_mailbox_search_iter_step(mailbox, search_iter, iter,
+                                              direction ==
+                                              BNDX_SEARCH_DIRECTION_NEXT,
+                                              stop_msgno);
+        if (!found)
+            break;
+        if (viewable == BNDX_SEARCH_VIEWABLE_ANY)
+            break;
 
-	path = gtk_tree_model_get_path(GTK_TREE_MODEL
-				       (index->mailbox_node->mailbox),
-				       iter);
-	found = bndx_row_is_viewable(index, path);
-	gtk_tree_path_free(path);
+        path = gtk_tree_model_get_path(GTK_TREE_MODEL(mailbox), iter);
+        found = bndx_row_is_viewable(index, path);
+        gtk_tree_path_free(path);
     } while (!found);
 
     return found;
@@ -1132,12 +1142,15 @@ bndx_search_iter_and_select(BalsaIndex * index,
                             BndxSearchStart start,
                             BndxSearchWrap wrap)
 {
+    LibBalsaMailbox *mailbox;
     GtkTreeIter iter;
     guint stop_msgno;
 
+    mailbox = balsa_index_get_mailbox(index);
+
     if (!((index->next_msgno > 0
-           && libbalsa_mailbox_msgno_find(index->mailbox_node->mailbox,
-                                          index->next_msgno, NULL, &iter))
+           && libbalsa_mailbox_msgno_find(mailbox, index->next_msgno,
+                                          NULL, &iter))
           || (start == BNDX_SEARCH_START_ANY
               && bndx_find_root(index, &iter))))
         return FALSE;
@@ -1357,7 +1370,7 @@ bndx_mailbox_changed_idle(BalsaIndex * bindex)
 
     bindex->has_mailbox_changed_idle = FALSE;
 
-    mailbox = bindex->mailbox_node->mailbox;
+    mailbox = balsa_index_get_mailbox(bindex);
     if ((msgno = libbalsa_mailbox_get_first_unread(mailbox)) > 0
         && libbalsa_mailbox_msgno_find(mailbox, msgno, &path, NULL)) {
         bndx_expand_to_row(bindex, path);
@@ -1421,19 +1434,25 @@ balsa_index_selected_msgnos_new(BalsaIndex * index)
     GArray *msgnos = g_array_new(FALSE, FALSE, sizeof(guint));
     GtkTreeView *tree_view = GTK_TREE_VIEW(index);
     GtkTreeSelection *selection = gtk_tree_view_get_selection(tree_view);
+    LibBalsaMailbox *mailbox;
 
     gtk_tree_selection_selected_foreach(selection,
                                         (GtkTreeSelectionForeachFunc)
                                         bndx_selected_msgnos_func, msgnos);
-    libbalsa_mailbox_register_msgnos(index->mailbox_node->mailbox, msgnos);
+
+    mailbox = balsa_index_get_mailbox(index);
+    libbalsa_mailbox_register_msgnos(mailbox, msgnos);
+
     return msgnos;
 }
 
 void
 balsa_index_selected_msgnos_free(BalsaIndex * index, GArray * msgnos)
 {
-    libbalsa_mailbox_unregister_msgnos(index->mailbox_node->mailbox,
-                                       msgnos);
+    LibBalsaMailbox *mailbox;
+
+    mailbox = balsa_index_get_mailbox(index);
+    libbalsa_mailbox_unregister_msgnos(mailbox, msgnos);
     g_array_free(msgnos, TRUE);
 }
 
@@ -1441,9 +1460,12 @@ static void
 bndx_view_source(gpointer data)
 {
     BalsaIndex *index = BALSA_INDEX(data);
-    LibBalsaMailbox *mailbox = index->mailbox_node->mailbox;
+    LibBalsaMailbox *mailbox;
     guint i;
-    GArray *selected = balsa_index_selected_msgnos_new(index);
+    GArray *selected;
+
+    selected = balsa_index_selected_msgnos_new(index);
+    mailbox = balsa_index_get_mailbox(index);
 
     for (i = 0; i < selected->len; i++) {
         guint msgno = g_array_index(selected, guint, i);
@@ -1512,12 +1534,14 @@ balsa_index_selected_list(BalsaIndex * index)
 static void
 bndx_compose_foreach(BalsaIndex * index, SendType send_type)
 {
-    LibBalsaMailbox *mailbox = index->mailbox_node->mailbox;
     GArray *selected;
+    LibBalsaMailbox *mailbox;
     guint i;
     guint skipped = 0U;
 
     selected = balsa_index_selected_msgnos_new(index);
+    mailbox = balsa_index_get_mailbox(index);
+
     for (i = 0; i < selected->len; i++) {
         guint msgno = g_array_index(selected, guint, i);
         BalsaSendmsg *sm;
@@ -1585,10 +1609,14 @@ balsa_message_continue(gpointer user_data)
 static void
 bndx_compose_from_list(BalsaIndex * index, SendType send_type)
 {
-    GArray *selected = balsa_index_selected_msgnos_new(index);
-    BalsaSendmsg *sm =
-        sendmsg_window_new_from_list(index->mailbox_node->mailbox,
-                                     selected, send_type);
+    GArray *selected;
+    LibBalsaMailbox *mailbox;
+    BalsaSendmsg *sm;
+
+    selected = balsa_index_selected_msgnos_new(index);
+    mailbox = balsa_index_get_mailbox(index);
+
+    sm = sendmsg_window_new_from_list(mailbox, selected, send_type);
 
     balsa_index_selected_msgnos_free(index, selected);
     g_signal_connect(sendmsg_window_get_window(sm), "destroy",
@@ -1624,11 +1652,15 @@ balsa_message_forward_default(gpointer user_data)
 static void
 bndx_do_delete(BalsaIndex* index, gboolean move_to_trash)
 {
-    BalsaIndex *trash = balsa_find_index_by_mailbox(balsa_app.trash);
-    GArray *selected = balsa_index_selected_msgnos_new(index);
+    BalsaIndex *trash;
+    GArray *selected;
     GArray *messages;
-    LibBalsaMailbox *mailbox = index->mailbox_node->mailbox;
+    LibBalsaMailbox *mailbox;
     guint i;
+
+    trash = balsa_find_index_by_mailbox(balsa_app.trash);
+    selected = balsa_index_selected_msgnos_new(index);
+    mailbox = balsa_index_get_mailbox(index);
 
     messages = g_array_new(FALSE, FALSE, sizeof(guint));
     for (i = 0; i < selected->len; i++) {
@@ -1675,7 +1707,7 @@ balsa_message_move_to_trash(gpointer user_data)
     bndx_do_delete(index, TRUE);
     /* Note when message was flagged as deleted, for use in
      * auto-expunge. */
-    time(&index->mailbox_node->last_use);
+    balsa_mailbox_node_set_last_use(index->mailbox_node);
 }
 
 gint
@@ -1693,8 +1725,8 @@ balsa_find_notebook_page_num(LibBalsaMailbox * mailbox)
          i++) {
         GtkWidget *index = gtk_bin_get_child(GTK_BIN(page));
 
-        if (index && BALSA_INDEX(index)->mailbox_node
-            && BALSA_INDEX(index)->mailbox_node->mailbox == mailbox)
+        if (index != NULL &&
+            balsa_index_get_mailbox(BALSA_INDEX(index)) == mailbox)
             return i;
     }
 
@@ -1708,10 +1740,13 @@ balsa_find_notebook_page_num(LibBalsaMailbox * mailbox)
 void
 balsa_index_toggle_flag(BalsaIndex* index, LibBalsaMessageFlag flag)
 {
-    LibBalsaMailbox *mailbox = index->mailbox_node->mailbox;
+    LibBalsaMailbox *mailbox;
     int is_all_flagged = TRUE;
-    GArray *selected = balsa_index_selected_msgnos_new(index);
+    GArray *selected;
     guint i;
+
+    selected = balsa_index_selected_msgnos_new(index);
+    mailbox = balsa_index_get_mailbox(index);
 
     /* First see if we should set given flag or unset */
     for (i = 0; i < selected->len; i++) {
@@ -1730,7 +1765,7 @@ balsa_index_toggle_flag(BalsaIndex* index, LibBalsaMessageFlag flag)
     if (flag == LIBBALSA_MESSAGE_FLAG_DELETED)
 	/* Note when deleted flag was changed, for use in
 	 * auto-expunge. */
-	time(&index->mailbox_node->last_use);
+	balsa_mailbox_node_set_last_use(index->mailbox_node);
 }
 
 static void
@@ -1746,8 +1781,10 @@ bi_toggle_deleted_cb(gpointer user_data, GtkWidget * widget)
 
     selected = balsa_index_selected_msgnos_new(index);
     if (widget == index->undelete_item && selected->len > 0) {
-	LibBalsaMailbox *mailbox = index->mailbox_node->mailbox;
+	LibBalsaMailbox *mailbox;
         guint msgno = g_array_index(selected, guint, 0);
+
+	mailbox = balsa_index_get_mailbox(index);
         if (libbalsa_mailbox_msgno_has_flags(mailbox, msgno,
                                              LIBBALSA_MESSAGE_FLAG_DELETED,
 					     0))
@@ -1785,7 +1822,7 @@ mru_menu_cb(const gchar * url, BalsaIndex * index)
 
     g_return_if_fail(mailbox != NULL);
 
-    if (index->mailbox_node->mailbox != mailbox) {
+    if (balsa_index_get_mailbox(index) != mailbox) {
         GArray *selected = balsa_index_selected_msgnos_new(index);
         balsa_index_transfer(index, selected, mailbox, FALSE);
         balsa_index_selected_msgnos_free(index, selected);
@@ -1889,17 +1926,19 @@ bndx_do_popup(BalsaIndex * index, const GdkEvent * event)
 {
     GtkWidget *menu = index->popup_menu;
     GtkWidget *submenu;
+    GArray *selected;
     LibBalsaMailbox* mailbox;
     gboolean any;
     gboolean readonly;
     gboolean any_deleted = FALSE;
     gboolean any_not_deleted = FALSE;
-    GArray *selected = balsa_index_selected_msgnos_new(index);
     guint i;
 
     BALSA_DEBUG();
 
-    mailbox = index->mailbox_node->mailbox;
+    selected = balsa_index_selected_msgnos_new(index);
+    mailbox = balsa_index_get_mailbox(index);
+
     for (i = 0; i < selected->len; i++) {
         guint msgno = g_array_index(selected, guint, i);
         if (libbalsa_mailbox_msgno_has_flags(mailbox, msgno,
@@ -1915,7 +1954,6 @@ bndx_do_popup(BalsaIndex * index, const GdkEvent * event)
     gtk_container_foreach(GTK_CONTAINER(menu), bndx_set_sensitive_func,
                           GINT_TO_POINTER(any));
 
-    mailbox = index->mailbox_node->mailbox;
     readonly = libbalsa_mailbox_get_readonly(mailbox);
     gtk_widget_set_sensitive(index->delete_item,
                              any_not_deleted && !readonly);
@@ -2005,8 +2043,7 @@ balsa_index_set_threading_type(BalsaIndex * index, int thtype)
     LibBalsaMailbox *mailbox;
 
     g_return_if_fail(index != NULL);
-    g_return_if_fail(index->mailbox_node != NULL);
-    mailbox = index->mailbox_node->mailbox;
+    mailbox = balsa_index_get_mailbox(index);
     g_return_if_fail(mailbox != NULL);
 
     if (thtype != LB_MAILBOX_THREADING_FLAT
@@ -2026,7 +2063,7 @@ balsa_index_set_view_filter(BalsaIndex * bindex, int filter_no,
     LibBalsaMailbox *mailbox;
 
     g_return_if_fail(BALSA_IS_INDEX(bindex));
-    mailbox = bindex->mailbox_node->mailbox;
+    mailbox = balsa_index_get_mailbox(bindex);
 
     g_free(bindex->filter_string);
     bindex->filter_no = filter_no;
@@ -2061,7 +2098,7 @@ balsa_index_transfer(BalsaIndex *index, GArray * msgnos,
     if (msgnos->len == 0)
         return;
 
-    from_mailbox = index->mailbox_node->mailbox;
+    from_mailbox = balsa_index_get_mailbox(index);
     success = copy ?
         libbalsa_mailbox_messages_copy(from_mailbox, msgnos, to_mailbox, &e) :
         libbalsa_mailbox_messages_move(from_mailbox, msgnos, to_mailbox, &e);
@@ -2087,7 +2124,7 @@ balsa_index_transfer(BalsaIndex *index, GArray * msgnos,
     if (!copy)
 	/* Note when message was flagged as deleted, for use in
 	 * auto-expunge. */
-	time(&index->mailbox_node->last_use);
+	balsa_mailbox_node_set_last_use(index->mailbox_node);
 }
 
 /* General helpers. */
@@ -2178,7 +2215,7 @@ balsa_index_expunge(BalsaIndex * index)
 
     g_return_if_fail(index != NULL);
 
-    mailbox = index->mailbox_node->mailbox;
+    mailbox = balsa_index_get_mailbox(index);
     if (libbalsa_mailbox_get_readonly(mailbox))
 	return;
 
@@ -2195,19 +2232,24 @@ bndx_next_msgno(BalsaIndex * index, guint current_msgno,
                 LibBalsaMailboxSearchIter * search_iter,
                 BndxSearchDirection direction)
 {
-    LibBalsaMailbox *mailbox = index->mailbox_node->mailbox;
-    GtkTreeModel *model = GTK_TREE_MODEL(mailbox);
+    LibBalsaMailbox *mailbox;
     GtkTreeIter iter;
     guint msgno = 0;
 
-    if (!(current_msgno > 0
-          && libbalsa_mailbox_msgno_find(mailbox, current_msgno, NULL,
-                                         &iter)))
+    if (current_msgno == 0)
+        return 0;
+
+    mailbox = balsa_index_get_mailbox(index);
+    if (!libbalsa_mailbox_msgno_find(mailbox, current_msgno, NULL, &iter))
         return 0;
 
     if (bndx_search_iter(index, search_iter, &iter, direction,
-                         BNDX_SEARCH_VIEWABLE_ONLY, 0))
+                         BNDX_SEARCH_VIEWABLE_ONLY, 0)) {
+        GtkTreeModel *model;
+
+        model = GTK_TREE_MODEL(mailbox);
         gtk_tree_model_get(model, &iter, LB_MBOX_MSGNO_COL, &msgno, -1);
+    }
 
     return msgno;
 }
@@ -2576,6 +2618,7 @@ bndx_pipe_response(GtkWidget * dialog, gint response,
 void
 balsa_index_pipe(BalsaIndex * index)
 {
+    LibBalsaMailbox *mailbox;
     struct bndx_mailbox_info *info;
     GtkWidget *label, *entry;
     GtkWidget *dialog;
@@ -2583,22 +2626,20 @@ balsa_index_pipe(BalsaIndex * index)
     GList *list;
 
     g_return_if_fail(BALSA_IS_INDEX(index));
-    g_return_if_fail(BALSA_IS_MAILBOX_NODE(index->mailbox_node));
-    g_return_if_fail(LIBBALSA_IS_MAILBOX(index->mailbox_node->mailbox));
+    mailbox = balsa_index_get_mailbox(index);
+    g_return_if_fail(LIBBALSA_IS_MAILBOX(mailbox));
 
-    info =
-        g_object_get_data(G_OBJECT(index->mailbox_node->mailbox),
-                          BALSA_INDEX_PIPE_INFO);
+    info = g_object_get_data(G_OBJECT(mailbox), BALSA_INDEX_PIPE_INFO);
     if (info) {
         gtk_window_present(GTK_WINDOW(info->dialog));
         return;
     }
 
-    if(!libbalsa_mailbox_open(index->mailbox_node->mailbox, NULL))
+    if(!libbalsa_mailbox_open(mailbox, NULL))
 	return;
     info = g_new(struct bndx_mailbox_info, 1);
     info->bindex = index;
-    info->mailbox = index->mailbox_node->mailbox;
+    info->mailbox = mailbox;
     g_object_set_data_full(G_OBJECT(info->mailbox), BALSA_INDEX_PIPE_INFO,
                            info, bndx_mailbox_notify);
 
@@ -2716,20 +2757,24 @@ balsa_index_count_selected_messages(BalsaIndex * bindex)
 void
 balsa_index_select_thread(BalsaIndex * bindex)
 {
+    LibBalsaMailbox *mailbox;
+    GtkTreeModel *model;
     GtkTreeIter iter;
-    GtkTreeModel *model = GTK_TREE_MODEL(bindex->mailbox_node->mailbox);
     GtkTreeIter next_iter;
     GtkTreePath *path;
     GtkTreeSelection *selection =
         gtk_tree_view_get_selection(GTK_TREE_VIEW(bindex));
     gboolean valid;
 
-    if (!bindex->current_msgno
-        || !libbalsa_mailbox_msgno_find(bindex->mailbox_node->mailbox,
-                                        bindex->current_msgno, NULL,
-                                        &iter))
+    if (bindex->current_msgno == 0)
         return;
 
+    mailbox = balsa_index_get_mailbox(bindex);
+    if (!libbalsa_mailbox_msgno_find(mailbox, bindex->current_msgno,
+                                        NULL, &iter))
+        return;
+
+    model = GTK_TREE_MODEL(mailbox);
     while (gtk_tree_model_iter_parent(model, &next_iter, &iter))
         iter = next_iter;
 
@@ -2756,4 +2801,21 @@ balsa_index_select_thread(BalsaIndex * bindex)
         }
     } while (valid
              && gtk_tree_model_iter_parent(model, &next_iter, &iter));
+}
+
+/*
+ * Helper
+ */
+
+LibBalsaMailbox *
+balsa_index_get_mailbox(BalsaIndex * bindex)
+{
+    BalsaMailboxNode *mailbox_node;
+
+    g_return_val_if_fail(BALSA_IS_INDEX(bindex), NULL);
+
+    mailbox_node = bindex->mailbox_node;
+
+    return mailbox_node != NULL ?
+        balsa_mailbox_node_get_mailbox(mailbox_node) : NULL;
 }

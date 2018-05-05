@@ -344,13 +344,18 @@ periodic_expunge_cb(void)
 			   (GtkTreeModelForeachFunc)mbnode_expunge_func,
 			   &list);
 
-    for (l = list; l; l = l->next) {
+    for (l = list; l != NULL; l = l->next) {
         BalsaMailboxNode *mbnode = l->data;
-        if (mbnode->mailbox && libbalsa_mailbox_is_open(mbnode->mailbox)
-            && !libbalsa_mailbox_get_readonly(mbnode->mailbox)) {
+        LibBalsaMailbox *mailbox;
+
+        mailbox = balsa_mailbox_node_get_mailbox(mbnode);
+        if (mailbox != NULL && libbalsa_mailbox_is_open(mailbox)
+            && !libbalsa_mailbox_get_readonly(mailbox)) {
             time_t tm = time(NULL);
-            if (tm-mbnode->last_use > balsa_app.expunge_timeout)
-                libbalsa_mailbox_sync_storage(mbnode->mailbox, TRUE);
+            if (tm - balsa_mailbox_node_get_last_use(mbnode)
+                    > balsa_app.expunge_timeout) {
+                libbalsa_mailbox_sync_storage(mailbox, TRUE);
+            }
         }
         g_object_unref(mbnode);
     }

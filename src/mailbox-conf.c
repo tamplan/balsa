@@ -403,7 +403,7 @@ mailbox_conf_delete_cb(GtkWidget * widget, gpointer data)
     BalsaMailboxNode *mbnode =
         balsa_mblist_get_selected_node(balsa_app.mblist);
 
-    if (mbnode->mailbox == NULL)
+    if (balsa_mailbox_node_get_mailbox(mbnode) == NULL)
         balsa_information(LIBBALSA_INFORMATION_ERROR,
                            _("No mailbox selected."));
     else
@@ -429,7 +429,7 @@ mailbox_conf_delete(BalsaMailboxNode * mbnode)
 {
     gint button;
     GtkWidget *ask;
-    LibBalsaMailbox* mailbox = mbnode->mailbox;
+    LibBalsaMailbox* mailbox = balsa_mailbox_node_get_mailbox(mbnode);
     gchar *url, *group;
 
     if(BALSA_IS_MAILBOX_SPECIAL(mailbox)) {
@@ -527,15 +527,16 @@ mailbox_conf_delete(BalsaMailboxNode * mbnode)
     if (LIBBALSA_IS_MAILBOX_IMAP(mailbox) &&
         libbalsa_mailbox_get_config_prefix(mailbox) == NULL) {
         GError *err = NULL;
-	BalsaMailboxNode *parent = mbnode->parent;
+	BalsaMailboxNode *parent = balsa_mailbox_node_get_parent(mbnode);
         if(libbalsa_imap_delete_folder(LIBBALSA_MAILBOX_IMAP(mailbox),
                                        &err)) {
             /* a chain of folders might go away, so we'd better rescan from
              * higher up
              */
-            while (!parent->mailbox && parent->parent) {
+            while (!balsa_mailbox_node_get_mailbox(parent) &&
+                    balsa_mailbox_node_get_parent(parent)) {
                 mbnode = parent;
-                parent = parent->parent;
+                parent = balsa_mailbox_node_get_parent(parent);
             }
             balsa_mblist_mailbox_node_remove(mbnode);
             balsa_mailbox_node_rescan(parent); /* see it as server sees it */
@@ -608,7 +609,7 @@ run_mailbox_conf(BalsaMailboxNode* mbnode, GType mailbox_type,
     if (update) {
         mcw->ok_handler = mailbox_conf_update;
         mcw->ok_button_name = _("_Update");
-        mcw->mailbox = mbnode->mailbox;
+        mcw->mailbox = balsa_mailbox_node_get_mailbox(mbnode);
     } else {
         mcw->ok_handler = mailbox_conf_add;
         mcw->ok_button_name = _("_Add");
@@ -657,22 +658,20 @@ mailbox_conf_new(GType mailbox_type)
 void
 mailbox_conf_edit(BalsaMailboxNode * mbnode)
 {
+    LibBalsaMailbox *mailbox;
     GtkWidget *dialog;
 
-    g_return_if_fail(LIBBALSA_IS_MAILBOX(mbnode->mailbox));
+    mailbox = balsa_mailbox_node_get_mailbox(mbnode);
+    g_return_if_fail(LIBBALSA_IS_MAILBOX(mailbox));
 
-    dialog = g_object_get_data(G_OBJECT(mbnode->mailbox),
-                               BALSA_MAILBOX_CONF_DIALOG);
+    dialog = g_object_get_data(G_OBJECT(mailbox), BALSA_MAILBOX_CONF_DIALOG);
     if (dialog) {
         gtk_window_present(GTK_WINDOW(dialog));
         return;
     }
 
-    dialog =
-        run_mailbox_conf(mbnode, G_OBJECT_TYPE(G_OBJECT(mbnode->mailbox)),
-                         TRUE);
-    g_object_set_data(G_OBJECT(mbnode->mailbox), BALSA_MAILBOX_CONF_DIALOG,
-                      dialog);
+    dialog = run_mailbox_conf(mbnode, G_OBJECT_TYPE(G_OBJECT(mailbox)), TRUE);
+    g_object_set_data(G_OBJECT(mailbox), BALSA_MAILBOX_CONF_DIALOG, dialog);
 }
 
 static void

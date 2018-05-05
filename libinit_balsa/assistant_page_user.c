@@ -239,8 +239,10 @@ create_imap_mbx(const gchar *name, const gchar* host, gint security,
      libbalsa_server_set_tls_mode(server, LIBBALSA_TLS_DISABLED);
     }
     libbalsa_server_set_remember_passwd(server, remember);
+
     mbnode = balsa_mailbox_node_new_imap_folder(server, NULL);
-    mbnode->name = g_strdup(name && *name ? name : host);
+    balsa_mailbox_node_set_name(mbnode,
+                                name != NULL && name[0] != '\0' ? name : host);
 
     config_folder_add(mbnode, NULL);
     /* memory leak? */

@@ -183,6 +183,11 @@ void balsa_index_select_thread(BalsaIndex *bindex);
 /* Count of selected messages. */
 gint balsa_index_count_selected_messages(BalsaIndex *bindex);
 
+/*
+ * Helper
+ */
+LibBalsaMailbox * balsa_index_get_mailbox(BalsaIndex * bindex);
+
 #define BALSA_INDEX_VIEW_ON_OPEN "balsa-index-view-on-open"
 
 G_END_DECLS
