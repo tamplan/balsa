@@ -728,7 +728,6 @@ libbalsa_mailbox_mbox_open(LibBalsaMailbox *mailbox,
     gboolean readonly;
     int fd;
     GMimeStream *gmime_stream;
-    time_t t0;
 
     path = libbalsa_mailbox_local_get_path(LIBBALSA_MAILBOX_LOCAL(mailbox));
 
@@ -778,7 +777,6 @@ libbalsa_mailbox_mbox_open(LibBalsaMailbox *mailbox,
     mbox->msgno_2_msg_info = g_ptr_array_new();
 
     libbalsa_mailbox_clear_unread_messages(mailbox);
-    t0 = time(NULL);
 
     if (st.st_size > 0) {
         lbm_mbox_restore(mbox);
