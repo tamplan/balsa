@@ -31,19 +31,6 @@ G_DECLARE_FINAL_TYPE(BalsaPrintObjectDecor,
                      PRINT_OBJECT_DECOR,
                      BalsaPrintObject);
 
-typedef enum {
-    BALSA_PRINT_DECOR_FRAME_BEGIN,
-    BALSA_PRINT_DECOR_FRAME_END,
-    BALSA_PRINT_DECOR_SEPARATOR
-} BalsaPrintDecorType;
-
-struct _BalsaPrintObjectDecor {
-    BalsaPrintObject parent;
-
-    BalsaPrintDecorType mode;
-    gchar *label;
-};
-
 
 GList *balsa_print_object_separator(GList           *list,
                                     BalsaPrintSetup *psetup);

@@ -34,6 +34,19 @@ static void balsa_print_object_decor_draw(BalsaPrintObject *self,
                                           cairo_t          *cairo_ctx);
 
 
+typedef enum {
+    BALSA_PRINT_DECOR_FRAME_BEGIN,
+    BALSA_PRINT_DECOR_FRAME_END,
+    BALSA_PRINT_DECOR_SEPARATOR
+} BalsaPrintDecorType;
+
+struct _BalsaPrintObjectDecor {
+    BalsaPrintObject parent;
+
+    BalsaPrintDecorType mode;
+    gchar *label;
+};
+
 G_DEFINE_TYPE(BalsaPrintObjectDecor,
               balsa_print_object_decor,
               BALSA_TYPE_PRINT_OBJECT)
