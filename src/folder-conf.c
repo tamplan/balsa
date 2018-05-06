@@ -490,16 +490,20 @@ browse_button_response(GtkDialog * dialog, gint response,
 {
     if (response == GTK_RESPONSE_OK) {
         BalsaMailboxNode *mbnode = bbd->mbnode;
-        if (!mbnode)
+        const gchar *dir;
+        LibBalsaServer *server;
+
+        if (mbnode == NULL)
             return;
 
         bbd->sdd->parent = mbnode;
-        if (balsa_mailbox_node_get_dir(mbnode))
-            gtk_entry_set_text(GTK_ENTRY(bbd->sdd->parent_folder),
-                               balsa_mailbox_node_get_dir(mbnode));
-        if(balsa_mailbox_node_get_server(mbnode))
+        dir = balsa_mailbox_node_get_dir(mbnode);
+        if (dir != NULL)
+            gtk_entry_set_text(GTK_ENTRY(bbd->sdd->parent_folder), dir);
+        server = balsa_mailbox_node_get_server(mbnode);
+        if (server != NULL)
             gtk_label_set_label(GTK_LABEL(bbd->sdd->host_label),
-                                libbalsa_server_get_host(balsa_mailbox_node_get_server(mbnode)));
+                                libbalsa_server_get_host(server));
     }
     validate_sub_folder(NULL, bbd->sdd);
     gtk_widget_set_sensitive(bbd->button, TRUE);
@@ -513,14 +517,15 @@ folder_selection_func(GtkTreeSelection * selection, GtkTreeModel * model,
 {
     GtkTreeIter iter;
     BalsaMailboxNode *mbnode;
+    LibBalsaServer *server;
     gboolean retval;
 
     gtk_tree_model_get_iter(model, &iter, path);
     gtk_tree_model_get(model, &iter, 0, &mbnode, -1);
-    retval = (LIBBALSA_IS_IMAP_SERVER(balsa_mailbox_node_get_server(mbnode))
+    server = balsa_mailbox_node_get_server(mbnode);
+    retval = (LIBBALSA_IS_IMAP_SERVER(server)
 	      && (sdd->mbnode == NULL
-		  || balsa_mailbox_node_get_server(sdd->mbnode) ==
-                     balsa_mailbox_node_get_server(mbnode)));
+		  || balsa_mailbox_node_get_server(sdd->mbnode) == server));
     g_object_unref(mbnode);
 
     return retval;
@@ -619,8 +624,11 @@ subfolder_conf_clicked_ok(SubfolderDialogData * sdd)
 
     if (sdd->mbnode) {
         /* Views stuff. */
-        if (balsa_mailbox_node_get_mailbox(sdd->mbnode))
-            mailbox_conf_view_check(sdd->mcv, balsa_mailbox_node_get_mailbox(sdd->mbnode));
+        LibBalsaMailbox *mailbox;
+
+        mailbox = balsa_mailbox_node_get_mailbox(sdd->mbnode);
+        if (mailbox != NULL)
+            mailbox_conf_view_check(sdd->mcv, mailbox);
         
         /* rename */
         if ((g_strcmp0(parent, sdd->old_parent) != 0) ||
@@ -702,7 +710,9 @@ folder, parent);
                      * go away, so we'd better rescan from higher up
                      */
                     BalsaMailboxNode *mb = balsa_mailbox_node_get_parent(sdd->mbnode);
-                    while (!balsa_mailbox_node_get_mailbox(mb) && balsa_mailbox_node_get_parent(mb))
+
+                    while (balsa_mailbox_node_get_mailbox(mb) == NULL &&
+                           balsa_mailbox_node_get_parent(mb) != NULL)
                         mb = balsa_mailbox_node_get_parent(mb);
                     balsa_mailbox_node_rescan(mb);
                     balsa_mailbox_node_rescan(sdd->mbnode);
@@ -750,6 +760,7 @@ folder_conf_imap_sub_node(BalsaMailboxNode * mn)
     SubfolderDialogData *sdd;
     static SubfolderDialogData *sdd_new = NULL;
     guint row;
+    LibBalsaServer *server;
 
     /* Allow only one dialog per mailbox node, and one with mn == NULL
      * for creating a new subfolder. */
@@ -763,9 +774,12 @@ folder_conf_imap_sub_node(BalsaMailboxNode * mn)
     sdd = g_new(SubfolderDialogData, 1);
     sdd->ok = (CommonDialogFunc) subfolder_conf_clicked_ok;
 
-    if ((sdd->mbnode = mn)) {
+    if ((sdd->mbnode = mn) != NULL) {
 	/* update */
-	if (!balsa_mailbox_node_get_mailbox(mn)) {
+        LibBalsaMailbox *mailbox;
+
+	mailbox = balsa_mailbox_node_get_mailbox(mn);
+	if (mailbox == NULL) {
             balsa_information(LIBBALSA_INFORMATION_ERROR,
                               _("An IMAP folder that is not a mailbox\n"
                                 "has no properties that can be changed."));
@@ -773,7 +787,7 @@ folder_conf_imap_sub_node(BalsaMailboxNode * mn)
 	    return;
 	}
 	sdd->parent = balsa_mailbox_node_get_parent(mn);
-	sdd->old_folder = libbalsa_mailbox_get_name(balsa_mailbox_node_get_mailbox(mn));
+	sdd->old_folder = libbalsa_mailbox_get_name(mailbox);
     } else {
 	/* create */
         sdd->old_folder = NULL;
@@ -832,9 +846,10 @@ folder_conf_imap_sub_node(BalsaMailboxNode * mn)
 
     ++row;
     (void) libbalsa_create_grid_label(_("Host:"), grid, row);
+
+    server = sdd->mbnode != NULL ? balsa_mailbox_node_get_server(sdd->mbnode) : NULL;
     sdd->host_label =
-        gtk_label_new(sdd->mbnode && balsa_mailbox_node_get_server(sdd->mbnode)
-                      ? libbalsa_server_get_host(balsa_mailbox_node_get_server(sdd->mbnode)) : "");
+        gtk_label_new(server != NULL ? libbalsa_server_get_host(server) : "");
     gtk_widget_set_halign(sdd->host_label, GTK_ALIGN_START);
     gtk_widget_set_hexpand(sdd->host_label, TRUE);
     gtk_grid_attach(GTK_GRID(grid), sdd->host_label, 1, row, 1, 1);
@@ -871,19 +886,21 @@ folder_conf_imap_sub_node(BalsaMailboxNode * mn)
         gchar * rights;
         gchar * quotas;
         gboolean readonly;
+        LibBalsaMailbox *mailbox;
 
         ++row;
         (void) libbalsa_create_grid_label(_("Permissions:"), grid, row);
 
         /* mailbox closed: no detailed permissions available */
-        readonly = libbalsa_mailbox_get_readonly(balsa_mailbox_node_get_mailbox(mn));
-        if (!libbalsa_mailbox_imap_is_connected(LIBBALSA_MAILBOX_IMAP(balsa_mailbox_node_get_mailbox(mn)))) {
+        mailbox = balsa_mailbox_node_get_mailbox(mn);
+        readonly = libbalsa_mailbox_get_readonly(mailbox);
+        if (!libbalsa_mailbox_imap_is_connected(LIBBALSA_MAILBOX_IMAP(mailbox))) {
             rights_str = g_string_new(std_acls[readonly ? 1 : 3]);
             rights_str =
                 g_string_append(rights_str,
                                 _("\ndetailed permissions are available only for open folders"));
         } else {
-            rights = libbalsa_imap_get_rights(LIBBALSA_MAILBOX_IMAP(balsa_mailbox_node_get_mailbox(mn)));
+            rights = libbalsa_imap_get_rights(LIBBALSA_MAILBOX_IMAP(mailbox));
             if (!rights) {
                 rights_str = g_string_new(std_acls[readonly ? 1 : 3]);
                 rights_str =
@@ -906,7 +923,7 @@ folder_conf_imap_sub_node(BalsaMailboxNode * mn)
 
                 /* acl's - only available if I have admin privileges */
                 if ((acls =
-                     libbalsa_imap_get_acls(LIBBALSA_MAILBOX_IMAP(balsa_mailbox_node_get_mailbox(mn))))) {
+                     libbalsa_imap_get_acls(LIBBALSA_MAILBOX_IMAP(mailbox))) != NULL) {
                     int uid;
 
                     for (uid = 0; acls[uid]; uid += 2) {
@@ -938,12 +955,12 @@ folder_conf_imap_sub_node(BalsaMailboxNode * mn)
         (void) libbalsa_create_grid_label(_("Quota:"), grid, row);
 
         /* mailbox closed: no quota available */
-        if (!libbalsa_mailbox_imap_is_connected(LIBBALSA_MAILBOX_IMAP(balsa_mailbox_node_get_mailbox(mn))))
+        if (!libbalsa_mailbox_imap_is_connected(LIBBALSA_MAILBOX_IMAP(mailbox)))
             quotas = g_strdup(_("quota information available only for open folders"));
         else {
             gulong max, used;
 
-            if (!libbalsa_imap_get_quota(LIBBALSA_MAILBOX_IMAP(balsa_mailbox_node_get_mailbox(mn)), &max, &used))
+            if (!libbalsa_imap_get_quota(LIBBALSA_MAILBOX_IMAP(mailbox), &max, &used))
                 quotas = g_strdup(_("the server does not support quotas"));
             else if (max == 0 && used == 0)
                 quotas = g_strdup(_("no limits"));
@@ -963,7 +980,7 @@ folder_conf_imap_sub_node(BalsaMailboxNode * mn)
         gtk_grid_attach(GTK_GRID(grid), label, 1, row, 1, 1);
         g_free(quotas);
 
-        sdd->mcv = mailbox_conf_view_new(balsa_mailbox_node_get_mailbox(mn),
+        sdd->mcv = mailbox_conf_view_new(mailbox,
                                          GTK_WINDOW(sdd->dialog),
                                          grid, 5,
                                          G_CALLBACK(set_ok_sensitive));

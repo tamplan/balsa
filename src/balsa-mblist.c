@@ -554,11 +554,13 @@ bmbl_tree_collapse_helper(GtkTreeModel * model, GtkTreeIter * iter)
     if (gtk_tree_model_iter_children(model, &child_iter, iter)) {
         do {
             BalsaMailboxNode *mbnode;
+            LibBalsaMailbox *mailbox;
 
             gtk_tree_model_get(model, &child_iter,
                                MBNODE_COLUMN, &mbnode, -1);
-            if (balsa_mailbox_node_get_mailbox(mbnode))
-		libbalsa_mailbox_set_exposed(balsa_mailbox_node_get_mailbox(mbnode), FALSE);
+            mailbox = balsa_mailbox_node_get_mailbox(mbnode);
+            if (mailbox != NULL)
+		libbalsa_mailbox_set_exposed(mailbox, FALSE);
 	    g_object_unref(mbnode);
             bmbl_tree_collapse_helper(model, &child_iter);
         } while (gtk_tree_model_iter_next(model, &child_iter));
@@ -843,13 +845,15 @@ bmbl_row_activated_cb(GtkTreeView * tree_view, GtkTreePath * path,
     GtkTreeModel *model = gtk_tree_view_get_model(tree_view);
     GtkTreeIter iter;
     BalsaMailboxNode *mbnode;
+    LibBalsaMailbox *mailbox;
 
     gtk_tree_model_get_iter(model, &iter, path);
     gtk_tree_model_get(model, &iter, MBNODE_COLUMN, &mbnode, -1);
     g_return_if_fail(mbnode != NULL);
 
-    if (balsa_mailbox_node_get_mailbox(mbnode))
-        balsa_mblist_open_mailbox(balsa_mailbox_node_get_mailbox(mbnode));
+    mailbox = balsa_mailbox_node_get_mailbox(mbnode);
+    if (mailbox != NULL)
+        balsa_mblist_open_mailbox(mailbox);
     g_object_unref(mbnode);
 }
 
@@ -1093,17 +1097,17 @@ get_lru_descendant(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter,
 {
     struct lru_data *dt  = (struct lru_data*)data;
     BalsaMailboxNode *mbnode;
+    LibBalsaMailbox *mailbox;
 
     if(!gtk_tree_path_is_descendant(path, dt->ancestor_path))
         return FALSE;
     gtk_tree_model_get(model, iter, MBNODE_COLUMN, &mbnode, -1);
 
-    if (balsa_mailbox_node_get_mailbox(mbnode) != NULL &&
-        libbalsa_mailbox_is_open(balsa_mailbox_node_get_mailbox(mbnode)) &&
+    mailbox = balsa_mailbox_node_get_mailbox(mbnode);
+    if (mailbox != NULL && libbalsa_mailbox_is_open(mailbox) &&
         (dt->mbnode == NULL ||
          (balsa_mailbox_node_get_last_use(mbnode)
-          < balsa_mailbox_node_get_last_use(dt->mbnode))))
-    {
+          < balsa_mailbox_node_get_last_use(dt->mbnode)))) {
         g_set_object(&dt->mbnode, mbnode);
     }
 
@@ -1198,15 +1202,16 @@ bmbl_real_disconnect_mbnode_signals(BalsaMailboxNode * mbnode)
 static gboolean
 bmbl_store_redraw_mbnode(GtkTreeIter * iter, BalsaMailboxNode * mbnode)
 {
+    LibBalsaMailbox *mailbox;
     const gchar *icon;
     const gchar *name;
     gchar *tmp = NULL;
     gboolean expose = FALSE;
 
-    g_return_val_if_fail(mbnode, FALSE);
+    g_return_val_if_fail(mbnode != NULL, FALSE);
 
-    if (balsa_mailbox_node_get_mailbox(mbnode)) {
-        LibBalsaMailbox *mailbox = balsa_mailbox_node_get_mailbox(mbnode);
+    mailbox = balsa_mailbox_node_get_mailbox(mbnode);
+    if (mailbox != NULL) {
 	static guint mailbox_changed_signal = 0;
 
 	if (LIBBALSA_IS_MAILBOX_POP3(mailbox)) {
@@ -1250,15 +1255,14 @@ bmbl_store_redraw_mbnode(GtkTreeIter * iter, BalsaMailboxNode * mbnode)
                                                LB_MAILBOX_SUBSCRIBE_YES);
 	}
 
-	if (!mailbox_changed_signal)
+	if (mailbox_changed_signal == 0)
 	    mailbox_changed_signal =
 		g_signal_lookup("changed", LIBBALSA_TYPE_MAILBOX);
-	if (!g_signal_has_handler_pending(G_OBJECT(balsa_mailbox_node_get_mailbox(mbnode)),
+	if (!g_signal_has_handler_pending(G_OBJECT(mailbox),
                                           mailbox_changed_signal, 0, TRUE)) {
 	    /* Now we have a mailbox: */
-	    g_signal_connect(balsa_mailbox_node_get_mailbox(mbnode), "changed",
-			     G_CALLBACK(bmbl_mailbox_changed_cb),
-			     NULL);
+	    g_signal_connect(mailbox, "changed",
+			     G_CALLBACK(bmbl_mailbox_changed_cb), NULL);
             if (libbalsa_mailbox_get_unread(mailbox) > 0
                 && (libbalsa_mailbox_get_subscribe(mailbox) !=
                     LB_MAILBOX_SUBSCRIBE_NO))
@@ -1267,7 +1271,7 @@ bmbl_store_redraw_mbnode(GtkTreeIter * iter, BalsaMailboxNode * mbnode)
                               0, TRUE);
 	    /* If necessary, expand rows to expose this mailbox after
 	     * setting its mbnode in the tree-store. */
-	    expose = libbalsa_mailbox_get_exposed(balsa_mailbox_node_get_mailbox(mbnode));
+	    expose = libbalsa_mailbox_get_exposed(mailbox);
 	}
     } else {
 	/* new directory, but not a mailbox */
@@ -1286,7 +1290,7 @@ bmbl_store_redraw_mbnode(GtkTreeIter * iter, BalsaMailboxNode * mbnode)
                        -1);
     g_free(tmp);
 
-    if (balsa_mailbox_node_get_mailbox(mbnode) != NULL) {
+    if (mailbox != NULL) {
 	GtkTreeModel *model = GTK_TREE_MODEL(balsa_app.mblist_tree_store);
 	if (expose) {
 	    GtkTreePath *path = gtk_tree_model_get_path(model, iter);
@@ -1361,10 +1365,13 @@ bmbl_node_style(GtkTreeModel * model, GtkTreeIter * iter)
     gchar *text_total = NULL;
 
     gtk_tree_model_get(model, iter, MBNODE_COLUMN, &mbnode, -1);
-    if (!mbnode || !balsa_mailbox_node_get_mailbox(mbnode))
+    if (mbnode == NULL)
         return;
 
     mailbox = balsa_mailbox_node_get_mailbox(mbnode);
+    if (mailbox == NULL)
+        return;
+
     unread_messages = libbalsa_mailbox_get_unread(mailbox);
     total_messages = libbalsa_mailbox_get_total(mailbox);
 
@@ -1800,14 +1807,15 @@ bmbl_mru_activated_cb(GtkTreeView * tree_view, GtkTreePath * path,
     GtkTreeModel *model = gtk_tree_view_get_model(tree_view);
     GtkTreeIter iter;
     BalsaMailboxNode *mbnode;
+    LibBalsaMailbox *mailbox;
 
     gtk_tree_model_get_iter(model, &iter, path);
     gtk_tree_model_get(model, &iter, MBNODE_COLUMN, &mbnode, -1);
-    g_return_if_fail(mbnode != NULL);
 
-    if (balsa_mailbox_node_get_mailbox(mbnode)) {
+    mailbox = balsa_mailbox_node_get_mailbox(mbnode);
+    if (mailbox != NULL) {
         ((BalsaMBListMRUEntry *) data)->url =
-            g_strdup(libbalsa_mailbox_get_url(balsa_mailbox_node_get_mailbox(mbnode)));
+            g_strdup(libbalsa_mailbox_get_url(mailbox));
         bmbl_mru_activate_cb(NULL, data);
 
         gtk_dialog_response(GTK_DIALOG

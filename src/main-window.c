@@ -3358,11 +3358,13 @@ bw_add_mbox_to_checklist(GtkTreeModel * model, GtkTreePath * path,
     LibBalsaMailbox *mailbox;
 
     gtk_tree_model_get(model, iter, 0, &mbnode, -1);
-    g_return_val_if_fail(mbnode, FALSE);
 
-    if ((mailbox = balsa_mailbox_node_get_mailbox(mbnode))) {	/* mailbox, not a folder */
+    if ((mailbox = balsa_mailbox_node_get_mailbox(mbnode)) != NULL) {
+        /* mailbox, not a folder */
+        const gchar *dir = balsa_mailbox_node_get_dir(mbnode);
+
 	if (!LIBBALSA_IS_MAILBOX_IMAP(mailbox) ||
-	    bw_imap_check_test(balsa_mailbox_node_get_dir(mbnode) ? balsa_mailbox_node_get_dir(mbnode) :
+	    bw_imap_check_test(dir != NULL ? dir :
 			    libbalsa_mailbox_imap_get_path
 			    (LIBBALSA_MAILBOX_IMAP(mailbox))))
 	    *list = g_slist_prepend(*list, g_object_ref(mailbox));
@@ -3743,10 +3745,12 @@ mw_mbox_change_connection_status(GtkTreeModel * model, GtkTreePath * path,
     gtk_tree_model_get(model, iter, 0, &mbnode, -1);
     g_return_val_if_fail(mbnode, FALSE);
 
-    if ((mailbox = balsa_mailbox_node_get_mailbox(mbnode))) {  /* mailbox, not a folder */
+    if ((mailbox = balsa_mailbox_node_get_mailbox(mbnode)) != NULL) {
+        /* mailbox, not a folder */
+        const gchar *dir = balsa_mailbox_node_get_dir(mbnode);
+
         if (LIBBALSA_IS_MAILBOX_IMAP(mailbox) &&
-            bw_imap_check_test(balsa_mailbox_node_get_dir(mbnode) ?
-                balsa_mailbox_node_get_dir(mbnode) :
+            bw_imap_check_test(dir != NULL ? dir :
                 libbalsa_mailbox_imap_get_path(LIBBALSA_MAILBOX_IMAP(mailbox)))) {
             libbalsa_mailbox_test_can_reach(g_object_ref(mailbox),
                                             mw_mbox_can_reach_cb, NULL);
