@@ -151,8 +151,40 @@ static void bndx_select_row(BalsaIndex  *index,
 /* Other callbacks. */
 static void bndx_store_address(gpointer data);
 
-
 /* Class type. */
+
+struct _BalsaIndex {
+    GtkTreeView tree_view;
+
+    /* the popup menu and some items we need to refer to */
+    GtkWidget *popup_menu;
+    GtkWidget *delete_item;
+    GtkWidget *undelete_item;
+    GtkWidget *move_to_trash_item;
+    GtkWidget *toggle_item;
+    GtkWidget *move_to_item;
+
+    BalsaMailboxNode *mailbox_node;
+    guint             current_msgno;
+    guint             next_msgno;
+    gboolean          current_message_is_deleted : 1;
+    gboolean          prev_message : 1;
+    gboolean          next_message : 1;
+    gboolean          has_selection_changed_idle : 1;
+    gboolean          has_mailbox_changed_idle : 1;
+    gboolean          collapsing : 1;
+    gint              filter_no;
+    gchar            *filter_string; /* Quick view filter string, if any */
+
+    /* signal handler ids */
+    gulong row_expanded_id;
+    gulong row_collapsed_id;
+    gulong selection_changed_id;
+
+    LibBalsaMailboxSearchIter *search_iter;
+    BalsaIndexWidthPreference  width_preference;
+};
+
 
 G_DEFINE_TYPE(BalsaIndex, balsa_index, GTK_TYPE_TREE_VIEW)
 
@@ -3044,4 +3076,62 @@ balsa_index_set_last_use(BalsaIndex *bindex)
 
     if (mailbox_node != NULL)
         balsa_mailbox_node_set_last_use(mailbox_node);
+}
+
+
+/*
+ * Getters
+ */
+
+guint
+balsa_index_get_current_msgno(BalsaIndex *bindex)
+{
+    g_return_val_if_fail(BALSA_IS_INDEX(bindex), (time_t) -1);
+
+    return bindex->current_msgno;
+}
+
+
+gint
+balsa_index_get_filter_no(BalsaIndex *bindex)
+{
+    g_return_val_if_fail(BALSA_IS_INDEX(bindex), 0);
+
+    return bindex->filter_no;
+}
+
+
+const gchar *
+balsa_index_get_filter_string(BalsaIndex *bindex)
+{
+    g_return_val_if_fail(BALSA_IS_INDEX(bindex), FALSE);
+
+    return bindex->filter_string;
+}
+
+
+gboolean
+balsa_index_get_next_message(BalsaIndex *bindex)
+{
+    g_return_val_if_fail(BALSA_IS_INDEX(bindex), FALSE);
+
+    return bindex->next_message;
+}
+
+
+gboolean
+balsa_index_get_prev_message(BalsaIndex *bindex)
+{
+    g_return_val_if_fail(BALSA_IS_INDEX(bindex), FALSE);
+
+    return bindex->prev_message;
+}
+
+
+BalsaMailboxNode *
+balsa_index_get_mailbox_node(BalsaIndex *bindex)
+{
+    g_return_val_if_fail(BALSA_IS_INDEX(bindex), FALSE);
+
+    return bindex->mailbox_node;
 }
