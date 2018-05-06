@@ -134,6 +134,19 @@ static void bmbl_expand_to_row(BalsaMBList * mblist, GtkTreePath * path);
 
 /* class methods */
 
+struct _BalsaMBList {
+    GtkTreeView tree_view;
+
+    /* shall the number of messages be displayed ? */
+    gboolean display_info;
+    /* signal handler id */
+    gulong toggled_handler_id;
+
+    /* to set sort order in an idle callback */
+    gint sort_column_id;
+    guint sort_idle_id;
+};
+
 G_DEFINE_TYPE(BalsaMBList, balsa_mblist, GTK_TYPE_TREE_VIEW)
 
 static void
