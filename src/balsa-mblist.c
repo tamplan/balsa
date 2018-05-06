@@ -1030,7 +1030,7 @@ bmbl_open_mailbox(LibBalsaMailbox * mailbox, gboolean set_current)
 
     /* If we currently have a page open, update the time last visited */
     if (index != NULL)
-        balsa_mailbox_node_set_last_use(BALSA_INDEX(index)->mailbox_node);
+        balsa_index_set_last_use(BALSA_INDEX(index));
 
     i = balsa_find_notebook_page_num(mailbox);
     if (i != -1) {
@@ -1038,7 +1038,7 @@ bmbl_open_mailbox(LibBalsaMailbox * mailbox, gboolean set_current)
             gtk_notebook_set_current_page(GTK_NOTEBOOK(balsa_app.notebook),
                                           i);
             index = balsa_window_find_current_index(balsa_app.main_window);
-            balsa_mailbox_node_set_last_use(BALSA_INDEX(index)->mailbox_node);
+            balsa_index_set_last_use(BALSA_INDEX(index));
             balsa_index_set_column_widths(BALSA_INDEX(index));
         }
     } else { /* page with mailbox not found, open it */

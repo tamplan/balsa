@@ -3176,9 +3176,8 @@ bw_close_mailbox_on_timer(BalsaWindow * window)
             continue;
 
         if (balsa_app.close_mailbox_auto &&
-            (delta_time = current_time -
-             balsa_mailbox_node_get_last_use(index->mailbox_node)) >
-            balsa_app.close_mailbox_timeout) {
+            (delta_time = current_time - balsa_index_get_last_use(index))
+            > balsa_app.close_mailbox_timeout) {
             if (balsa_app.debug)
                 fprintf(stderr, "Closing Page %d unused for %d s\n",
                         i, delta_time);
@@ -4307,7 +4306,7 @@ bw_notebook_switch_page_cb(GtkWidget * notebook,
 	g_object_remove_weak_pointer(G_OBJECT(priv->current_index),
 				     (gpointer) &priv->current_index);
 	/* Note when this mailbox was hidden, for use in auto-closing. */
-        balsa_mailbox_node_set_last_use(BALSA_INDEX(priv->current_index)->mailbox_node);
+        balsa_index_set_last_use(BALSA_INDEX(priv->current_index));
         priv->current_index = NULL;
     }
 
@@ -4322,7 +4321,7 @@ bw_notebook_switch_page_cb(GtkWidget * notebook,
     g_object_add_weak_pointer(G_OBJECT(index),
 			      (gpointer) &priv->current_index);
     /* Note when this mailbox was exposed, for use in auto-expunge. */
-    balsa_mailbox_node_set_last_use(index->mailbox_node);
+    balsa_index_set_last_use(index);
 
     mailbox = balsa_index_get_mailbox(index);
     if (libbalsa_mailbox_get_name(mailbox)) {

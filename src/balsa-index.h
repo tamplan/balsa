@@ -52,16 +52,16 @@ struct _BalsaIndex {
     GtkWidget *move_to_item;
 
     BalsaMailboxNode *mailbox_node;
-    guint current_msgno;
-    guint next_msgno;
-    gboolean current_message_is_deleted : 1;
-    gboolean prev_message : 1;
-    gboolean next_message : 1;
-    gboolean has_selection_changed_idle : 1;
-    gboolean has_mailbox_changed_idle : 1;
-    gboolean collapsing : 1;
-    int filter_no;
-    gchar *filter_string;     /* Quick view filter string, if any */
+    guint             current_msgno;
+    guint             next_msgno;
+    gboolean          current_message_is_deleted : 1;
+    gboolean          prev_message : 1;
+    gboolean          next_message : 1;
+    gboolean          has_selection_changed_idle : 1;
+    gboolean          has_mailbox_changed_idle : 1;
+    gboolean          collapsing : 1;
+    int               filter_no;
+    gchar            *filter_string; /* Quick view filter string, if any */
 
     /* signal handler ids */
     gulong row_expanded_id;
@@ -69,7 +69,7 @@ struct _BalsaIndex {
     gulong selection_changed_id;
 
     LibBalsaMailboxSearchIter *search_iter;
-    BalsaIndexWidthPreference width_preference;
+    BalsaIndexWidthPreference  width_preference;
 };
 
 /* tree model columns */
@@ -184,9 +184,11 @@ void balsa_index_select_thread(BalsaIndex *bindex);
 gint balsa_index_count_selected_messages(BalsaIndex *bindex);
 
 /*
- * Helper
+ * Convenience functions
  */
-LibBalsaMailbox * balsa_index_get_mailbox(BalsaIndex * bindex);
+LibBalsaMailbox *balsa_index_get_mailbox(BalsaIndex *bindex);
+time_t           balsa_index_get_last_use(BalsaIndex *bindex);
+void             balsa_index_set_last_use(BalsaIndex *bindex);
 
 #define BALSA_INDEX_VIEW_ON_OPEN "balsa-index-view-on-open"
 
