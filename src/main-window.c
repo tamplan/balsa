@@ -3154,7 +3154,7 @@ bw_close_mailbox_on_timer(BalsaWindow * window)
     if (!balsa_app.close_mailbox_auto)
         return TRUE;
 
-    time(&current_time);
+    current_time = time(NULL);
 
     c = gtk_notebook_get_current_page(GTK_NOTEBOOK(balsa_app.notebook));
 
@@ -3574,7 +3574,7 @@ bw_check_messages_thread(struct check_messages_thread_info *info)
         g_idle_add((GSourceFunc) bw_check_messages_thread_idle_cb,
                    g_object_ref(info->window));
         if (priv->network_available)
-            time(&priv->last_check_time);
+            priv->last_check_time = time(NULL);
         g_object_unref(info->window);
     }
 

@@ -2383,7 +2383,7 @@ lbm_local_sync_real(LibBalsaMailboxLocal *local)
     LibBalsaMailbox *mailbox = (LibBalsaMailbox *)local;
     time_t tstart;
 
-    time(&tstart);
+    start = time(NULL);
     libbalsa_lock_mailbox(mailbox);
     if (priv->sync_id &&                       /* request still pending */
         MAILBOX_OPEN(mailbox) &&                   /* mailbox still open */

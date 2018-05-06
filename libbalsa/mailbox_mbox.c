@@ -778,7 +778,7 @@ libbalsa_mailbox_mbox_open(LibBalsaMailbox *mailbox,
     mbox->msgno_2_msg_info = g_ptr_array_new();
 
     libbalsa_mailbox_clear_unread_messages(mailbox);
-    time(&t0);
+    t0 = time(NULL);
 
     if (st.st_size > 0) {
         lbm_mbox_restore(mbox);
