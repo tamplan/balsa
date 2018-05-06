@@ -36,16 +36,6 @@ G_DECLARE_FINAL_TYPE(BalsaPrintObjectHeader,
                      BalsaPrintObject);
 
 
-struct _BalsaPrintObjectHeader {
-    BalsaPrintObject parent;
-
-    gint p_label_width;
-    gint p_layout_width;
-    gchar *headers;
-    GdkPixbuf *face;
-};
-
-
 GList *balsa_print_object_header_from_message(GList           *list,
                                               GtkPrintContext *context,
                                               LibBalsaMessage *message,

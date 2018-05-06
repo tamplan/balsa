@@ -52,6 +52,15 @@ static void header_add_list(PangoLayout         *layout,
                             gboolean             print_all_headers);
 
 
+struct _BalsaPrintObjectHeader {
+    BalsaPrintObject parent;
+
+    gint p_label_width;
+    gint p_layout_width;
+    gchar *headers;
+    GdkPixbuf *face;
+};
+
 G_DEFINE_TYPE(BalsaPrintObjectHeader,
               balsa_print_object_header,
               BALSA_TYPE_PRINT_OBJECT)
