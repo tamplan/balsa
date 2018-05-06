@@ -1802,7 +1802,7 @@ balsa_mailbox_node_set_name(BalsaMailboxNode * mbnode, const gchar * name)
 void
 balsa_mailbox_node_set_last_use(BalsaMailboxNode * mbnode)
 {
-    time(&mbnode->last_use);
+    mbnode->last_use = time(NULL);
 }
 
 void
