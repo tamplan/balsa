@@ -165,6 +165,58 @@ balsa_part_info_class_init(BalsaPartInfoClass *klass)
 
 G_DEFINE_TYPE(BalsaPartInfo, balsa_part_info, G_TYPE_OBJECT)
 
+struct _BalsaMessage {
+    GtkBox parent;
+
+    GtkWidget *stack;
+    GtkWidget *switcher;
+
+    /* Top-level MIME widget */
+    BalsaMimeWidget *bm_widget;
+
+    /* header-related information */
+    ShownHeaders shown_headers;
+
+    /* Widgets to hold content */
+    GtkWidget *scroll;
+
+    /* Widget to hold structure tree */
+    GtkWidget *treeview;
+    gint info_count;
+    GList *save_all_list;
+    GtkWidget *save_all_popup;
+
+    gboolean wrap_text;
+
+    BalsaPartInfo *current_part;
+    GtkWidget *parts_popup;
+    gboolean force_inline;
+
+    LibBalsaMessage *message;
+
+    BalsaMessageFocusState focus_state;
+
+    /* Find-in-message stuff */
+    GtkWidget *find_bar;
+    GtkWidget *find_entry;
+    GtkWidget *find_next;
+    GtkWidget *find_prev;
+    GtkWidget *find_sep;
+    GtkWidget *find_label;
+    GtkTextIter find_iter;
+    gboolean find_forward;
+
+    /* Widget to hold Faces */
+    GtkWidget *face_box;
+
+#ifdef HAVE_HTML_WIDGET
+    gpointer html_find_info;
+#endif                          /* HAVE_HTML_WIDGET */
+
+    GtkEventController *find_key_controller;
+    gulong key_pressed_id;
+};
+
 G_DEFINE_TYPE(BalsaMessage, balsa_message, GTK_TYPE_BOX)
 
 static void
@@ -776,6 +828,7 @@ balsa_message_destroy(GObject * object)
     g_clear_object(&bm->save_all_popup);
     g_clear_object(&bm->parts_popup);
     g_clear_object(&bm->bm_widget);
+    g_clear_object(&bm->face_box);
 
 #ifdef HAVE_HTML_WIDGET
     g_clear_object(&bm->html_find_info);
@@ -3248,4 +3301,73 @@ balsa_message_find_in_message(BalsaMessage * bm)
             g_signal_connect(bm->find_entry, "realize",
                              G_CALLBACK(gtk_widget_grab_focus), NULL);
     }
+}
+
+/*
+ * Getters
+ */
+
+gboolean
+balsa_message_get_wrap_text(BalsaMessage *bm)
+{
+    return bm->wrap_text;
+}
+
+BalsaMessageFocusState
+balsa_message_get_focus_state(BalsaMessage *bm)
+{
+    return bm->focus_state;
+}
+
+GtkScrolledWindow *
+balsa_message_get_scroll(BalsaMessage *bm)
+{
+    return GTK_SCROLLED_WINDOW(bm->scroll);
+}
+
+BalsaMimeWidget *
+balsa_message_get_bm_widget(BalsaMessage *bm)
+{
+    return bm->bm_widget;
+}
+
+LibBalsaMessage *
+balsa_message_get_message(BalsaMessage *bm)
+{
+    return bm->message;
+}
+
+ShownHeaders
+balsa_message_get_shown_headers(BalsaMessage *bm)
+{
+    return bm->shown_headers;
+}
+
+GtkWidget *
+balsa_message_get_face_box(BalsaMessage *bm)
+{
+    return bm->face_box;
+}
+
+GtkWidget *
+balsa_message_get_tree_view(BalsaMessage *bm)
+{
+    return bm->treeview;
+}
+
+/*
+ * Setters
+ */
+void
+balsa_message_set_focus_state(BalsaMessage *bm,
+                              BalsaMessageFocusState focus_state)
+{
+    bm->focus_state = focus_state;
+}
+
+void
+balsa_message_set_face_box(BalsaMessage *bm,
+                           GtkWidget * face_box)
+{
+    g_set_object(&bm->face_box, face_box);
 }

@@ -279,7 +279,7 @@ balsa_mime_widget_new_text(BalsaMessage * bm, LibBalsaMessageBody * mime_body,
 	/* Parse, but don't wrap. */
 	gboolean delsp = libbalsa_message_body_is_delsp(mime_body);
 	ptr = libbalsa_wrap_rfc2646(ptr, G_MAXINT, FALSE, TRUE, delsp);
-    } else if (bm->wrap_text
+    } else if (balsa_message_get_wrap_text(bm)
 #if HAVE_GTKSOURCEVIEW
 	       && !GTK_SOURCE_IS_VIEW(widget)
 #endif
@@ -1293,14 +1293,17 @@ static gchar *
 check_text_encoding(BalsaMessage * bm, gchar *text_buf)
 {
     const gchar *target_cs;
+    LibBalsaMessage *message;
+
+    message = balsa_message_get_message(bm);
 
     if (!libbalsa_utf8_sanitize(&text_buf, balsa_app.convert_unknown_8bit,
                                 &target_cs)
-        && !g_object_get_data(G_OBJECT(bm->message),
+        && !g_object_get_data(G_OBJECT(message),
                               BALSA_MIME_WIDGET_NEW_TEXT_NOTIFIED)) {
-        LibBalsaMessageHeaders *headers = libbalsa_message_get_headers(bm->message);
+        LibBalsaMessageHeaders *headers = libbalsa_message_get_headers(message);
         gchar *from = balsa_message_sender_to_gchar(headers->from, 0);
-        gchar *subject = g_strdup(LIBBALSA_MESSAGE_GET_SUBJECT(bm->message));
+        gchar *subject = g_strdup(LIBBALSA_MESSAGE_GET_SUBJECT(message));
 
         libbalsa_utf8_sanitize(&from,    balsa_app.convert_unknown_8bit,
                                NULL);
@@ -1316,7 +1319,7 @@ check_text_encoding(BalsaMessage * bm, gchar *text_buf)
         g_free(subject);
         g_free(from);
         /* Avoid multiple notifications: */
-        g_object_set_data(G_OBJECT(bm->message),
+        g_object_set_data(G_OBJECT(message),
                           BALSA_MIME_WIDGET_NEW_TEXT_NOTIFIED,
                           GUINT_TO_POINTER(TRUE));
     }

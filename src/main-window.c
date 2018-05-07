@@ -4363,6 +4363,7 @@ bw_index_changed_cb(GtkWidget * widget, gpointer user_data)
     BalsaWindow *window = BALSA_WINDOW(user_data);
     BalsaWindowPrivate *priv = balsa_window_get_instance_private(window);
     BalsaIndex *index;
+    LibBalsaMessage *message;
     guint current_msgno;
 
     if (widget != priv->current_index)
@@ -4372,8 +4373,8 @@ bw_index_changed_cb(GtkWidget * widget, gpointer user_data)
     bw_enable_message_menus(window, balsa_index_get_current_msgno(index));
     bw_enable_mailbox_menus(window, index);
 
-    current_msgno = BALSA_MESSAGE(priv->preview)->message ?
-        libbalsa_message_get_msgno(BALSA_MESSAGE(priv->preview)->message) : 0;
+    message = balsa_message_get_message(BALSA_MESSAGE(priv->preview));
+    current_msgno = message != NULL ? libbalsa_message_get_msgno(message) : 0;
 
     if (current_msgno != balsa_index_get_current_msgno(index))
         bw_idle_replace(window, index);
@@ -4389,7 +4390,7 @@ bw_idle_replace(BalsaWindow * window, BalsaIndex * bindex)
         /* Skip if the window is being destroyed: */
         if (priv->preview != NULL) {
             priv->set_message_id = g_idle_add((GSourceFunc) bw_idle_cb, window);
-            if (BALSA_MESSAGE(priv->preview)->message != NULL)
+            if (balsa_message_get_message(BALSA_MESSAGE(priv->preview)) != NULL)
                 gtk_widget_hide(priv->preview);
         }
     }

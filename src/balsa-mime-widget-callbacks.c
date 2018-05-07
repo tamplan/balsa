@@ -183,7 +183,7 @@ scroll_change(GtkAdjustment * adj, gint diff, BalsaMessage * bm)
             /* We're changing mailboxes, and GtkNotebook will grab the
              * focus, so we want to grab it back the next time we lose
              * it. */
-            bm->focus_state = BALSA_MESSAGE_FOCUS_STATE_HOLD;
+            balsa_message_set_focus_state(bm, BALSA_MESSAGE_FOCUS_STATE_HOLD);
         return;
     }
 
@@ -204,7 +204,7 @@ balsa_mime_widget_key_press_event(GtkEventControllerKey *key_controller,
     GtkAdjustment *adj;
     int page_adjust;
 
-    adj = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(bm->scroll));
+    adj = gtk_scrolled_window_get_vadjustment(balsa_message_get_scroll(bm));
 
     page_adjust = balsa_app.pgdownmod ?
         (gtk_adjustment_get_page_size(adj) * balsa_app.pgdown_percent) /
@@ -265,7 +265,10 @@ void
 balsa_mime_widget_check_focus(GtkWidget * widget, GParamSpec * pspec, BalsaMessage * bm)
 {
     GtkContainer *container =
-        GTK_CONTAINER(balsa_mime_widget_get_container(bm->bm_widget));
+        GTK_CONTAINER(balsa_mime_widget_get_container(balsa_message_get_bm_widget(bm)));
+    BalsaMessageFocusState focus_state;
+
+    focus_state = balsa_message_get_focus_state(bm);
 
     if (gtk_widget_has_focus(widget)) {
         /* Disable can_focus on other message parts so that TAB does not
@@ -276,17 +279,17 @@ balsa_mime_widget_check_focus(GtkWidget * widget, GParamSpec * pspec, BalsaMessa
         gtk_container_set_focus_chain(container, list);
         g_list_free(list);
 
-        if (bm->focus_state == BALSA_MESSAGE_FOCUS_STATE_NO)
-            bm->focus_state = BALSA_MESSAGE_FOCUS_STATE_YES;
+        if (focus_state == BALSA_MESSAGE_FOCUS_STATE_NO)
+            balsa_message_set_focus_state(bm, BALSA_MESSAGE_FOCUS_STATE_YES);
     } else {
         gtk_container_unset_focus_chain(container);
 
-        if (bm->message != NULL) {
-            if (bm->focus_state == BALSA_MESSAGE_FOCUS_STATE_HOLD) {
+        if (balsa_message_get_message(bm) != NULL) {
+            if (focus_state == BALSA_MESSAGE_FOCUS_STATE_HOLD) {
                 balsa_message_grab_focus(bm);
-                bm->focus_state = BALSA_MESSAGE_FOCUS_STATE_YES;
+                balsa_message_set_focus_state(bm, BALSA_MESSAGE_FOCUS_STATE_YES);
             } else
-                bm->focus_state = BALSA_MESSAGE_FOCUS_STATE_NO;
+                balsa_message_set_focus_state(bm, BALSA_MESSAGE_FOCUS_STATE_NO);
         }
     }
 }
