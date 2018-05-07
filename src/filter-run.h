@@ -41,6 +41,9 @@ G_BEGIN_DECLS
 
 
 struct _BalsaFilterRunDialog {
+    /* This object is shared by filter-run-dialog.c and
+     * filter-run-callbacks.c, so we keep it public, but this file
+     * should not be included in other files. */
     GtkDialog parent;
 
     /* GUI members */
