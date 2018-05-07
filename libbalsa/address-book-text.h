@@ -51,9 +51,6 @@ struct _LibBalsaAddressBookTextClass {
                                     LibBalsaAddress *address);
 };
 
-typedef struct _LibBalsaAddressBookText LibBalsaAddressBookText;
-typedef struct _LibBalsaAddressBookTextClass LibBalsaAddressBookTextClass;
-
 /*
  * Getter
  */

@@ -25,6 +25,7 @@
 G_BEGIN_DECLS
 
 #define BALSA_TYPE_PRINT_OBJECT_DECOR balsa_print_object_decor_get_type()
+
 G_DECLARE_FINAL_TYPE(BalsaPrintObjectDecor,
                      balsa_print_object_decor,
                      BALSA,

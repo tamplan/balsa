@@ -38,10 +38,8 @@ G_DECLARE_FINAL_TYPE(BalsaMessage,
                      MESSAGE,
                      GtkBox);
 
-
-typedef struct _BalsaPartInfo BalsaPartInfo;
-
-typedef struct _BalsaMimeWidget BalsaMimeWidget;
+/* Now that BalsaMessage has been declared, we can: */
+#include "balsa-mime-widget.h"
 
 typedef enum {
     BALSA_MESSAGE_FOCUS_STATE_NO,

@@ -41,9 +41,6 @@ typedef enum {
     LBABERR_ADDRESS_NOT_FOUND
 } LibBalsaABErr;
 
-typedef struct _LibBalsaAddressBook LibBalsaAddressBook;
-typedef struct _LibBalsaAddressBookClass LibBalsaAddressBookClass;
-
 typedef LibBalsaABErr (*LibBalsaAddressBookLoadFunc)(LibBalsaAddressBook *ab,
                                                      LibBalsaAddress     *address,
                                                      gpointer             closure);
