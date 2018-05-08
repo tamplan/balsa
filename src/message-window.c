@@ -111,11 +111,13 @@ static gboolean
 message_window_idle_handler(MessageWindow * mw)
 {
     BalsaMessage *msg;
+    LibBalsaMessage *message;
 
     mw->idle_handler_id = 0;
 
     msg = BALSA_MESSAGE(mw->bmessage);
-    if (!balsa_message_set(msg, libbalsa_message_get_mailbox(mw->message), libbalsa_message_get_msgno(mw->message))) {
+    message = mw->message;
+    if (!balsa_message_set(msg, libbalsa_message_get_mailbox(message), libbalsa_message_get_msgno(message))) {
         gtk_widget_destroy(mw->window);
         return FALSE;
     }
@@ -746,10 +748,10 @@ mw_select_part_cb(BalsaMessage * bm, gpointer data)
             gchar *from;
             gchar *title;
 
-            headers = libbalsa_message_get_headers(balsa_message_get_message(bm));
+            headers = libbalsa_message_get_headers(message);
             from = internet_address_list_to_string(headers->from, FALSE);
             title = g_strdup_printf(_("Message from %s: %s"), from,
-                                    LIBBALSA_MESSAGE_GET_SUBJECT(balsa_message_get_message(bm)));
+                                    LIBBALSA_MESSAGE_GET_SUBJECT(message));
             g_free(from);
             gtk_window_set_title(GTK_WINDOW(mw->window), title);
             g_free(title);
