@@ -2142,11 +2142,8 @@ bw_set_menus(BalsaWindow * window)
                           err->message);
         g_error_free(err);
     }
-<<<<<<< HEAD
 
     g_free(ui_file);
-=======
->>>>>>> 3daecc95... Use GResource instead of installed files
     g_object_unref(builder);
 }
 
