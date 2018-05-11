@@ -2108,12 +2108,7 @@ bw_set_menus(BalsaWindow * window)
     bw_add_win_action_entries(G_ACTION_MAP(window));
 
     builder = gtk_builder_new();
-    ui_file = g_build_filename(BALSA_DATA_PREFIX, "ui", "main-window.ui",
-                               NULL);
-    if (gtk_builder_add_from_file(builder, ui_file, &err)) {
-#ifndef SET_MENUBAR_SETS_A_VISIBLE_MENUBAR
-        GtkWidget *menubar;
-#endif /* SET_MENUBAR_SETS_A_VISIBLE_MENUBAR */
+    if (gtk_builder_add_from_resource(builder, resource_path, &err)) {
         gtk_application_set_app_menu(balsa_app.application,
                                      G_MENU_MODEL(gtk_builder_get_object
                                                   (builder, "app-menu")));
@@ -2145,8 +2140,11 @@ bw_set_menus(BalsaWindow * window)
                           err->message);
         g_error_free(err);
     }
+<<<<<<< HEAD
 
     g_free(ui_file);
+=======
+>>>>>>> 3daecc95... Use GResource instead of installed files
     g_object_unref(builder);
 }
 
