@@ -6576,7 +6576,7 @@ sendmsg_window_new()
     GError *error = NULL;
     GtkWidget *menubar;
     GtkWidget *paned;
-    gchar *ui_file;
+    const gchar resource_path[] = "/org/desktop/Balsa/sendmsg-window.ui";
     const gchar *current_locale;
 
     bsmsg = g_malloc(sizeof(BalsaSendmsg));
