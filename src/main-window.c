@@ -2109,6 +2109,8 @@ bw_set_menus(BalsaWindow * window)
 
     builder = gtk_builder_new();
     if (gtk_builder_add_from_resource(builder, resource_path, &err)) {
+        GtkWidget *menubar;
+
         gtk_application_set_app_menu(balsa_app.application,
                                      G_MENU_MODEL(gtk_builder_get_object
                                                   (builder, "app-menu")));
