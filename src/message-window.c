@@ -875,7 +875,7 @@ message_window_new(LibBalsaMailbox * mailbox, guint msgno)
     gtk_container_add(GTK_CONTAINER(window), vbox);
 
     /* Set up the GMenu structures */
-    menubar = libbalsa_window_get_menu_bar(GTK_APPLICATION_WINDOW(mw),
+    menubar = libbalsa_window_get_menu_bar(GTK_APPLICATION_WINDOW(window),
                                            win_entries,
                                            G_N_ELEMENTS(win_entries),
                                            resource_path, &error, mw);

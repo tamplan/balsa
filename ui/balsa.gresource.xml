@@ -3,7 +3,11 @@
   <gresource prefix="/org/desktop/Balsa">
     <file compressed="true">main-window.ui</file>
     <file compressed="true">message-window.ui</file>
+<<<<<<< HEAD
     <file compressed="true">compose-window.ui</file>
+=======
+    <file compressed="true">sendmsg-window.ui</file>
+>>>>>>> 3daecc95d... Use GResource instead of installed files
     <file compressed="true">source-viewer.ui</file>
   </gresource>
 </gresources>
