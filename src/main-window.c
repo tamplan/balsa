@@ -2122,7 +2122,7 @@ bw_set_menus(BalsaWindow * window)
         menubar = libbalsa_window_get_menu_bar(GTK_APPLICATION_WINDOW(window),
                                                win_entries,
                                                G_N_ELEMENTS(win_entries),
-                                               ui_file, &err, window);
+                                               resource_path, &err, window);
         if (err) {
             g_print("%s %s\n", __func__, err->message);
             g_error_free(err);
@@ -2142,8 +2142,6 @@ bw_set_menus(BalsaWindow * window)
                           err->message);
         g_error_free(err);
     }
-
-    g_free(ui_file);
     g_object_unref(builder);
 }
 
