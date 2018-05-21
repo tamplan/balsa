@@ -433,8 +433,8 @@ lbab_text_open_temp(LibBalsaAddressBookText * ab_text, gchar ** path,
         g_message("Failed to open temporary address book file “%s”\n"
                   " changes not saved", *path);
 #endif                          /* DEBUG */
-        g_free(*path);
-        *path = NULL;
+        g_clear_pointer(path, g_free);
+
         return LBABERR_CANNOT_WRITE;
     }
     return LBABERR_OK;
