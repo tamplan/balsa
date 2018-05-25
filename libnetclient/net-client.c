@@ -509,7 +509,6 @@ net_client_class_init(NetClientClass *klass)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-	g_type_class_add_private(klass, sizeof(NetClientPrivate));
 	gobject_class->dispose = net_client_dispose;
 	gobject_class->finalize = net_client_finalise;
 	signals[0] = g_signal_new("cert-check", NET_CLIENT_TYPE, G_SIGNAL_RUN_LAST, 0U, NULL, NULL, NULL, G_TYPE_BOOLEAN, 2U,
