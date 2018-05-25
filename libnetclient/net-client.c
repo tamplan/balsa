@@ -48,8 +48,14 @@ struct _NetClientPrivate {
 	GTlsCertificate *certificate;
 };
 
+enum {
+    NET_CLIENT_SIGNAL_CERT_CHECK,
+    NET_CLIENT_SIGNAL_CERT_PASS,
+    NET_CLIENT_SIGNAL_AUTH,
+    NET_CLIENT_SIGNAL_NUM_SIGNALS
+};
 
-static guint signals[3];
+static guint signals[NET_CLIENT_SIGNAL_NUM_SIGNALS];
 
 typedef struct _NetClientPrivate NetClientPrivate;
 
@@ -384,7 +390,7 @@ net_client_set_cert_from_pem(NetClient *client, const gchar *pem_data, GError **
 
 						cert_der = g_byte_array_new_take(der_data, der_size);
 						g_debug("emit 'cert-pass' signal for client %p", client);
-						g_signal_emit(client, signals[2], 0, cert_der, &key_pass);
+						g_signal_emit(client, signals[NET_CLIENT_SIGNAL_CERT_PASS], 0, cert_der, &key_pass);
 						g_byte_array_unref(cert_der);
 						if (key_pass != NULL) {
 							res = gnutls_x509_privkey_import2(key, &data, GNUTLS_X509_FMT_PEM, key_pass, 0);
@@ -511,11 +517,30 @@ net_client_class_init(NetClientClass *klass)
 
 	gobject_class->dispose = net_client_dispose;
 	gobject_class->finalize = net_client_finalise;
-	signals[0] = g_signal_new("cert-check", NET_CLIENT_TYPE, G_SIGNAL_RUN_LAST, 0U, NULL, NULL, NULL, G_TYPE_BOOLEAN, 2U,
-		G_TYPE_TLS_CERTIFICATE, G_TYPE_TLS_CERTIFICATE_FLAGS);
-	signals[1] = g_signal_new("auth", NET_CLIENT_TYPE, G_SIGNAL_RUN_LAST, 0U, NULL, NULL, NULL, G_TYPE_STRV, 1U, G_TYPE_BOOLEAN);
-	signals[2] = g_signal_new("cert-pass", NET_CLIENT_TYPE, G_SIGNAL_RUN_LAST, 0U, NULL, NULL, NULL, G_TYPE_STRING, 1U,
-		G_TYPE_BYTE_ARRAY);
+
+	signals[NET_CLIENT_SIGNAL_CERT_CHECK] =
+            g_signal_new("cert-check",
+                         NET_CLIENT_TYPE,
+                         G_SIGNAL_RUN_LAST,
+                         0U, NULL, NULL, NULL,
+                         G_TYPE_BOOLEAN,
+                         2U, G_TYPE_TLS_CERTIFICATE, G_TYPE_TLS_CERTIFICATE_FLAGS);
+
+	signals[NET_CLIENT_SIGNAL_CERT_PASS] =
+            g_signal_new("cert-pass",
+                         NET_CLIENT_TYPE,
+                         G_SIGNAL_RUN_LAST,
+                         0U, NULL, NULL, NULL,
+                         G_TYPE_STRING,
+                         1U, G_TYPE_BYTE_ARRAY);
+
+	signals[NET_CLIENT_SIGNAL_AUTH] =
+            g_signal_new("auth",
+                         NET_CLIENT_TYPE,
+                         G_SIGNAL_RUN_LAST,
+                         0U, NULL, NULL, NULL,
+                         G_TYPE_STRV,
+                         1U, G_TYPE_BOOLEAN);
 }
 
 
@@ -568,6 +593,6 @@ cert_accept_cb(G_GNUC_UNUSED GTlsConnection *conn, GTlsCertificate *peer_cert, G
 	gboolean result;
 
 	g_debug("emit 'cert-check' signal for client %p", client);
-	g_signal_emit(client, signals[0], 0, peer_cert, errors, &result);
+	g_signal_emit(client, signals[NET_CLIENT_SIGNAL_CERT_CHECK], 0, peer_cert, errors, &result);
 	return result;
 }
