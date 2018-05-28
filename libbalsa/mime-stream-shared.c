@@ -81,16 +81,11 @@ libbalsa_mime_stream_shared_init(LibBalsaMimeStreamShared *self)
 }
 
 
-static GMimeStreamClass *gmime_parent_class;
-
 static void
 libbalsa_mime_stream_shared_class_init(LibBalsaMimeStreamSharedClass *klass)
 {
     GMimeStreamClass *stream_class = GMIME_STREAM_CLASS(klass);
     GObjectClass *object_class     = G_OBJECT_CLASS(klass);
-
-    gmime_parent_class =
-        GMIME_STREAM_CLASS(libbalsa_mime_stream_shared_parent_class);
 
     object_class->finalize = lbmss_finalize;
 
@@ -169,7 +164,7 @@ lbmss_stream_read(GMimeStream *stream,
                   size_t       len)
 {
     g_return_val_if_fail(lbmss_thread_has_lock(stream), -1);
-    return gmime_parent_class->read(stream, buf, len);
+    return GMIME_STREAM_CLASS(libbalsa_mime_stream_shared_parent_class)->read(stream, buf, len);
 }
 
 
@@ -179,7 +174,7 @@ lbmss_stream_write(GMimeStream *stream,
                    size_t       len)
 {
     g_return_val_if_fail(lbmss_thread_has_lock(stream), -1);
-    return gmime_parent_class->write(stream, buf, len);
+    return GMIME_STREAM_CLASS(libbalsa_mime_stream_shared_parent_class)->write(stream, buf, len);
 }
 
 
@@ -187,7 +182,7 @@ static int
 lbmss_stream_reset(GMimeStream *stream)
 {
     g_return_val_if_fail(lbmss_thread_has_lock(stream), -1);
-    return gmime_parent_class->reset(stream);
+    return GMIME_STREAM_CLASS(libbalsa_mime_stream_shared_parent_class)->reset(stream);
 }
 
 
@@ -197,7 +192,7 @@ lbmss_stream_seek(GMimeStream    *stream,
                   GMimeSeekWhence whence)
 {
     g_return_val_if_fail(lbmss_thread_has_lock(stream), -1);
-    return gmime_parent_class->seek(stream, offset, whence);
+    return GMIME_STREAM_CLASS(libbalsa_mime_stream_shared_parent_class)->seek(stream, offset, whence);
 }
 
 
