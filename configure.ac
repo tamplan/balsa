@@ -239,7 +239,7 @@ gnutls
 
 PKG_CHECK_MODULES(BALSA_AB, [
    glib-2.0
-   gtk+-3.0
+   gtk+-4.0
    gmime-2.6
 ])
 
