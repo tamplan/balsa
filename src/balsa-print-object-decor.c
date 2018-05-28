@@ -26,7 +26,6 @@
 
 
 /* object related functions */
-static void balsa_print_object_decor_class_init(BalsaPrintObjectDecorClass *klass);
 static void balsa_print_object_decor_finalize(GObject *self);
 
 static void balsa_print_object_decor_draw(BalsaPrintObject *self,
