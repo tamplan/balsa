@@ -38,10 +38,6 @@ enum {
     N_COLUMNS
 };
 
-/* Object system functions ... */
-static void balsa_ab_window_init(BalsaAbWindow *ab);
-static void balsa_ab_window_class_init(BalsaAbWindowClass *klass);
-
 /* Loading ... */
 static void balsa_ab_window_load_cb(LibBalsaAddressBook *libbalsa_ab,
 				       LibBalsaAddress *address,
