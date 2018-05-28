@@ -47,10 +47,6 @@
     do {gchar* dir = g_strconcat(g_get_home_dir(), "/.gpe", NULL);\
  mkdir(dir, S_IRUSR|S_IWUSR|S_IXUSR); g_free(dir);}while(0)
 
-static void
-libbalsa_address_book_gpe_class_init(LibBalsaAddressBookGpeClass *
-				      klass);
-static void libbalsa_address_book_gpe_init(LibBalsaAddressBookGpe * ab_gpe);
 static void libbalsa_address_book_gpe_finalize(GObject * object);
 
 static LibBalsaABErr libbalsa_address_book_gpe_load(LibBalsaAddressBook * ab, 
