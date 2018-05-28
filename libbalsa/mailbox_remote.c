@@ -25,9 +25,6 @@
 #include "libbalsa.h"
 #include "server.h"
 
-static void libbalsa_mailbox_remote_class_init(LibBalsaMailboxRemoteClass *
-                                               klass);
-static void libbalsa_mailbox_remote_init(LibBalsaMailboxRemote *mailbox);
 static void libbalsa_mailbox_remote_dispose(GObject *object);
 static void libbalsa_mailbox_remote_test_can_reach(LibBalsaMailbox          *mailbox,
                                                    LibBalsaCanReachCallback *cb,
