@@ -49,9 +49,6 @@
 
 #include <gmime/gmime.h>
 
-static void libbalsa_message_class_init(LibBalsaMessageClass *klass);
-static void libbalsa_message_init(LibBalsaMessage *message);
-
 static void libbalsa_message_dispose(GObject *object);
 static void libbalsa_message_finalize(GObject *object);
 
