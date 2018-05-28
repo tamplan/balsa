@@ -61,8 +61,6 @@ struct _LibbalsaVfsPriv {
 };
 
 
-static void libbalsa_vfs_class_init(LibbalsaVfsClass * klass);
-static void libbalsa_vfs_init(LibbalsaVfs * self);
 static void libbalsa_vfs_dispose(LibbalsaVfs * self);
 static void libbalsa_vfs_finalize(LibbalsaVfs * self);
 
