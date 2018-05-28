@@ -1217,12 +1217,13 @@ bm_widget_new_html(BalsaMessage * bm, LibBalsaMessageBody * mime_body)
         g_signal_connect(popup_menu, "populate-popup",
                          G_CALLBACK(bmwt_populate_popup_cb), widget);
     } else {
-        BalsaMimeWidgetText *mwt = BALSA_MIME_WIDGET_TEXT(mw);
+        GtkGesture *gesture;
 
-        mwt->gesture = gtk_gesture_multi_press_new(widget);
-        gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(mwt->gesture), 0);
-        g_signal_connect(mwt->gesture, "pressed",
+        gesture = gtk_gesture_multi_press_new();
+        gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(gesture), 0);
+        g_signal_connect(gesture, "pressed",
                          G_CALLBACK(mwt_gesture_pressed_cb), bm);
+        gtk_widget_add_controller(widget, GTK_EVENT_CONTROLLER(gesture));
 
         g_signal_connect(widget, "popup-menu",
                          G_CALLBACK(balsa_gtk_html_popup), bm);
