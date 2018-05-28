@@ -55,10 +55,6 @@ struct _LibBalsaMailboxPop3 {
     gboolean enable_pipe;  /* ditto */
 };
 
-static void     libbalsa_mailbox_pop3_class_init(LibBalsaMailboxPop3Class *
-                                                 klass);
-static void     libbalsa_mailbox_pop3_init(LibBalsaMailboxPop3 *mailbox_pop3);
-
 static gboolean libbalsa_mailbox_pop3_open(LibBalsaMailbox *mailbox,
                                            GError         **err);
 static void     libbalsa_mailbox_pop3_check(LibBalsaMailbox *mailbox);
