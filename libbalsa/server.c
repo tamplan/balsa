@@ -50,8 +50,6 @@ static const SecretSchema server_schema = {
 const SecretSchema *LIBBALSA_SERVER_SECRET_SCHEMA = &server_schema;
 #endif                          /* defined(HAVE_LIBSECRET) */
 
-static void libbalsa_server_class_init(LibBalsaServerClass * klass);
-static void libbalsa_server_init(LibBalsaServer * server);
 static void libbalsa_server_finalize(GObject * object);
 
 static void libbalsa_server_real_set_username(LibBalsaServer * server,
