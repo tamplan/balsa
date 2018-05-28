@@ -39,8 +39,6 @@
 #include <glib/gi18n.h>
 
 /* Class functions */
-static void     libbalsa_mailbox_class_init(LibBalsaMailboxClass *klass);
-static void     libbalsa_mailbox_init(LibBalsaMailbox *mailbox);
 static void     libbalsa_mailbox_dispose(GObject *object);
 static void     libbalsa_mailbox_finalize(GObject *object);
 
