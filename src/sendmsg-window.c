@@ -420,7 +420,6 @@ static void
 balsa_attach_info_finalize(GObject *object)
 {
     BalsaAttachInfo *info;
-    GObjectClass *parent_class;
 
     g_return_if_fail(object != NULL);
     g_return_if_fail(BALSA_IS_ATTACH_INFO(object));
@@ -457,8 +456,7 @@ balsa_attach_info_finalize(GObject *object)
     g_free(info->charset);
     libbalsa_message_headers_destroy(info->headers);
 
-    parent_class = g_type_class_peek_parent(G_OBJECT_GET_CLASS(object));
-    parent_class->finalize(object);
+    G_OBJECT_CLASS(balsa_attach_info_parent_class)->finalize(object);
 }
 
 
