@@ -94,9 +94,6 @@ static off_t ImapCacheSize = 30 * 1024 * 1024; /* 30MB */
 static unsigned SizeMsgThreshold = 50 * 1024;
 static void         libbalsa_mailbox_imap_dispose(GObject *object);
 static void         libbalsa_mailbox_imap_finalize(GObject *object);
-static void         libbalsa_mailbox_imap_class_init(LibBalsaMailboxImapClass *
-                                                     klass);
-static void         libbalsa_mailbox_imap_init(LibBalsaMailboxImap *mailbox);
 static gboolean     libbalsa_mailbox_imap_open(LibBalsaMailbox *mailbox,
                                                GError         **err);
 static void         libbalsa_mailbox_imap_close(LibBalsaMailbox *mailbox,
