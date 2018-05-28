@@ -29,9 +29,6 @@
 #include "libbalsa-marshal.h"
 #include "libbalsa-conf.h"
 
-static void libbalsa_address_book_class_init(LibBalsaAddressBookClass *
-					     klass);
-static void libbalsa_address_book_init(LibBalsaAddressBook * ab);
 static void libbalsa_address_book_finalize(GObject * object);
 
 static void libbalsa_address_book_real_save_config(LibBalsaAddressBook *
