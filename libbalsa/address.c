@@ -29,8 +29,6 @@
 #include "misc.h"
 #include <glib/gi18n.h>
 
-static void libbalsa_address_class_init(LibBalsaAddressClass * klass);
-static void libbalsa_address_init(LibBalsaAddress * ab);
 static void libbalsa_address_finalize(GObject * object);
 
 static gchar ** vcard_strsplit(const gchar * string);
