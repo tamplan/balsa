@@ -41,8 +41,6 @@
 
 /* stuff for the signature status as returned by gpgme as an GObject */
 
-static void g_mime_gpgme_sigstat_class_init(GMimeGpgmeSigstatClass *klass);
-static void g_mime_gpgme_sigstat_init(GMimeGpgmeSigstat *sigstat);
 static void g_mime_gpgme_sigstat_finalize(GMimeGpgmeSigstat *sigstat);
 
 /* GMimeGpgmeSigstat related stuff */
