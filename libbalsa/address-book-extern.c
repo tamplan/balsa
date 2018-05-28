@@ -56,10 +56,6 @@
 #define LINE_LEN 256
 #define LINE_LEN_STR "256"
 
-static LibBalsaAddressBookClass *parent_class = NULL;
-
-static void libbalsa_address_book_extern_class_init(LibBalsaAddressBookExternClass *klass);
-static void libbalsa_address_book_extern_init(LibBalsaAddressBookExtern *ab);
 static void libbalsa_address_book_externq_finalize(GObject * object);
 
 static LibBalsaABErr libbalsa_address_book_externq_load(LibBalsaAddressBook* ab, 
@@ -111,8 +107,6 @@ libbalsa_address_book_extern_class_init(LibBalsaAddressBookExternClass *
     LibBalsaAddressBookClass *address_book_class;
     GObjectClass *object_class;
 
-    parent_class = g_type_class_peek_parent(klass);
-
     object_class = G_OBJECT_CLASS(klass);
     address_book_class = LIBBALSA_ADDRESS_BOOK_CLASS(klass);
 
@@ -156,7 +150,7 @@ libbalsa_address_book_externq_finalize(GObject * object)
     g_free(addr_extern->save);
     g_list_free_full(addr_extern->address_list, g_object_unref);
 
-    G_OBJECT_CLASS(parent_class)->finalize(object);
+    G_OBJECT_CLASS(libbalsa_address_book_extern_parent_class)->finalize(object);
 }
 
 LibBalsaAddressBook *
@@ -322,8 +316,8 @@ libbalsa_address_book_extern_save_config(LibBalsaAddressBook * ab,
     libbalsa_conf_set_string("Load", vc->load);
     libbalsa_conf_set_string("Save", vc->save);
 
-    if (LIBBALSA_ADDRESS_BOOK_CLASS(parent_class)->save_config)
-	LIBBALSA_ADDRESS_BOOK_CLASS(parent_class)->save_config(ab, prefix);
+    if (LIBBALSA_ADDRESS_BOOK_CLASS(libbalsa_address_book_extern_parent_class)->save_config)
+	LIBBALSA_ADDRESS_BOOK_CLASS(libbalsa_address_book_extern_parent_class)->save_config(ab, prefix);
 }
 
 static void
@@ -340,8 +334,8 @@ libbalsa_address_book_externq_load_config(LibBalsaAddressBook * ab,
     vc->load = libbalsa_conf_get_string("Load");
     vc->save = libbalsa_conf_get_string("Save");
 
-    if (LIBBALSA_ADDRESS_BOOK_CLASS(parent_class)->load_config)
-	LIBBALSA_ADDRESS_BOOK_CLASS(parent_class)->load_config(ab, prefix);
+    if (LIBBALSA_ADDRESS_BOOK_CLASS(libbalsa_address_book_extern_parent_class)->load_config)
+	LIBBALSA_ADDRESS_BOOK_CLASS(libbalsa_address_book_extern_parent_class)->load_config(ab, prefix);
 }
 
 static void
