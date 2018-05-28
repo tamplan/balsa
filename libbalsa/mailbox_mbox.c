@@ -61,8 +61,6 @@ struct message_info {
 #define FLAGS_REALLY_DIFFER(orig_flags, flags) \
     ((((orig_flags) ^ (flags)) & LIBBALSA_MESSAGE_FLAGS_REAL) != 0)
 
-static void         libbalsa_mailbox_mbox_class_init(LibBalsaMailboxMboxClass *klass);
-static void         libbalsa_mailbox_mbox_init(LibBalsaMailboxMbox *mailbox);
 static void         libbalsa_mailbox_mbox_dispose(GObject *object);
 
 static GMimeStream *libbalsa_mailbox_mbox_get_message_stream(LibBalsaMailbox *
