@@ -32,10 +32,6 @@
 
 #include <glib/gi18n.h>
 
-static void
-libbalsa_address_book_ldif_class_init(LibBalsaAddressBookLdifClass *
-                                      klass);
-
 static LibBalsaABErr
 libbalsa_address_book_ldif_parse_address(FILE * stream_in,
                                          LibBalsaAddress * address_in,
