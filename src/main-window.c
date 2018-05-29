@@ -2556,13 +2556,27 @@ bw_enable_message_menus(BalsaWindow * window, guint msgno)
     gboolean enable_current_message_actions = FALSE;
     gboolean enable_message_actions = FALSE;
     gboolean enable_modify_message_actions = FALSE;
+    gboolean enable_reply_group = FALSE;
     gboolean enable_store = FALSE;
 
     if (bindex != NULL) {
         LibBalsaMailbox *mailbox;
+        GList *messages, *list;
 
         enable_current_message_actions = (msgno != 0);
-        enable_message_actions = (balsa_index_count_selected_messages(bindex) > 0);
+
+        messages = balsa_index_selected_list(BALSA_INDEX(bindex));
+        enable_message_actions = (messages != NULL);
+
+        for (list = messages; list != NULL; list = list->next) {
+            LibBalsaMessage *message = list->data;
+
+            if (libbalsa_message_get_user_header(message, "list-post") != NULL) {
+                enable_reply_group = TRUE;
+                break;
+            }
+        }
+        g_list_free_full(messages, g_object_unref);
 
         mailbox = balsa_index_get_mailbox(bindex);
         enable_modify_message_actions =
@@ -2580,6 +2594,7 @@ bw_enable_message_menus(BalsaWindow * window, guint msgno)
     bw_actions_set_enabled(window, modify_message_actions,
                            G_N_ELEMENTS(modify_message_actions),
                            enable_modify_message_actions);
+    bw_action_set_enabled(window, "reply-group", enable_reply_group);
     bw_action_set_enabled(window, "store-address", enable_store);
 
     balsa_window_enable_continue(window);
