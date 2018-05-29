@@ -7324,17 +7324,20 @@ sendmsg_window_reply(LibBalsaMailbox *mailbox,
 
     message = libbalsa_mailbox_get_message(mailbox, msgno);
     g_assert(message != NULL);
-    headers = libbalsa_message_get_headers(message);
 
-    bsmsg = sendmsg_window_new();
     switch (reply_type) {
+    case SEND_REPLY_GROUP:
+        if (libbalsa_message_get_user_header(message, "list-post") == NULL) {
+            g_object_unref(message);
+            return NULL;
+        }
     case SEND_REPLY:
     case SEND_REPLY_ALL:
-    case SEND_REPLY_GROUP:
+        bsmsg = sendmsg_window_new();
         bsmsg->type = reply_type;
         break;
-
-    default: printf("reply_type: %d\n", reply_type);
+    default:
+        printf("reply_type: %d\n", reply_type);
         g_assert_not_reached();
     }
     bsmsg->parent_message = message;
@@ -7342,6 +7345,7 @@ sendmsg_window_reply(LibBalsaMailbox *mailbox,
 
     bsm_prepare_for_setup(message);
 
+    headers = libbalsa_message_get_headers(message);
     set_to(bsmsg, headers);
 
     message_id = libbalsa_message_get_message_id(message);
