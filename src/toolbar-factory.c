@@ -775,7 +775,7 @@ tm_popup_context_menu_cb(GtkWidget    *toolbar,
     }
 
     if (event != NULL)
-        gdk_event_free(event);
+        g_object_unref(event);
 
     return TRUE;
 }
