@@ -1668,18 +1668,19 @@ static void
 bndx_compose_foreach(BalsaIndex *index,
                      SendType    send_type)
 {
-    GArray *selected;
     LibBalsaMailbox *mailbox;
+    GArray *selected;
     guint i;
     guint skipped = 0U;
 
-    selected = balsa_index_selected_msgnos_new(index);
     mailbox  = balsa_index_get_mailbox(index);
 
+    selected = balsa_index_selected_msgnos_new(index);
     for (i = 0; i < selected->len; i++) {
         guint msgno = g_array_index(selected, guint, i);
         BalsaSendmsg *sm;
-        switch (send_type) {
+
+        switch(send_type) {
         case SEND_REPLY:
         case SEND_REPLY_ALL:
         case SEND_REPLY_GROUP:
@@ -1694,9 +1695,13 @@ bndx_compose_foreach(BalsaIndex *index,
             g_assert_not_reached();
             sm = NULL; /** silence invalid warnings */
         }
-        if (sm != NULL)
-            g_signal_connect(sendmsg_window_get_window(sm), "destroy",
+
+        if (sm != NULL) {
+            g_signal_connect(G_OBJECT(sm->window), "destroy",
                              G_CALLBACK(sendmsg_window_destroy_cb), NULL);
+        } else {
+            ++skipped;
+        }
     }
     balsa_index_selected_msgnos_free(index, selected);
 
