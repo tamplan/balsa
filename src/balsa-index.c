@@ -1697,7 +1697,7 @@ bndx_compose_foreach(BalsaIndex *index,
         }
 
         if (sm != NULL) {
-            g_signal_connect(G_OBJECT(sm->window), "destroy",
+            g_signal_connect(sendmsg_window_get_window(sm), "destroy",
                              G_CALLBACK(sendmsg_window_destroy_cb), NULL);
         } else {
             ++skipped;
