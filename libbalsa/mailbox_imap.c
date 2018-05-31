@@ -1734,8 +1734,8 @@ libbalsa_mailbox_imap_get_matchings(LibBalsaMailboxImap *mbox,
 {
     ImapSearchKey *query;
     ImapResponse rc = IMR_NO;
-    ImapSearchData *cbdata;
-    GHashTable *res;
+    ImapSearchData * cbdata;
+    GHashTable *result;
 
     *err = FALSE;
 
@@ -1768,17 +1768,19 @@ libbalsa_mailbox_imap_get_matchings(LibBalsaMailboxImap *mbox,
     g_hash_table_destroy(cbdata->uids);
     /* Clean up on error */
     if (rc != IMR_OK) {
-        g_hash_table_destroy(cbdata->res);
-        cbdata->res = NULL;
-        *err        = TRUE;
-        libbalsa_information(LIBBALSA_INFORMATION_DEBUG,
-                             _("IMAP SEARCH command failed for mailbox %s\n"
-                               "falling back to default searching method"),
-                             libbalsa_mailbox_get_url(LIBBALSA_MAILBOX(mbox)));
+	g_hash_table_destroy(cbdata->res);
+	cbdata->res = NULL;
+	*err = TRUE;
+	libbalsa_information(LIBBALSA_INFORMATION_DEBUG,
+			     _("IMAP SEARCH command failed for mailbox %s\n"
+			       "falling back to default searching method"),
+			     LIBBALSA_MAILBOX(mbox)->url);
     }
-    res = cbdata->res;
+
+    result = cbdata->res;
     g_free(cbdata);
-    return res;
+
+    return result;
 }
 
 
