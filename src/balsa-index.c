@@ -2699,13 +2699,14 @@ bndx_pipe_queue_last(struct BndxPipeQueue *queue)
     chars_read = g_mime_stream_read(stream, pipe->message,
                                     pipe->message_length);
     libbalsa_mailbox_unlock_store(queue->mailbox);
-    if (chars_read != pipe->message_length) {
-        libbalsa_information(LIBBALSA_INFORMATION_ERROR,
-                             _("Cannot read message %u to pass to %s"),
-                             msgno, queue->pipe_cmd);
-        bndx_pipe_queue_last(queue);
-        g_free(pipe);
-        return;
+    if(chars_read != pipe->message_length) {
+	    libbalsa_information(LIBBALSA_INFORMATION_ERROR,
+				 _("Cannot read message %u to pass to %s"),
+				 msgno, queue->pipe_cmd);
+	g_free(pipe->message);
+	g_free(pipe);
+	bndx_pipe_queue_last(queue);
+	return;
     }
 
     argv    = g_new(gchar *, 4);
@@ -2742,9 +2743,16 @@ bndx_pipe_queue_last(struct BndxPipeQueue *queue)
         g_io_channel_set_close_on_unref(pipe->out_channel, TRUE);
         g_io_channel_set_close_on_unref(pipe->err_channel, TRUE);
     } else {
+<<<<<<< HEAD
         printf("Could not spawn pipe %s : %s\n", queue->pipe_cmd,
                error ? error->message : "unknown");
         g_clear_error(&error);
+=======
+	printf("Could not spawn pipe %s : %s\n", queue->pipe_cmd,
+	       error ? error->message : "unknown");
+	g_clear_error(&error);
+	g_free(pipe->message);
+>>>>>>> 102ed47c... balsa-index: Do not leak PipeData
         g_free(pipe);
     }
 }
