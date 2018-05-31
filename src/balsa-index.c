@@ -1699,7 +1699,7 @@ bndx_compose_foreach(BalsaIndex *index,
         if (sm != NULL) {
             g_signal_connect(sendmsg_window_get_window(sm), "destroy",
                              G_CALLBACK(sendmsg_window_destroy_cb), NULL);
-        } else {
+        } else if (send_type == SEND_REPLY_GROUP) {
             ++skipped;
         }
     }
