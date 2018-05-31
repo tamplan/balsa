@@ -275,12 +275,6 @@ lbh_navigation_policy_decision(WebKitPolicyDecision * decision,
     uri = webkit_uri_request_get_uri(request);
 
     switch (navigation_type) {
-    case WEBKIT_NAVIGATION_TYPE_OTHER:
-    case WEBKIT_NAVIGATION_TYPE_RELOAD:
-        d(g_print("%s uri %s, type %d, used\n", __func__, uri,
-                  navigation_type));
-        webkit_policy_decision_use(decision);
-        break;
     case WEBKIT_NAVIGATION_TYPE_LINK_CLICKED:
         d(g_print("%s clicked %s\n", __func__, uri));
         (*info->clicked_cb) (uri);
