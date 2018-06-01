@@ -1774,7 +1774,7 @@ libbalsa_mailbox_imap_get_matchings(LibBalsaMailboxImap *mbox,
 	libbalsa_information(LIBBALSA_INFORMATION_DEBUG,
 			     _("IMAP SEARCH command failed for mailbox %s\n"
 			       "falling back to default searching method"),
-			     LIBBALSA_MAILBOX(mbox)->url);
+                             libbalsa_mailbox_get_url(LIBBALSA_MAILBOX(mbox)));
     }
 
     result = cbdata->res;
