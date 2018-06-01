@@ -2743,16 +2743,10 @@ bndx_pipe_queue_last(struct BndxPipeQueue *queue)
         g_io_channel_set_close_on_unref(pipe->out_channel, TRUE);
         g_io_channel_set_close_on_unref(pipe->err_channel, TRUE);
     } else {
-<<<<<<< HEAD
-        printf("Could not spawn pipe %s : %s\n", queue->pipe_cmd,
-               error ? error->message : "unknown");
-        g_clear_error(&error);
-=======
 	printf("Could not spawn pipe %s : %s\n", queue->pipe_cmd,
 	       error ? error->message : "unknown");
 	g_clear_error(&error);
 	g_free(pipe->message);
->>>>>>> 102ed47c... balsa-index: Do not leak PipeData
         g_free(pipe);
     }
 }
