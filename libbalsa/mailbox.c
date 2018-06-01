@@ -4542,8 +4542,7 @@ lbm_try_reassemble(LibBalsaMailbox *mailbox,
             g_mime_multipart_foreach((GMimeMultipart *)
                                      mime_message->mime_part,
                                      lbm_try_reassemble_func, &partial);
-            if (partial
-                && (strcmp(g_mime_message_partial_get_id(partial), id) == 0)) {
+            if (g_strcmp0(g_mime_message_partial_get_id(partial), id) == 0) {
                 g_ptr_array_add(partials, partial);
                 if (g_mime_message_partial_get_total(partial) > 0) {
                     total = g_mime_message_partial_get_total(partial);

@@ -1330,26 +1330,16 @@ remove_special_mailbox_by_url(const gchar       *url,
 {
     LibBalsaMailbox **mailbox;
 
-    if (balsa_app.trash && (strcmp(url,
-                                   libbalsa_mailbox_get_url(balsa_app.trash))
-                            == 0))
-        mailbox = &balsa_app.trash;
-    else if (balsa_app.inbox && (strcmp(url,
-                                        libbalsa_mailbox_get_url(balsa_app.inbox))
-                                 == 0))
-        mailbox = &balsa_app.inbox;
-    else if (balsa_app.outbox && (strcmp(url,
-                                         libbalsa_mailbox_get_url(balsa_app.outbox))
-                                  == 0))
-        mailbox = &balsa_app.outbox;
-    else if (balsa_app.sentbox && (strcmp(url,
-                                          libbalsa_mailbox_get_url(balsa_app.sentbox))
-                                   == 0))
-        mailbox = &balsa_app.sentbox;
-    else if (balsa_app.draftbox && (strcmp(url,
-                                           libbalsa_mailbox_get_url(balsa_app.draftbox))
-                                    == 0))
-        mailbox = &balsa_app.draftbox;
+    if (g_strcmp0(url, balsa_app.trash->url) == 0)
+	mailbox = &balsa_app.trash;
+    else if (g_strcmp0(url, balsa_app.inbox->url) == 0)
+	mailbox = &balsa_app.inbox;
+    else if (g_strcmp0(url, balsa_app.outbox->url) == 0)
+	mailbox = &balsa_app.outbox;
+    else if (g_strcmp0(url, balsa_app.sentbox->url) == 0)
+	mailbox = &balsa_app.sentbox;
+    else if (g_strcmp0(url, balsa_app.draftbox->url) == 0)
+	mailbox = &balsa_app.draftbox;
     else
         mailbox = NULL;
 

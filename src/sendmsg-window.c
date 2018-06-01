@@ -754,7 +754,7 @@ find_locale_index_by_locale(const gchar *locale)
     unsigned i, j, maxfit = 0;
     gint maxpos = -1;
 
-    if (!locale || (strcmp(locale, "C") == 0))
+    if (locale == NULL || strcmp(locale, "C") == 0)
         locale = "en_US";
     for (i = 0; i < G_N_ELEMENTS(locales); i++) {
         for (j = 0; locale[j] && locales[i].locale[j] == locale[j]; j++) {

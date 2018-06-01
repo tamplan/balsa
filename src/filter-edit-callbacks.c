@@ -1659,12 +1659,15 @@ change_filter_name(gchar * old_name,gchar * new_name)
           if yes we must change it to : any name -> new_name
           else we create a new record
 	*/
-	for (lst = filters_names_changes; lst != NULL; lst = lst->next)
-            if (g_strcmp0(((filters_names_rec *) lst->data)->new_name, old_name) == 0) {
-                p=(filters_names_rec *)lst->data;
+	for (lst=filters_names_changes;lst;lst=g_list_next(lst)) {
+            filters_names_rec *q = lst->data;
+
+            if (g_strcmp0(q->new_name, old_name) == 0) {
+                p = q;
                 g_free(p->new_name);
                 break;
             }
+        }
         if (!lst) {
             /* New name change, create record */
             p=g_new(filters_names_rec,1);
