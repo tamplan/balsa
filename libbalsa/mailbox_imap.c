@@ -3773,7 +3773,7 @@ libbalsa_mailbox_imap_messages_copy(LibBalsaMailbox *mailbox,
                 while ((filename = g_dir_read_name(dir)) != NULL) {
                     unsigned msg_uid;
                     gchar *tail;
-                    if (strncmp(encoded_path, filename, prefix_length)) {
+                    if (!g_str_has_prefix(filename, encoded_path)) {
                         continue;
                     }
                     msg_uid = strtol(filename + prefix_length, &tail, 10);

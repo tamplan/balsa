@@ -442,11 +442,11 @@ net_client_pop_read_reply(NetClientPop *client, gchar **reply, GError **error)
 
 	result = net_client_read_line(NET_CLIENT(client), &reply_buf, error);
 	if (result) {
-		if (strncmp(reply_buf, "+OK", 3U) == 0) {
+		if (g_str_has_prefix(reply_buf, "+OK")) {
 			if ((strlen(reply_buf) > 3U) && (reply != NULL)) {
 				*reply = g_strdup(&reply_buf[4]);
 			}
-		} else if (strncmp(reply_buf, "-ERR", 4U) == 0) {
+		} else if (g_str_has_prefix(reply_buf, "-ERR")) {
 			if (strlen(reply_buf) > 4U) {
 				g_set_error(error, NET_CLIENT_POP_ERROR_QUARK, (gint) NET_CLIENT_ERROR_POP_SERVER_ERR, _("error: %s"),
 					&reply_buf[5]);
@@ -723,7 +723,7 @@ net_client_pop_execute_sasl(NetClientPop *client, const gchar *request_fmt, gcha
 
 		result = net_client_read_line(NET_CLIENT(client), &reply_buf, error);
 		if (result) {
-			if (strncmp(reply_buf, "+ ", 2U) == 0) {
+			if (g_str_has_prefix(reply_buf, "+ ")) {
 				if (challenge != NULL) {
 					*challenge = g_strdup(&reply_buf[2]);
 				}
@@ -762,7 +762,7 @@ net_client_pop_get_capa(NetClientPop *client, guint *auth_supported)
 				done = TRUE;
 			} else if (strcmp(reply, "USER") == 0) {
 				*auth_supported |= NET_CLIENT_POP_AUTH_USER_PASS;
-			} else if (strncmp(reply, "SASL ", 5U) == 0) {
+			} else if (g_str_has_prefix(reply, "SASL ")) {
 				gchar **auth;
 				guint n;
 

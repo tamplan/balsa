@@ -161,7 +161,7 @@ static char *ciss_parse_userhost (ciss_url_t *ciss, char *src)
   ciss->host = NULL;
   ciss->port = 0;
 
-  if (strncmp (src, "//", 2))
+  if (!g_str_has_prefix (src, "//"))
     return src;
   
   src += 2;

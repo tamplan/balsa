@@ -354,7 +354,7 @@ dowrap_rfc2646(GList * list, gint width, gboolean to_screen,
              * - ...but we mustn't stuff `-- ' */
             if (((!to_screen
                   && (*str == ' ' || *str == QUOTE_CHAR
-                      || !strncmp(str, "From ", 5))) || len > 0)
+                      || g_str_has_prefix(str, "From "))) || len > 0)
                 && strcmp(str, "-- ")) {
                 g_string_append_c(result, ' ');
                 ++len;
@@ -390,7 +390,7 @@ dowrap_rfc2646(GList * list, gint width, gboolean to_screen,
                  * */
                 if ((str - start) < max_width && *str
                     && (*str == QUOTE_CHAR
-                        || !strncmp(str, "From ", 5)))
+                        || g_str_has_prefix(str, "From ")))
                     continue;
 
                 if (!*str || len > width || (str - start) >= max_width) {
@@ -598,7 +598,7 @@ get_quote_tag(GtkTextIter * iter)
         gchar *name;
         g_object_get(G_OBJECT(tag), "name", &name, NULL);
         if (name) {
-            if (!strncmp(name, "quote-", 6))
+            if (g_str_has_prefix(name, "quote-"))
                 quote_tag = tag_list->data;
             g_free(name);
         }

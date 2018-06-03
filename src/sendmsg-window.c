@@ -1293,13 +1293,13 @@ update_bsmsg_identity(BalsaSendmsg     *bsmsg,
     old_reply_string   = libbalsa_identity_get_reply_string(old_ident);
     old_forward_string = libbalsa_identity_get_forward_string(old_ident);
 
-    if (((replen = strlen(old_forward_string)) > 0) &&
-        (strncmp(subject, old_reply_string, replen) == 0)) {
+    if (((replen = strlen(old_reply_string)) > 0) &&
+        g_str_has_prefix(subject, old_reply_string)) {
         tmpstr = g_strconcat(reply_string, &(subject[replen]), NULL);
         gtk_entry_set_text(GTK_ENTRY(bsmsg->subject[1]), tmpstr);
         g_free(tmpstr);
     } else if (((fwdlen = strlen(old_forward_string)) > 0) &&
-               (strncmp(subject, old_forward_string, fwdlen) == 0)) {
+               g_str_has_prefix(subject, old_forward_string)) {
         tmpstr = g_strconcat(forward_string, &(subject[fwdlen]), NULL);
         gtk_entry_set_text(GTK_ENTRY(bsmsg->subject[1]), tmpstr);
         g_free(tmpstr);
@@ -1913,8 +1913,8 @@ add_attachment(BalsaSendmsg *bsmsg,
         const gchar *uri_utf8 = libbalsa_vfs_get_uri_utf8(file_uri);
         const gchar *home     = g_getenv("HOME");
 
-        if (home && !strncmp(uri_utf8, "file://", 7) &&
-            !strncmp(uri_utf8 + 7, home, strlen(home)))
+        if (home != NULL && g_str_has_prefix(uri_utf8, "file://") &&
+            g_str_has_prefix(uri_utf8 + 7, home))
             utf8name = g_strdup_printf("~%s", uri_utf8 + 7 + strlen(home));
         else
             utf8name = g_strdup(uri_utf8);

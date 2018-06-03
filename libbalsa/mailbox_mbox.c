@@ -942,7 +942,7 @@ lbm_mbox_check_file(LibBalsaMailboxMbox *mbox,
          * by an embedded Content-Length header, we may be misled, but a
          * full GMime parse takes too long. */
         while (lbm_mbox_readln(buffer, line)
-               && strncmp((gchar *) line->data, "From ", 5) != 0) {
+               && !g_str_has_prefix((gchar *) line->data, "From ")) {
             /* Nothing. */
         }
         if (line->len == 0) {

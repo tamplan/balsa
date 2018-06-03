@@ -65,7 +65,7 @@ getdnsdomainname (char *s, size_t l)
   {
     p = tmp;
     while ( g_ascii_isspace (*p)) p++;
-    if (strncmp ("domain", p, 6) == 0 || strncmp ("search", p, 6) == 0)
+    if (g_str_has_prefix(p, "domain") || g_str_has_prefix(p, "search"))
     {
       p += 6;
       

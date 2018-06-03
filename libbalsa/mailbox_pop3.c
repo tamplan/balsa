@@ -168,14 +168,12 @@ mp_load_uids(const gchar *prefix)
 
     if (read_res) {
         gchar **lines;
-        size_t prefix_len;
         guint n;
 
         lines = g_strsplit(contents, "\n", -1);
         g_free(contents);
-        prefix_len = strlen(prefix);
         for (n = 0; lines[n] != NULL; n++) {
-            if (strncmp(lines[n], prefix, prefix_len) == 0) {
+            if (g_str_has_prefix(lines[n], prefix)) {
                 g_hash_table_insert(res, g_strdup(lines[n]), GINT_TO_POINTER(1));
             }
         }
@@ -219,14 +217,12 @@ mp_save_uids(GHashTable  *uids,
     if (out != NULL) {
         if (read_res) {
             gchar **lines;
-            size_t prefix_len;
             guint n;
 
             lines = g_strsplit(contents, "\n", -1);
             g_free(contents);
-            prefix_len = strlen(prefix);
             for (n = 0; lines[n] != NULL; n++) {
-                if ((lines[n][0] != '\0') && (strncmp(lines[n], prefix, prefix_len) != 0)) {
+                if ((lines[n][0] != '\0') && (!g_str_has_prefix(lines[n], prefix))) {
                     fputs(lines[n], out);
                     fputc('\n', out);
                 }
@@ -594,7 +590,6 @@ update_msg_list(struct fetch_data         *fd,
 {
     GHashTable *uids  = NULL;
     gchar *uid_prefix = NULL;
-    size_t prefix_len = 0U;
     GList *p;
 
     /* load uid's if messages shall be left on the server */
@@ -603,7 +598,6 @@ update_msg_list(struct fetch_data         *fd,
                                  "@",
                                  libbalsa_server_get_host(server),
                                  NULL);
-        prefix_len    = strlen(uid_prefix);
         uids          = mp_load_uids(uid_prefix);
         *current_uids = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
     }
@@ -659,7 +653,7 @@ update_msg_list(struct fetch_data         *fd,
 
         g_hash_table_iter_init(&iter, uids);
         while (g_hash_table_iter_next(&iter, &key, NULL)) {
-            if (strncmp((const char *) key, uid_prefix, prefix_len) != 0) {
+            if (!g_str_has_prefix((const char *) key, uid_prefix)) {
                 g_hash_table_insert(*current_uids, key, GINT_TO_POINTER(1));
             }
         }

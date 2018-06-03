@@ -685,8 +685,8 @@ folder, parent);
                 balsa_mailbox_node_set_dir(sdd->mbnode, parent);
 
                 /*  Rescan as little of the tree as possible. */
-                if (sdd->old_parent
-                    && !strncmp(parent, sdd->old_parent, strlen(parent))) {
+                if (sdd->old_parent != NULL
+                    && g_str_has_prefix(sdd->old_parent, parent)) {
                     /* moved it up the tree */
 		    BalsaMailboxNode *mbnode =
                         balsa_mailbox_node_find_from_dir(balsa_mailbox_node_get_server(sdd->parent), parent);
@@ -695,9 +695,8 @@ folder, parent);
 			g_object_unref(mbnode);
 		    } else
                         printf("Parent not found!?\n");
-                } else if (sdd->old_parent
-                           && !strncmp(parent, sdd->old_parent,
-                                       strlen(sdd->old_parent))) {
+                } else if (sdd->old_parent != NULL
+                           && g_str_has_prefix(parent, sdd->old_parent)) {
                     /* moved it down the tree */
 		    BalsaMailboxNode *mbnode =
 			balsa_mailbox_node_find_from_dir(balsa_mailbox_node_get_server(sdd->parent), sdd->old_parent);

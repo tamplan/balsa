@@ -627,7 +627,7 @@ net_client_smtp_ehlo(NetClientSmtp *client, guint *auth_supported, gboolean *can
 					priv->can_dsn = TRUE;
 				} else if (strcmp(&endptr[1], "STARTTLS") == 0) {
 					*can_starttls = TRUE;
-				} else if ((strncmp(&endptr[1], "AUTH ", 5U) == 0) || (strncmp(&endptr[1], "AUTH=", 5U) == 0)) {
+				} else if (g_str_has_prefix(&endptr[1], "AUTH ") || g_str_has_prefix(&endptr[1], "AUTH=")) {
 					gchar **auth;
 					guint n;
 

@@ -1825,7 +1825,7 @@ libbalsa_html_url_requested(GtkWidget * html, const gchar * url,
     LibBalsaMessageBody *body;
     GMimeStream *mime_stream;
 
-    if (strncmp(url, "cid:", 4)) {
+    if (!g_str_has_prefix(url, "cid:")) {
 	/* printf("non-local URL request ignored: %s\n", url); */
 	return FALSE;
     }

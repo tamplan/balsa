@@ -356,7 +356,7 @@ parse_filename(const gchar *subdir,
         flags |= LIBBALSA_MESSAGE_FLAG_RECENT;
     }
 
-    if (((p = strrchr (filename, ':')) != NULL) && (strncmp (p + 1, "2,", 2) == 0)) {
+    if (((p = strrchr (filename, ':')) != NULL) && g_str_has_prefix (p + 1, "2,")) {
         p += 3;
         while (*p) {
             switch (*p) {
@@ -417,7 +417,7 @@ lbm_maildir_parse(LibBalsaMailboxMaildir *mdir,
 
         key = g_strdup(filename);
         /* strip flags of filename */
-        if ((p = strrchr(key, ':')) && !strncmp(p, ":2,", 3)) {
+        if ((p = strrchr(key, ':')) && g_str_has_prefix(p, ":2,")) {
             *p = '\0';
         }
 

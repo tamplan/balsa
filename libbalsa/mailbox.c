@@ -1224,7 +1224,7 @@ libbalsa_mailbox_type_from_path(const gchar *path)
 {
     struct stat st;
 
-    if (strncmp(path, "imap://", 7) == 0) {
+    if (g_str_has_prefix(path, "imap://")) {
         return LIBBALSA_TYPE_MAILBOX_IMAP;
     }
 

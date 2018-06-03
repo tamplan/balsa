@@ -1264,7 +1264,7 @@ libbalsa_message_create_mime_message(LibBalsaMessage *message,
                 g_mime_object_set_content_type(mime_part, content_type);
                 g_mime_part_set_content_encoding(GMIME_PART(mime_part),
                                                  GMIME_CONTENT_ENCODING_7BIT);
-                if (body->filename && !strncmp(body->filename, "URL", 3)) {
+                if (body->filename && g_str_has_prefix(body->filename, "URL")) {
                     g_mime_object_set_content_type_parameter(mime_part,
                                                              "access-type", "URL");
                     g_mime_object_set_content_type_parameter(mime_part,
