@@ -334,9 +334,9 @@ balsa_information_bar(GtkWindow *parent, LibBalsaInformationType type,
     context_id = gtk_statusbar_get_context_id(statusbar, "Information bar");
 
     /* First clear any current message. */
-    if (libbalsa_clear_source_id(&bar_timeout_id)) {
+    if (bar_timeout_id != 0U)
         gtk_statusbar_pop(statusbar, context_id);
-    }
+    libbalsa_clear_source_id(&bar_timeout_id);
 
     line = g_strdup(msg);
     g_strdelimit(line, "\r\n", ' ');

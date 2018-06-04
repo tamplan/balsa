@@ -158,7 +158,7 @@ gchar * libbalsa_text_to_html(const gchar * title, const gchar * body, const gch
 GString * libbalsa_html_encode_hyperlinks(GString * paragraph);
 gchar *libbalsa_font_string_to_css(const gchar * font_string, const gchar * name);
 
-gboolean libbalsa_clear_source_id(guint * tag);
+#define libbalsa_clear_source_id(tag) g_clear_handle_id((tag), g_source_remove)
 void libbalsa_clear_list(GList ** list, GDestroyNotify free_func);
 void libbalsa_clear_slist(GSList ** list, GDestroyNotify free_func);
 
