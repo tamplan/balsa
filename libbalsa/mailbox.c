@@ -770,7 +770,7 @@ lbm_changed_idle_cb(LibBalsaMailbox *mailbox)
 
     libbalsa_lock_mailbox(mailbox);
     g_signal_emit(mailbox, libbalsa_mailbox_signals[CHANGED], 0);
-    priv->changed_idle_id = 0;
+    priv->changed_idle_id = 0U;
     libbalsa_unlock_mailbox(mailbox);
 
     return G_SOURCE_REMOVE;
@@ -783,9 +783,9 @@ lbm_changed_schedule_idle(LibBalsaMailbox *mailbox)
     LibBalsaMailboxPrivate *priv = libbalsa_mailbox_get_instance_private(mailbox);
 
     libbalsa_lock_mailbox(mailbox);
-    if (!priv->changed_idle_id) {
+    if (priv->changed_idle_id == 0U) {
         priv->changed_idle_id =
-            g_idle_add((GSourceFunc) lbm_changed_idle_cb, mailbox);
+            g_idle_add((GSourceFunc) lbm_changed_idle_cb, g_object_ref(mailbox));
     }
     libbalsa_unlock_mailbox(mailbox);
 }
