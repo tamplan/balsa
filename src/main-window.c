@@ -3374,6 +3374,7 @@ check_new_messages_real(BalsaWindow * window, gboolean background_check)
     if (window)
         bw_action_set_enabled(window, "get-new-mail", FALSE);
 
+    list = NULL;
     gtk_tree_model_foreach(GTK_TREE_MODEL(balsa_app.mblist_tree_store),
 			   (GtkTreeModelForeachFunc) bw_add_mbox_to_checklist,
 			   &list);
