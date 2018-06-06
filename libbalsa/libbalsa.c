@@ -355,45 +355,12 @@ gboolean
 libbalsa_is_cert_known(GTlsCertificate      *cert,
 					   GTlsCertificateFlags  errors)
 {
-    X509 *tmpcert = NULL;
-    FILE *fp;
-    gchar *cert_name;
-    gboolean res = FALSE;
-    GList *lst;
+	gchar *cert_file;
+	GList *cert_db;
+	gboolean cert_ok;
+	GList *lst;
 
-    g_mutex_lock(&certificate_lock);
-    for(lst = accepted_certs; lst; lst = lst->next) {
-        int X509_res = X509_cmp(cert, lst->data);
-        if(X509_res == 0) {
-        	g_mutex_unlock(&certificate_lock);
-            return TRUE;
-	}
-    }
-    
-    cert_name = g_strconcat(g_get_home_dir(), "/.balsa/certificates", NULL);
-
-    fp = fopen(cert_name, "rt");
-    g_free(cert_name);
-    if(fp) {
-        /* 
-        printf("Looking for cert: %s\n", 
-               X509_NAME_oneline(X509_get_subject_name (cert),
-                                 buf, sizeof (buf)));
-        */
-        res = FALSE;
-        while ((tmpcert = PEM_read_X509(fp, NULL, NULL, NULL)) != NULL) {
-            res = X509_cmp(cert, tmpcert)==0;
-            X509_free(tmpcert);
-            if(res) break;
-        }
-        ERR_clear_error();
-        fclose(fp);
-    }
-    g_mutex_unlock(&certificate_lock);
-    
-    if(!res) {
-	const char *reason = X509_verify_cert_error_string(vfy_result);
-	res = libbalsa_ask_for_cert_acceptance(cert, reason);
+	/* check the list of accepted certificates for this session */
 	g_mutex_lock(&certificate_lock);
 	for (lst = accepted_certs; lst; lst = lst->next) {
 		if (g_tls_certificate_is_same(cert, G_TLS_CERTIFICATE(lst->data))) {
@@ -686,13 +653,13 @@ libbalsa_ask_for_cert_acceptance(GTlsCertificate      *cert,
     } else if ((errors & G_TLS_CERTIFICATE_BAD_IDENTITY) == G_TLS_CERTIFICATE_BAD_IDENTITY) {
     	acd.explanation = _("the certificate does not match the expected identity of the site that it was retrieved from");
     } else if ((errors & G_TLS_CERTIFICATE_NOT_ACTIVATED) == G_TLS_CERTIFICATE_NOT_ACTIVATED) {
-    	acd.explanation = _("the certificate’s activation time is still in the future");
+    	acd.explanation = _("the certificate's activation time is still in the future");
     } else if ((errors & G_TLS_CERTIFICATE_EXPIRED) == G_TLS_CERTIFICATE_EXPIRED) {
     	acd.explanation = _("the certificate has expired");
     } else if ((errors & G_TLS_CERTIFICATE_REVOKED) == G_TLS_CERTIFICATE_REVOKED) {
     	acd.explanation = _("the certificate has been revoked ");
     } else if ((errors & G_TLS_CERTIFICATE_INSECURE) == G_TLS_CERTIFICATE_INSECURE) {
-    	acd.explanation = _("the certificate’s algorithm is considered insecure");
+    	acd.explanation = _("the certificate's algorithm is considered insecure");
     } else {
     	acd.explanation = _("an error occurred validating the certificate");
     }

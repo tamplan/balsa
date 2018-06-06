@@ -468,13 +468,7 @@ idle_start(gpointer data)
   asyncno = imap_make_tag(tag);
   net_client_write_line(NET_CLIENT(h->sio), "%s IDLE", NULL, tag);
   cmdi_add_handler(&h->cmd_info, asyncno, cmdi_empty, NULL);
-  if(!h->iochannel) {
-    h->iochannel = g_io_channel_unix_new(h->sd);
-    g_io_channel_set_encoding(h->iochannel, NULL, NULL);
-  }
-  if(ASYNC_DEBUG) printf("async_process() registered\n");
-  h->async_watch_id = g_io_add_watch(h->iochannel, G_IO_IN|G_IO_HUP,
-				     async_process, h);
+  socket_source_add(h);
   h->idle_state = IDLE_RESPONSE_PENDING;
 
   g_mutex_unlock(&h->mutex);

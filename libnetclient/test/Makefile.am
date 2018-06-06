@@ -26,7 +26,7 @@ clean-local:
 	-rm -rf gcov
 
 tests:	tests.c
-	$(CC) $(LIBNETCLIENT_CFLAGS) $(CPPFLAGS) $(TESTFLAGS) -I. -I.. -I../.. $< $(test_src) -o $@ $(LIBNETCLIENT_LIBS)
+	$(CC) $(LIBNETCLIENT_CFLAGS) $(CPPFLAGS) $(TESTFLAGS) -DG_LOG_DOMAIN=\"libnetclient\" -I. -I.. -I../.. $< $(test_src) -o $@ $(LIBNETCLIENT_LIBS)
 	$(VALGRIND) $(VALGRFLAGS) ./$@
 	$(LCOV) $(LCOVFLGS) -c -b $(libsrcdir) -d $(abs_srcdir) --no-external -o $@.covi
 	$(LCOV) $(LCOVFLGS) -r $@.covi $< -o $@.covi
