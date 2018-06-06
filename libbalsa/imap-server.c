@@ -42,8 +42,6 @@
 #include "imap-commands.h"
 #include <glib/gi18n.h>
 
-#define REQ_SSL(s) libbalsa_server_get_use_ssl(LIBBALSA_SERVER(s))
-
 /** wait 60 seconds for packets */
 #define IMAP_CMD_TIMEOUT (60*1000)
 
@@ -119,10 +117,12 @@ static void libbalsa_imap_server_set_username(LibBalsaServer * server,
         set_username(server, name);
 }
 static void
-libbalsa_imap_server_set_host(LibBalsaServer * server,
-                              const gchar * host, gboolean use_ssl)
+libbalsa_imap_server_set_host(LibBalsaServer     *server,
+                              const gchar        *host,
+                              NetClientCryptMode  security)
 {
-    if(libbalsa_server_get_username(server) && host) { /* we have been initialized... */
+    if (libbalsa_server_get_username(server) != NULL && host != NULL) {
+        /* we have been initialized... */
         LibBalsaImapServer *imap_server = LIBBALSA_IMAP_SERVER(server);
         g_mutex_lock(&imap_servers_lock);
         g_hash_table_steal(imap_servers, imap_server->key);
@@ -132,9 +132,11 @@ libbalsa_imap_server_set_host(LibBalsaServer * server,
         g_hash_table_insert(imap_servers, imap_server->key, imap_server);
         g_mutex_unlock(&imap_servers_lock);
     }
+
     LIBBALSA_SERVER_CLASS(libbalsa_imap_server_parent_class)->
-        set_host(server, host, use_ssl);
+        set_host(server, host, security);
 }
+
 static void
 libbalsa_imap_server_class_init(LibBalsaImapServerClass * klass)
 {
@@ -192,55 +194,6 @@ libbalsa_imap_server_finalize(GObject * object)
     G_OBJECT_CLASS(libbalsa_imap_server_parent_class)->finalize(object);
 }
 
-gint ImapDebug = 0;
-#define BALSA_TEST_IMAP 1
-
-static void
-monitor_cb(const char *buffer, int length, int direction, void *arg)
-{
-#if BALSA_TEST_IMAP
-  if (ImapDebug) {
-    const gchar *passwd = NULL;
-    int i;
-
-    if (direction) {
-      const gchar *login;
-      int login_length;
-
-      login = g_strstr_len(buffer, length, "LOGIN ");
-      if (login) {
-        login_length = 6;
-      } else {
-        login = g_strstr_len(buffer, length, "AUTHENTICATE PLAIN");
-        login_length = 18;
-      }
-
-      if (login) {
-        const gchar *user = login + login_length;
-        passwd = g_strstr_len(user, length - (user - buffer), " ");
-        if (passwd) {
-          int new_len = ++passwd - buffer;
-          if (new_len < length)
-            length = new_len;
-          else
-            passwd = NULL;
-        }
-      }
-    }
-
-    printf("IMAP %c: ", direction ? 'C' : 'S');
-    for (i = 0; i < length; i++)
-      putchar(buffer[i]);
-
-    if (passwd)
-      puts("(password hidden)");
-
-    fflush(NULL);
-  }
-#endif                          /* BALSA_TEST_IMAP */
-  if (direction)
-    ((struct handle_info *) arg)->last_used = time(NULL);
-}
 
 static void
 is_info_cb(ImapMboxHandle *h, ImapResponse rc, const gchar* str, void *arg)
@@ -284,16 +237,10 @@ lb_imap_server_info_new(LibBalsaServer *server)
     imap_handle_set_timeout(handle, IMAP_CMD_TIMEOUT);
     info = g_new0(struct handle_info, 1);
     info->handle = handle;
-    imap_handle_set_monitorcb(handle, monitor_cb, info);
     imap_handle_set_infocb(handle,    is_info_cb, server);
-    imap_handle_set_usercb(handle,    libbalsa_server_user_cb, server);
-    switch(libbalsa_server_get_tls_mode(server)) {
-    case LIBBALSA_TLS_DISABLED: mode = IMAP_TLS_DISABLED; break;
-    default:
-    case LIBBALSA_TLS_ENABLED : mode = IMAP_TLS_ENABLED;  break;
-    case LIBBALSA_TLS_REQUIRED: mode = IMAP_TLS_REQUIRED; break;
-    }
-    imap_handle_set_tls_mode(handle, mode);
+    imap_handle_set_authcb(handle, G_CALLBACK(libbalsa_server_get_auth), server);
+    imap_handle_set_certcb(handle, G_CALLBACK(libbalsa_server_check_cert));
+    imap_handle_set_tls_mode(handle, libbalsa_server_get_security(server));
     imap_handle_set_option(handle, IMAP_OPT_ANONYMOUS,
                            libbalsa_server_get_try_anonymous(server));
     imap_handle_set_option(handle, IMAP_OPT_CLIENT_SORT, TRUE);
@@ -441,6 +388,7 @@ libbalsa_imap_server_new_from_config(void)
     gint conn_limit;
 
     host = libbalsa_conf_get_string("Server");
+g_print("%s host %s\n", G_STRFUNC, host);
     if(strrchr(host, ':') == NULL) {
         gint port;
         port = libbalsa_conf_get_int_with_default("Port", &d);
@@ -448,6 +396,7 @@ libbalsa_imap_server_new_from_config(void)
             gchar *newhost = g_strdup_printf("%s:%d", host, port);
             g_free(host);
             host = newhost;
+g_print("%s host from newhost %s\n", G_STRFUNC, host);
         }
     }
     user = libbalsa_conf_private_get_string("Username");
@@ -458,22 +407,15 @@ libbalsa_imap_server_new_from_config(void)
     server = LIBBALSA_SERVER(imap_server);
 
     if (libbalsa_server_get_username(server) == NULL) {
-        gboolean use_ssl;
-
         libbalsa_server_set_username(server, user);
-        use_ssl = libbalsa_conf_get_bool("SSL=false");
-        use_ssl = use_ssl || libbalsa_server_get_use_ssl(server);
-        libbalsa_server_set_host(server, host, use_ssl);
     }
     g_free(user);
     g_free(host);
 
     d1 = libbalsa_conf_get_bool_with_default("Anonymous", &d);
-    if(!d) libbalsa_server_set_try_anonymous(server, !!d1);
-
-    tls_mode = libbalsa_conf_get_int_with_default("TLSMode", &d);
-    if(!d) libbalsa_server_set_tls_mode(server, tls_mode);
-
+    if(!d)
+        libbalsa_server_set_try_anonymous(server, !!d1);
+    libbalsa_server_load_security_config(server);
     conn_limit = libbalsa_conf_get_int_with_default("ConnectionLimit", &d);
     if(!d) imap_server->max_connections = conn_limit;
     d1 = libbalsa_conf_get_bool_with_default("PersistentCache", &d);
@@ -648,8 +590,7 @@ libbalsa_imap_server_get_handle(LibBalsaImapServer *imap_server, GError **err)
         if(imap_mbox_is_disconnected(info->handle)) {
             ImapResult rc;
 
-            rc=imap_mbox_handle_connect(info->handle, libbalsa_server_get_host(server),
-                                        REQ_SSL(server));
+            rc=imap_mbox_handle_connect(info->handle, libbalsa_server_get_host(server));
             if(rc != IMAP_SUCCESS) {
                 handle_connection_error(rc, info, server, err);
                 g_mutex_unlock(&imap_server->lock);
@@ -746,8 +687,7 @@ libbalsa_imap_server_get_handle_with_user(LibBalsaImapServer *imap_server,
     if (imap_mbox_is_disconnected(info->handle)) {
         ImapResult rc;
 
-        rc=imap_mbox_handle_connect(info->handle, libbalsa_server_get_host(server),
-                                    REQ_SSL(server));
+        rc=imap_mbox_handle_connect(info->handle, libbalsa_server_get_host(server));
         if(rc != IMAP_SUCCESS) {
             handle_connection_error(rc, info, server, err);
             g_mutex_unlock(&imap_server->lock);

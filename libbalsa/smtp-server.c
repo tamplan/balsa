@@ -287,21 +287,21 @@ smtp_server_response(GtkDialog * dialog, gint response,
         libbalsa_smtp_server_set_name(sdi->smtp_server,
                                       gtk_entry_get_text(GTK_ENTRY
                                                          (sdi->name)));
-        libbalsa_server_set_host(server,
-                                 gtk_entry_get_text(GTK_ENTRY(sdi->host)),
-                                 FALSE);
-        libbalsa_server_set_try_anonymous
-            (server,
-             gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(sdi->auth_button)) ? 0U : 1U);
-        libbalsa_server_set_username(server,
-                                     gtk_entry_get_text(GTK_ENTRY
-                                                        (sdi->user)));
-        libbalsa_server_set_password(server,
-                                     gtk_entry_get_text(GTK_ENTRY
-                                                        (sdi->pass)));
         libbalsa_server_set_security
             (server,
              (NetClientCryptMode) (gtk_combo_box_get_active(GTK_COMBO_BOX(sdi->tlsm)) + 1));
+        libbalsa_server_set_host
+            (server,
+             gtk_entry_get_text(GTK_ENTRY(sdi->host)), FALSE);
+        libbalsa_server_set_try_anonymous
+            (server,
+             gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(sdi->auth_button)) ? 0U : 1U);
+        libbalsa_server_set_username
+            (server,
+             gtk_entry_get_text(GTK_ENTRY(sdi->user)));
+        libbalsa_server_set_password
+            (server,
+             gtk_entry_get_text(GTK_ENTRY(sdi->pass)));
         libbalsa_server_set_client_cert
             (server,
              gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(sdi->cert_button)));

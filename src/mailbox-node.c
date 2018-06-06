@@ -634,11 +634,9 @@ balsa_mailbox_node_new_from_config(const gchar *group)
 
     folder->server = LIBBALSA_SERVER(libbalsa_imap_server_new_from_config());
 
-    if (balsa_app.debug) {
-        printf("Server loaded, host: %s, %s.\n",
-               libbalsa_server_get_host(folder->server),
-               libbalsa_server_get_use_ssl(folder->server) ? "SSL" : "no SSL");
-    }
+    g_debug("Server loaded, host: %s, security %d.",
+            libbalsa_server_get_host(folder->server),
+            libbalsa_server_get_security(folder->server));
     g_signal_connect_swapped(G_OBJECT(folder->server), "config-changed",
                              G_CALLBACK(config_folder_update), folder);
     g_signal_connect(G_OBJECT(folder), "show-prop-dialog",

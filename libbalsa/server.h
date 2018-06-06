@@ -56,33 +56,28 @@ typedef enum {
 struct _LibBalsaServerClass {
     GObjectClass parent_class;
 
-    void (*set_username) (LibBalsaServer *server,
-                          const gchar    *name);
-    void (*set_host) (LibBalsaServer *server,
-                      const gchar    *host,
-                      gboolean        use_ssl);
-    void (*config_changed) (LibBalsaServer *server);
-    gchar *(*get_password) (LibBalsaServer *server);
+    void (*set_username) (LibBalsaServer * server, const gchar * name);
+    void (*set_host) (LibBalsaServer * server,
+		      const gchar * host, NetClientCryptMode  security);
+    void (*config_changed) (LibBalsaServer * server);
+    gchar *(*get_password) (LibBalsaServer * server);
 };
 
 LibBalsaServer *libbalsa_server_new(void);
 
-void            libbalsa_server_set_username(LibBalsaServer *server,
-                                             const gchar    *username);
-void            libbalsa_server_set_password(LibBalsaServer *server,
-                                             const gchar    *passwd);
-void            libbalsa_server_set_host(LibBalsaServer *server,
-                                         const gchar    *host,
-                                         gboolean        use_ssl);
+void libbalsa_server_set_username(LibBalsaServer * server,
+				  const gchar * username);
+void libbalsa_server_set_password(LibBalsaServer * server,
+				  const gchar * passwd);
+void libbalsa_server_set_host(LibBalsaServer     *server,
+							  const gchar        *host,
+							  NetClientCryptMode  security);
 
-void libbalsa_server_config_changed(LibBalsaServer *server);
-void libbalsa_server_load_config(LibBalsaServer *server);
-void libbalsa_server_save_config(LibBalsaServer *server);
+void libbalsa_server_config_changed(LibBalsaServer * server);
+void libbalsa_server_load_config(LibBalsaServer * server);
+void libbalsa_server_load_security_config(LibBalsaServer * server);
+void libbalsa_server_save_config(LibBalsaServer * server);
 
-
-void libbalsa_server_user_cb(ImapUserEventType ue,
-                             void             *arg,
-                             ...);
 
 /* NetClient related signal handlers */
 gchar **libbalsa_server_get_auth(NetClient *client,
@@ -116,9 +111,7 @@ void libbalsa_server_test_can_reach_full(LibBalsaServer           *server,
  * Getters
  */
 
-LibBalsaTlsMode    libbalsa_server_get_tls_mode(LibBalsaServer *server);
 NetClientCryptMode libbalsa_server_get_security(LibBalsaServer *server);
-gboolean           libbalsa_server_get_use_ssl(LibBalsaServer *server);
 gboolean           libbalsa_server_get_client_cert(LibBalsaServer *server);
 gboolean           libbalsa_server_get_try_anonymous(LibBalsaServer *server);
 gboolean           libbalsa_server_get_remember_passwd(LibBalsaServer *server);
@@ -133,8 +126,6 @@ const gchar       *libbalsa_server_get_password(LibBalsaServer *server);
  * Setters
  */
 
-void libbalsa_server_set_tls_mode(LibBalsaServer *server,
-                                  LibBalsaTlsMode tls_mode);
 void libbalsa_server_set_security(LibBalsaServer    *server,
                                   NetClientCryptMode security);
 void libbalsa_server_set_try_anonymous(LibBalsaServer *server,

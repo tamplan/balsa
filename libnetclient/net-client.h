@@ -43,7 +43,6 @@ G_DECLARE_DERIVABLE_TYPE(NetClient,
 typedef enum _NetClientError NetClientError;
 typedef enum _NetClientCryptMode NetClientCryptMode;
 
-
 struct _NetClientClass {
     GObjectClass parent;
 };
@@ -65,19 +64,15 @@ enum _NetClientCryptMode {
 
 /** @brief Error codes */
 enum _NetClientError {
-    NET_CLIENT_ERROR_CONNECTED = 1,                     /**< The client is already connected. */
-    NET_CLIENT_ERROR_NOT_CONNECTED,                     /**< The client is not connected. */
-    NET_CLIENT_ERROR_CONNECTION_LOST,                   /**< The connection is lost. */
-    NET_CLIENT_ERROR_TLS_ACTIVE,                        /**< TLS is already active for the
-                                                           connection. */
-    NET_CLIENT_ERROR_LINE_TOO_LONG,                     /**< The line is too long. */
-    NET_CLIENT_ERROR_GNUTLS,                                    /**< A GnuTLS error occurred. */
-    NET_CLIENT_ERROR_GSSAPI                                     /**< A GSSAPI error occurred. */
+    NET_CLIENT_ERROR_CONNECTED = 1,			/**< The client is already connected. */
+    NET_CLIENT_ERROR_NOT_CONNECTED,			/**< The client is not connected. */
+    NET_CLIENT_ERROR_CONNECTION_LOST,		        /**< The connection is lost. */
+    NET_CLIENT_ERROR_TLS_ACTIVE,			/**< TLS is already active for the connection. */
+    NET_CLIENT_ERROR_COMP_ACTIVE,			/**< Compression is already active for the connection. */
+    NET_CLIENT_ERROR_LINE_TOO_LONG,			/**< The line is too long. */
+    NET_CLIENT_ERROR_GNUTLS,				/**< A GnuTLS error occurred. */
+    NET_CLIENT_ERROR_GSSAPI				/**< A GSSAPI error occurred. */
 };
-
-
-GType net_client_get_type(void)
-G_GNUC_CONST;
 
 
 /** @brief Create a new network client
@@ -340,7 +335,27 @@ gboolean net_client_set_timeout(NetClient *client,
                                 guint      timeout_secs);
 
 
-/**
+/** @brief Get the socket
+ *
+ * @param client network client
+ * @return the network client's socket on success, or NULL on error
+ *
+ * Gets the underlying GSocket object of the network client connection, e. g. for monitoring it via a GSource.
+ */
+GSocket *net_client_get_socket(NetClient *client);
+
+
+/** @brief Check for pending input data
+ *
+ * @param client network client
+ * @return TRUE if data is available for reading
+ *
+ * Returns if data is ready for reading, because either the socket is ready, or there is still data in the buffering input stream.
+ */
+gboolean net_client_can_read(NetClient *client);
+
+
+/** 
  * @mainpage
  *
  * This library provides an implementation of CRLF-terminated line-based client protocols built

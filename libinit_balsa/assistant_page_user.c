@@ -204,7 +204,7 @@ create_pop3_mbx(const gchar *name, const gchar* host, gint security,
 
     libbalsa_server_set_username(server, login);
     libbalsa_server_set_password(server, passwd);
-    libbalsa_server_set_host(server, host, FALSE);
+    libbalsa_server_set_host(server, host, security);
     libbalsa_server_set_security(server, security);
     libbalsa_server_set_remember_passwd(server, remember);
     libbalsa_mailbox_set_name(mbx, name != NULL && name[0] != '\0' ? name : host);
@@ -218,7 +218,7 @@ create_pop3_mbx(const gchar *name, const gchar* host, gint security,
 }
 
 static void
-create_imap_mbx(const gchar *name, const gchar* host, gint security,
+create_imap_mbx(const gchar *name, const gchar* host, NetClientCryptMode security,
                 const gchar *login, const gchar *passwd,
                 gboolean remember)
 {
@@ -227,17 +227,7 @@ create_imap_mbx(const gchar *name, const gchar* host, gint security,
         LIBBALSA_SERVER(libbalsa_imap_server_new(login, host));
     libbalsa_server_set_username(server, login);
     libbalsa_server_set_password(server, passwd);
-    libbalsa_server_set_host(server, host, security == NET_CLIENT_CRYPT_ENCRYPTED);
-    switch (security) {
-    case NET_CLIENT_CRYPT_STARTTLS:
-     libbalsa_server_set_tls_mode(server, LIBBALSA_TLS_REQUIRED);
-    	break;
-    case NET_CLIENT_CRYPT_STARTTLS_OPT:
-     libbalsa_server_set_tls_mode(server, LIBBALSA_TLS_ENABLED);
-    	break;
-    default:
-     libbalsa_server_set_tls_mode(server, LIBBALSA_TLS_DISABLED);
-    }
+    libbalsa_server_set_host(server, host, security);
     libbalsa_server_set_remember_passwd(server, remember);
 
     mbnode = balsa_mailbox_node_new_imap_folder(server, NULL);
@@ -271,7 +261,7 @@ balsa_druid_page_user_next(GtkAssistant * druid, GtkWidget * page,
         LibBalsaMailbox *mbx = NULL;
         const gchar *login = gtk_entry_get_text(GTK_ENTRY(user->login));
         const gchar *passwd = gtk_entry_get_text(GTK_ENTRY(user->passwd));
-        gint security = balsa_option_get_active(user->security) + NET_CLIENT_CRYPT_ENCRYPTED;
+        NetClientCryptMode security = balsa_option_get_active(user->security) + NET_CLIENT_CRYPT_ENCRYPTED;
         gboolean remember = 
             balsa_option_get_active(user->remember_passwd) == 0;
         switch(balsa_option_get_active(user->incoming_type)) {

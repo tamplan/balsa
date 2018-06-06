@@ -50,6 +50,8 @@
 #if HAVE_GCR
 #define GCR_API_SUBJECT_TO_CHANGE
 #include <gcr/gcr.h>
+#else
+#include <gnutls/x509.h>
 #endif
 
 #include "misc.h"
@@ -338,70 +340,10 @@ libbalsa_ask(gboolean (*cb)(void *arg), void *arg)
 }
 
 
-static int libbalsa_ask_for_cert_acceptance(X509 *cert,
-					    const char *explanation);
+static int libbalsa_ask_for_cert_acceptance(GTlsCertificate      *cert,
+											GTlsCertificateFlags  errors);
 
-#ifndef HAVE_GCR
-
-static char*
-asn1time_to_string(ASN1_UTCTIME *tm)
-{
-    char buf[64];
-    BIO *bio  = BIO_new(BIO_s_mem());
-    strncpy(buf, _("Invalid date"), sizeof(buf)); buf[sizeof(buf)-1]='\0';
-
-    if(ASN1_TIME_print(bio, tm)) {
-        int cnt;
-        cnt = BIO_read(bio, buf, sizeof(buf)-1);
-        buf[cnt] = '\0';
-    }
-    BIO_free(bio);
-    return g_strdup(buf);
-}
-
-static char*
-x509_get_part (char *line, const char *ndx)
-{
-    static char ret[256];
-    char *c;
-
-    strncpy (ret, _("Unknown"), sizeof (ret)); ret[sizeof(ret)-1]='\0';
-
-    c = strstr(line, ndx);
-    if (c) {
-        char *c2;
-
-        c += strlen (ndx);
-        c2 = strchr (c, '/');
-        if (c2)
-            *c2 = '\0';
-        strncpy (ret, c, sizeof (ret));
-        if (c2)
-            *c2 = '/';
-    }
-
-    return ret;
-}
-static void
-x509_fingerprint (char *s, unsigned len, X509 * cert)
-{
-    unsigned j, i, n, c;
-    unsigned char md[EVP_MAX_MD_SIZE];
-
-
-    X509_digest(cert, EVP_md5(), md, &n);
-    if(len<3*n) n = len/3;
-    for (j=i=0; j<n; j++) {
-        c = (md[j] >>4) & 0xF; s[i++] = c<10 ? c + '0' : c+'A'-10;
-        c = md[j] & 0xF;       s[i++] = c<10 ? c + '0' : c+'A'-10;
-        if(j<n-1) s[i++] = ':';
-    }
-    s[i] = '\0';
-}
-
-#endif  /* HAVE_GCR */
-
-static GList *accepted_certs = NULL; /* certs accepted for this session */
+static GList *accepted_certs = NULL; /* GTlsCertificate items accepted for this session */
 static GMutex certificate_lock;
 
 void
@@ -409,71 +351,39 @@ libbalsa_certs_destroy(void)
 {
     g_mutex_lock(&certificate_lock);
 
-    libbalsa_clear_list(&accepted_certs, (GDestroyNotify) X509_free);
+    libbalsa_clear_list(&accepted_certs, g_object_unref);
 
     g_mutex_unlock(&certificate_lock);
 }
 
-/* compare Example 10-7 in the OpenSSL book */
+
+#define CERT_ACCEPT_NO			0
+#define CERT_ACCEPT_SESSION		1
+#define CERT_ACCEPT_PERMANENT	2
+
+
 gboolean
-libbalsa_is_cert_known(X509* cert, long vfy_result)
+libbalsa_is_cert_known(GTlsCertificate      *cert,
+					   GTlsCertificateFlags  errors)
 {
 	gchar *cert_file;
 	GList *cert_db;
 	gboolean cert_ok;
 	GList *lst;
 
-    g_mutex_lock(&certificate_lock);
-    for(lst = accepted_certs; lst; lst = lst->next) {
-        int X509_res = X509_cmp(cert, lst->data);
-        if(X509_res == 0) {
-        	g_mutex_unlock(&certificate_lock);
-            return TRUE;
-	}
-    }
-    
-    cert_name = g_strconcat(g_get_home_dir(), "/.balsa/certificates", NULL);
-
-    fp = fopen(cert_name, "rt");
-    g_free(cert_name);
-    if(fp) {
-        /* 
-        printf("Looking for cert: %s\n", 
-               X509_NAME_oneline(X509_get_subject_name (cert),
-                                 buf, sizeof (buf)));
-        */
-        res = FALSE;
-        while ((tmpcert = PEM_read_X509(fp, NULL, NULL, NULL)) != NULL) {
-            res = X509_cmp(cert, tmpcert)==0;
-            X509_free(tmpcert);
-            if(res) break;
-        }
-        ERR_clear_error();
-        fclose(fp);
-    }
-    g_mutex_unlock(&certificate_lock);
-    
-    if(!res) {
-	const char *reason = X509_verify_cert_error_string(vfy_result);
-	res = libbalsa_ask_for_cert_acceptance(cert, reason);
+	/* check the list of accepted certificates for this session */
 	g_mutex_lock(&certificate_lock);
-	if(res == 2) {
-	    cert_name = g_strconcat(g_get_home_dir(),
-				    "/.balsa/certificates", NULL);
-            libbalsa_assure_balsa_dir();
-	    fp = fopen(cert_name, "a");
-	    if (fp) {
-		if(PEM_write_X509 (fp, cert))
-		    res = TRUE;
-		fclose(fp);
-	    }
-	    g_free(cert_name);
+	for (lst = accepted_certs; lst; lst = lst->next) {
+		if (g_tls_certificate_is_same(cert, G_TLS_CERTIFICATE(lst->data))) {
+			g_mutex_unlock(&certificate_lock);
+			return TRUE;
+		}
 	}
-	if(res == 1)
-	    accepted_certs = 
-		g_list_prepend(accepted_certs, X509_dup(cert));
+
+	/* check the database of accepted certificates */
+	cert_file = g_build_filename(g_get_home_dir(), ".balsa", "certificates", NULL);
+	cert_db = g_tls_certificate_list_new_from_file(cert_file, NULL);
 	g_mutex_unlock(&certificate_lock);
-    }
 
 	cert_ok = FALSE;
 	for (lst = cert_db; !cert_ok && (lst != NULL); lst = g_list_next(lst)) {
@@ -574,14 +484,14 @@ ask_cert_real(void *data)
 
     switch(gtk_dialog_run(GTK_DIALOG(dialog))) {
     case 0:
-    	i = 1;
+    	i = CERT_ACCEPT_SESSION;
     	break;
     case 1:
-    	i = 2;
+    	i = CERT_ACCEPT_PERMANENT;
     	break;
     case GTK_RESPONSE_CANCEL:
     default:
-    	i = 0;
+    	i = CERT_ACCEPT_NO;
     	break;
     }
     gtk_widget_destroy(dialog);
@@ -658,18 +568,19 @@ x509_fingerprint(gnutls_x509_crt_t cert)
 static int
 ask_cert_real(void *data)
 {
-    static const char *part[] =
-        {"/CN=", "/Email=", "/O=", "/OU=", "/L=", "/ST=", "/C="};
-
     struct AskCertData *acd = (struct AskCertData*)data;
-    X509 *cert = acd->certificate;
-    char buf[256]; /* fingerprint requires EVP_MAX_MD_SIZE*3 */
-    char *name = NULL, *c, *valid_from, *valid_until;
+    gnutls_x509_crt_t cert;
+    gchar *name, *c, *valid_from, *valid_until;
     GtkWidget* dialog, *label;
     unsigned i;
+    GString* str;
     GtkBox *vbox;
 
-    GString* str = g_string_new("");
+    cert = get_gnutls_cert(acd->certificate);
+    if (cert == NULL) {
+    	g_warning("%s: unable to create gnutls cert", __func__);
+    	return CERT_ACCEPT_NO;
+    }
 
     str = g_string_new("");
     g_string_printf(str, _("Authenticity of this certificate "
@@ -678,31 +589,27 @@ ask_cert_real(void *data)
                            "<b>This certificate belongs to:</b>\n"),
                     acd->explanation);
 
-    name = X509_NAME_oneline(X509_get_subject_name (cert), buf, sizeof (buf));
-    for (i = 0; i < G_N_ELEMENTS(part); i++) {
-        g_string_append(str, x509_get_part (name, part[i]));
-        g_string_append_c(str, '\n');
-    }
+    name = gnutls_get_dn(cert, gnutls_x509_crt_get_dn);
+    g_string_append(str, name);
+    g_free(name);
 
     g_string_append(str, _("\n<b>This certificate was issued by:</b>\n"));
-    name = X509_NAME_oneline(X509_get_issuer_name(cert), buf, sizeof (buf));
-    for (i = 0; i < G_N_ELEMENTS(part); i++) {
-        g_string_append(str, x509_get_part (name, part[i]));
-        g_string_append_c(str, '\n');
-    }
+    name = gnutls_get_dn(cert, gnutls_x509_crt_get_issuer_dn);
+    g_string_append_printf(str, "%s\n", name);
+    g_free(name);
 
-    buf[0] = '\0';
-    x509_fingerprint (buf, sizeof (buf), cert);
-    valid_from  = asn1time_to_string(X509_get_notBefore(cert));
-    valid_until = asn1time_to_string(X509_get_notAfter(cert)),
-    c = g_strdup_printf(_("<b>This certificate is valid</b>\n"
-                          "from %s\n"
-                          "to %s\n"
-                          "<b>Fingerprint:</b> %s"),
-                        valid_from, valid_until,
-                        buf);
-    g_string_append(str, c); g_free(c);
-    g_free(valid_from); g_free(valid_until);
+    name = x509_fingerprint(cert);
+    valid_from  = libbalsa_date_to_utf8(gnutls_x509_crt_get_activation_time(cert), "%x %X");
+    valid_until = libbalsa_date_to_utf8(gnutls_x509_crt_get_expiration_time(cert), "%x %X");
+    g_string_append_printf(str, _("<b>This certificate is valid</b>\n"
+    							  "from %s\n"
+    							  "to %s\n"
+                         		  "<b>Fingerprint:</b> %s"),
+                        	valid_from, valid_until, name);
+    g_free(name);
+    g_free(valid_from);
+    g_free(valid_until);
+    gnutls_x509_crt_deinit(cert);
 
     /* This string uses markup, so we must replace "&" with "&amp;" */
     c = str->str;
@@ -734,10 +641,10 @@ ask_cert_real(void *data)
     gtk_box_pack_start(vbox, label);
 
     switch(gtk_dialog_run(GTK_DIALOG(dialog))) {
-    case 0: i = 1; break;
-    case 1: i = 2; break;
+    case 0: i = CERT_ACCEPT_SESSION; break;
+    case 1: i = CERT_ACCEPT_PERMANENT; break;
     case GTK_RESPONSE_CANCEL:
-    default: i=0; break;
+    default: i=CERT_ACCEPT_NO; break;
     }
     gtk_widget_destroy(dialog);
     /* Process some events to let the window disappear:
@@ -751,54 +658,27 @@ ask_cert_real(void *data)
 #endif	/* HAVE_GCR */
 
 static int
-libbalsa_ask_for_cert_acceptance(X509 *cert, const char *explanation)
+libbalsa_ask_for_cert_acceptance(GTlsCertificate      *cert,
+								 GTlsCertificateFlags  errors)
 {
     struct AskCertData acd;
     acd.certificate = cert;
-    acd.explanation = explanation;
-    return libbalsa_ask(ask_cert_real, &acd);
-}
-
-
-static int
-ask_timeout_real(void *data)
-{
-    const char *host = (const char*)data;
-    GtkWidget* dialog;
-    int i;
-
-    dialog = gtk_message_dialog_new(NULL, /* FIXME: NULL parent */
-                                    GTK_DIALOG_MODAL,
-                                    GTK_MESSAGE_INFO,
-                                    GTK_BUTTONS_YES_NO,
-                                    _("Connection to %s timed out. Abort?"),
-                                    host);
-    gtk_window_set_role(GTK_WINDOW(dialog), "timeout_dialog");
-    switch(gtk_dialog_run(GTK_DIALOG(dialog))) {
-    case GTK_RESPONSE_YES: i = 1; break;
-    case GTK_RESPONSE_NO: i = 0; break;
-    default: printf("Unknown response. Defaulting to 'yes'.\n");
-        i = 1;
+    if ((errors & G_TLS_CERTIFICATE_UNKNOWN_CA) == G_TLS_CERTIFICATE_UNKNOWN_CA) {
+    	acd.explanation = _("the signing certificate authority is not known");
+    } else if ((errors & G_TLS_CERTIFICATE_BAD_IDENTITY) == G_TLS_CERTIFICATE_BAD_IDENTITY) {
+    	acd.explanation = _("the certificate does not match the expected identity of the site that it was retrieved from");
+    } else if ((errors & G_TLS_CERTIFICATE_NOT_ACTIVATED) == G_TLS_CERTIFICATE_NOT_ACTIVATED) {
+    	acd.explanation = _("the certificate's activation time is still in the future");
+    } else if ((errors & G_TLS_CERTIFICATE_EXPIRED) == G_TLS_CERTIFICATE_EXPIRED) {
+    	acd.explanation = _("the certificate has expired");
+    } else if ((errors & G_TLS_CERTIFICATE_REVOKED) == G_TLS_CERTIFICATE_REVOKED) {
+    	acd.explanation = _("the certificate has been revoked ");
+    } else if ((errors & G_TLS_CERTIFICATE_INSECURE) == G_TLS_CERTIFICATE_INSECURE) {
+    	acd.explanation = _("the certificate's algorithm is considered insecure");
+    } else {
+    	acd.explanation = _("an error occurred validating the certificate");
     }
-    gtk_widget_destroy(dialog);
-    /* Process some events to let the window disappear:
-     * not really necessary but helps with debugging. */
-   while(gtk_events_pending()) 
-        gtk_main_iteration_do(FALSE);
-    printf("%s returns %d\n", __FUNCTION__, i);
-    return i;
-}
-
-gboolean
-libbalsa_abort_on_timeout(const char *host)
-{  /* It appears not to be entirely thread safe... Some locks do not
-      get released as they should be. */
-    char *hostname;
-
-    hostname = g_alloca (strlen (host) + 1);
-    strcpy (hostname, host);
-    
-    return libbalsa_ask(ask_timeout_real, hostname) != 0; 
+    return libbalsa_ask(ask_cert_real, &acd);
 }
 
 

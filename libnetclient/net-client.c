@@ -46,6 +46,10 @@ struct _NetClientPrivate {
 	GDataInputStream *istream;
 	GOutputStream *ostream;
 	GTlsCertificate *certificate;
+
+	GZlibCompressor *comp;
+	GZlibDecompressor *decomp;
+	GInputStream *comp_istream;
 };
 
 enum {
@@ -159,7 +163,19 @@ net_client_shutdown(NetClient *client)
 	NetClientPrivate *priv  = net_client_get_instance_private(client);
 
 	if (NET_IS_CLIENT(client)) {
-		/* note: we must unref the GDataInputStream, but *not* the GOutputStream! */
+		/* Note: we must unref the GDataInputStream, but the GOutputStream only if compression is active! */
+		if (priv->comp != NULL) {
+			/* Note: for some strange reason, GIO decides to send a 0x03 0x00 sequence when closing a compressed connection, before
+			 * sending the usual FIN, ACK TCP reply packet.  As the remote server does not expect the former (the connection has
+			 * already been closed on its side), it replies with with a RST TCP packet.  Unref'ing priv->ostream and
+			 * priv->comp /after/ all other components of the connection fixes the issue for unencrypted connections, but
+			 * throws a critical error for TLS.  Observed with gio 2.48.2 and 2.50.3, no idea how it can be fixed.
+			 * See also https://bugzilla.gnome.org/show_bug.cgi?id=795985. */
+                        g_clear_object(&priv->ostream);
+			g_clear_object(&priv->comp);
+		}
+                g_clear_object(&priv->decomp);
+                g_clear_object(&priv->comp_istream);
                 g_clear_object(&priv->istream);
                 g_clear_object(&priv->tls_conn);
                 g_clear_object(&priv->plain_conn);
@@ -394,8 +410,7 @@ net_client_set_cert_from_pem(NetClient *client, const gchar *pem_data, GError **
 						g_byte_array_unref(cert_der);
 						if (key_pass != NULL) {
 							res = gnutls_x509_privkey_import2(key, &data, GNUTLS_X509_FMT_PEM, key_pass, 0);
-							memset(key_pass, 0, strlen(key_pass));
-							g_free(key_pass);
+							net_client_free_authstr(key_pass);
 						}
 					}
 				}
@@ -497,6 +512,46 @@ net_client_start_tls(NetClient *client, GError **error)
 
 
 gboolean
+net_client_start_compression(NetClient *client, GError **error)
+{
+	NetClientPrivate *priv  = net_client_get_instance_private(client);
+	gboolean result = FALSE;
+
+	g_return_val_if_fail(NET_IS_CLIENT(client), FALSE);
+
+	if (priv->plain_conn == NULL) {
+		g_set_error(error, NET_CLIENT_ERROR_QUARK, (gint) NET_CLIENT_ERROR_NOT_CONNECTED, _("not connected"));
+	} else if (priv->comp != NULL) {
+		g_set_error(error, NET_CLIENT_ERROR_QUARK, (gint) NET_CLIENT_ERROR_COMP_ACTIVE, _("connection is already compressed"));
+	} else {
+		priv->comp = g_zlib_compressor_new(G_ZLIB_COMPRESSOR_FORMAT_RAW, -1);
+		priv->decomp = g_zlib_decompressor_new(G_ZLIB_COMPRESSOR_FORMAT_RAW);
+
+		g_filter_input_stream_set_close_base_stream(G_FILTER_INPUT_STREAM(priv->istream), FALSE);
+		g_object_unref(priv->istream);
+
+		if (priv->tls_conn != NULL) {
+			priv->comp_istream =
+				g_converter_input_stream_new(g_io_stream_get_input_stream(G_IO_STREAM(priv->tls_conn)),
+					G_CONVERTER(priv->decomp));
+		} else {
+			priv->comp_istream =
+				g_converter_input_stream_new(g_io_stream_get_input_stream(G_IO_STREAM(priv->plain_conn)),
+					G_CONVERTER(priv->decomp));
+		}
+		priv->istream = g_data_input_stream_new(priv->comp_istream);
+		g_data_input_stream_set_newline_type(priv->istream, G_DATA_STREAM_NEWLINE_TYPE_CR_LF);
+
+		priv->ostream = g_converter_output_stream_new(priv->ostream, G_CONVERTER(priv->comp));
+		result = TRUE;
+		g_debug("connection is compressed");
+	}
+
+	return result;
+}
+
+
+gboolean
 net_client_set_timeout(NetClient *client, guint timeout_secs)
 {
 	NetClientPrivate *priv  = net_client_get_instance_private(client);
@@ -505,6 +560,29 @@ net_client_set_timeout(NetClient *client, guint timeout_secs)
 
 	g_socket_client_set_timeout(priv->sock, timeout_secs);
 	return TRUE;
+}
+
+
+GSocket *
+net_client_get_socket(NetClient *client)
+{
+	NetClientPrivate *priv  = net_client_get_instance_private(client);
+
+	g_return_val_if_fail(NET_IS_CLIENT(client) && (priv->plain_conn != NULL), NULL);
+
+	return g_socket_connection_get_socket(priv->plain_conn);
+}
+
+
+gboolean
+net_client_can_read(NetClient *client)
+{
+	NetClientPrivate *priv  = net_client_get_instance_private(client);
+
+	g_return_val_if_fail(NET_IS_CLIENT(client) && (priv->plain_conn != NULL) && (priv->istream != NULL), FALSE);
+
+	return (g_socket_condition_check(g_socket_connection_get_socket(priv->plain_conn), G_IO_IN) != 0) ||
+		(g_buffered_input_stream_get_available(G_BUFFERED_INPUT_STREAM(priv->istream)) > 0U);
 }
 
 
