@@ -5283,20 +5283,6 @@ msgstr "Odpiranje %s"
 msgid "Checking Mail…"
 msgstr "Poteka preverjanje za novo pošto na »%s«"
 
-#: ../src/main-window.c:3427
-#, c-format
-msgid "Removing duplicates failed: %s"
-msgstr "Odstranjevanje dvojnikov ni uspelo: %s"
-
-#: ../src/main-window.c:3431
-#, c-format
-msgid "Removed %d duplicate"
-msgid_plural "Removed %d duplicates"
-msgstr[0] "Odstranjenih je bilo %d dvojnikov"
-msgstr[1] "Odstranjen je bil %d dvojnik"
-msgstr[2] "Odstranjena sta bila %d dvojnika"
-msgstr[3] "Odstranjeni so bili %d dvojniki"
-
 #: ../src/main-window.c:3599
 msgid "Finished Checking."
 msgstr "Preverjanje je končano."

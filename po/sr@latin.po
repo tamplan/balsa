@@ -364,15 +364,6 @@ msgstr ""
 "\n"
 "Potpisan: %s"
 
-#: ../libbalsa/gmime-gpgme-signature.c:172
-#, c-format
-msgid ""
-"\n"
-"Key fingerprint: %s"
-msgstr ""
-"\n"
-"Otisak ključa: %s"
-
 #: ../libbalsa/gmime-multipart-crypt.c:228
 msgid "Cannot verify multipart/signed part due to missing subparts."
 msgstr ""

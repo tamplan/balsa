@@ -7465,59 +7465,6 @@ msgstr "Descartar caracteres _especiais"
 #~ msgid "%s: could not find a key for %s"
 #~ msgstr "%s: não foi possível encontrar a chave para %s"
 
-#~ msgid ""
-#~ "%s: a key with id %s is present, but it is expired, disabled, revoked or "
-#~ "invalid"
-#~ msgstr ""
-#~ "%s: há uma chave com a id %s, mas ela está expirada, revogada ou inválida"
-
-#~ msgid "%s: could not find a key with id %s"
-#~ msgstr "%s: não foi possível encontrar uma chave com a id %s"
-
-#~ msgid "could not list keys"
-#~ msgstr "não foi possível listar as chaves"
-
-#~ msgid "The validity of the key with user ID “%s” is “%s”."
-#~ msgstr "A validade da chave com o usuário ID “%s” é “%s”."
-
-#~ msgid "Use this key anyway?"
-#~ msgstr "Utilizar esta chave mesmo assim?"
-
-#~ msgid "Could not launch %s to query the public key %s."
-#~ msgstr "Não foi possível lançar %s para pesquisar a chave pública %s."
-
-#~ msgid ""
-#~ "Running %s failed with return value %d:\n"
-#~ "%s"
-#~ msgstr ""
-#~ "A execução de %s falhou com o código de retorno %d:\n"
-#~ "%s"
-
-#~ msgid ""
-#~ "Running %s successful:\n"
-#~ "%s"
-#~ msgstr ""
-#~ "Executou %s com sucesso:\n"
-#~ "%s"
-
-#~ msgid "_Run GnuPG to import this key"
-#~ msgstr "E_xecutar GnuPG para importar essa chave"
-
-#~ msgid "Error loading %s: %s\n"
-#~ msgstr "Erro ao carregar %s: %s\n"
-
-#~ msgid "Sending error: %s"
-#~ msgstr "Erro no envio: %s"
-
-#~ msgid "Mail servers"
-#~ msgstr "Servidores de e-mail"
-
-#~ msgid "Layout"
-#~ msgstr "Layout"
-
-#~ msgid "Show mailbox statistics in left pane"
-#~ msgstr "Mostrar estatísticas da caixa de correio no painel esquerdo"
-
 #~ msgid "Connect using _SSL:"
 #~ msgstr "Conectar usando _SSL:"
 

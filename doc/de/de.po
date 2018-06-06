@@ -5953,20 +5953,6 @@ msgstr ""
 msgid "The <gui>Help</gui> button: opens this help window."
 msgstr "Der <gui>Hilfe</gui>-Knopf öffnet das Hilfe-Fenster."
 
-#. (itstool) path: item/p
-#: C/win-run-filters.page:75
-msgid ""
-"The <gui>Cancel</gui> button: this discards any changes and closes the "
-"dialog box."
-msgstr ""
-"Der <gui>Abbrechen</gui>-Knopf verwirft alle Änderungen und schließt den "
-"Dialog."
-
-#. (itstool) path: item/p
-#: C/win-run-filters.page:80
-msgid "The <gui>Help</gui> button: opens this help window."
-msgstr "Der <gui>Hilfe</gui>-Knopf öffnet das Hilfe-Fenster."
-
 #. (itstool) path: page/title
 #: C/win-search.page:8
 msgid "The Search Mailbox Window"
