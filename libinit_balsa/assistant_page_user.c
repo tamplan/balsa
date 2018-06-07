@@ -204,7 +204,7 @@ create_pop3_mbx(const gchar *name, const gchar* host, gint security,
 
     libbalsa_server_set_username(server, login);
     libbalsa_server_set_password(server, passwd);
-    libbalsa_server_set_host(server, host, security);
+    libbalsa_server_set_host(server, host);
     libbalsa_server_set_security(server, security);
     libbalsa_server_set_remember_passwd(server, remember);
     libbalsa_mailbox_set_name(mbx, name != NULL && name[0] != '\0' ? name : host);
@@ -227,7 +227,8 @@ create_imap_mbx(const gchar *name, const gchar* host, NetClientCryptMode securit
         LIBBALSA_SERVER(libbalsa_imap_server_new(login, host));
     libbalsa_server_set_username(server, login);
     libbalsa_server_set_password(server, passwd);
-    libbalsa_server_set_host(server, host, security);
+    libbalsa_server_set_host(server, host);
+    libbalsa_server_set_security(server, security);
     libbalsa_server_set_remember_passwd(server, remember);
 
     mbnode = balsa_mailbox_node_new_imap_folder(server, NULL);
@@ -306,8 +307,7 @@ balsa_druid_page_user_next(GtkAssistant * druid, GtkWidget * page,
 	smtp_server = balsa_app.smtp_servers->data;
     }
     libbalsa_server_set_host(LIBBALSA_SERVER(smtp_server),
-                             gtk_entry_get_text(GTK_ENTRY(user->smtp)),
-                             FALSE);	// FIXME!!
+                             gtk_entry_get_text(GTK_ENTRY(user->smtp)));
 
     g_free(balsa_app.local_mail_directory);
     balsa_app.local_mail_directory =

@@ -118,8 +118,7 @@ static void libbalsa_imap_server_set_username(LibBalsaServer * server,
 }
 static void
 libbalsa_imap_server_set_host(LibBalsaServer     *server,
-                              const gchar        *host,
-                              NetClientCryptMode  security)
+                              const gchar        *host)
 {
     if (libbalsa_server_get_username(server) != NULL && host != NULL) {
         /* we have been initialized... */
@@ -133,8 +132,7 @@ libbalsa_imap_server_set_host(LibBalsaServer     *server,
         g_mutex_unlock(&imap_servers_lock);
     }
 
-    LIBBALSA_SERVER_CLASS(libbalsa_imap_server_parent_class)->
-        set_host(server, host, security);
+    LIBBALSA_SERVER_CLASS(libbalsa_imap_server_parent_class)->set_host(server, host);
 }
 
 static void
@@ -405,7 +403,7 @@ libbalsa_imap_server_new_from_config(void)
     server = LIBBALSA_SERVER(imap_server);
 
     libbalsa_server_set_username(server, user);
-    libbalsa_server_set_host(server, host, 0); /* Security is set later */
+    libbalsa_server_set_host(server, host); /* Security is set later */
     g_free(user);
     g_free(host);
 

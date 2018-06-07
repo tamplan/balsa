@@ -862,7 +862,9 @@ update_pop_mailbox(MailboxConfWindow * mcw)
 
     security = balsa_server_conf_get_security(&mcw->mb_data.pop3.bsc);
     libbalsa_server_set_security(server, security);
-    libbalsa_server_set_host(server, gtk_entry_get_text(GTK_ENTRY(mcw->mb_data.pop3.bsc.server)), security);
+    libbalsa_server_set_host(server,
+                             gtk_entry_get_text(GTK_ENTRY
+                                                (mcw->mb_data.pop3.bsc.server)));
 
     libbalsa_server_set_username(server,
                                  gtk_entry_get_text(GTK_ENTRY
@@ -972,8 +974,7 @@ update_imap_mailbox(MailboxConfWindow *mcw)
      * save-to-config for any folder or mailbox using this server. */
     libbalsa_server_set_host(server,
 			     gtk_entry_get_text(GTK_ENTRY
-						(mcw->mb_data.imap.bsc.server)),
-						security);
+						(mcw->mb_data.imap.bsc.server)));
     libbalsa_server_config_changed(server);
     libbalsa_server_connect_get_password(server, G_CALLBACK(ask_password), mailbox);
 

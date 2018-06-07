@@ -57,8 +57,7 @@ struct _LibBalsaServerClass {
     GObjectClass parent_class;
 
     void (*set_username) (LibBalsaServer * server, const gchar * name);
-    void (*set_host) (LibBalsaServer * server,
-		      const gchar * host, NetClientCryptMode  security);
+    void (*set_host) (LibBalsaServer * server, const gchar * host);
     void (*config_changed) (LibBalsaServer * server);
     gchar *(*get_password) (LibBalsaServer * server);
 };
@@ -69,9 +68,8 @@ void libbalsa_server_set_username(LibBalsaServer * server,
 				  const gchar * username);
 void libbalsa_server_set_password(LibBalsaServer * server,
 				  const gchar * passwd);
-void libbalsa_server_set_host(LibBalsaServer     *server,
-							  const gchar        *host,
-							  NetClientCryptMode  security);
+void libbalsa_server_set_host(LibBalsaServer *server,
+                              const gchar    *host);
 
 void libbalsa_server_config_changed(LibBalsaServer * server);
 void libbalsa_server_load_config(LibBalsaServer * server);

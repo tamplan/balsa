@@ -941,7 +941,7 @@ config_global_load(void)
         hostname = 
             libbalsa_conf_get_string_with_default("ESMTPServer=localhost:25", 
                                                   &def_used);
-	libbalsa_server_set_host(server, hostname, FALSE);
+	libbalsa_server_set_host(server, hostname);
         g_free(hostname);
 
         esmtp_user = libbalsa_conf_get_string("ESMTPUser");

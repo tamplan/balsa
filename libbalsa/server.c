@@ -54,9 +54,8 @@ static void libbalsa_server_finalize(GObject * object);
 
 static void libbalsa_server_real_set_username(LibBalsaServer * server,
 					      const gchar * username);
-static void libbalsa_server_real_set_host(LibBalsaServer     *server,
-					  	  	  	  	  	  const gchar        *host,
-										  NetClientCryptMode  security);
+static void libbalsa_server_real_set_host(LibBalsaServer *server,
+                                          const gchar    *host);
 /* static gchar* libbalsa_server_real_get_password(LibBalsaServer *server); */
 
 enum {
@@ -194,13 +193,13 @@ libbalsa_server_set_password(LibBalsaServer * server,
 }
 
 void
-libbalsa_server_set_host(LibBalsaServer * server, const gchar * host,
-                         NetClientCryptMode security)
+libbalsa_server_set_host(LibBalsaServer *server,
+                         const    gchar *host)
 {
     g_return_if_fail(server != NULL);
     g_return_if_fail(LIBBALSA_IS_SERVER(server));
 
-    LIBBALSA_SERVER_GET_CLASS(server)->set_host(server, host, security);
+    LIBBALSA_SERVER_GET_CLASS(server)->set_host(server, host);
 }
 
 void
@@ -240,8 +239,7 @@ libbalsa_server_real_set_username(LibBalsaServer * server,
 }
 
 static void
-libbalsa_server_real_set_host(LibBalsaServer * server, const gchar * host,
-	NetClientCryptMode  security)
+libbalsa_server_real_set_host(LibBalsaServer * server, const gchar * host)
 {
     LibBalsaServerPrivate *priv = libbalsa_server_get_instance_private(server);
 
@@ -249,7 +247,6 @@ libbalsa_server_real_set_host(LibBalsaServer * server, const gchar * host,
 
     g_free(priv->host);
     priv->host = g_strdup(host);
-    priv->security = security;
 }
 
 

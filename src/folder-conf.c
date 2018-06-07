@@ -259,7 +259,7 @@ folder_conf_clicked_ok(FolderDialogData * fcw)
     balsa_mailbox_node_set_list_inbox(fcw->mbnode,
             gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fcw->list_inbox)));
 
-    libbalsa_server_set_host(s, host, libbalsa_server_get_security(s));
+    libbalsa_server_set_host(s, host);
     libbalsa_server_config_changed(s); /* trigger config save */
 
     if (insert) {
