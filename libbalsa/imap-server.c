@@ -388,7 +388,6 @@ libbalsa_imap_server_new_from_config(void)
     gint conn_limit;
 
     host = libbalsa_conf_get_string("Server");
-g_print("%s host %s\n", G_STRFUNC, host);
     if(strrchr(host, ':') == NULL) {
         gint port;
         port = libbalsa_conf_get_int_with_default("Port", &d);
@@ -396,7 +395,6 @@ g_print("%s host %s\n", G_STRFUNC, host);
             gchar *newhost = g_strdup_printf("%s:%d", host, port);
             g_free(host);
             host = newhost;
-g_print("%s host from newhost %s\n", G_STRFUNC, host);
         }
     }
     user = libbalsa_conf_private_get_string("Username");

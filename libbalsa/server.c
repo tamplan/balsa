@@ -247,11 +247,9 @@ libbalsa_server_real_set_host(LibBalsaServer * server, const gchar * host,
 
     g_return_if_fail(LIBBALSA_IS_SERVER(server));
 
-g_print("%s host was %s\n", G_STRFUNC, priv->host);
     g_free(priv->host);
     priv->host = g_strdup(host);
     priv->security = security;
-g_print("%s host now %s\n", G_STRFUNC, priv->host);
 }
 
 
@@ -319,7 +317,6 @@ libbalsa_server_load_config(LibBalsaServer * server)
     gboolean d;
 
     priv->host = libbalsa_conf_get_string("Server");
-g_print("%s host %s\n", G_STRFUNC, priv->host);
     if(priv->host != NULL && strrchr(priv->host, ':') == NULL) {
         gint port;
         port = libbalsa_conf_get_int_with_default("Port", &d);
@@ -327,7 +324,6 @@ g_print("%s host %s\n", G_STRFUNC, priv->host);
             gchar *newhost = g_strdup_printf("%s:%d", priv->host, port);
             g_free(priv->host);
             priv->host = newhost;
-g_print("%s host from newhost %s\n", G_STRFUNC, priv->host);
         }
     }
     libbalsa_server_load_security_config(server);
@@ -346,7 +342,6 @@ g_print("%s host from newhost %s\n", G_STRFUNC, priv->host);
 #if defined(HAVE_LIBSECRET)
         GError *err = NULL;
 
-g_print("%s host for passwd %s\n", G_STRFUNC, priv->host);
         priv->passwd =
             secret_password_lookup_sync(LIBBALSA_SERVER_SECRET_SCHEMA,
                                         NULL, &err,
