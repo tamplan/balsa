@@ -406,9 +406,8 @@ g_print("%s host from newhost %s\n", G_STRFUNC, host);
     imap_server = get_or_create(user, host);
     server = LIBBALSA_SERVER(imap_server);
 
-    if (libbalsa_server_get_username(server) == NULL) {
-        libbalsa_server_set_username(server, user);
-    }
+    libbalsa_server_set_username(server, user);
+    libbalsa_server_set_host(server, host, 0); /* Security is set later */
     g_free(user);
     g_free(host);
 
