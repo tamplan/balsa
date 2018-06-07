@@ -16,7 +16,6 @@ libimap_a_sources = [
   'imap-tls.c',
   'imap_private.h',
   'libimap.h',
-  'siobuf-nc.h',
   'util.c',
   'util.h'
   ]
