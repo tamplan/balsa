@@ -34,14 +34,49 @@
 #include "macosx-helpers.h"
 #include <glib/gi18n.h>
 
-typedef struct {
+#define LIBBALSA_TYPE_SOURCE_VIEWER libbalsa_source_viewer_get_type()
+
+G_DECLARE_FINAL_TYPE(LibBalsaSourceViewer,
+                     libbalsa_source_viewer,
+                     LIBBALSA,
+                     SOURCE_VIEWER,
+                     GtkApplicationWindow);
+
+struct _LibBalsaSourceViewer
+{
+    GtkApplicationWindow app_window;
+
     LibBalsaMessage *msg;
-    GtkWidget *text;
-    GtkWidget *window;
+    GtkTextView *text;
     gboolean *escape_specials;
     gint *width;
     gint *height;
-} LibBalsaSourceViewerInfo;
+};
+
+G_DEFINE_TYPE(LibBalsaSourceViewer, libbalsa_source_viewer, GTK_TYPE_APPLICATION_WINDOW);
+
+static void
+lsv_dispose(GObject * object)
+{
+    LibBalsaSourceViewer *source_viewer = (LibBalsaSourceViewer *) object;
+
+    g_clear_object(&source_viewer->msg);
+
+    G_OBJECT_CLASS(libbalsa_source_viewer_parent_class)->dispose(object);
+}
+
+static void
+libbalsa_source_viewer_class_init(LibBalsaSourceViewerClass *klass)
+{
+    GObjectClass *object_class = (GObjectClass *) klass;
+
+    object_class->dispose = lsv_dispose;
+}
+
+static void
+libbalsa_source_viewer_init(LibBalsaSourceViewer *source_viewer)
+{
+}
 
 static void
 lsv_close_activated(GSimpleAction * action,
@@ -56,13 +91,12 @@ lsv_copy_activated(GSimpleAction * action,
                    GVariant      * parameter,
                    gpointer        user_data)
 {
-    LibBalsaSourceViewerInfo *lsvi =
-        g_object_get_data(G_OBJECT(user_data), "lsvi");
-    GtkTextView *text = GTK_TEXT_VIEW(lsvi->text);
-    GtkTextBuffer *buffer = gtk_text_view_get_buffer(text);
+    LibBalsaSourceViewer *source_viewer = (LibBalsaSourceViewer *) user_data;
+    GtkTextBuffer *buffer;
     GdkClipboard *clipboard;
     GtkWidget *window = user_data;
 
+    buffer = gtk_text_view_get_buffer(source_viewer->text);
     clipboard = gtk_widget_get_clipboard(window);
     gtk_text_buffer_copy_clipboard(buffer, clipboard);
 }
@@ -72,26 +106,25 @@ lsv_select_activated(GSimpleAction * action,
                      GVariant      * parameter,
                      gpointer        user_data)
 {
-    LibBalsaSourceViewerInfo *lsvi =
-        g_object_get_data(G_OBJECT(user_data), "lsvi");
-    GtkTextView *text = GTK_TEXT_VIEW(lsvi->text);
-    GtkTextBuffer *buffer = gtk_text_view_get_buffer(text);
+    LibBalsaSourceViewer *source_viewer = (LibBalsaSourceViewer *) user_data;
+    GtkTextBuffer *buffer;
     GtkTextIter start, end;
 
+    buffer = gtk_text_view_get_buffer(source_viewer->text);
     gtk_text_buffer_get_bounds(buffer, &start, &end);
     gtk_text_buffer_move_mark_by_name(buffer, "insert", &start);
     gtk_text_buffer_move_mark_by_name(buffer, "selection_bound", &end);
 }
 
 static void
-lsv_show_message(const char *message, LibBalsaSourceViewerInfo * lsvi,
+lsv_show_message(const char *message, LibBalsaSourceViewer * source_viewer,
                  gboolean escape)
 {
     GtkTextBuffer *buffer;
     GtkTextIter start;
     gchar *tmp;
 
-    buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(lsvi->text));
+    buffer = gtk_text_view_get_buffer(source_viewer->text);
     gtk_text_buffer_set_text(buffer, "", 0);
 
     if (escape)
@@ -114,9 +147,8 @@ lsv_escape_change_state(GSimpleAction * action,
                         GVariant      * state,
                         gpointer        user_data)
 {
-    LibBalsaSourceViewerInfo *lsvi =
-        g_object_get_data(G_OBJECT(user_data), "lsvi");
-    LibBalsaMessage *msg = lsvi->msg;
+    LibBalsaSourceViewer *source_viewer = (LibBalsaSourceViewer *) user_data;
+    LibBalsaMessage *msg = source_viewer->msg;
     LibBalsaMailbox *mailbox;
     GMimeStream *msg_stream;
     GMimeStream *mem_stream;
@@ -142,8 +174,8 @@ lsv_escape_change_state(GSimpleAction * action,
     g_mime_stream_write(mem_stream, "", 1); /* close string */
     raw_message = (char *) GMIME_STREAM_MEM(mem_stream)->buffer->data;
 
-    *(lsvi->escape_specials) = g_variant_get_boolean(state);
-    lsv_show_message(raw_message, lsvi, *(lsvi->escape_specials));
+    *(source_viewer->escape_specials) = g_variant_get_boolean(state);
+    lsv_show_message(raw_message, source_viewer, *(source_viewer->escape_specials));
 
     g_object_unref(msg_stream);
     g_object_unref(mem_stream);
@@ -159,20 +191,13 @@ static GActionEntry win_entries[] = {
         lsv_escape_change_state}
 };
 
-static void
-lsv_window_destroy_notify(LibBalsaSourceViewerInfo * lsvi)
-{
-    g_object_unref(lsvi->msg);
-    g_free(lsvi);
-}
-
 /* libbalsa_show_message_source:
    pops up a window containing the source of the message msg.
 */
 
 static void
 lsv_size_allocate_cb(GtkWidget * window, GtkAllocation * alloc,
-                     gint baseline, LibBalsaSourceViewerInfo * lsvi)
+                     gint baseline, LibBalsaSourceViewer * source_viewer)
 {
     GdkSurface *surface;
     gboolean maximized;
@@ -186,7 +211,7 @@ lsv_size_allocate_cb(GtkWidget * window, GtkAllocation * alloc,
          (GDK_SURFACE_STATE_MAXIMIZED | GDK_SURFACE_STATE_FULLSCREEN)) != 0;
 
     if (!maximized)
-        gtk_window_get_size(GTK_WINDOW(window), lsvi->width, lsvi->height);
+        gtk_window_get_size(GTK_WINDOW(window), source_viewer->width, source_viewer->height);
 }
 
 #define BALSA_SOURCE_VIEWER "balsa-source-viewer"
@@ -203,11 +228,11 @@ libbalsa_show_message_source(GtkApplication  * application,
     gchar *css;
     GtkCssProvider *css_provider;
     GtkWidget *vbox, *interior;
-    GtkWidget *window;
+    GtkWindow *window;
     const gchar resource_path[] = "/org/desktop/Balsa/source-viewer.ui";
     GtkWidget *menu_bar;
     GError *err = NULL;
-    LibBalsaSourceViewerInfo *lsvi;
+    LibBalsaSourceViewer *source_viewer;
     GAction *escape_action;
 
     g_return_if_fail(msg);
@@ -236,12 +261,15 @@ libbalsa_show_message_source(GtkApplication  * application,
                                    GTK_POLICY_ALWAYS);
     gtk_container_add(GTK_CONTAINER(interior), GTK_WIDGET(text));
 
-    window = gtk_application_window_new(application);
-    gtk_window_set_title(GTK_WINDOW(window), _("Message Source"));
-    gtk_window_set_role(GTK_WINDOW(window), "message-source");
-    gtk_window_set_default_size(GTK_WINDOW(window), *width, *height);
+    source_viewer = g_object_new(LIBBALSA_TYPE_SOURCE_VIEWER,
+                                 "application", application,
+                                 NULL);
+    window = (GtkWindow *) source_viewer;
+    gtk_window_set_title(window, _("Message Source"));
+    gtk_window_set_role(window, "message-source");
+    gtk_window_set_default_size(window, *width, *height);
 
-    menu_bar = libbalsa_window_get_menu_bar(GTK_APPLICATION_WINDOW(window),
+    menu_bar = libbalsa_window_get_menu_bar(GTK_APPLICATION_WINDOW(source_viewer),
                                             win_entries,
                                             G_N_ELEMENTS(win_entries),
                                             resource_path, &err, window);
@@ -264,24 +292,20 @@ libbalsa_show_message_source(GtkApplication  * application,
     gtk_box_pack_start(GTK_BOX(vbox), interior);
     gtk_container_add(GTK_CONTAINER(window), vbox);
 
-    lsvi = g_new(LibBalsaSourceViewerInfo, 1);
-    lsvi->msg = g_object_ref(msg);
-    lsvi->text = text;
-    lsvi->window = window;
-    lsvi->escape_specials = escape_specials;
-    lsvi->width = width;
-    lsvi->height = height;
-    g_object_set_data_full(G_OBJECT(window), "lsvi", lsvi,
-                           (GDestroyNotify) lsv_window_destroy_notify);
+    source_viewer->msg = g_object_ref(msg);
+    source_viewer->text = (GtkTextView *) text;
+    source_viewer->escape_specials = escape_specials;
+    source_viewer->width = width;
+    source_viewer->height = height;
 
     g_signal_connect(window, "size-allocate",
-                     G_CALLBACK(lsv_size_allocate_cb), lsvi);
+                     G_CALLBACK(lsv_size_allocate_cb), source_viewer);
 
-    gtk_widget_show(window);
+    gtk_widget_show(GTK_WIDGET(source_viewer));
 
     escape_action =
-        g_action_map_lookup_action(G_ACTION_MAP(window), "lsv-escape");
+        g_action_map_lookup_action(G_ACTION_MAP(source_viewer), "lsv-escape");
     lsv_escape_change_state(G_SIMPLE_ACTION(escape_action),
                             g_variant_new_boolean(*escape_specials),
-                            window);
+                            source_viewer);
 }
