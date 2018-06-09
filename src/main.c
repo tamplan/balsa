@@ -522,7 +522,7 @@ real_main(int argc, char *argv[])
 
     signal( SIGPIPE, SIG_IGN );
 
-    window = balsa_window_new();
+    window = balsa_window_new(balsa_app.application);
     balsa_app.main_window = BALSA_WINDOW(window);
     g_object_add_weak_pointer(G_OBJECT(window),
 			      (gpointer) &balsa_app.main_window);
