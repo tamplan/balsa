@@ -24,7 +24,13 @@
 #include "toolbar-factory.h"
 #include <gtk/gtk.h>
 
-typedef struct _MessageWindow MessageWindow;
+#define BALSA_TYPE_MESSAGE_WINDOW balsa_message_window_get_type()
+
+G_DECLARE_FINAL_TYPE(BalsaMessageWindow,
+                     balsa_message_window,
+                     BALSA,
+                     MESSAGE_WINDOW,
+                     GtkApplicationWindow);
 
 void message_window_new(LibBalsaMailbox * mailbox, guint msgno);
 BalsaToolbarModel *message_window_get_toolbar_model(void);
