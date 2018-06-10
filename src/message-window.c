@@ -28,7 +28,7 @@
 #include "balsa-icons.h"
 #include "balsa-index.h"
 #include "main-window.h"
-#include "sendmsg-window.h"
+#include "compose-window.h"
 #include "print.h"
 #include "mailbox-node.h"
 

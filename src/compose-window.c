@@ -25,7 +25,7 @@
 #if defined(HAVE_CONFIG_H) && HAVE_CONFIG_H
 #   include "config.h"
 #endif                          /* HAVE_CONFIG_H */
-#include "sendmsg-window.h"
+#include "compose-window.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -82,10 +82,10 @@
 #endif                          /* HAVE_GTKSOURCEVIEW */
 
 typedef enum {
-    SENDMSG_STATE_CLEAN,
-    SENDMSG_STATE_MODIFIED,
-    SENDMSG_STATE_AUTO_SAVED
-} SendmsgState;
+    COMPOSE_WINDOW_STATE_CLEAN,
+    COMPOSE_WINDOW_STATE_MODIFIED,
+    COMPOSE_WINDOW_STATE_AUTO_SAVED
+} ComposeWindowState;
 
 struct _BalsaComposeWindow {
     GtkApplicationWindow app_window;
@@ -123,7 +123,7 @@ struct _BalsaComposeWindow {
 #endif                          /* HAVE_GTKSOURCEVIEW */
     gulong       insert_text_sig_id;
     guint        autosave_timeout_id;
-    SendmsgState state;
+    ComposeWindowState state;
     gulong       identities_changed_id;
     gboolean     flow;          /* send format=flowed */
     gboolean     send_mp_alt;   /* send multipart/alternative (plain and html) */
@@ -181,7 +181,7 @@ balsa_compose_window_init(BalsaComposeWindow *compose_window)
     compose_window->insert_mark      = NULL;
     compose_window->update_config    = FALSE;
     compose_window->quit_on_close    = FALSE;
-    compose_window->state            = SENDMSG_STATE_CLEAN;
+    compose_window->state            = COMPOSE_WINDOW_STATE_CLEAN;
     compose_window->type        = SEND_NORMAL;
     compose_window->is_continue = FALSE;
 #if !HAVE_GTKSPELL && !HAVE_GSPELL
@@ -536,8 +536,8 @@ append_comma_separated(GtkEditable *editable,
 
 
 /* the callback handlers */
-#define BALSA_SENDMSG_ADDRESS_BOOK_KEY "balsa-sendmsg-address-book"
-#define BALSA_SENDMSG_BUTTON_KEY       "balsa-sendmsg-button"
+#define COMPOSE_WINDOW_ADDRESS_BOOK_KEY "balsa-compose-address-book"
+#define COMPOSE_WINDOW_BUTTON_KEY       "balsa-compose-button"
 static void
 address_book_cb(LibBalsaAddressView *address_view,
                 GtkWidget           *widget,
@@ -547,7 +547,7 @@ address_book_cb(LibBalsaAddressView *address_view,
 
     /* Show only one dialog per window. */
     ab = g_object_get_data(G_OBJECT(compose_window),
-                           BALSA_SENDMSG_ADDRESS_BOOK_KEY);
+                           COMPOSE_WINDOW_ADDRESS_BOOK_KEY);
     if (ab != NULL) {
         gtk_window_present(GTK_WINDOW(ab));
         return;
@@ -559,10 +559,10 @@ address_book_cb(LibBalsaAddressView *address_view,
     gtk_window_set_destroy_with_parent(GTK_WINDOW(ab), TRUE);
     g_signal_connect(G_OBJECT(ab), "response",
                      G_CALLBACK(address_book_response), address_view);
-    g_object_set_data_full(G_OBJECT(ab), BALSA_SENDMSG_BUTTON_KEY,
+    g_object_set_data_full(G_OBJECT(ab), COMPOSE_WINDOW_BUTTON_KEY,
                            g_object_ref(widget), g_object_unref);
     g_object_set_data(G_OBJECT(compose_window),
-                      BALSA_SENDMSG_ADDRESS_BOOK_KEY, ab);
+                      COMPOSE_WINDOW_ADDRESS_BOOK_KEY, ab);
     gtk_widget_show(ab);
 }
 
@@ -575,7 +575,7 @@ address_book_response(GtkWidget           *ab,
 {
     GtkWindow *parent = gtk_window_get_transient_for(GTK_WINDOW(ab));
     GtkWidget *button =
-        g_object_get_data(G_OBJECT(ab), BALSA_SENDMSG_BUTTON_KEY);
+        g_object_get_data(G_OBJECT(ab), COMPOSE_WINDOW_BUTTON_KEY);
 
     if (response == GTK_RESPONSE_OK) {
         gchar *t = balsa_ab_window_get_recipients(BALSA_AB_WINDOW(ab));
@@ -584,7 +584,7 @@ address_book_response(GtkWidget           *ab,
     }
 
     gtk_widget_destroy(ab);
-    g_object_set_data(G_OBJECT(parent), BALSA_SENDMSG_ADDRESS_BOOK_KEY,
+    g_object_set_data(G_OBJECT(parent), COMPOSE_WINDOW_ADDRESS_BOOK_KEY,
                       NULL);
     gtk_widget_set_sensitive(GTK_WIDGET(address_view), TRUE);
 }
@@ -621,7 +621,7 @@ close_handler(BalsaComposeWindow *compose_window)
     if (balsa_app.debug)
         printf("%s\n", __func__);
 
-    if (compose_window->state == SENDMSG_STATE_CLEAN)
+    if (compose_window->state == COMPOSE_WINDOW_STATE_CLEAN)
         return FALSE;
 
     list = libbalsa_address_view_get_list(compose_window->recipient_view, "To:");
@@ -653,7 +653,7 @@ close_handler(BalsaComposeWindow *compose_window)
 
     switch (reply) {
     case GTK_RESPONSE_YES:
-        if (compose_window->state == SENDMSG_STATE_MODIFIED)
+        if (compose_window->state == COMPOSE_WINDOW_STATE_MODIFIED)
             if (!message_postpone(compose_window))
                 return TRUE;
 
@@ -710,7 +710,7 @@ sw_close_activated(GSimpleAction *action,
 /* the balsa_compose_window destructor; copies first the shown headers setting
    to the balsa_app structure.
  */
-#define BALSA_SENDMSG_WINDOW_KEY "balsa-sendmsg-window-key"
+#define BALSA_COMPOSE_WINDOW_KEY "balsa-compose-window-key"
 static void
 balsa_compose_window_destroy(GtkWidget *widget)
 {
@@ -755,7 +755,7 @@ balsa_compose_window_destroy(GtkWidget *widget)
         LibBalsaMailbox *mailbox;
 
         g_object_set_data(G_OBJECT(compose_window->draft_message),
-                          BALSA_SENDMSG_WINDOW_KEY, NULL);
+                          BALSA_COMPOSE_WINDOW_KEY, NULL);
         mailbox = libbalsa_message_get_mailbox(compose_window->draft_message);
         if (mailbox != NULL) {
             libbalsa_mailbox_close(mailbox,
@@ -2174,7 +2174,7 @@ attach_dialog_response(GtkWidget    *dialog,
     int res = 0;
 
     g_object_set_data(G_OBJECT(compose_window),
-                      "balsa-sendmsg-window-attach-dialog", NULL);
+                      "balsa-compose-window-attach-dialog", NULL);
 
     if (response != GTK_RESPONSE_OK) {
         gtk_widget_destroy(dialog);
@@ -4161,7 +4161,7 @@ sw_save_draft(BalsaComposeWindow *compose_window)
         LibBalsaMailbox *mailbox;
 
         g_object_set_data(G_OBJECT(compose_window->draft_message),
-                          BALSA_SENDMSG_WINDOW_KEY, NULL);
+                          BALSA_COMPOSE_WINDOW_KEY, NULL);
         mailbox = libbalsa_message_get_mailbox(compose_window->draft_message);
         if (mailbox != NULL) {
             libbalsa_mailbox_close(mailbox,
@@ -4170,14 +4170,14 @@ sw_save_draft(BalsaComposeWindow *compose_window)
         }
         g_object_unref(compose_window->draft_message);
     }
-    compose_window->state = SENDMSG_STATE_CLEAN;
+    compose_window->state = COMPOSE_WINDOW_STATE_CLEAN;
 
     compose_window->draft_message =
         libbalsa_mailbox_get_message(balsa_app.draftbox,
                                      libbalsa_mailbox_total_messages
                                          (balsa_app.draftbox));
     g_object_set_data(G_OBJECT(compose_window->draft_message),
-                      BALSA_SENDMSG_WINDOW_KEY, compose_window);
+                      BALSA_COMPOSE_WINDOW_KEY, compose_window);
     balsa_information_parented(GTK_WINDOW(compose_window),
                                LIBBALSA_INFORMATION_MESSAGE,
                                _("Message saved."));
@@ -4189,9 +4189,9 @@ sw_save_draft(BalsaComposeWindow *compose_window)
 static gboolean
 sw_autosave_timeout_cb(BalsaComposeWindow *compose_window)
 {
-    if (compose_window->state == SENDMSG_STATE_MODIFIED) {
+    if (compose_window->state == COMPOSE_WINDOW_STATE_MODIFIED) {
         if (sw_save_draft(compose_window))
-            compose_window->state = SENDMSG_STATE_AUTO_SAVED;
+            compose_window->state = COMPOSE_WINDOW_STATE_AUTO_SAVED;
     }
 
     return TRUE;                /* do repeat it */
@@ -4657,7 +4657,7 @@ bsm_finish_setup(BalsaComposeWindow        *compose_window,
     }
 
     /* ...but mark it as unmodified. */
-    compose_window->state = SENDMSG_STATE_CLEAN;
+    compose_window->state = COMPOSE_WINDOW_STATE_CLEAN;
     compose_window_set_subject_from_body(compose_window, part, compose_window->ident);
     libbalsa_message_body_unref(part->message);
 }
@@ -4885,17 +4885,17 @@ sw_attach_file(BalsaComposeWindow *compose_window,
         return;
     }
     attach = g_object_get_data(G_OBJECT(compose_window),
-                               "balsa-sendmsg-window-attach-dialog");
+                               "balsa-compose-window-attach-dialog");
     if (!attach) {
         attach = sw_attach_dialog(compose_window);
         g_object_set_data(G_OBJECT(compose_window),
-                          "balsa-sendmsg-window-attach-dialog", attach);
+                          "balsa-compose-window-attach-dialog", attach);
         g_object_set_data_full(G_OBJECT(attach),
-                               "balsa-sendmsg-window-attach-dir",
+                               "balsa-compose-window-attach-dir",
                                g_path_get_dirname(val), g_free);
     } else {
         gchar *dirname = g_object_get_data(G_OBJECT(attach),
-                                           "balsa-sendmsg-window-attach-dir");
+                                           "balsa-compose-window-attach-dir");
         gchar *valdir = g_path_get_dirname(val);
         gboolean good = (strcmp(dirname, valdir) == 0);
 
@@ -4949,7 +4949,7 @@ balsa_compose_window_set_field(BalsaComposeWindow *compose_window,
     } else if (g_ascii_strcasecmp(key, "bcc") == 0) {
         type = "BCC:";
         if (!g_object_get_data(G_OBJECT(compose_window),
-                               "balsa-sendmsg-window-url-bcc")) {
+                               "balsa-compose-window-url-bcc")) {
             GtkWidget *dialog =
                 gtk_message_dialog_new
                     (GTK_WINDOW(compose_window),
@@ -4964,7 +4964,7 @@ balsa_compose_window_set_field(BalsaComposeWindow *compose_window,
             libbalsa_macosx_menu_for_parent(dialog, GTK_WINDOW(compose_window));
 #endif
             g_object_set_data(G_OBJECT(compose_window),
-                              "balsa-sendmsg-window-url-bcc", dialog);
+                              "balsa-compose-window-url-bcc", dialog);
             g_signal_connect(G_OBJECT(dialog), "response",
                              G_CALLBACK(gtk_widget_destroy), NULL);
             gtk_widget_show(dialog);
@@ -5161,7 +5161,7 @@ sw_wrap_body(BalsaComposeWindow *compose_window)
         gtk_text_buffer_get_iter_at_offset(buffer, &now, pos);
         gtk_text_buffer_place_cursor(buffer, &now);
     }
-    compose_window->state = SENDMSG_STATE_MODIFIED;
+    compose_window->state = COMPOSE_WINDOW_STATE_MODIFIED;
     gtk_text_view_scroll_to_mark(text_view,
                                  gtk_text_buffer_get_insert(buffer),
                                  0, FALSE, 0, 0);
@@ -5887,7 +5887,7 @@ sw_save_activated(GSimpleAction *action,
     BalsaComposeWindow *compose_window = data;
 
     if (sw_save_draft(compose_window))
-        compose_window->state = SENDMSG_STATE_CLEAN;
+        compose_window->state = COMPOSE_WINDOW_STATE_CLEAN;
 }
 
 
@@ -5963,7 +5963,7 @@ sw_buffer_changed(GtkTextBuffer *buffer,
         compose_window->insert_mark = NULL;
     }
 
-    compose_window->state = SENDMSG_STATE_MODIFIED;
+    compose_window->state = COMPOSE_WINDOW_STATE_MODIFIED;
 }
 
 
@@ -6321,7 +6321,7 @@ sw_reflow_activated(GSimpleAction *action,
     libbalsa_unwrap_selection(buffer, rex);
     sw_buffer_signals_unblock(compose_window, buffer);
 
-    compose_window->state = SENDMSG_STATE_MODIFIED;
+    compose_window->state = COMPOSE_WINDOW_STATE_MODIFIED;
     gtk_text_view_scroll_to_mark(text_view,
                                  gtk_text_buffer_get_insert(buffer),
                                  0, FALSE, 0, 0);
@@ -6827,7 +6827,7 @@ balsa_compose_window_new_from_list(LibBalsaMailbox *mailbox,
         g_object_unref(message);
     }
 
-    compose_window->state = SENDMSG_STATE_CLEAN;
+    compose_window->state = COMPOSE_WINDOW_STATE_CLEAN;
 
     return compose_window;
 }
@@ -7188,7 +7188,7 @@ balsa_compose_window_new()
     GError *error = NULL;
     GtkWidget *menubar;
     GtkWidget *paned;
-    const gchar resource_path[] = "/org/desktop/Balsa/sendmsg-window.ui";
+    const gchar resource_path[] = "/org/desktop/Balsa/compose-window.ui";
     const gchar *current_locale;
 
     compose_window = g_object_new(BALSA_TYPE_COMPOSE_WINDOW,
@@ -7334,7 +7334,7 @@ balsa_compose_window_compose(void)
     balsa_compose_window_set_title(compose_window);
     if (libbalsa_identity_get_sig_sending(compose_window->ident))
         insert_initial_sig(compose_window);
-    compose_window->state = SENDMSG_STATE_CLEAN;
+    compose_window->state = COMPOSE_WINDOW_STATE_CLEAN;
     return compose_window;
 }
 
@@ -7484,7 +7484,7 @@ balsa_compose_window_forward(LibBalsaMailbox *mailbox,
                                        _("Attaching message failed.\n"
                                          "Possible reason: not enough temporary space"));
         }
-        compose_window->state = SENDMSG_STATE_CLEAN;
+        compose_window->state = COMPOSE_WINDOW_STATE_CLEAN;
         compose_window_set_subject_from_body(compose_window, body_list, compose_window->ident);
     } else {
         bsm_prepare_for_setup(message);
@@ -7522,7 +7522,7 @@ balsa_compose_window_continue(LibBalsaMailbox *mailbox,
     g_assert(message);
 
     if ((compose_window = g_object_get_data(G_OBJECT(message),
-                                   BALSA_SENDMSG_WINDOW_KEY))) {
+                                   BALSA_COMPOSE_WINDOW_KEY))) {
         gtk_window_present(GTK_WINDOW(compose_window));
         return NULL;
     }
@@ -7532,7 +7532,7 @@ balsa_compose_window_continue(LibBalsaMailbox *mailbox,
     bsm_prepare_for_setup(message);
     compose_window->draft_message = message;
     g_object_set_data(G_OBJECT(compose_window->draft_message),
-                      BALSA_SENDMSG_WINDOW_KEY, compose_window);
+                      BALSA_COMPOSE_WINDOW_KEY, compose_window);
     set_identity(compose_window, message);
     setup_headers_from_message(compose_window, message);
 

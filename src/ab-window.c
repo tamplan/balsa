@@ -27,7 +27,7 @@
 #include <glib/gi18n.h>
 #include "address-view.h"
 #include "balsa-app.h"
-#include "sendmsg-window.h"
+#include "compose-window.h"
 #include "save-restore.h"
 
 enum {

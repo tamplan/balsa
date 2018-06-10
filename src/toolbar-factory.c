@@ -29,7 +29,7 @@
 #include "balsa-icons.h"
 #include "main-window.h"
 #include "message-window.h"
-#include "sendmsg-window.h"
+#include "compose-window.h"
 #include "libbalsa-conf.h"
 
 #include "toolbar-prefs.h"

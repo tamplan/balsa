@@ -32,7 +32,7 @@
 #include <glib/gi18n.h>
 #include "balsa-mime-widget.h"
 #include "balsa-mime-widget-callbacks.h"
-#include "sendmsg-window.h"
+#include "compose-window.h"
 
 typedef enum _rfc_extbody_t {
     RFC2046_EXTBODY_FTP,

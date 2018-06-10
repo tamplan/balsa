@@ -46,7 +46,7 @@
 #include "application-helpers.h"
 #include "send.h"
 #include "quote-color.h"
-#include "sendmsg-window.h"
+#include "compose-window.h"
 #include "libbalsa-vfs.h"
 
 #if HAVE_MACOSX_DESKTOP

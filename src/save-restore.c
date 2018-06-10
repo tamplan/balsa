@@ -631,11 +631,11 @@ config_global_load(void)
     balsa_app.mw_maximized =
         libbalsa_conf_get_bool("MainWindowMaximized=false");
     balsa_app.mblist_width = libbalsa_conf_get_int("MailboxListWidth=130");
-    /* sendmsg window sizes */
-    balsa_app.sw_width = libbalsa_conf_get_int("SendMsgWindowWidth=640");
-    balsa_app.sw_height = libbalsa_conf_get_int("SendMsgWindowHeight=480");
+    /* compose window sizes */
+    balsa_app.sw_width = libbalsa_conf_get_int("ComposeWindowWidth=640");
+    balsa_app.sw_height = libbalsa_conf_get_int("ComposeWindowHeight=480");
     balsa_app.sw_maximized =
-        libbalsa_conf_get_bool("SendmsgWindowMaximized=false");
+        libbalsa_conf_get_bool("ComposeWindowMaximized=false");
     /* message window sizes */
     balsa_app.message_window_width =
         libbalsa_conf_get_int("MessageWindowWidth=400");
@@ -1208,9 +1208,9 @@ config_save(void)
                            !!balsa_app.mw_maximized);
     libbalsa_conf_set_int("MailboxListWidth", balsa_app.mblist_width);
 
-    libbalsa_conf_set_int("SendMsgWindowWidth", balsa_app.sw_width);
-    libbalsa_conf_set_int("SendMsgWindowHeight", balsa_app.sw_height);
-    libbalsa_conf_set_bool("SendmsgWindowMaximized",
+    libbalsa_conf_set_int("ComposeWindowWidth", balsa_app.sw_width);
+    libbalsa_conf_set_int("ComposeWindowHeight", balsa_app.sw_height);
+    libbalsa_conf_set_bool("ComposeWindowMaximized",
                            !!balsa_app.sw_maximized);
 
     libbalsa_conf_set_int("MessageWindowWidth",

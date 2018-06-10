@@ -17,8 +17,8 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __BALSA_SENDMSG_H__
-#define __BALSA_SENDMSG_H__
+#ifndef __BALSA_COMPOSE_H__
+#define __BALSA_COMPOSE_H__
 
 #ifndef BALSA_VERSION
 #   error "Include config.h before this file."
@@ -96,4 +96,4 @@ void balsa_compose_window_set_quit_on_close(BalsaComposeWindow *bsmsg,
 
 G_END_DECLS
 
-#endif                          /* __BALSA_SENDMSG_H__ */
+#endif                          /* __BALSA_COMPOSE_H__ */

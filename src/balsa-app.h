@@ -194,7 +194,7 @@ extern struct BalsaApplication {
     gint mw_height;
     gboolean mw_maximized;
     gint mblist_width;
-    gint sw_width; /* sendmsg window */
+    gint sw_width; /* compose window */
     gint sw_height;
     gboolean sw_maximized;
     gint message_window_width;

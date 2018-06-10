@@ -28,7 +28,7 @@
 #include "html.h"
 #include <glib/gi18n.h>
 #include "quote-color.h"
-#include "sendmsg-window.h"
+#include "compose-window.h"
 #include "store-address.h"
 #include "balsa-mime-widget.h"
 #include "balsa-mime-widget-callbacks.h"

@@ -43,7 +43,7 @@
 #include "balsa-message.h"
 #include "main-window.h"
 #include "message-window.h"
-#include "sendmsg-window.h"
+#include "compose-window.h"
 #include "store-address.h"
 
 #include "filter-funcs.h"
@@ -707,9 +707,9 @@ bndx_row_activated(GtkTreeView       *tree_view,
     mailbox = LIBBALSA_MAILBOX(model);
     /* activate a message means open a message window,
      * unless we're in the draftbox, in which case it means open
-     * a sendmsg window */
+     * a compose window */
     if (mailbox == balsa_app.draftbox) {
-        /* the simplest way to get a sendmsg window would be:
+        /* the simplest way to get a compose window would be:
          * balsa_message_continue(widget, (gpointer) index);
          *
          * instead we'll just use the guts of

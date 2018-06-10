@@ -61,7 +61,7 @@
 #include "message-window.h"
 #include "pref-manager.h"
 #include "print.h"
-#include "sendmsg-window.h"
+#include "compose-window.h"
 #include "send.h"
 #include "store-address.h"
 #include "save-restore.h"

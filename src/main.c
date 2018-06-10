@@ -43,7 +43,7 @@
 #include "libbalsa.h"
 #include "mailbox-node.h"
 #include "save-restore.h"
-#include "sendmsg-window.h"
+#include "compose-window.h"
 #include "information.h"
 #include "imap-server.h"
 #include "libbalsa-conf.h"

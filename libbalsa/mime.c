@@ -427,9 +427,9 @@ dowrap_rfc2646(GList * list, gint width, gboolean to_screen,
    gchar * par:          string to be wrapped
    gint width:           maximum length of wrapped line
    gboolean from_screen: is par from the text input area of
-                         a sendmsg-window?
+                         a compose-window?
    gboolean to_screen:   is the wrapped text going to be
-                         displayed in the text area of a sendmsg-window 
+                         displayed in the text area of a compose-window 
                          or of a received message window?
    gboolean quote:       should the wrapped lines be prefixed 
                          with the RFC 2646 quote character '>'?
