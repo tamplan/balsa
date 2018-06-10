@@ -846,7 +846,8 @@ message_window_new(LibBalsaMailbox * mailbox, guint msgno)
     GtkWidget *vbox;
     static const gchar *const header_options[] =
         { "none", "selected", "all" };
-    const gchar resource_path[] = "/org/desktop/Balsa/message-window.ui";
+    static const gchar resource_path[] =
+        "/org/desktop/Balsa/message-window.ui";
     GAction *action;
 
     if (!mailbox || !msgno)

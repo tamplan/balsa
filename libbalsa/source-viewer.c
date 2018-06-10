@@ -229,7 +229,8 @@ libbalsa_show_message_source(GtkApplication  * application,
     GtkCssProvider *css_provider;
     GtkWidget *vbox, *interior;
     GtkWindow *window;
-    const gchar resource_path[] = "/org/desktop/Balsa/source-viewer.ui";
+    static const gchar resource_path[] =
+        "/org/desktop/Balsa/source-viewer.ui";
     GtkWidget *menu_bar;
     GError *err = NULL;
     LibBalsaSourceViewer *source_viewer;

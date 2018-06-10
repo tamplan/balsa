@@ -7188,7 +7188,8 @@ balsa_compose_window_new()
     GError *error = NULL;
     GtkWidget *menubar;
     GtkWidget *paned;
-    const gchar resource_path[] = "/org/desktop/Balsa/compose-window.ui";
+    static const gchar resource_path[] =
+        "/org/desktop/Balsa/compose-window.ui";
     const gchar *current_locale;
 
     compose_window = g_object_new(BALSA_TYPE_COMPOSE_WINDOW,

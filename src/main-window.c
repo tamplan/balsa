@@ -2099,7 +2099,8 @@ bw_set_menus(BalsaWindow * window)
 {
     BalsaWindowPrivate *priv = balsa_window_get_instance_private(window);
     GtkBuilder *builder;
-    const gchar resource_path[] = "/org/desktop/Balsa/main-window.ui";
+    static const gchar resource_path[] =
+        "/org/desktop/Balsa/main-window.ui";
     GError *err = NULL;
 
     bw_add_app_action_entries(G_ACTION_MAP(application), window);

@@ -593,7 +593,8 @@ get_main_menu(GtkApplication * application)
             address_book_change_state},
     };
     GtkBuilder *builder;
-    const gchar resource_path[] = "/org/desktop/BalsaAb/ab-main.ui";
+    static const gchar resource_path[] =
+        "/org/desktop/BalsaAb/ab-main.ui";
     GError *err = NULL;
 
     builder = gtk_builder_new();
