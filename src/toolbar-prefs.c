@@ -170,9 +170,9 @@ customize_dialog_cb(GtkWidget * widget, gpointer data)
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), child,
                              gtk_label_new(_("Main window")));
 
-    model = sendmsg_window_get_toolbar_model();
+    model = balsa_compose_window_get_toolbar_model();
     group = g_simple_action_group_new();
-    sendmsg_window_add_action_entries(G_ACTION_MAP(group));
+    balsa_compose_window_add_action_entries(G_ACTION_MAP(group));
 #ifdef BALSA_TOOLBAR_DEBUG_ACTIONS
     g_print("compose window\n");
 #endif /* BALSA_TOOLBAR_DEBUG_ACTIONS */

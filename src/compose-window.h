@@ -42,56 +42,56 @@ typedef enum {
 
 #define VIEW_MENU_LENGTH 5
 
-typedef struct _BalsaSendmsg BalsaSendmsg;
+#define BALSA_TYPE_COMPOSE_WINDOW balsa_compose_window_get_type()
 
-BalsaSendmsg *sendmsg_window_compose(void);
-BalsaSendmsg *sendmsg_window_compose_with_address(const gchar *
+G_DECLARE_FINAL_TYPE(BalsaComposeWindow,
+                     balsa_compose_window,
+                     BALSA,
+                     COMPOSE_WINDOW,
+                     GtkApplicationWindow);
+
+BalsaComposeWindow *balsa_compose_window_compose(void);
+BalsaComposeWindow *balsa_compose_window_compose_with_address(const gchar *
                                                   address);
-BalsaSendmsg *sendmsg_window_reply(LibBalsaMailbox *,
+BalsaComposeWindow *balsa_compose_window_reply(LibBalsaMailbox *mailbox,
                                    guint    msgno,
                                    SendType rt);
-BalsaSendmsg *sendmsg_window_reply_embedded(LibBalsaMessageBody *part,
+BalsaComposeWindow *balsa_compose_window_reply_embedded(LibBalsaMessageBody *part,
                                             SendType             reply_type);
 
-BalsaSendmsg *sendmsg_window_forward(LibBalsaMailbox *,
+BalsaComposeWindow *balsa_compose_window_forward(LibBalsaMailbox *mailbox,
                                      guint    msgno,
                                      gboolean attach);
-BalsaSendmsg *sendmsg_window_continue(LibBalsaMailbox *,
+BalsaComposeWindow *balsa_compose_window_continue(LibBalsaMailbox *mailbox,
                                       guint msgno);
 
-void sendmsg_window_set_field(BalsaSendmsg *bsmsg,
+void balsa_compose_window_set_field(BalsaComposeWindow *bsmsg,
                               const gchar  *key,
                               const gchar  *val);
 
-gboolean add_attachment(BalsaSendmsg *bsmsg,
+gboolean add_attachment(BalsaComposeWindow *bsmsg,
                         const gchar  *filename,
                         gboolean      is_a_tmp_file,
                         const gchar  *forced_mime_type);
 
-typedef void (*field_setter)(BalsaSendmsg *d,
-                             const gchar *,
-                             const gchar *);
+typedef void (*field_setter)(BalsaComposeWindow *d,
+                             const gchar *key,
+                             const gchar *value);
 
-void sendmsg_window_process_url(const char  *url,
+void balsa_compose_window_process_url(const char  *url,
                                 field_setter func,
                                 void        *data);
-BalsaSendmsg *sendmsg_window_new_from_list(LibBalsaMailbox *mailbox,
+BalsaComposeWindow *balsa_compose_window_new_from_list(LibBalsaMailbox *mailbox,
                                            GArray          *selected,
                                            SendType         type);
-BalsaToolbarModel *sendmsg_window_get_toolbar_model(void);
-void               sendmsg_window_add_action_entries(GActionMap *action_map);
-
-/*
- * Getter
- */
-
-GtkWidget *sendmsg_window_get_window(BalsaSendmsg *bsmsg);
+BalsaToolbarModel *balsa_compose_window_get_toolbar_model(void);
+void               balsa_compose_window_add_action_entries(GActionMap *action_map);
 
 /*
  * Setter
  */
 
-void sendmsg_window_set_quit_on_close(BalsaSendmsg *bsmsg,
+void balsa_compose_window_set_quit_on_close(BalsaComposeWindow *bsmsg,
                                       gboolean      quit_on_close);
 
 G_END_DECLS

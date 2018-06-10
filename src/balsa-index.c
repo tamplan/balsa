@@ -129,7 +129,7 @@ static GtkWidget *create_stock_menu_item(GtkWidget   *menu,
                                          GCallback    cb,
                                          gpointer     data);
 
-static void sendmsg_window_destroy_cb(GtkWidget *widget,
+static void bndx_compose_window_destroy_cb(GtkWidget *widget,
                                       gpointer   data);
 
 /* signals */
@@ -714,11 +714,11 @@ bndx_row_activated(GtkTreeView       *tree_view,
          *
          * instead we'll just use the guts of
          * balsa_message_continue: */
-        BalsaSendmsg *sm =
-            sendmsg_window_continue(mailbox, msgno);
-        if (sm != NULL)
-            g_signal_connect(sendmsg_window_get_window(sm), "destroy",
-                             G_CALLBACK(sendmsg_window_destroy_cb), NULL);
+        BalsaComposeWindow *compose_window =
+            balsa_compose_window_continue(mailbox, msgno);
+        if (compose_window != NULL)
+            g_signal_connect(compose_window, "destroy",
+                             G_CALLBACK(bndx_compose_window_destroy_cb), NULL);
     } else {
         message_window_new(mailbox, msgno);
     }
@@ -1678,27 +1678,27 @@ bndx_compose_foreach(BalsaIndex *index,
     selected = balsa_index_selected_msgnos_new(index);
     for (i = 0; i < selected->len; i++) {
         guint msgno = g_array_index(selected, guint, i);
-        BalsaSendmsg *sm;
+        BalsaComposeWindow *compose_window;
 
         switch(send_type) {
         case SEND_REPLY:
         case SEND_REPLY_ALL:
         case SEND_REPLY_GROUP:
-            sm = sendmsg_window_reply(mailbox, msgno, send_type);
+            compose_window = balsa_compose_window_reply(mailbox, msgno, send_type);
             break;
 
         case SEND_CONTINUE:
-            sm = sendmsg_window_continue(mailbox, msgno);
+            compose_window = balsa_compose_window_continue(mailbox, msgno);
             break;
 
         default:
             g_assert_not_reached();
-            sm = NULL; /** silence invalid warnings */
+            compose_window = NULL; /** silence invalid warnings */
         }
 
-        if (sm != NULL) {
-            g_signal_connect(sendmsg_window_get_window(sm), "destroy",
-                             G_CALLBACK(sendmsg_window_destroy_cb), NULL);
+        if (compose_window != NULL) {
+            g_signal_connect(compose_window, "destroy",
+                             G_CALLBACK(bndx_compose_window_destroy_cb), NULL);
         } else if (send_type == SEND_REPLY_GROUP) {
             ++skipped;
         }
@@ -1758,16 +1758,16 @@ bndx_compose_from_list(BalsaIndex *index,
 {
     GArray *selected;
     LibBalsaMailbox *mailbox;
-    BalsaSendmsg *sm;
+    BalsaComposeWindow *compose_window;
 
     selected = balsa_index_selected_msgnos_new(index);
     mailbox  = balsa_index_get_mailbox(index);
 
-    sm = sendmsg_window_new_from_list(mailbox, selected, send_type);
+    compose_window = balsa_compose_window_new_from_list(mailbox, selected, send_type);
 
     balsa_index_selected_msgnos_free(index, selected);
-    g_signal_connect(sendmsg_window_get_window(sm), "destroy",
-                     G_CALLBACK(sendmsg_window_destroy_cb), NULL);
+    g_signal_connect(compose_window, "destroy",
+                     G_CALLBACK(bndx_compose_window_destroy_cb), NULL);
 }
 
 
@@ -2178,8 +2178,8 @@ create_stock_menu_item(GtkWidget   *menu,
 
 
 static void
-sendmsg_window_destroy_cb(GtkWidget *widget,
-                          gpointer   data)
+bndx_compose_window_destroy_cb(GtkWidget *widget,
+                               gpointer   data)
 {
     balsa_window_enable_continue(balsa_app.main_window);
 }

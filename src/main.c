@@ -443,25 +443,25 @@ static gboolean
 balsa_check_open_compose_window(void)
 {
     if (opt_compose_email || opt_attach_list) {
-        BalsaSendmsg *snd;
+        BalsaComposeWindow *compose_window;
         gchar **attach;
 
-        snd = sendmsg_window_compose();
-        sendmsg_window_set_quit_on_close(snd, FALSE);
+        compose_window = balsa_compose_window_compose();
+        balsa_compose_window_set_quit_on_close(compose_window, FALSE);
 
         if (opt_compose_email) {
             if (g_ascii_strncasecmp(opt_compose_email, "mailto:", 7) == 0)
-                sendmsg_window_process_url(opt_compose_email + 7,
-                                           sendmsg_window_set_field, snd);
+                balsa_compose_window_process_url(opt_compose_email + 7,
+                                           balsa_compose_window_set_field, compose_window);
             else
-                sendmsg_window_set_field(snd, "to", opt_compose_email);
+                balsa_compose_window_set_field(compose_window, "to", opt_compose_email);
             g_free(opt_compose_email);
             opt_compose_email = NULL;
         }
 
         if (opt_attach_list) {
             for (attach = opt_attach_list; *attach; ++attach)
-                add_attachment(snd, *attach, FALSE, NULL);
+                add_attachment(compose_window, *attach, FALSE, NULL);
             g_strfreev(opt_attach_list);
             opt_attach_list = NULL;
         }

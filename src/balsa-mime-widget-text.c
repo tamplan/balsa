@@ -545,10 +545,10 @@ url_open_cb(GtkWidget * menu_item, message_url_t * uri)
 static void
 url_send_cb(GtkWidget * menu_item, message_url_t * uri)
 {
-    BalsaSendmsg * newmsg;
+    BalsaComposeWindow * compose_window;
 
-    newmsg = sendmsg_window_compose();
-    sendmsg_window_set_field(newmsg, "body", uri->url);
+    compose_window = balsa_compose_window_compose();
+    balsa_compose_window_set_field(compose_window, "body", uri->url);
 }
 
 static gboolean
@@ -834,8 +834,8 @@ static void
 handle_url(const gchar * url)
 {
     if (!g_ascii_strncasecmp(url, "mailto:", 7)) {
-        BalsaSendmsg *snd = sendmsg_window_compose();
-        sendmsg_window_process_url(url + 7, sendmsg_window_set_field, snd);
+        BalsaComposeWindow *compose_window = balsa_compose_window_compose();
+        balsa_compose_window_process_url(url + 7, balsa_compose_window_set_field, compose_window);
     } else {
         GtkStatusbar *statusbar;
         guint context_id;

@@ -601,7 +601,7 @@ balsa_ab_window_activate_address(GtkTreeView * view,
                            LIST_COLUMN_WHICH, &which_multiple, -1);
         addr = libbalsa_address_to_gchar(address, which_multiple);
 	g_object_unref(G_OBJECT(address));
-        (void) sendmsg_window_compose_with_address(addr);
+        (void) balsa_compose_window_compose_with_address(addr);
         g_free(addr);
     }
 }

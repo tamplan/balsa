@@ -156,7 +156,7 @@ static void bw_notebook_switch_page_cb(GtkWidget * notebook,
                                        void * page,
                                        guint page_num,
                                        gpointer data);
-static void bw_send_msg_window_destroy_cb(GtkWidget * widget, gpointer data);
+static void bw_compose_window_destroy_cb(GtkWidget * widget, gpointer data);
 static BalsaIndex *bw_notebook_find_page(GtkNotebook * notebook,
                                          gint x, gint y);
 static void bw_notebook_drag_received_cb(GtkWidget        * widget,
@@ -848,12 +848,12 @@ new_message_activated(GSimpleAction * action,
                       GVariant      * parameter,
                       gpointer        user_data)
 {
-    BalsaSendmsg *smwindow;
+    BalsaComposeWindow *compose_window;
 
-    smwindow = sendmsg_window_compose();
+    compose_window = balsa_compose_window_compose();
 
-    g_signal_connect(sendmsg_window_get_window(smwindow), "destroy",
-                     G_CALLBACK(bw_send_msg_window_destroy_cb), user_data);
+    g_signal_connect(compose_window, "destroy",
+                     G_CALLBACK(bw_compose_window_destroy_cb), user_data);
 }
 
 static void
@@ -4459,7 +4459,7 @@ bw_select_part_cb(BalsaMessage * bm, gpointer data)
 }
 
 static void
-bw_send_msg_window_destroy_cb(GtkWidget * widget, gpointer data)
+bw_compose_window_destroy_cb(GtkWidget * widget, gpointer data)
 {
     if (balsa_app.main_window)
         balsa_window_enable_continue(BALSA_WINDOW(data));

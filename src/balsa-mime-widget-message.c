@@ -439,7 +439,7 @@ static void
 bm_header_ctx_menu_reply(GtkWidget * menu_item,
                          LibBalsaMessageBody *part)
 {
-    sendmsg_window_reply_embedded(part, SEND_REPLY);
+    balsa_compose_window_reply_embedded(part, SEND_REPLY);
 }
 
 static void

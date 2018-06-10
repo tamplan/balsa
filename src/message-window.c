@@ -423,7 +423,7 @@ mw_reply_activated(GSimpleAction * action, GVariant * parameter,
 {
     BalsaMessageWindow *mw = (BalsaMessageWindow *) data;
 
-    sendmsg_window_reply(libbalsa_message_get_mailbox(mw->message),
+    balsa_compose_window_reply(libbalsa_message_get_mailbox(mw->message),
                          libbalsa_message_get_msgno(mw->message),
                          SEND_REPLY);
 }
@@ -434,7 +434,7 @@ mw_reply_all_activated(GSimpleAction * action, GVariant * parameter,
 {
     BalsaMessageWindow *mw = (BalsaMessageWindow *) data;
 
-    sendmsg_window_reply(libbalsa_message_get_mailbox(mw->message),
+    balsa_compose_window_reply(libbalsa_message_get_mailbox(mw->message),
                          libbalsa_message_get_msgno(mw->message),
                          SEND_REPLY_ALL);
 }
@@ -445,7 +445,7 @@ mw_reply_group_activated(GSimpleAction * action, GVariant * parameter,
 {
     BalsaMessageWindow *mw = (BalsaMessageWindow *) data;
 
-    sendmsg_window_reply(libbalsa_message_get_mailbox(mw->message),
+    balsa_compose_window_reply(libbalsa_message_get_mailbox(mw->message),
                          libbalsa_message_get_msgno(mw->message),
                          SEND_REPLY_GROUP);
 }
@@ -456,7 +456,7 @@ mw_forward_attached_activated(GSimpleAction * action, GVariant * parameter,
 {
     BalsaMessageWindow *mw = (BalsaMessageWindow *) data;
 
-    sendmsg_window_forward(libbalsa_message_get_mailbox(mw->message),
+    balsa_compose_window_forward(libbalsa_message_get_mailbox(mw->message),
                            libbalsa_message_get_msgno(mw->message),
                            TRUE);
 }
@@ -467,7 +467,7 @@ mw_forward_inline_activated(GSimpleAction * action, GVariant * parameter,
 {
     BalsaMessageWindow *mw = (BalsaMessageWindow *) data;
 
-    sendmsg_window_forward(libbalsa_message_get_mailbox(mw->message),
+    balsa_compose_window_forward(libbalsa_message_get_mailbox(mw->message),
                            libbalsa_message_get_msgno(mw->message),
                            FALSE);
 }
@@ -479,7 +479,7 @@ mw_forward_default_activated(GSimpleAction * action, GVariant * parameter,
 {
     BalsaMessageWindow *mw = (BalsaMessageWindow *) data;
 
-    sendmsg_window_forward(libbalsa_message_get_mailbox(mw->message),
+    balsa_compose_window_forward(libbalsa_message_get_mailbox(mw->message),
                            libbalsa_message_get_msgno(mw->message),
                            balsa_app.forward_attached);
 }
