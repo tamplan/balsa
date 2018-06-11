@@ -1038,7 +1038,7 @@ quit_activated(GSimpleAction * action,
     while(gtk_events_pending())
         gtk_main_iteration_do(FALSE);
 
-    gtk_widget_destroy((GtkWidget *) window);
+    gtk_window_close(window);
 }
 
 static void

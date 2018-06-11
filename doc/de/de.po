@@ -5904,15 +5904,6 @@ msgstr ""
 "Der <gui>Entfernen</gui>-Knopf entfernt den aktuell in der rechten Liste "
 "ausgewählten Filter und setzt ihn in die linke Liste zurück."
 
-#. (itstool) path: item/p
-#: C/win-run-filters.page:43
-msgid ""
-"The <gui>Remove</gui> button: removes the currently selected filter in the "
-"right list and puts it back in the left list."
-msgstr ""
-"Der <gui>Entfernen</gui>-Knopf entfernt den aktuell in der rechten Liste "
-"ausgewählten Filter und setzt ihn in die linke Liste zurück."
-
 #. (itstool) path: page/p
 #: C/win-run-filters.page:49
 msgid ""
@@ -5947,20 +5938,6 @@ msgid ""
 "<app>Balsa</app> will reload the saved filters and you will only have to "
 "press the <gui>Apply</gui> button."
 msgstr ""
-
-#. (itstool) path: item/p
-#: C/win-run-filters.page:75
-msgid ""
-"The <gui>Cancel</gui> button: this discards any changes and closes the "
-"dialog box."
-msgstr ""
-"Der <gui>Abbrechen</gui>-Knopf verwirft alle Änderungen und schließt den "
-"Dialog."
-
-#. (itstool) path: item/p
-#: C/win-run-filters.page:80
-msgid "The <gui>Help</gui> button: opens this help window."
-msgstr "Der <gui>Hilfe</gui>-Knopf öffnet das Hilfe-Fenster."
 
 #. (itstool) path: item/p
 #: C/win-run-filters.page:75
