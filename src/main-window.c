@@ -150,7 +150,6 @@ static void bw_find_real(BalsaWindow * window, BalsaIndex * bindex,
 static void bw_slave_position_cb(GtkPaned   * paned_slave,
                                  GParamSpec * pspec,
                                  gpointer     user_data);
-static void bw_size_allocate_cb(GtkWidget * window);
 
 static void bw_notebook_switch_page_cb(GtkWidget * notebook,
                                        void * page,
@@ -228,13 +227,17 @@ G_DEFINE_TYPE_WITH_PRIVATE(BalsaWindow, balsa_window, GTK_TYPE_APPLICATION_WINDO
 
 static guint window_signals[LAST_SIGNAL] = { 0 };
 
-/* note: access with g_atomic_* functions, not checking mail when 1 */
-static gint checking_mail = 1;
+static void balsa_window_size_allocate(GtkWidget           *widget,
+                                       const GtkAllocation *allocation,
+                                       int                  baseline);
+static gboolean balsa_window_close_request(GtkWindow * window);
 
 static void
 balsa_window_class_init(BalsaWindowClass * klass)
 {
     GObjectClass *object_class = (GObjectClass *) klass;
+    GtkWidgetClass *widget_class = (GtkWidgetClass *) klass;
+    GtkWindowClass *window_class = (GtkWindowClass *) klass;
 
     window_signals[IDENTITIES_CHANGED] =
         g_signal_new("identities-changed",
@@ -245,6 +248,10 @@ balsa_window_class_init(BalsaWindowClass * klass)
                      g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0);
 
     object_class->dispose = balsa_window_dispose;
+
+    widget_class->size_allocate = balsa_window_size_allocate;
+
+    window_class->close_request = balsa_window_close_request;
 
     klass->open_mbnode  = balsa_window_real_open_mbnode;
     klass->close_mbnode = balsa_window_real_close_mbnode;
@@ -306,14 +313,14 @@ balsa_window_init(BalsaWindow * window)
 }
 
 static gboolean
-bw_close_request_cb(GtkWidget * main_window)
+balsa_window_close_request(GtkWindow * window)
 {
     /* we cannot leave main window disabled because compose windows
      * (for example) could refuse to get deleted and we would be left
      * with disabled main window. */
     if(libbalsa_is_sending_mail()) {
         GtkWidget* d =
-            gtk_message_dialog_new(GTK_WINDOW(main_window),
+            gtk_message_dialog_new(window,
                                    GTK_DIALOG_MODAL,
                                    GTK_MESSAGE_QUESTION,
                                    GTK_BUTTONS_YES_NO,
@@ -667,19 +674,6 @@ balsa_window_get_toolbar_model(void)
                                     G_N_ELEMENTS(main_toolbar_extras));
 
     return model;
-}
-
-/*
- * "notify::is-maximized" signal handler
- */
-static void
-bw_notify_is_maximized_cb(GtkWindow  * window,
-                          GParamSpec * pspec,
-                          gpointer     user_data)
-{
-    /* Note when we are either maximized or fullscreen, to avoid saving
-     * nonsensical geometry. */
-    balsa_app.mw_maximized = gtk_window_is_maximized(window);
 }
 
 static void
@@ -2249,6 +2243,9 @@ bw_enable_next_unread(BalsaWindow * window, gboolean has_unread_mailbox)
     bw_action_set_enabled(window, "next-unread", has_unread_mailbox);
 }
 
+/* note: access with g_atomic_* functions, not checking mail when 1 */
+static gint checking_mail = 1;
+
 GtkWidget *
 balsa_window_new(GtkApplication *application)
 {
@@ -2302,9 +2299,6 @@ balsa_window_new(GtkApplication *application)
     gtk_box_pack_start(GTK_BOX(hbox), priv->progress_bar);
 
     priv->statusbar = gtk_statusbar_new();
-    g_signal_connect(window, "notify::is-maximized",
-                     G_CALLBACK(bw_notify_is_maximized_cb),
-                     priv->statusbar);
     gtk_widget_set_hexpand(priv->statusbar, TRUE);
     gtk_box_pack_start(GTK_BOX(hbox), priv->statusbar);
 
@@ -2414,12 +2408,8 @@ balsa_window_new(GtkApplication *application)
     /* set initial state of next-unread controls */
     bw_enable_next_unread(window, FALSE);
 
-    g_signal_connect(window, "size_allocate",
-                     G_CALLBACK(bw_size_allocate_cb), NULL);
     g_signal_connect(window, "destroy",
-                     G_CALLBACK (gtk_main_quit), NULL);
-    g_signal_connect(window, "close-request",
-                     G_CALLBACK(bw_close_request_cb), NULL);
+                     G_CALLBACK(gtk_main_quit), NULL);
 
     /* Cancel new-mail notification when we get the focus. */
     g_signal_connect(window, "notify::is-active",
@@ -3731,7 +3721,7 @@ bw_display_new_mail_notification(int num_new, int has_new)
 /*Callback to create or disconnect an IMAP mbox. */
 
 static void
-mw_mbox_can_reach_cb(GObject * object,
+bw_mbox_can_reach_cb(GObject * object,
                      gboolean  can_reach,
                      gpointer  user_data)
 {
@@ -3747,7 +3737,7 @@ mw_mbox_can_reach_cb(GObject * object,
 }
 
 static gboolean
-mw_mbox_change_connection_status(GtkTreeModel * model, GtkTreePath * path,
+bw_mbox_change_connection_status(GtkTreeModel * model, GtkTreePath * path,
                                  GtkTreeIter * iter, gpointer arg)
 {
     BalsaMailboxNode *mbnode;
@@ -3764,7 +3754,7 @@ mw_mbox_change_connection_status(GtkTreeModel * model, GtkTreePath * path,
             bw_imap_check_test(dir != NULL ? dir :
                 libbalsa_mailbox_imap_get_path(LIBBALSA_MAILBOX_IMAP(mailbox)))) {
             libbalsa_mailbox_test_can_reach(g_object_ref(mailbox),
-                                            mw_mbox_can_reach_cb, NULL);
+                                            bw_mbox_can_reach_cb, NULL);
         }
     }
 
@@ -3803,7 +3793,7 @@ bw_change_connection_status_idle(gpointer user_data)
 
     gtk_tree_model_foreach(GTK_TREE_MODEL(balsa_app.mblist_tree_store),
                            (GtkTreeModelForeachFunc)
-                           mw_mbox_change_connection_status, NULL);
+                           bw_mbox_change_connection_status, NULL);
 
     if (!priv->network_available)
         return FALSE;
@@ -4286,12 +4276,29 @@ bw_slave_position_cb(GtkPaned   * paned_slave,
             gtk_paned_get_position(paned_slave);
 }
 
-    static void
-bw_size_allocate_cb(GtkWidget * window)
+static void
+balsa_window_size_allocate(GtkWidget           *widget,
+                           const GtkAllocation *allocation,
+                           int                  baseline)
 {
-    gtk_window_get_size(GTK_WINDOW(window),
-                        & balsa_app.mw_width,
-                        & balsa_app.mw_height);
+    GdkSurface *surface;
+
+    GTK_WIDGET_CLASS(balsa_window_parent_class)->size_allocate
+        (widget, allocation, baseline);
+
+    surface = gtk_widget_get_surface(widget);
+    if (surface == NULL)
+        return;
+
+    balsa_app.mw_maximized =
+        (gdk_surface_get_state(surface) &
+         (GDK_SURFACE_STATE_MAXIMIZED | GDK_SURFACE_STATE_FULLSCREEN)) != 0;
+
+    if (!balsa_app.mw_maximized) {
+        gtk_window_get_size(GTK_WINDOW(widget),
+                            &balsa_app.mw_width,
+                            &balsa_app.mw_height);
+    }
 }
 
 /* When page is switched we change the preview window and the selected
