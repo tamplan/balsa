@@ -154,6 +154,10 @@ static void balsa_compose_window_destroy(GtkWidget *widget);
 static void balsa_compose_window_size_allocate(GtkWidget           *widget,
                                                const GtkAllocation *allocation,
                                                int                  baseline);
+static void balsa_compose_window_drag_data_received(GtkWidget          *widget,
+                                                    GdkDragContext     *context,
+                                                    GtkSelectionData   *selection_data,
+                                                    guint               time);
 static gboolean balsa_compose_window_close_request(GtkWindow *window);
 
 static void
@@ -167,6 +171,7 @@ balsa_compose_window_class_init(BalsaComposeWindowClass *klass)
 
     widget_class->destroy = balsa_compose_window_destroy;
     widget_class->size_allocate = balsa_compose_window_size_allocate;
+    widget_class->drag_data_received = balsa_compose_window_drag_data_received;
 
     window_class->close_request = balsa_compose_window_close_request;
 }
@@ -2335,7 +2340,7 @@ sw_attach_messages_activated(GSimpleAction *action,
 }
 
 
-/* attachments_add - attachments field D&D callback */
+/* balsa_compose_window_drag_data_received - attachments field D&D callback */
 static GSList *
 uri2gslist(const char *uri_list)
 {
@@ -2401,18 +2406,18 @@ rfc2396_uri(const gchar *instr)
 
 
 static void
-attachments_add(GtkWidget        *widget,
-                GdkDragContext   *context,
-                GtkSelectionData *selection_data,
-                guint32           time,
-                BalsaComposeWindow     *compose_window)
+balsa_compose_window_drag_data_received(GtkWidget        *widget,
+                                        GdkDragContext   *context,
+                                        GtkSelectionData *selection_data,
+                                        guint32           time)
 {
+    BalsaComposeWindow *compose_window = (BalsaComposeWindow *) widget;
     const gchar *target;
     gboolean drag_result = TRUE;
 
     target = gtk_selection_data_get_target(selection_data);
     if (balsa_app.debug)
-        printf("attachments_add: target %s\n", target);
+        printf("balsa_compose_window_drag_data_received: target %s\n", target);
 
     if (target == g_intern_static_string("x-application/x-message-list")) {
         BalsaIndex *index =
@@ -2953,9 +2958,6 @@ sw_attachment_list(BalsaComposeWindow *compose_window)
 
     g_signal_connect(view, "popup-menu",
                      G_CALLBACK(attachment_popup_cb), NULL);
-
-    g_signal_connect(G_OBJECT(compose_window), "drag_data_received",
-                     G_CALLBACK(attachments_add), compose_window);
 
     formats = gdk_content_formats_new(drop_types, G_N_ELEMENTS(drop_types));
     gtk_drag_dest_set(GTK_WIDGET(compose_window), GTK_DEST_DEFAULT_ALL,
