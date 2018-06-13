@@ -102,7 +102,7 @@ libbalsa_mime_stream_shared_class_init(LibBalsaMimeStreamSharedClass *klass)
 struct _LibBalsaMimeStreamSharedLock {
     GThread *thread;
     guint count;
-    guint ref_count;
+    gatomicrefcount ref_count;
 };
 
 static LibBalsaMimeStreamSharedLock *
@@ -110,10 +110,10 @@ lbmss_lock_new(void)
 {
     LibBalsaMimeStreamSharedLock *lock;
 
-    lock            = g_new(LibBalsaMimeStreamSharedLock, 1);
-    lock->thread    = 0;
-    lock->count     = 0;
-    lock->ref_count = 1;
+    lock         = g_new(LibBalsaMimeStreamSharedLock, 1);
+    lock->thread = 0;
+    lock->count  = 0;
+    g_atomic_ref_count_init(&lock->ref_count);
 
     return lock;
 }
@@ -122,7 +122,7 @@ lbmss_lock_new(void)
 static LibBalsaMimeStreamSharedLock *
 lbmss_lock_ref(LibBalsaMimeStreamSharedLock *lock)
 {
-    ++lock->ref_count;
+    g_atomic_ref_count_inc(&lock->ref_count);
 
     return lock;
 }
@@ -131,9 +131,7 @@ lbmss_lock_ref(LibBalsaMimeStreamSharedLock *lock)
 static void
 lbmss_lock_unref(LibBalsaMimeStreamSharedLock *lock)
 {
-    g_assert(lock->ref_count > 0);
-
-    if (--lock->ref_count == 0)
+    if (g_atomic_ref_count_dec(&lock->ref_count))
         g_free(lock);
 }
 
