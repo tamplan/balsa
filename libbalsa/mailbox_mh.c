@@ -1098,6 +1098,7 @@ libbalsa_mailbox_mh_fetch_message_structure(LibBalsaMailbox  *mailbox,
             g_mime_object_remove_header(GMIME_OBJECT(mime_msg),
                                         "X-Status");
             libbalsa_message_set_mime_msg(message, mime_msg);
+            g_object_unref(mime_msg);
         }
     }
 

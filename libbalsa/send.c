@@ -446,7 +446,7 @@ lbs_message_queue_real(LibBalsaMessage    *message,
         return result;
     }
 
-    mime_msg = libbalsa_message_get_mime_msg(message);
+    mime_msg = g_object_ref(libbalsa_message_get_mime_msg(message));
     if (fccbox != NULL) {
         g_mime_object_set_header(GMIME_OBJECT(mime_msg), "X-Balsa-Fcc",
                                  libbalsa_mailbox_get_url(fccbox));
@@ -489,6 +489,7 @@ lbs_message_queue_real(LibBalsaMessage    *message,
     } else {
         rc = libbalsa_message_copy(message, outbox, error);
     }
+    g_object_unref(mime_msg);
 
     return rc ? LIBBALSA_MESSAGE_CREATE_OK : LIBBALSA_MESSAGE_QUEUE_ERROR;
 }

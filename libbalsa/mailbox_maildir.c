@@ -879,13 +879,17 @@ libbalsa_mailbox_maildir_fetch_message_structure(LibBalsaMailbox  *mailbox,
                                                  LibBalsaFetchFlag flags)
 {
     if (libbalsa_message_get_mime_msg(message) == NULL) {
+        GMimeMessage *mime_message;
         struct message_info *msg_info =
             message_info_from_msgno((LibBalsaMailboxMaildir *) mailbox,
                                     libbalsa_message_get_msgno(message));
-        libbalsa_message_set_mime_msg(message,
+
+        mime_message =
             libbalsa_mailbox_local_get_mime_message(mailbox,
                                                     msg_info->subdir,
-                                                    msg_info->filename));
+                                                    msg_info->filename);
+        libbalsa_message_set_mime_msg(message, mime_message);
+        g_object_unref(mime_message);
     }
 
     return LIBBALSA_MAILBOX_CLASS(libbalsa_mailbox_maildir_parent_class)->

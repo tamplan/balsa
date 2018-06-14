@@ -4499,11 +4499,10 @@ lbm_try_reassemble(LibBalsaMailbox *mailbox,
             GMimeMessagePartial *partial =
                 (GMimeMessagePartial *) mime_message->mime_part;
 
-            g_ptr_array_add(partials, partial);
+            g_ptr_array_add(partials, g_object_ref(partial));
             if (g_mime_message_partial_get_total(partial) > 0) {
                 total = g_mime_message_partial_get_total(partial);
             }
-            g_object_ref(partial);
             g_object_unref(mime_message);
 
             g_array_append_val(messages, msgno);
@@ -4561,16 +4560,21 @@ lbm_try_reassemble(LibBalsaMailbox *mailbox,
 
     if (partials->len == total) {
         LibBalsaMessage *message = libbalsa_message_new();
+        GMimeMessage *mime_message;
 
         libbalsa_message_set_flags(message, LIBBALSA_MESSAGE_FLAG_NEW);
 
         libbalsa_information(LIBBALSA_INFORMATION_MESSAGE,
                              _("Reconstructing message"));
         libbalsa_mailbox_lock_store(mailbox);
-        libbalsa_message_set_mime_msg(message,
+
+        mime_message =
             g_mime_message_partial_reconstruct_message((GMimeMessagePartial
                                                         **) partials->
-                                                       pdata, total));
+                                                       pdata, total);
+        libbalsa_message_set_mime_msg(message, mime_message);
+        g_object_unref(mime_message);
+
         libbalsa_message_copy(message, mailbox, NULL);
         libbalsa_mailbox_unlock_store(mailbox);
 

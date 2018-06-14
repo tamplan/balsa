@@ -2236,6 +2236,7 @@ libbalsa_mailbox_imap_load_envelope(LibBalsaMailboxImap *mimap,
     ImapEnvelope *envelope;
     ImapMessage *imsg;
     gchar *hdr;
+    InternetAddressList *ia_list;
 
     g_return_val_if_fail(mimap->opened, FALSE);
     imsg = mi_get_imsg(mimap, libbalsa_message_get_msgno(message));
@@ -2256,8 +2257,11 @@ libbalsa_mailbox_imap_load_envelope(LibBalsaMailboxImap *mimap,
     envelope = imsg->envelope;
     libbalsa_message_set_length(message, imsg->rfc822size);
     libbalsa_message_set_subject_from_header(message, envelope->subject);
-    libbalsa_message_set_sender(message,
-        internet_address_new_list_from_imap_address_list(envelope->sender));
+
+    ia_list = internet_address_new_list_from_imap_address_list(envelope->sender);
+    libbalsa_message_set_sender(message, ia_list);
+    g_object_unref(ia_list);
+
     libbalsa_message_set_in_reply_to_from_string(message, envelope->in_reply_to);
     if (envelope->message_id != NULL) {
         gchar *message_id = g_mime_utils_decode_message_id(envelope->message_id);
@@ -2449,6 +2453,7 @@ get_struct_from_cache(LibBalsaMailbox  *mailbox,
         g_object_unref(mime_parser);
 
         libbalsa_message_set_mime_msg(message, mime_msg);
+        g_object_unref(mime_msg);
     }
 
     /* follow libbalsa_mailbox_local_fetch_structure here;
