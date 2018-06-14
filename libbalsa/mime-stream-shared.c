@@ -49,7 +49,7 @@ struct _LibBalsaMimeStreamShared {
 };
 
 struct _LibBalsaMimeStreamSharedClass {
-    GMimeStreamClass parent_class;
+    GMimeStreamFsClass parent_class;
 };
 
 static void    lbmss_finalize(GObject *object);
@@ -102,7 +102,6 @@ libbalsa_mime_stream_shared_class_init(LibBalsaMimeStreamSharedClass *klass)
 struct _LibBalsaMimeStreamSharedLock {
     GThread *thread;
     guint count;
-    gatomicrefcount ref_count;
 };
 
 static LibBalsaMimeStreamSharedLock *
@@ -110,29 +109,11 @@ lbmss_lock_new(void)
 {
     LibBalsaMimeStreamSharedLock *lock;
 
-    lock         = g_new(LibBalsaMimeStreamSharedLock, 1);
-    lock->thread = 0;
-    lock->count  = 0;
-    g_atomic_ref_count_init(&lock->ref_count);
+    lock = g_new(LibBalsaMimeStreamSharedLock, 1);
+    lock->thread = NULL;
+    lock->count = 0;
 
     return lock;
-}
-
-
-static LibBalsaMimeStreamSharedLock *
-lbmss_lock_ref(LibBalsaMimeStreamSharedLock *lock)
-{
-    g_atomic_ref_count_inc(&lock->ref_count);
-
-    return lock;
-}
-
-
-static void
-lbmss_lock_unref(LibBalsaMimeStreamSharedLock *lock)
-{
-    if (g_atomic_ref_count_dec(&lock->ref_count))
-        g_free(lock);
 }
 
 
@@ -141,10 +122,11 @@ lbmss_lock_unref(LibBalsaMimeStreamSharedLock *lock)
 static void
 lbmss_finalize(GObject *object)
 {
-    LibBalsaMimeStreamShared *stream_shared =
-        (LibBalsaMimeStreamShared *) object;
+    LibBalsaMimeStreamShared *shared_stream = (LibBalsaMimeStreamShared *) object;
+    GMimeStreamFs *fs_stream                = (GMimeStreamFs *) object;
 
-    lbmss_lock_unref(stream_shared->lock);
+    if (fs_stream->owner)
+        g_free(shared_stream->lock);
 
     G_OBJECT_CLASS(libbalsa_mime_stream_shared_parent_class)->finalize(object);
 }
@@ -152,9 +134,8 @@ lbmss_finalize(GObject *object)
 
 /* Stream class methods. */
 
-#define lbmss_thread_has_lock(stream)                     \
-    (LIBBALSA_MIME_STREAM_SHARED(stream)->lock->count > 0 \
-     && LIBBALSA_MIME_STREAM_SHARED(stream)->lock->thread == g_thread_self())
+#define lbmss_thread_has_lock(stream) \
+    (LIBBALSA_MIME_STREAM_SHARED(stream)->lock->thread == g_thread_self())
 
 static ssize_t
 lbmss_stream_read(GMimeStream *stream,
@@ -199,15 +180,13 @@ lbmss_stream_substream(GMimeStream *stream,
                        gint64       start,
                        gint64       end)
 {
-    LibBalsaMimeStreamShared *stream_shared;
+    LibBalsaMimeStreamShared *shared_stream;
     GMimeStreamFs *fstream;
 
-    stream_shared =
-        g_object_new(LIBBALSA_TYPE_MIME_STREAM_SHARED, NULL, NULL);
-    stream_shared->lock =
-        lbmss_lock_ref(LIBBALSA_MIME_STREAM_SHARED(stream)->lock);
+    shared_stream = g_object_new(LIBBALSA_TYPE_MIME_STREAM_SHARED, NULL);
+    shared_stream->lock = LIBBALSA_MIME_STREAM_SHARED(stream)->lock;
 
-    fstream        = GMIME_STREAM_FS(stream_shared);
+    fstream        = GMIME_STREAM_FS(shared_stream);
     fstream->owner = FALSE;
     fstream->fd    = GMIME_STREAM_FS(stream)->fd;
     g_mime_stream_construct(GMIME_STREAM(fstream), start, end);
@@ -230,15 +209,14 @@ lbmss_stream_substream(GMimeStream *stream,
 GMimeStream *
 libbalsa_mime_stream_shared_new(int fd)
 {
-    LibBalsaMimeStreamShared *stream_shared;
+    LibBalsaMimeStreamShared *shared_stream;
     GMimeStreamFs *fstream;
     gint64 start;
 
-    stream_shared =
-        g_object_new(LIBBALSA_TYPE_MIME_STREAM_SHARED, NULL, NULL);
-    stream_shared->lock = lbmss_lock_new();
+    shared_stream = g_object_new(LIBBALSA_TYPE_MIME_STREAM_SHARED, NULL);
+    shared_stream->lock = lbmss_lock_new();
 
-    fstream        = GMIME_STREAM_FS(stream_shared);
+    fstream        = GMIME_STREAM_FS(shared_stream);
     fstream->owner = TRUE;
     fstream->eos   = FALSE;
     fstream->fd    = fd;
@@ -259,7 +237,7 @@ libbalsa_mime_stream_shared_new(int fd)
 void
 libbalsa_mime_stream_shared_lock(GMimeStream *stream)
 {
-    LibBalsaMimeStreamShared *stream_shared;
+    LibBalsaMimeStreamShared *shared_stream;
     LibBalsaMimeStreamSharedLock *lock;
     GThread *thread_self;
 
@@ -271,8 +249,8 @@ libbalsa_mime_stream_shared_lock(GMimeStream *stream)
     if (!LIBBALSA_IS_MIME_STREAM_SHARED(stream))
         return;
 
-    stream_shared = (LibBalsaMimeStreamShared *) stream;
-    lock          = stream_shared->lock;
+    shared_stream = (LibBalsaMimeStreamShared *) stream;
+    lock          = shared_stream->lock;
     thread_self   = g_thread_self();
 
     g_mutex_lock(&lbmss_mutex);
@@ -294,7 +272,7 @@ libbalsa_mime_stream_shared_lock(GMimeStream *stream)
 void
 libbalsa_mime_stream_shared_unlock(GMimeStream *stream)
 {
-    LibBalsaMimeStreamShared *stream_shared;
+    LibBalsaMimeStreamShared *shared_stream;
     LibBalsaMimeStreamSharedLock *lock;
 
     g_return_if_fail(GMIME_IS_STREAM(stream));
@@ -305,12 +283,14 @@ libbalsa_mime_stream_shared_unlock(GMimeStream *stream)
     if (!LIBBALSA_IS_MIME_STREAM_SHARED(stream))
         return;
 
-    stream_shared = (LibBalsaMimeStreamShared *) stream;
-    lock          = stream_shared->lock;
+    shared_stream = (LibBalsaMimeStreamShared *) stream;
+    lock          = shared_stream->lock;
     g_return_if_fail(lock->count > 0);
 
     g_mutex_lock(&lbmss_mutex);
-    if (--lock->count == 0)
+    if (--lock->count == 0) {
+        lock->thread = NULL;
         g_cond_signal(&lbmss_cond);
+    }
     g_mutex_unlock(&lbmss_mutex);
 }
