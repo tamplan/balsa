@@ -817,105 +817,22 @@ libbalsa_gpgme_set_error(GError        **error,
 
 /* ---- local stuff ---------------------------------------------------- */
 
-/** \brief Export a public key
- *
- * \param protocol GpgME crypto protocol to use
- * \param name pattern (mail address or fingerprint) of the requested key
- * \param parent parent window to be passed to the callback functions
- * \param error Filled with error information on error
- * \return a newly allocated string containing the ASCII-armored public key on success
- *
- * Return the ASCII-armored key matching the passed pattern.  If necessary, the user is asked to select a key from a list of
- * multiple matching keys.
- */
-gchar *
-libbalsa_gpgme_get_pubkey(gpgme_protocol_t   protocol,
-						  const gchar       *name,
-						  GtkWindow 		*parent,
-						  GError           **error)
+static gchar *
+utf8_valid_str(const char *gpgme_str)
 {
-	gpgme_ctx_t ctx;
-	gchar *armored_key = NULL;
+	gchar *result;
 
-	g_return_val_if_fail(name != NULL, NULL);
-
-	ctx = libbalsa_gpgme_new_with_proto(protocol, NULL, NULL, error);
-	if (ctx != NULL) {
-		gpgme_error_t gpgme_err;
-		gpgme_key_t key = NULL;
-
-		gpgme_err = get_key_from_name(ctx, &key, name, FALSE, FALSE, parent, error);
-		if (gpgme_err == GPG_ERR_NO_ERROR) {
-			armored_key = libbalsa_gpgme_export_key(ctx, key, name, error);
-			gpgme_key_unref(key);
+	if (gpgme_str != NULL) {
+		if (g_utf8_validate(gpgme_str, -1, NULL)) {
+			result = g_strdup(gpgme_str);
+		} else {
+			gsize bytes_written;
+			result = g_locale_to_utf8(gpgme_str, -1, NULL, &bytes_written, NULL);
 		}
-	    gpgme_release(ctx);
+	} else {
+		result = NULL;
 	}
-
-	return armored_key;
-}
-
-
-/** \brief Get the key id of a secret key
- *
- * \param protocol GpgME protocol (OpenPGP or CMS)
- * \param name email address for which the key shall be selected
- * \param parent parent window to be passed to the callback functions
- * \param error Filled with error information on error
- * \return a newly allocated string containing the key id key on success, shall be freed by the caller
- *
- * Call libbalsa_gpgme_list_keys() to list all secret keys for the passed protocol, and \em always call \ref select_key_cb to let
- * the user choose the secret key, even if only one is available.
- */
-gchar *
-libbalsa_gpgme_get_seckey(gpgme_protocol_t   protocol,
-	  	  	  	  	  	  const gchar       *name,
-						  GtkWindow 		*parent,
-						  GError           **error)
-{
-	gpgme_ctx_t ctx;
-	gchar *keyid = NULL;
-
-	ctx = libbalsa_gpgme_new_with_proto(protocol, NULL, NULL, error);
-	if (ctx != NULL) {
-		GList *keys = NULL;
-
-		/* let gpgme list all available keys */
-		if (libbalsa_gpgme_list_keys(ctx, &keys, NULL, name, TRUE, FALSE, error)) {
-			if (keys != NULL) {
-				gpgme_key_t key;
-
-				/* let the user select a key from the list, even if there is only one */
-				if (select_key_cb != NULL) {
-					key = select_key_cb(name, LB_SELECT_PRIVATE_KEY, keys, gpgme_get_protocol(ctx), parent);
-					if (key != NULL) {
-						gpgme_subkey_t subkey;
-
-						for (subkey = key->subkeys; (subkey != NULL) && (keyid == NULL); subkey = subkey->next) {
-							if ((subkey->can_sign != 0) && (subkey->expired == 0U) && (subkey->revoked == 0U) &&
-								(subkey->disabled == 0U) && (subkey->invalid == 0U)) {
-								keyid = g_strdup(subkey->keyid);
-							}
-						}
-					}
-				}
-				g_list_free_full(keys, (GDestroyNotify) gpgme_key_unref);
-			} else {
-				GtkWidget *dialog;
-
-				dialog = gtk_message_dialog_new(parent,
-					GTK_DIALOG_DESTROY_WITH_PARENT | libbalsa_dialog_flags(),
-					GTK_MESSAGE_INFO, GTK_BUTTONS_CLOSE,
-					_("No private key for protocol %s is available for the signer “%s”"),
-					gpgme_get_protocol_name(protocol), name);
-				(void) gtk_dialog_run(GTK_DIALOG(dialog));
-				gtk_widget_destroy(dialog);
-			}
-		}
-	    gpgme_release(ctx);
-	}
-
-	return keyid;
+	return result;
 }
 
 
