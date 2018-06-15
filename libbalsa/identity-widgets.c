@@ -26,6 +26,7 @@
 #include "libbalsa-conf.h"
 #include "libbalsa-gpgme.h"
 #include "misc.h"
+#include "rfc3156.h"
 #include "smtp-server.h"
 
 /* Tree columns: */

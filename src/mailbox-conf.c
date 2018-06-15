@@ -141,6 +141,7 @@ static void check_for_blank_fields(GtkWidget *widget, MailboxConfWindow *mcw);
 
 /* ========================================================= */
 /* BEGIN BalsaServerConf =================================== */
+#ifdef HAVE_GPGME
 struct menu_data {
     const char *label;
     int tag;

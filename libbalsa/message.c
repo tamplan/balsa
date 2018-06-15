@@ -1586,6 +1586,13 @@ libbalsa_message_get_parameters(LibBalsaMessage *message)
 }
 
 
+GList *
+libbalsa_message_get_in_reply_to(LibBalsaMessage *message)
+{
+    return message->in_reply_to;
+}
+
+
 const gchar *
 libbalsa_message_get_subtype(LibBalsaMessage *message)
 {
@@ -1593,17 +1600,11 @@ libbalsa_message_get_subtype(LibBalsaMessage *message)
 }
 
 
+#ifdef HAVE_GPGME
 guint
 libbalsa_message_get_gpg_mode(LibBalsaMessage *message)
 {
     return message->gpg_mode;
-}
-
-
-GList *
-libbalsa_message_get_in_reply_to(LibBalsaMessage *message)
-{
-    return message->in_reply_to;
 }
 
 
@@ -1619,6 +1620,7 @@ libbalsa_message_get_prot_state(LibBalsaMessage *message)
 {
     return message->prot_state;
 }
+#endif /* HAVE_GPGME */
 
 
 guint
@@ -1700,12 +1702,14 @@ libbalsa_message_set_message_id(LibBalsaMessage *message,
 }
 
 
+#ifdef HAVE_GPGME
 void
 libbalsa_message_set_prot_state(LibBalsaMessage        *message,
                                 LibBalsaMsgProtectState prot_state)
 {
     message->prot_state = prot_state;
 }
+#endif /* HAVE_GPGME */
 
 
 void
@@ -1762,6 +1766,7 @@ libbalsa_message_set_in_reply_to(LibBalsaMessage *message,
 }
 
 
+#ifdef HAVE_GPGME
 void
 libbalsa_message_set_gpg_mode(LibBalsaMessage *message,
                               guint            mode)
@@ -1778,13 +1783,10 @@ libbalsa_message_set_att_pubkey(LibBalsaMessage *message,
 }
 
 
-#ifdef HAVE_GPGME
 void
 libbalsa_message_set_identity(LibBalsaMessage  *message,
                               LibBalsaIdentity *ident)
 {
     message->ident = g_object_ref(ident);
 }
-
-
 #endif

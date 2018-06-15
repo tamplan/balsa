@@ -292,14 +292,16 @@ GList                  *libbalsa_message_get_references(LibBalsaMessage *message
 
 #ifdef HAVE_GPGME
 LibBalsaIdentity *libbalsa_message_get_identity(LibBalsaMessage *message);
-
 #endif
+
 GList                  *libbalsa_message_get_parameters(LibBalsaMessage *message);
-const gchar            *libbalsa_message_get_subtype(LibBalsaMessage *message);
-guint                   libbalsa_message_get_gpg_mode(LibBalsaMessage *message);
 GList                  *libbalsa_message_get_in_reply_to(LibBalsaMessage *message);
+const gchar            *libbalsa_message_get_subtype(LibBalsaMessage *message);
+#ifdef HAVE_GPGME
+guint                   libbalsa_message_get_gpg_mode(LibBalsaMessage *message);
 gboolean                libbalsa_message_get_att_pubkey(LibBalsaMessage *message);
 LibBalsaMsgProtectState libbalsa_message_get_prot_state(LibBalsaMessage *message);
+#endif /* HAVE_GPGME */
 guint                   libbalsa_message_get_body_ref(LibBalsaMessage *message);
 
 /*
@@ -326,8 +328,10 @@ void libbalsa_message_set_sender(LibBalsaMessage     *message,
                                  InternetAddressList *sender);
 void libbalsa_message_set_message_id(LibBalsaMessage *message,
                                      const gchar     *message_id);
+#ifdef HAVE_GPGME
 void libbalsa_message_set_prot_state(LibBalsaMessage        *message,
                                      LibBalsaMsgProtectState prot_state);
+#endif /* HAVE_GPGME */
 void libbalsa_message_set_request_dsn(LibBalsaMessage *message,
                                       gboolean         request_dsn);
 void libbalsa_message_set_subtype(LibBalsaMessage *message,
@@ -340,12 +344,12 @@ void libbalsa_message_set_references(LibBalsaMessage *message,
                                      GList           *references);
 void libbalsa_message_set_in_reply_to(LibBalsaMessage *message,
                                       GList           *in_reply_to);
+#ifdef HAVE_GPGME
 void libbalsa_message_set_gpg_mode(LibBalsaMessage *message,
                                    guint            mode);
 void libbalsa_message_set_att_pubkey(LibBalsaMessage *message,
                                      gboolean         att_pubkey);
 
-#ifdef HAVE_GPGME
 void libbalsa_message_set_identity(LibBalsaMessage  *message,
                                    LibBalsaIdentity *identity);
 
