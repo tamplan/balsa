@@ -117,7 +117,6 @@ static const gchar *index_drag_types[] = {
 static void bndx_drag_cb(GtkWidget        *widget,
                          GdkDragContext   *drag_context,
                          GtkSelectionData *data,
-                         guint             time,
                          gpointer          user_data);
 
 /* Popup menu */
@@ -475,8 +474,7 @@ balsa_index_init(BalsaIndex *index)
     gtk_drag_source_set(GTK_WIDGET (index),
                         GDK_BUTTON1_MASK | GDK_SHIFT_MASK | GDK_CONTROL_MASK,
                         formats,
-                        GDK_ACTION_DEFAULT | GDK_ACTION_COPY |
-                        GDK_ACTION_MOVE);
+                        GDK_ACTION_COPY | GDK_ACTION_MOVE);
     gdk_content_formats_unref(formats);
 
     g_signal_connect(index, "drag-data-get",
@@ -849,7 +847,6 @@ static void
 bndx_drag_cb(GtkWidget        *widget,
              GdkDragContext   *drag_context,
              GtkSelectionData *data,
-             guint             time,
              gpointer          user_data)
 {
     BalsaIndex *index;

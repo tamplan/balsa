@@ -158,19 +158,17 @@ static void bw_notebook_switch_page_cb(GtkWidget * notebook,
 static void bw_compose_window_destroy_cb(GtkWidget * widget, gpointer data);
 static BalsaIndex *bw_notebook_find_page(GtkNotebook * notebook,
                                          gint x, gint y);
-static void bw_notebook_drag_received_cb(GtkWidget        * widget,
-                                         GdkDragContext   * context,
-                                         gint               x,
-                                         gint               y,
-                                         GtkSelectionData * selection_data,
-                                         guint32            time,
-                                         gpointer           data);
-static gboolean bw_notebook_drag_motion_cb(GtkWidget      * widget,
-                                           GdkDragContext * context,
-                                           gint             x,
-                                           gint             y,
-                                           guint            time,
-                                           gpointer         user_data);
+static void bw_notebook_drag_received_cb(GtkWidget        *widget,
+                                         GdkDrop          *drop,
+                                         gint              x,
+                                         gint              y,
+                                         GtkSelectionData *selection_data,
+                                         gpointer          user_data);
+static gboolean bw_notebook_drag_motion_cb(GtkWidget *widget,
+                                           GdkDrop   *drop,
+                                           gint       x,
+                                           gint       y,
+                                           gpointer   user_data);
 
 
 static GtkWidget *bw_notebook_label_new (BalsaMailboxNode* mbnode);
@@ -2317,9 +2315,9 @@ balsa_window_new(GtkApplication *application)
                      G_CALLBACK(bw_notebook_switch_page_cb), window);
 
     formats = gdk_content_formats_new(notebook_drop_types, NUM_DROP_TYPES);
-    gtk_drag_dest_set (GTK_WIDGET (priv->notebook), GTK_DEST_DEFAULT_ALL,
-                       formats,
-                       GDK_ACTION_DEFAULT | GDK_ACTION_COPY | GDK_ACTION_MOVE);
+    gtk_drag_dest_set(GTK_WIDGET (priv->notebook), GTK_DEST_DEFAULT_ALL,
+                      formats,
+                      GDK_ACTION_COPY | GDK_ACTION_MOVE);
     gdk_content_formats_unref(formats);
 
     g_signal_connect(G_OBJECT (priv->notebook), "drag-data-received",
@@ -4526,13 +4524,12 @@ bw_notebook_find_page (GtkNotebook* notebook, gint x, gint y)
  * over, then transfers them.
  **/
 static void
-bw_notebook_drag_received_cb(GtkWidget        * widget,
-                             GdkDragContext   * context,
-                             gint               x,
-                             gint               y,
-                             GtkSelectionData * selection_data,
-                             guint32            time,
-                             gpointer           data)
+bw_notebook_drag_received_cb(GtkWidget        *widget,
+                             GdkDrop          *drop,
+                             gint              x,
+                             gint              y,
+                             GtkSelectionData *selection_data,
+                             gpointer          data)
 {
     BalsaIndex* index;
     LibBalsaMailbox* mailbox;
@@ -4565,19 +4562,20 @@ bw_notebook_drag_received_cb(GtkWidget        * widget,
 
     if (mailbox != NULL && mailbox != orig_mailbox)
         balsa_index_transfer(orig_index, selected, mailbox,
-                             gdk_drag_context_get_selected_action(context) != GDK_ACTION_MOVE);
+                             gdk_drop_get_actions(drop) != GDK_ACTION_MOVE);
     balsa_index_selected_msgnos_free(orig_index, selected);
 }
 
-static gboolean bw_notebook_drag_motion_cb(GtkWidget * widget,
-                                           GdkDragContext * context,
-                                           gint x, gint y, guint time,
-                                           gpointer user_data)
+static gboolean bw_notebook_drag_motion_cb(GtkWidget *widget,
+                                           GdkDrop   *drop,
+                                           gint       x,
+                                           gint       y,
+                                           gpointer   user_data)
 {
-    gdk_drag_status(context,
-                    (gdk_drag_context_get_actions(context) ==
-                     GDK_ACTION_COPY) ? GDK_ACTION_COPY :
-                    GDK_ACTION_MOVE, time);
+    GdkDragAction action = gdk_drop_get_actions(drop);
+
+    gdk_drop_status(drop,
+                    action == GDK_ACTION_COPY ? GDK_ACTION_COPY : GDK_ACTION_MOVE);
 
     return FALSE;
 }

@@ -154,10 +154,9 @@ static void balsa_compose_window_destroy(GtkWidget *widget);
 static void balsa_compose_window_size_allocate(GtkWidget           *widget,
                                                const GtkAllocation *allocation,
                                                int                  baseline);
-static void balsa_compose_window_drag_data_received(GtkWidget          *widget,
-                                                    GdkDragContext     *context,
-                                                    GtkSelectionData   *selection_data,
-                                                    guint               time);
+static void balsa_compose_window_drag_data_received(GtkWidget        *widget,
+                                                    GdkDrop          *drop,
+                                                    GtkSelectionData *selection_data);
 static gboolean balsa_compose_window_close_request(GtkWindow *window);
 
 static void
@@ -2407,9 +2406,8 @@ rfc2396_uri(const gchar *instr)
 
 static void
 balsa_compose_window_drag_data_received(GtkWidget        *widget,
-                                        GdkDragContext   *context,
-                                        GtkSelectionData *selection_data,
-                                        guint32           time)
+                                        GdkDrop          *drop,
+                                        GtkSelectionData *selection_data)
 {
     BalsaComposeWindow *compose_window = (BalsaComposeWindow *) widget;
     const gchar *target;
@@ -2461,16 +2459,16 @@ balsa_compose_window_drag_data_received(GtkWidget        *widget,
             drag_result = FALSE;
     }
 
-    gtk_drag_finish(context, drag_result, time);
+    gdk_drop_finish(drop, drag_result);
 }
 
 
 /* to_add - address-view D&D callback; we assume it's a To: address */
 static void
 to_add(GtkWidget        *widget,
-       GdkDragContext   *context,
+       GdkDrop          *drop,
        GtkSelectionData *selection_data,
-       guint32           time)
+       gpointer          user_data)
 {
     const gchar *target;
     gboolean drag_result = FALSE;
@@ -2492,7 +2490,7 @@ to_add(GtkWidget        *widget,
         libbalsa_address_view_add_from_string(LIBBALSA_ADDRESS_VIEW(widget), "To:", address);
         drag_result = TRUE;
     }
-    gtk_drag_finish(context, drag_result, time);
+    gdk_drop_finish(drop, drag_result);
 }
 
 
@@ -3007,11 +3005,10 @@ has_file_attached(GtkTreeModel *model,
 
 /* drag_data_quote - text area D&D callback */
 static void
-drag_data_quote(GtkWidget        *widget,
-                GdkDragContext   *context,
-                GtkSelectionData *selection_data,
-                guint32           time,
-                BalsaComposeWindow     *compose_window)
+drag_data_quote(GtkWidget          *widget,
+                GdkDrop            *drop,
+                GtkSelectionData   *selection_data,
+                BalsaComposeWindow *compose_window)
 {
     const gchar *target;
     GtkTextBuffer *buffer;
@@ -3066,7 +3063,7 @@ drag_data_quote(GtkWidget        *widget,
         g_slist_free(uri_list);
     }
 
-    gtk_drag_finish(context, TRUE, time);
+    gdk_drop_finish(drop, TRUE);
 }
 
 

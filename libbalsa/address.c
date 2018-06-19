@@ -864,7 +864,7 @@ const gchar *libbalsa_address_target_list[] = {
 
 static void
 addrlist_drag_received_cb(GtkWidget        * widget,
-                          GdkDragContext   * context,
+                          GdkDrop          * drop,
                           GtkSelectionData * selection_data,
                           guint32            time,
                           gpointer           data)
@@ -906,21 +906,24 @@ addrlist_drag_received_cb(GtkWidget        * widget,
     if (!dnd_success)
         g_print ("DnD data transfer failed!\n");
 
-    gtk_drag_finish(context, dnd_success, time);
+    gdk_drop_finish(drop, dnd_success);
 }
 
 static gboolean
-addrlist_drag_drop_cb(GtkWidget *widget, GdkDragContext *context,
-                      gint x, gint y, guint time, gpointer user_data)
+addrlist_drag_drop_cb(GtkWidget *widget,
+                      GdkDrop   *drop,
+                      gint       x,
+                      gint       y,
+                      gpointer   user_data)
 {
-  gboolean        is_valid_drop_site;
+  gboolean is_valid_drop_site;
   GdkContentFormats *formats;
 
   /* Check to see if (x,y) is a valid drop site within widget */
   is_valid_drop_site = TRUE;
 
   /* If the source offers a target */
-  formats = gdk_drag_context_get_formats(context);
+  formats = gdk_drop_get_formats(drop);
   if (formats != NULL) {
       const gchar * const *mime_types;
       gsize                n_mime_types;
@@ -938,9 +941,8 @@ addrlist_drag_drop_cb(GtkWidget *widget, GdkDragContext *context,
       gtk_drag_get_data
         (
          widget,         /* will receive 'drag-data-received' signal */
-         context,        /* represents the current state of the DnD */
-         target_type,    /* the target type we want */
-         time            /* time stamp */
+         drop,           /* represents the current state of the DnD */
+         target_type     /* the target type we want */
          );
   } else {
       is_valid_drop_site = FALSE;

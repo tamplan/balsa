@@ -42,7 +42,7 @@
 static GtkWidget * create_text_widget(const char * content_type);
 static void bm_modify_font_from_string(GtkWidget * widget, const char *font);
 static GtkTextTag * quote_tag(GtkTextBuffer * buffer, gint level, gint margin);
-static gboolean fix_text_widget(GtkWidget *widget, gpointer data);
+static void fix_text_widget(GtkWidget *widget, gpointer data);
 static void text_view_populate_popup(GtkWidget *widget, GtkMenu *menu,
                                      gpointer user_data);
 
@@ -462,27 +462,16 @@ quote_tag(GtkTextBuffer * buffer, gint level, gint margin)
 
 /* set the gtk_text widget's cursor to a vertical bar
    fix event mask so that pointer motions are reported (if necessary) */
-static gboolean
+static void
 fix_text_widget(GtkWidget *widget, gpointer data)
 {
-    if (data != NULL) {
-        GdkSurface *surface = gtk_widget_get_surface(widget);
-
-        gdk_surface_set_events(surface,
-                               gdk_surface_get_events(surface) |
-                               GDK_POINTER_MOTION_MASK |
-                               GDK_LEAVE_NOTIFY_MASK);
-    }
-
-    if (!url_cursor_normal || !url_cursor_over_url) {
+    if (url_cursor_normal == NULL) {
         url_cursor_normal =
             gdk_cursor_new_from_name("text", NULL);
         url_cursor_over_url =
             gdk_cursor_new_from_name("pointer", NULL);
     }
     gtk_widget_set_cursor(widget, url_cursor_normal);
-
-    return FALSE;
 }
 
 static void

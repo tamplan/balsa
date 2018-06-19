@@ -85,8 +85,7 @@ static void bmbl_set_property(GObject * object, guint prop_id,
 static void bmbl_get_property(GObject * object, guint prop_id,
                               GValue * value, GParamSpec * pspec);
 static gboolean bmbl_drag_motion(GtkWidget * mblist,
-                                 GdkDragContext * context, gint x, gint y,
-                                 guint time);
+                                 GdkDrop * drop, gint x, gint y);
 static gboolean bmbl_popup_menu(GtkWidget * widget);
 static gboolean bmbl_selection_func(GtkTreeSelection * selection,
                                     GtkTreeModel * model,
@@ -272,8 +271,10 @@ bmbl_get_property(GObject * object, guint prop_id, GValue * value,
 }
 
 static gboolean
-bmbl_drag_motion(GtkWidget * mblist, GdkDragContext * context, gint x,
-                 gint y, guint time)
+bmbl_drag_motion(GtkWidget *mblist,
+                 GdkDrop   *drop,
+                 gint       x,
+                 gint       y)
 {
     GtkTreeView *tree_view = GTK_TREE_VIEW(mblist);
     GtkTreePath *path;
@@ -284,9 +285,8 @@ bmbl_drag_motion(GtkWidget * mblist, GdkDragContext * context, gint x,
 
     ret_val =
         GTK_WIDGET_CLASS(balsa_mblist_parent_class)->drag_motion(mblist,
-                                                                 context,
-                                                                 x, y,
-                                                                 time);
+                                                                 drop,
+                                                                 x, y);
 
     gtk_tree_view_get_drag_dest_row(tree_view, &path, NULL);
     if (!path)
@@ -297,10 +297,9 @@ bmbl_drag_motion(GtkWidget * mblist, GdkDragContext * context, gint x,
                                     GTK_TREE_VIEW_DROP_INTO_OR_BEFORE);
     gtk_tree_path_free(path);
 
-    gdk_drag_status(context,
-                    (gdk_drag_context_get_actions(context) ==
-                     GDK_ACTION_COPY) ? GDK_ACTION_COPY :
-                    GDK_ACTION_MOVE, time);
+    gdk_drop_status(drop,
+                    gdk_drop_get_actions(drop) == GDK_ACTION_COPY ?
+                    GDK_ACTION_COPY : GDK_ACTION_MOVE);
 
     return (ret_val && can_drop);
 }
@@ -1177,7 +1176,6 @@ balsa_mblist_default_signal_bindings(BalsaMBList * mblist)
     formats = gdk_content_formats_new(bmbl_drop_types, G_N_ELEMENTS(bmbl_drop_types));
     gtk_tree_view_enable_model_drag_dest(GTK_TREE_VIEW(mblist),
                                          formats,
-                                         GDK_ACTION_DEFAULT |
                                          GDK_ACTION_COPY |
                                          GDK_ACTION_MOVE);
     gdk_content_formats_unref(formats);
