@@ -1046,12 +1046,6 @@ bab_init(void)
 }
 
 static void
-information_real(void)
-{
-    /* FIXME */
-}
-
-static void
 bab_set_intial_address_book(LibBalsaAddressBook * ab,
                             GtkWidget           * window)
 {
@@ -1080,6 +1074,44 @@ libbalsa_dialog_flags(void)
 		g_atomic_int_set(&check_done, 1);
 	}
 	return dialog_flags;
+}
+
+/*
+ * Set up GNotification for libbalsa
+ */
+
+#define BALSA_AB_NOTIFICATION "balsa-ab-notification"
+
+static void
+balsa_ab_notification_notify_cb(GNotification *notification, GApplication *application)
+{
+    gboolean send;
+
+    send = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(notification), "send"));
+    if (send) {
+        g_application_send_notification(application,
+                                        BALSA_AB_NOTIFICATION, notification);
+    } else {
+        g_application_withdraw_notification(application, BALSA_AB_NOTIFICATION);
+    }
+}
+
+static void
+balsa_ab_notification_shutdown_cb(GApplication *application, GNotification *notification)
+{
+    g_object_unref(notification);
+}
+
+static void
+balsa_ab_setup_libbalsa_notification(GApplication *application)
+{
+    GNotification *notification;
+
+    notification = libbalsa_notification_new("BalsaAb");
+    g_signal_connect(notification, "notify",
+                     G_CALLBACK(balsa_ab_notification_notify_cb), application);
+    g_signal_connect(application, "shutdown",
+                     G_CALLBACK(balsa_ab_notification_shutdown_cb), notification);
 }
 
 int
