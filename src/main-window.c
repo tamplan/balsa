@@ -2408,13 +2408,8 @@ balsa_window_new(GtkApplication *application)
 #endif				/* HAVE_HTML_WIDGET */
     balsa_window_enable_continue(window);
 
-    /* set initial state of toggle preview pane button */
-
     /* set initial state of next-unread controls */
     bw_enable_next_unread(window, FALSE);
-
-    g_signal_connect(window, "destroy",
-                     G_CALLBACK(gtk_main_quit), NULL);
 
     /* Cancel new-mail notification when we get the focus. */
     g_signal_connect(window, "notify::is-active",
