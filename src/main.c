@@ -536,7 +536,9 @@ balsa_startup_cb(GApplication *application,
 
     /* Initialize libbalsa */
     balsa_setup_libbalsa_notification(application);
+g_print("%s libbalsa_init()\n", G_STRFUNC);
     libbalsa_init();
+g_print("%s libbalsa_init()\n", G_STRFUNC);
     libbalsa_filters_set_url_mapper(balsa_find_mailbox_by_url);
     libbalsa_filters_set_filter_list(&balsa_app.filters);
 
@@ -621,7 +623,9 @@ balsa_activate_cb(GApplication *application,
                    balsa_app.main_window);
 
     /* load mailboxes */
+g_print("%s config_load_sections()\n", G_STRFUNC);
     config_load_sections();
+g_print("%s config_load_sections()\n", G_STRFUNC);
     mailboxes_init(cmd_get_stats);
 }
 

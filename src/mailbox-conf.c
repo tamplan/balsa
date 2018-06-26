@@ -599,7 +599,7 @@ static void
 mailbox_conf_set_values_pop3(LibBalsaMailbox * mailbox,
                              MailboxConfWindow * mcw)
 {
-    LibBalsaMailboxPop3 *pop3;
+    LibBalsaMailboxPOP3 *pop3;
     LibBalsaServer *server;
     const gchar *filter_cmd;
     gboolean sensitive;
@@ -846,7 +846,7 @@ fill_in_imap_data(MailboxConfWindow *mcw, gchar ** name, gchar ** path)
 static void
 update_pop_mailbox(MailboxConfWindow * mcw)
 {
-    LibBalsaMailboxPop3 *mailbox;
+    LibBalsaMailboxPOP3 *mailbox;
     LibBalsaServer *server;
     BalsaServerConf *bsc;
     gchar *filename;

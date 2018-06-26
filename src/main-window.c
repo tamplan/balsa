@@ -3330,7 +3330,7 @@ bw_check_mailbox_list(struct check_messages_thread_info *info, GList *mailbox_li
     for ( ; mailbox_list; mailbox_list = mailbox_list->next) {
         BalsaMailboxNode *mbnode;
         LibBalsaMailbox *mailbox;
-        LibBalsaMailboxPop3 *pop3;
+        LibBalsaMailboxPOP3 *pop3;
         bw_pop_mbox_t *bw_pop_mbox;
 
         mbnode = BALSA_MAILBOX_NODE(mailbox_list->data);
