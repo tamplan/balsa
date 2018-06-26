@@ -159,6 +159,7 @@ struct _LibBalsaMailboxPrivate {
     guint changed_idle_id;
     guint queue_check_idle_id;
     guint need_threading_idle_id;
+    guint run_filters_idle_id;
 };
 
 G_DEFINE_TYPE_WITH_CODE(LibBalsaMailbox,
@@ -318,6 +319,7 @@ libbalsa_mailbox_dispose(GObject *object)
     libbalsa_clear_source_id(&priv->changed_idle_id);
     libbalsa_clear_source_id(&priv->queue_check_idle_id);
     libbalsa_clear_source_id(&priv->need_threading_idle_id);
+    libbalsa_clear_source_id(&priv->run_filters_idle_id);
 
     G_OBJECT_CLASS(libbalsa_mailbox_parent_class)->dispose(object);
 }
@@ -510,7 +512,7 @@ libbalsa_mailbox_finalize(GObject *object)
 
     libbalsa_mailbox_view_free(priv->view);
 
-    G_OBJECT_CLASS(libbalsa_mailbox_parent_class)->finalize(object);
+    G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 
@@ -891,12 +893,9 @@ lbm_run_filters_on_reception_idle_cb(LibBalsaMailbox *mailbox)
     guint progress_total;
     LibBalsaProgress progress;
 
-    g_object_add_weak_pointer(G_OBJECT(mailbox), (gpointer) & mailbox);
-    g_object_unref(mailbox);
-    if (!mailbox) {
-        return FALSE;
-    }
-    g_object_remove_weak_pointer(G_OBJECT(mailbox), (gpointer) & mailbox);
+    libbalsa_lock_mailbox(mailbox);
+
+    mailbox->run_filters_idle_id = 0;
 
     if (!priv->filters_loaded) {
         config_mailbox_filters_load(mailbox);
@@ -906,9 +905,11 @@ lbm_run_filters_on_reception_idle_cb(LibBalsaMailbox *mailbox)
     filters = libbalsa_mailbox_filters_when(priv->filters,
                                             FILTER_WHEN_INCOMING);
 
-    if (!filters) {
+    if (filters == NULL) {
+        libbalsa_unlock_mailbox(mailbox);
         return FALSE;
     }
+
     if (!filters_prepare_to_run(filters)) {
         g_slist_free(filters);
         libbalsa_unlock_mailbox(mailbox);
@@ -926,7 +927,6 @@ lbm_run_filters_on_reception_idle_cb(LibBalsaMailbox *mailbox)
         }
     }
 
-    libbalsa_lock_mailbox(mailbox);
     if (!recent_undeleted) {
         recent_undeleted =
             libbalsa_condition_new_bool_ptr(FALSE, CONDITION_AND,
