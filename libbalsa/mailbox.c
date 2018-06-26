@@ -5101,7 +5101,9 @@ libbalsa_mailbox_get_index_entry(LibBalsaMailbox *mailbox,
 LibBalsaMailboxView *
 libbalsa_mailbox_get_view(LibBalsaMailbox *mailbox)
 {
-    return lbm_get_view(mailbox);
+    LibBalsaMailboxPrivate *priv = libbalsa_mailbox_get_instance_private(mailbox);
+
+    return priv->view;
 }
 
 
