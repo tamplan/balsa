@@ -182,11 +182,19 @@ libbalsa_conf_foreach_group(const gchar * prefix,
 {
     lbc_lock();
 
-    groups = g_key_file_get_groups(lbc_conf.key_file, NULL);
-    for (group = groups; *group; group++) {
-        if (g_str_has_prefix(*group, prefix)
-            && func(*group, *group + pref_len, data))
-            break;
+    if (lbc_conf.key_file != NULL) {
+        gchar **groups, **group;
+        gsize pref_len = strlen(prefix);
+
+        groups = g_key_file_get_groups(lbc_conf.key_file, NULL);
+
+        for (group = groups; *group; group++) {
+            if (g_str_has_prefix(*group, prefix)
+                && func(*group, *group + pref_len, data))
+                break;
+        }
+
+        g_strfreev(groups);
     }
 
     lbc_unlock();
