@@ -2879,6 +2879,7 @@ typedef struct {
     BalsaWindow      *window;
     gchar            *message;
     gboolean          set_current;
+    GApplication     *application;
 } BalsaWindowRealOpenMbnodeInfo;
 
 static gboolean
@@ -2983,8 +2984,13 @@ bw_real_open_mbnode_thread(BalsaWindowRealOpenMbnodeInfo * info)
     do {
         g_clear_error(&err);
         successp = libbalsa_mailbox_open(mailbox, &err);
-        if (!balsa_app.main_window)
+
+        if (info->window == NULL) {
+            g_application_release(info->application);
+            g_free(info);
+            g_mutex_unlock(&open_lock);
             return;
+        }
 
         if(successp) break;
         if(err && err->code != LIBBALSA_MAILBOX_TOOMANYOPEN_ERROR)
@@ -3040,6 +3046,7 @@ balsa_window_real_open_mbnode(BalsaWindow * window,
 
     info->window = window;
     g_object_add_weak_pointer(G_OBJECT(window), (gpointer) &info->window);
+
     info->mbnode = g_object_ref(mbnode);
     info->set_current = set_current;
     info->index = index;
@@ -3502,6 +3509,8 @@ check_new_messages_count(LibBalsaMailbox * mailbox, gboolean notify)
 static void
 bw_mailbox_check(LibBalsaMailbox * mailbox, struct check_messages_thread_info *info)
 {
+    if (balsa_app.main_window == NULL)
+        return;
     if (libbalsa_mailbox_get_subscribe(mailbox) == LB_MAILBOX_SUBSCRIBE_NO)
         return;
 
