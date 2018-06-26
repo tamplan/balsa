@@ -512,7 +512,7 @@ libbalsa_mailbox_finalize(GObject *object)
 
     libbalsa_mailbox_view_free(priv->view);
 
-    G_OBJECT_CLASS(parent_class)->finalize(object);
+    G_OBJECT_CLASS(libbalsa_mailbox_parent_class)->finalize(object);
 }
 
 
@@ -895,7 +895,7 @@ lbm_run_filters_on_reception_idle_cb(LibBalsaMailbox *mailbox)
 
     libbalsa_lock_mailbox(mailbox);
 
-    mailbox->run_filters_idle_id = 0;
+    priv->run_filters_idle_id = 0;
 
     if (!priv->filters_loaded) {
         config_mailbox_filters_load(mailbox);
@@ -997,9 +997,11 @@ lbm_run_filters_on_reception_idle_cb(LibBalsaMailbox *mailbox)
 void
 libbalsa_mailbox_run_filters_on_reception(LibBalsaMailbox *mailbox)
 {
+    LibBalsaMailboxPrivate *priv = libbalsa_mailbox_get_instance_private(mailbox);
+
     g_return_if_fail(LIBBALSA_IS_MAILBOX(mailbox));
 
-    mailbox->run_filters_idle_id =
+    priv->run_filters_idle_id =
         g_idle_add((GSourceFunc) lbm_run_filters_on_reception_idle_cb, mailbox);
 }
 
