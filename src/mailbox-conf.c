@@ -151,7 +151,6 @@ struct mailbox_conf_combo_box_info {
 };
 #define BALSA_MC_COMBO_BOX_INFO "balsa-mailbox-conf-combo-box-info"
 
-#ifdef HAVE_GPGME
 static void
 mailbox_conf_combo_box_info_free(struct mailbox_conf_combo_box_info *info)
 {
