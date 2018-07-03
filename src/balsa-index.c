@@ -115,7 +115,7 @@ static const gchar *index_drag_types[] = {
 };
 
 static void bndx_drag_cb(GtkWidget        *widget,
-                         GdkDragContext   *drag_context,
+                         GdkDrag          *drag,
                          GtkSelectionData *data,
                          gpointer          user_data);
 
@@ -845,7 +845,7 @@ bndx_column_resize(GtkWidget     *widget,
  */
 static void
 bndx_drag_cb(GtkWidget        *widget,
-             GdkDragContext   *drag_context,
+             GdkDrag          *drag,
              GtkSelectionData *data,
              gpointer          user_data)
 {

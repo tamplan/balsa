@@ -687,9 +687,8 @@ list_row_activated_cb(GtkTreeView *tree, gpointer data)
 
 static void
 addrlist_drag_get_cb(GtkWidget        * widget,
-                     GdkDragContext   * drag_context,
+                     GdkDrag          * drag,
                      GtkSelectionData * sel_data,
-                     guint              time,
                      gpointer           user_data)
 {
     const gchar *target;
