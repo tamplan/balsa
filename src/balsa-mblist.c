@@ -104,7 +104,7 @@ static gint bmbl_row_compare(GtkTreeModel * model,
 static void bmbl_column_resize(GtkWidget * widget, GtkAllocation * allocation,
                                gint baseline, gpointer data);
 static void bmbl_drag_data_received_cb(GtkWidget        *widget,
-                                       GdkDrag          *drag,
+                                       GdkDrop          *drop,
                                        GtkSelectionData *selection_data,
                                        gpointer          data);
 static void bmbl_row_activated_cb(GtkTreeView * tree_view,
@@ -787,6 +787,7 @@ bmbl_drag_drop_cb(GtkWidget *widget,
     GtkTreePath *path;
     GtkTreeIter iter;
     BalsaMailboxNode *mbnode;
+    GdkAtom target;
 
     /* find the node and mailbox */
 
@@ -803,7 +804,8 @@ bmbl_drag_drop_cb(GtkWidget *widget,
     if (mblist->dest_mailbox == NULL)
         return FALSE;
 
-    gtk_drag_get_data(widget, drop, (GdkAtom) 0);
+    target = gtk_drag_dest_find_target (widget, drop, NULL);
+    gtk_drag_get_data(widget, drop, target);
 
     return TRUE;
 }
@@ -819,7 +821,7 @@ bmbl_drag_drop_cb(GtkWidget *widget,
  * */
 static void
 bmbl_drag_data_received_cb(GtkWidget        * widget,
-                           GdkDrag          * drag,
+                           GdkDrop          * drop,
                            GtkSelectionData * selection_data,
                            gpointer           data)
 {
@@ -851,7 +853,7 @@ bmbl_drag_data_received_cb(GtkWidget        * widget,
         return;
     }
     balsa_index_transfer(orig_index, selected, mblist->dest_mailbox,
-                         gdk_drag_get_selected_action(drag) != GDK_ACTION_MOVE);
+                         gdk_drop_get_actions(drop) != GDK_ACTION_MOVE);
 
     balsa_index_selected_msgnos_free(orig_index, selected);
     mblist->dest_mailbox = NULL;
