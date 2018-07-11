@@ -421,7 +421,7 @@ balsa_app_destroy(void)
     /* now free filters */
     g_slist_foreach(balsa_app.filters, (GFunc)libbalsa_filter_free,
 		    GINT_TO_POINTER(TRUE));
-    g_clear_pointer(&balsa_app.filters, (GDestroyNotify) g_slist_free);
+    g_clear_pointer(&balsa_app.filters, g_slist_free);
 
     libbalsa_clear_list(&balsa_app.identities, g_object_unref);
     libbalsa_clear_list(&balsa_app.folder_mru, g_free);
@@ -678,8 +678,8 @@ balsa_quote_regex_new(void)
     if (g_strcmp0(string, balsa_app.quote_regex) != 0) {
         /* We have not initialized the GRegex, or balsa_app.quote_regex
          * has changed. */
-        g_clear_pointer(&string, (GDestroyNotify) g_free);
-        g_clear_pointer(&regex,  (GDestroyNotify) g_regex_unref);
+        g_clear_pointer(&string, g_free);
+        g_clear_pointer(&regex, g_regex_unref);
     }
 
     if (regex == NULL) {

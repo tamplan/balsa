@@ -1426,7 +1426,7 @@ void fe_destroy_window_cb(GtkWidget * widget,gpointer throwaway)
         g_free(((filters_names_rec *)lst->data)->new_name);
         g_free((filters_names_rec *)lst->data);
     }
-    g_clear_pointer(&filters_names_changes, (GDestroyNotify) g_list_free);
+    g_clear_pointer(&filters_names_changes, g_list_free);
 
     libbalsa_clear_list(&new_filters_names, g_free);
 

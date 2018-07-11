@@ -168,8 +168,8 @@ libbalsa_completion_add_items(LibBalsaCompletion * cmp,
     g_return_if_fail(cmp != NULL);
 
     /* optimize adding to cache? */
-    g_clear_pointer(&cmp->cache, (GDestroyNotify) g_list_free);
-    g_clear_pointer(&cmp->prefix, (GDestroyNotify) g_free);
+    g_clear_pointer(&cmp->cache, g_list_free);
+    g_clear_pointer(&cmp->prefix, g_free);
 
     for (it = items; it != NULL; it = it->next) {
         cmp->items = g_list_prepend(cmp->items, it->data);
@@ -188,8 +188,8 @@ libbalsa_completion_clear_items(LibBalsaCompletion * cmp)
     g_return_if_fail(cmp != NULL);
 
     libbalsa_clear_list(&cmp->items, (GDestroyNotify) completion_data_free);
-    g_clear_pointer(&cmp->cache, (GDestroyNotify) g_list_free);
-    g_clear_pointer(&cmp->prefix, (GDestroyNotify) g_free);
+    g_clear_pointer(&cmp->cache, g_list_free);
+    g_clear_pointer(&cmp->prefix, g_free);
 }
 
 /**
@@ -238,7 +238,7 @@ libbalsa_completion_complete(LibBalsaCompletion * cmp,
 
     if (!done) {
         /* normal code */
-        g_clear_pointer(&cmp->cache, (GDestroyNotify) g_list_free);
+        g_clear_pointer(&cmp->cache, g_list_free);
         for (list = cmp->items; list != NULL && *prefix != '\0'; list = list->next) {
             if (cmp->strncmp_func(prefix,
                                   cmp->func ? cmp->func(list->data)
@@ -248,7 +248,7 @@ libbalsa_completion_complete(LibBalsaCompletion * cmp,
             }
         }
     }
-    g_clear_pointer(&cmp->prefix, (GDestroyNotify) g_free);
+    g_clear_pointer(&cmp->prefix, g_free);
     if (cmp->cache != NULL)
         cmp->prefix = g_strdup(prefix);
 

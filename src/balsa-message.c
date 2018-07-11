@@ -825,7 +825,7 @@ balsa_message_destroy(GObject * object)
         bm->treeview = NULL;
     }
 
-    g_clear_pointer(&bm->save_all_list, (GDestroyNotify) g_list_free);
+    g_clear_pointer(&bm->save_all_list, g_list_free);
     g_clear_object(&bm->save_all_popup);
     g_clear_object(&bm->parts_popup);
     g_clear_object(&bm->bm_widget);
@@ -932,7 +932,7 @@ tree_mult_selection_popup(BalsaMessage * bm, const GdkEvent * event,
     gint selected;
 
     /* destroy left-over select list and popup... */
-    g_clear_pointer(&bm->save_all_list, (GDestroyNotify) g_list_free);
+    g_clear_pointer(&bm->save_all_list, g_list_free);
     g_clear_object(&bm->save_all_popup);
 
     /* collect all selected info blocks */
@@ -955,7 +955,7 @@ tree_mult_selection_popup(BalsaMessage * bm, const GdkEvent * event,
                                          NULL);
             }
         }
-        g_clear_pointer(&bm->save_all_list, (GDestroyNotify) g_list_free);
+        g_clear_pointer(&bm->save_all_list, g_list_free);
     } else if (selected > 1) {
         GtkWidget *menu_item;
 

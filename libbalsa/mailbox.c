@@ -581,7 +581,8 @@ libbalsa_mailbox_free_mindex(LibBalsaMailbox *mailbox)
 
     if (priv->mindex != NULL) {
         g_ptr_array_foreach(priv->mindex, (GFunc) lbm_index_entry_free, NULL);
-        g_clear_pointer(&priv->mindex, (GDestroyNotify) g_ptr_array_free);
+        g_ptr_array_free(priv->mindex, TRUE);
+        priv->mindex = NULL;
     }
 }
 
@@ -686,7 +687,7 @@ libbalsa_mailbox_close(LibBalsaMailbox *mailbox,
         /* do not try expunging read-only mailboxes, it's a waste of time */
         expunge = expunge && !priv->readonly;
         LIBBALSA_MAILBOX_GET_CLASS(mailbox)->close_mailbox(mailbox, expunge);
-        g_clear_pointer(&priv->msg_tree, (GDestroyNotify) g_node_destroy);
+        g_clear_pointer(&priv->msg_tree, g_node_destroy);
         libbalsa_mailbox_free_mindex(mailbox);
         priv->stamp++;
         priv->state = LB_MAILBOX_STATE_CLOSED;
