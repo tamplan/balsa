@@ -799,8 +799,7 @@ lbs_process_queue_init_session(LibBalsaServer* server)
 			libbalsa_information(LIBBALSA_INFORMATION_ERROR, _("Cannot load certificate file %s: %s"), libbalsa_server_get_cert_file(server),
 				error->message);
 			g_error_free(error);
-			g_object_unref(session);
-			session = NULL;
+                        g_clear_object(&session);
 		}
 	} else {
 		/* connect signals */
@@ -1098,8 +1097,7 @@ balsa_send_message_real(SendMessageInfo *info)
     g_idle_add((GSourceFunc) balsa_send_message_real_idle_cb, g_object_ref(info->outbox));
 
     /* finalise the SMTP session (which may be slow) */
-    g_object_unref(G_OBJECT(info->session));
-    info->session = NULL;
+    g_clear_object(&info->session);
 
     /* clean up */
     if (!info->no_dialog) {

@@ -148,14 +148,11 @@ libbalsa_address_book_gpe_new(const gchar *name)
 static void
 libbalsa_address_book_gpe_close_db(LibBalsaAddressBookGpe * ab_gpe)
 {
-    if (ab_gpe->db) {
 #ifdef HAVE_SQLITE3
-	sqlite3_close(ab_gpe->db);
+    g_clear_pointer(&ab_gpe->db, sqlite3_close);
 #else                           /* HAVE_SQLITE3 */
-	sqlite_close(ab_gpe->db);
+    g_clear_pointer(&ab_gpe->db, sqlite_close);
 #endif                          /* HAVE_SQLITE3 */
-	ab_gpe->db = NULL;
-    }
 }
 
 /*
@@ -185,8 +182,7 @@ libbalsa_address_book_gpe_open_db(LibBalsaAddressBookGpe * ab_gpe)
     if (sqlite3_open(name, &ab_gpe->db) != SQLITE_OK) {
         printf("Cannot open “%s”: %s\n", name, sqlite3_errmsg(ab_gpe->db));
         g_free(name);
-        sqlite3_close(ab_gpe->db);
-        ab_gpe->db = NULL;
+        g_clear_pointer(&ab_gpe->db, sqlite3_close);
         return 0;
     }
     g_free(name);

@@ -224,8 +224,7 @@ balsa_check_open_mailboxes(void)
     gchar **urls;
 
     join = g_strjoinv(";", cmd_line_open_mailboxes);
-    g_strfreev(cmd_line_open_mailboxes);
-    cmd_line_open_mailboxes = NULL;
+    g_clear_pointer(&cmd_line_open_mailboxes, g_strfreev);
 
     urls = g_strsplit(join, ";", 20);
     g_free(join);
@@ -275,8 +274,7 @@ scan_mailboxes_idle_cb()
         gchar **p;
 
         join = g_strjoinv(";", cmd_line_open_mailboxes);
-        g_strfreev(cmd_line_open_mailboxes);
-        cmd_line_open_mailboxes = NULL;
+        g_clear_pointer(&cmd_line_open_mailboxes, g_strfreev);
 
         urls = g_strsplit(join, ";", 20);
         g_free(join);
@@ -455,16 +453,12 @@ balsa_check_open_compose_window(void)
                                            balsa_compose_window_set_field, compose_window);
             else
                 balsa_compose_window_set_field(compose_window, "to", opt_compose_email);
-            g_free(opt_compose_email);
-            opt_compose_email = NULL;
+            g_clear_pointer(&opt_compose_email, g_free);
         }
 
-        if (opt_attach_list) {
-            for (attach = opt_attach_list; *attach; ++attach)
-                add_attachment(compose_window, *attach, FALSE, NULL);
-            g_strfreev(opt_attach_list);
-            opt_attach_list = NULL;
-        }
+        for (attach = opt_attach_list; attach != NULL; ++attach)
+            add_attachment(compose_window, *attach, FALSE, NULL);
+        g_clear_pointer(&opt_attach_list, g_strfreev);
 
         return TRUE;
     }
@@ -724,8 +718,7 @@ parse_options(int                       argc,
             /* process remaining_args[i] here */
             /* we do nothing for now */
         }
-        g_strfreev(remaining_args);
-        remaining_args = NULL;
+        g_clear_pointer(&remaining_args, g_strfreev);
     }
 
     g_option_context_free(context);

@@ -471,18 +471,16 @@ file_delete_activated(GSimpleAction * action,
     /* Leave a NULL item in the address book list, to avoid changing the
      * positions of the other books. */
     list = g_list_find(contacts_app.address_book_list, address_book);
-    list->data = NULL;
-    g_object_unref(address_book);
+    g_clear_object(&list->data);
 
     for (list = contacts_app.address_book_list; list; list = list->next)
-        if ((address_book = list->data) != NULL)
+        if (list->data != NULL)
             break;
 
-    if (!list)
-        return;
-
-    contacts_app.address_book = list->data;
-    set_address_book_menu_items();
+    if (list != NULL) {
+        contacts_app.address_book = list->data;
+        set_address_book_menu_items();
+    }
 }
 
 static void

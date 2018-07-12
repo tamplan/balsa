@@ -501,8 +501,7 @@ net_client_start_tls(NetClient *client, GError **error)
 				priv->ostream = g_io_stream_get_output_stream(G_IO_STREAM(priv->tls_conn));
 				g_debug("connection is encrypted");
 			} else {
-				g_object_unref(G_OBJECT(priv->tls_conn));
-				priv->tls_conn = NULL;
+                                g_clear_object(&priv->tls_conn);
 			}
 		}
 	}

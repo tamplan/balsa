@@ -517,10 +517,8 @@ get_gnutls_cert(GTlsCertificate *cert)
     		data.data = cert_der->data;
     		data.size = cert_der->len;
     		gnutls_res = gnutls_x509_crt_import(res_crt, &data, GNUTLS_X509_FMT_DER);
-    		if (gnutls_res != GNUTLS_E_SUCCESS) {
-    			gnutls_x509_crt_deinit(res_crt);
-    			res_crt = NULL;
-    		}
+    		if (gnutls_res != GNUTLS_E_SUCCESS)
+                        g_clear_pointer(&res_crt, gnutls_x509_crt_deinit);
     		g_byte_array_unref(cert_der);
     	}
     } else {
@@ -539,8 +537,7 @@ gnutls_get_dn(gnutls_x509_crt_t cert, int (*load_fn)(gnutls_x509_crt_t cert, cha
     (void) load_fn(cert, NULL, &buf_size);
     str_buf = g_malloc0(buf_size + 1U);
     if (load_fn(cert, str_buf, &buf_size) != GNUTLS_E_SUCCESS) {
-    	g_free(str_buf);
-    	str_buf = NULL;
+    	g_clear_pointer(&str_buf, g_free);
     } else {
     	libbalsa_utf8_sanitize(&str_buf, TRUE, NULL);
     }

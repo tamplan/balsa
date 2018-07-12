@@ -899,8 +899,7 @@ spch_finish(BalsaSpellCheck *spell_check,
                                      spell_check->dict);
             spell_check->dict = NULL;
         }
-        enchant_broker_free(spell_check->broker);
-        spell_check->broker = NULL;
+        g_clear_pointer(&spell_check->broker, enchant_broker_free);
     }
 
     if (balsa_app.debug)

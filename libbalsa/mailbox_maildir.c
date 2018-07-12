@@ -272,12 +272,10 @@ static void
 libbalsa_mailbox_maildir_finalize(GObject *object)
 {
     LibBalsaMailboxMaildir *mdir = LIBBALSA_MAILBOX_MAILDIR(object);
-    g_free(mdir->curdir);
-    mdir->curdir = NULL;
-    g_free(mdir->newdir);
-    mdir->newdir = NULL;
-    g_free(mdir->tmpdir);
-    mdir->tmpdir = NULL;
+
+    g_clear_pointer(&mdir->curdir, g_free);
+    g_clear_pointer(&mdir->newdir, g_free);
+    g_clear_pointer(&mdir->tmpdir, g_free);
 
     G_OBJECT_CLASS(libbalsa_mailbox_maildir_parent_class)->finalize(object);
 }

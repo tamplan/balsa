@@ -61,14 +61,10 @@ libbalsa_filter_new_from_config(void)
     newf->action_string = libbalsa_conf_get_string("Action-string");
     newf->condition     = libbalsa_condition_new_from_string(&p);
     g_free(str);
-    if (newf->sound[0]=='\0') {
-	g_free(newf->sound);
-	newf->sound=NULL;
-    }
-    if (newf->popup_text[0]=='\0') {
-	g_free(newf->popup_text);
-	newf->popup_text=NULL;
-    }
+    if (newf->sound[0] == '\0')
+	g_clear_pointer(&newf->sound, g_free);
+    if (newf->popup_text[0] == '\0')
+	g_clear_pointer(&newf->popup_text, g_free);
 
     return newf;
 }

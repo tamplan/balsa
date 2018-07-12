@@ -879,21 +879,21 @@ libbalsa_address_book_ldap_load_config(LibBalsaAddressBook * ab,
 
     ldap->host = libbalsa_conf_get_string("Host");
     ldap->base_dn = libbalsa_conf_get_string("BaseDN");
-    if(ldap->base_dn && *ldap->base_dn == 0) { 
-	g_free(ldap->base_dn); ldap->base_dn = NULL; 
+    if(ldap->base_dn && *ldap->base_dn == 0) {
+        g_clear_pointer(&ldap->base_dn, g_free);
     }
 
     ldap->bind_dn = libbalsa_conf_private_get_string("BindDN");
-    if(ldap->bind_dn && *ldap->bind_dn == 0) { 
-	g_free(ldap->bind_dn); ldap->bind_dn = NULL; 
+    if(ldap->bind_dn && *ldap->bind_dn == 0) {
+        g_clear_pointer(&ldap->bind_dn, g_free);
     }
     ldap->passwd = libbalsa_conf_private_get_string("Passwd");
-    if(ldap->passwd && *ldap->passwd == 0) { 
-	g_free(ldap->passwd); ldap->passwd = NULL; 
+    if(ldap->passwd && *ldap->passwd == 0) {
+        g_clear_pointer(&ldap->passwd, g_free);
     }
     ldap->priv_book_dn = libbalsa_conf_get_string("BookDN");
-    if(ldap->priv_book_dn && *ldap->priv_book_dn == 0) { 
-	g_free(ldap->priv_book_dn); ldap->priv_book_dn = NULL; 
+    if(ldap->priv_book_dn && *ldap->priv_book_dn == 0) {
+        g_clear_pointer(&ldap->priv_book_dn, g_free);
     }
     ldap->enable_tls = libbalsa_conf_get_bool("EnableTLS");
 

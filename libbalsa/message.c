@@ -239,13 +239,10 @@ lb_message_headers_extra_destroy(LibBalsaMessageHeaders *headers)
 void
 libbalsa_message_headers_destroy(LibBalsaMessageHeaders *headers)
 {
-    if (!headers)
+    if (headers == NULL)
         return;
 
-
-    g_free(headers->subject);
-    headers->subject = NULL;
-
+    g_clear_pointer(&headers->subject, g_free);
     g_clear_object(&headers->from);
     g_clear_object(&headers->to_list);
     g_clear_object(&headers->content_type);
@@ -734,8 +731,7 @@ libbalsa_message_body_unref(LibBalsaMessage *message)
     if (message->mailbox)
         libbalsa_lock_mailbox(message->mailbox);
     if (--message->body_ref == 0) {
-        libbalsa_message_body_free(message->body_list);
-        message->body_list = NULL;
+        g_clear_pointer(&message->body_list, libbalsa_message_body_free);
         if (message->mailbox)
             libbalsa_mailbox_release_message(message->mailbox, message);
 

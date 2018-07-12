@@ -276,8 +276,7 @@ balsa_print_object_header_new_real(GList                  *list,
         poh->p_label_width  = p_label_width;
         poh->p_layout_width = p_layout_width;
         if (face != NULL) {
-            poh->face = face;
-            face      = NULL;
+            poh->face = g_steal_pointer(&face);
 
             if (this_chunk->next == NULL) {
                 gint p_height;

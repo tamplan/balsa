@@ -347,8 +347,7 @@ libbalsa_server_load_config(LibBalsaServer * server)
                                         "user",     priv->user,
                                         NULL);
         if (err) {
-            libbalsa_free_password(priv->passwd);
-            priv->passwd = NULL;
+            g_clear_pointer(&priv->passwd, libbalsa_free_password);
             printf(_("Error looking up password for %s@%s: %s\n"),
                    priv->user, priv->host, err->message);
             printf(_("Falling back\n"));
@@ -384,10 +383,8 @@ libbalsa_server_load_config(LibBalsaServer * server)
 	}
 #endif
     }
-    if(priv->passwd && priv->passwd[0] == '\0') {
-	libbalsa_free_password(priv->passwd);
-	priv->passwd = NULL;
-    }
+    if (priv->passwd && priv->passwd[0] == '\0')
+        g_clear_pointer(&priv->passwd, libbalsa_free_password);
 
     priv->client_cert = libbalsa_conf_get_bool("NeedClientCert=false");
     priv->cert_file = libbalsa_conf_get_string("UserCertificateFile");
@@ -398,8 +395,7 @@ libbalsa_server_load_config(LibBalsaServer * server)
         g_free(priv->cert_passphrase);
         priv->cert_passphrase = tmp;
     } else {
-    	g_free(priv->cert_passphrase);
-    	priv->cert_passphrase = NULL;
+        g_clear_pointer(&priv->cert_passphrase, g_free);
     }
 }
 

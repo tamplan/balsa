@@ -655,8 +655,7 @@ net_client_pop_auth_gssapi(NetClientPop *client, const gchar *user, GError **err
 
 		do {
 			state = net_client_gss_auth_step(gss_ctx, input_token, &output_token, error);
-			g_free(input_token);
-			input_token = NULL;
+                        g_clear_pointer(&input_token, g_free);
 			if (state >= 0) {
 				if (initial) {
 					/* split the initial auth command as the initial-response argument will typically exceed the 255-octet limit on

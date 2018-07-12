@@ -452,8 +452,7 @@ libbalsa_mailbox_index_entry_clear(LibBalsaMailbox *mailbox,
     if (msgno <= priv->mindex->len) {
         LibBalsaMailboxIndexEntry **entry = (LibBalsaMailboxIndexEntry **)
             &g_ptr_array_index(priv->mindex, msgno - 1);
-        lbm_index_entry_free(*entry);
-        *entry = NULL;
+        g_clear_pointer(entry, lbm_index_entry_free);
 
         libbalsa_mailbox_msgno_changed(mailbox, msgno);
     }

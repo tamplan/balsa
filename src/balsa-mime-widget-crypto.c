@@ -93,8 +93,7 @@ balsa_mime_widget_new_pgpkey(BalsaMessage        *bm,
             g_clear_error(&err);
             g_object_ref_sink(box);
             g_object_unref(box);
-            g_object_unref(mw);
-            mw = NULL;
+            g_clear_object(&mw);
         }
     	g_free(body_buf);
     }

@@ -443,10 +443,8 @@ g_mime_gpgme_mpe_decrypt(GMimeMultipartEncrypted * mpe,
 
     g_return_val_if_fail(GMIME_IS_MULTIPART_ENCRYPTED(mpe), NULL);
 
-    if (signature && *signature) {
-	g_object_unref(G_OBJECT(*signature));
-	*signature = NULL;
-    }
+    if (signature)
+        g_clear_object(signature);
 
     protocol =
 	g_mime_object_get_content_type_parameter(GMIME_OBJECT(mpe),

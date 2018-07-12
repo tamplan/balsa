@@ -90,8 +90,7 @@ net_client_smtp_new(const gchar *host, guint16 port, NetClientCryptMode crypt_mo
         priv = net_client_smtp_get_instance_private(client);
 	if (client != NULL) {
 		if (!net_client_configure(NET_CLIENT(client), host, port, MAX_SMTP_LINE_LEN, NULL)) {
-			g_object_unref(G_OBJECT(client));
-			client = NULL;
+                        g_clear_object(&client);
 		} else {
 			priv->crypt_mode = crypt_mode;
 		}
@@ -513,8 +512,7 @@ net_client_smtp_auth_gssapi(NetClientSmtp *client, const gchar *user, GError **e
 
 		do {
 			state = net_client_gss_auth_step(gss_ctx, input_token, &output_token, error);
-			g_free(input_token);
-			input_token = NULL;
+                        g_clear_pointer(&input_token, g_free);
 			if (state >= 0) {
 				if (initial) {
 					result = net_client_smtp_execute(client, "AUTH GSSAPI %s", &input_token, error, output_token);

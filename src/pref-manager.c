@@ -316,8 +316,7 @@ pm_selection_changed(GtkTreeSelection * selection, gpointer user_data)
 static void
 destroy_pref_window_cb(void)
 {
-    g_free(pui);
-    pui = NULL;
+    g_clear_pointer(&pui, g_free);
     already_open = FALSE;
 }
 

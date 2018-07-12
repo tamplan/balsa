@@ -821,8 +821,7 @@ balsa_message_destroy(GObject * object)
 
     if (bm->treeview) {
         balsa_message_set(bm, NULL, 0);
-        gtk_widget_destroy(bm->treeview);
-        bm->treeview = NULL;
+        g_clear_pointer(&bm->treeview, gtk_widget_destroy);
     }
 
     g_clear_pointer(&bm->save_all_list, g_list_free);
@@ -1107,8 +1106,7 @@ balsa_message_set(BalsaMessage * bm, LibBalsaMailbox * mailbox, guint msgno)
     select_part(bm, NULL);
     if (bm->message != NULL) {
         libbalsa_message_body_unref(bm->message);
-        g_object_unref(bm->message);
-        bm->message = NULL;
+        g_clear_object(&bm->message);
     }
 
     if (mailbox == NULL || msgno == 0) {
@@ -1134,8 +1132,7 @@ balsa_message_set(BalsaMessage * bm, LibBalsaMailbox * mailbox, guint msgno)
     is_new = LIBBALSA_MESSAGE_IS_UNREAD(message);
     if(!libbalsa_message_body_ref(message, TRUE, TRUE)) {
 	libbalsa_mailbox_check(mailbox);
-        g_object_unref(bm->message);
-        bm->message = NULL;
+        g_clear_object(&bm->message);
 	balsa_information(LIBBALSA_INFORMATION_WARNING,
                           _("Could not access message %u "
                             "in mailbox “%s”."),
@@ -2221,8 +2218,7 @@ hide_all_parts(BalsaMessage * bm)
 			       gtk_tree_hide_func, bm);
 	gtk_tree_selection_unselect_all(gtk_tree_view_get_selection
 					(GTK_TREE_VIEW(bm->treeview)));
-        g_object_unref(bm->current_part);
-	bm->current_part = NULL;
+        g_clear_object(&bm->current_part);
     }
 
     gtk_container_foreach(GTK_CONTAINER(balsa_mime_widget_get_container(bm->bm_widget)),
@@ -3058,8 +3054,7 @@ libbalsa_msg_part_2440(LibBalsaMessage * message, LibBalsaMessageBody * body,
 	if (sig_res == GPG_ERR_NO_ERROR) {
 	    /* decrypting may change the charset, so be sure to use the one
 	       GMimePart reports */
-	    g_free(body->charset);
-	    body->charset = NULL;
+            g_clear_pointer(&body->charset, g_free);
 	}
     }
     libbalsa_mailbox_unlock_store(mailbox);

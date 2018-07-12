@@ -4007,8 +4007,7 @@ bw_find_real(BalsaWindow * window, BalsaIndex * bindex, gboolean again)
 	    return;
 	cnd->type = CONDITION_STRING;
 
-	libbalsa_mailbox_search_iter_unref(search_iter);
-	search_iter = NULL;
+        g_clear_pointer(&search_iter, libbalsa_mailbox_search_iter_unref);
 
         if(ok == FIND_RESPONSE_FILTER) {
             LibBalsaMailbox *mailbox =
@@ -4018,8 +4017,7 @@ bw_find_real(BalsaWindow * window, BalsaIndex * bindex, gboolean again)
             res = libbalsa_condition_new_bool_ptr(FALSE, CONDITION_AND,
                                                   filter, cnd);
             libbalsa_condition_unref(filter);
-            libbalsa_condition_unref(cnd);
-            cnd = NULL;
+            g_clear_pointer(&cnd, libbalsa_condition_unref);
 
             if (libbalsa_mailbox_set_view_filter(mailbox, res, TRUE))
                 balsa_index_ensure_visible(BALSA_INDEX(bindex));

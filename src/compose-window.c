@@ -3206,8 +3206,7 @@ sw_can_convert(const gchar *string,
                   &bytes_read, &bytes_written, &err);
     if (err) {
         g_error_free(err);
-        g_free(s);
-        s = NULL;
+        g_clear_pointer(&s, g_free);
     }
 
     if (result)
@@ -5295,8 +5294,8 @@ compose_window2message(BalsaComposeWindow *compose_window)
                             /* Translators: please do not translate Face. */
                             _("Could not load X-Face header file %s: %s"));
 
-    libbalsa_message_set_references(message, compose_window->references);
-    compose_window->references = NULL; /* steal it */
+    libbalsa_message_set_references(message,
+                                    g_steal_pointer(&compose_window->references));
 
     if (compose_window->in_reply_to != NULL) {
         libbalsa_message_set_in_reply_to(message,

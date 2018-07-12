@@ -188,10 +188,7 @@ balsa_register_pixmaps(void)
 void
 balsa_unregister_pixmaps(void)
 {
-    if (balsa_icon_table) {
-        g_hash_table_destroy(balsa_icon_table);
-        balsa_icon_table = NULL;
-    }
+    g_clear_pointer(&balsa_icon_table, g_hash_table_destroy);
 }
 
 void

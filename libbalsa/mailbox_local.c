@@ -848,8 +848,7 @@ libbalsa_mailbox_local_close_mailbox(LibBalsaMailbox *mailbox,
         for (i = priv->threading_info->len; i > 0;) {
             gpointer *entry =
                 &g_ptr_array_index(priv->threading_info, --i);
-            lbm_local_free_info(*entry);
-            *entry = NULL;
+            g_clear_pointer(entry, lbm_local_free_info);
         }
     }
 

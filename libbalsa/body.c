@@ -259,10 +259,7 @@ libbalsa_message_body_set_parts(LibBalsaMessageBody * body)
     /* Free any parts that weren't used; the test isn't strictly
      * necessary, but it should fail unless something really strange has
      * happened, so it's worth including. */
-    if (*next_part) {
-	libbalsa_message_body_free(*next_part);
-	*next_part = NULL;
-    }
+    g_clear_pointer(next_part, libbalsa_message_body_free);
 }
 
 void

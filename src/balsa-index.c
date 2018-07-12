@@ -2567,11 +2567,10 @@ pipe_in_watch(GIOChannel  *channel,
 
     rc = pipe->message_length > pipe->chars_written;
     if (!rc) {
-        g_io_channel_unref(pipe->in_channel);
-        pipe->in_channel = NULL;
-        g_source_remove(pipe->in_source);
-        pipe->in_source = 0;
+        g_clear_pointer(&pipe->in_channel, g_io_channel_unref);
+        libbalsa_clear_source_id(&pipe->in_source);
     }
+
     return rc;
 }
 
@@ -2937,8 +2936,7 @@ balsa_index_ensure_visible(BalsaIndex *index)
         if (gtk_tree_view_get_path_at_pos(tree_view, rect.x, rect.y, &path,
                                           NULL, NULL, NULL)) {
             /* We have a message in the view, so we do nothing. */
-            gtk_tree_path_free(path);
-            path = NULL;
+            g_clear_pointer(&path, gtk_tree_path_free);
         } else {
             /* Scroll to the last message. */
             GtkTreeModel *model;

@@ -116,8 +116,7 @@ folder_conf_response(GtkDialog * dialog, int response,
             break;
         /* ...or fall over */
     default:
-        gtk_widget_destroy(GTK_WIDGET(cdd->dialog));
-        cdd->dialog = NULL;
+        g_clear_pointer(&cdd->dialog, gtk_widget_destroy);
         if (cdd->mbnode) {
             /* Clearing the data signifies that the dialog has been
              * destroyed. It also triggers a call to

@@ -465,10 +465,8 @@ libbalsa_conf_get_vector_with_default(const char *path, gint * argcp,
 static void
 lbc_drop_all(LibBalsaConf * conf)
 {
-    g_key_file_free(conf->key_file);
-    conf->key_file = NULL;
-    g_free(conf->path);
-    conf->path = NULL;
+    g_clear_pointer(&conf->key_file, g_key_file_free);
+    g_clear_pointer(&conf->path, g_free);
     conf->changes = 0;
 }
 

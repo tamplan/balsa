@@ -1685,9 +1685,7 @@ change_filter_name(gchar * old_name,gchar * new_name)
             return;
         }
 
-        if (new_name)
-            p->new_name=g_strdup(new_name);
-        else p->new_name=NULL;
+        p->new_name = g_strdup(new_name);
     }
 }
 

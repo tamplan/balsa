@@ -1531,12 +1531,7 @@ libbalsa_mailbox_imap_message_match(LibBalsaMailbox           *mailbox,
 static void
 libbalsa_mailbox_imap_search_iter_free(LibBalsaMailboxSearchIter *iter)
 {
-    GHashTable *matchings = iter->user_data;
-
-    if (matchings) {
-        g_hash_table_destroy(matchings);
-        iter->user_data = NULL;
-    }
+    g_clear_pointer(&iter->user_data, g_hash_table_destroy);
     /* iter->condition and iter are freed in the LibBalsaMailbox method. */
 }
 
@@ -1766,8 +1761,7 @@ libbalsa_mailbox_imap_get_matchings(LibBalsaMailboxImap *mbox,
     g_hash_table_destroy(cbdata->uids);
     /* Clean up on error */
     if (rc != IMR_OK) {
-	g_hash_table_destroy(cbdata->res);
-	cbdata->res = NULL;
+        g_clear_pointer(&cbdata->res, g_hash_table_destroy);
 	*err = TRUE;
 	libbalsa_information(LIBBALSA_INFORMATION_DEBUG,
 			     _("IMAP SEARCH command failed for mailbox %s\n"
@@ -3139,10 +3133,7 @@ struct MultiAppendCbData {
 static void
 macd_clear(struct MultiAppendCbData *macd)
 {
-    if (macd->outstream) {
-        g_object_unref(macd->outstream);
-        macd->outstream = NULL;
-    }
+    g_clear_object(&macd->outstream);
 }
 
 

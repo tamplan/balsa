@@ -286,8 +286,7 @@ pop_handler_new(const gchar *filter_path,
                         _("Passing POP message to %s failed: %s"),
                         filter_path,
                         g_strerror(errno));
-            g_free(res);
-            res = NULL;
+            g_clear_pointer(&res, g_free);
         } else {
             res->path = g_strdup(filter_path);
         }
@@ -573,8 +572,7 @@ libbalsa_mailbox_pop3_startup(LibBalsaServer      *server,
                              error->message);
         g_error_free(error);
         net_client_shutdown(NET_CLIENT(pop));
-        g_object_unref(G_OBJECT(pop));
-        pop = NULL;
+        g_clear_object(&pop);
     }
 
     return pop;
@@ -817,10 +815,8 @@ libbalsa_mailbox_pop3_load_config(LibBalsaMailbox *mailbox,
     mailbox_pop3->enable_pipe        = libbalsa_conf_get_bool("EnablePipe=false");
     mailbox_pop3->filter             = libbalsa_conf_get_bool("Filter=false");
     mailbox_pop3->filter_cmd         = libbalsa_conf_get_string("FilterCmd");
-    if ((mailbox_pop3->filter_cmd != NULL) && (mailbox_pop3->filter_cmd[0] == '\0')) {
-        g_free(mailbox_pop3->filter_cmd);
-        mailbox_pop3->filter_cmd = NULL;
-    }
+    if ((mailbox_pop3->filter_cmd != NULL) && (mailbox_pop3->filter_cmd[0] == '\0'))
+        g_clear_pointer(&mailbox_pop3->filter_cmd, g_free);
 
     if (LIBBALSA_MAILBOX_CLASS(libbalsa_mailbox_pop3_parent_class)->load_config) {
         LIBBALSA_MAILBOX_CLASS(libbalsa_mailbox_pop3_parent_class)->

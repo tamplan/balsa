@@ -1210,13 +1210,8 @@ libbalsa_mailbox_mbox_close_mailbox(LibBalsaMailbox *mailbox,
     }
 
     /* Now it's safe to close the stream and free the message info. */
-    if (mbox->gmime_stream) {
-        g_object_unref(mbox->gmime_stream);
-        mbox->gmime_stream = NULL;
-    }
-
-    free_messages_info(mbox->msgno_2_msg_info);
-    mbox->msgno_2_msg_info = NULL;
+    g_clear_object(&mbox->gmime_stream);
+    g_clear_pointer(&mbox->msgno_2_msg_info, free_messages_info);
 }
 
 

@@ -154,8 +154,7 @@ net_client_gss_ctx_new(const gchar *service, const gchar *host, const gchar *use
     	g_set_error(error, NET_CLIENT_ERROR_QUARK, (gint) NET_CLIENT_ERROR_GSSAPI, _("importing GSS service name %s failed: %s"),
     		service_str, gss_err);
     	g_free(gss_err);
-    	g_free(gss_ctx);
-    	gss_ctx = NULL;
+        g_clear_pointer(&gss_ctx, g_free);
     } else {
     	/* configure the context according to RFC 4752, Sect. 3.1 */
     	gss_ctx->req_flags = GSS_C_INTEG_FLAG + GSS_C_MUTUAL_FLAG + GSS_C_SEQUENCE_FLAG + GSS_C_CONF_FLAG;

@@ -235,8 +235,7 @@ lbh_mouse_target_changed_cb(WebKitWebView       * web_view,
         return;
 
     if (info->uri != NULL) {
-        g_free(info->uri);
-        info->uri = NULL;
+        g_clear_pointer(&info->uri);
         (*info->hover_cb) (NULL);
     }
 
@@ -376,8 +375,7 @@ lbh_info_bar_response_cb(GtkInfoBar * info_bar,
         }
     }
 
-    gtk_widget_destroy(info->info_bar);
-    info->info_bar = NULL;
+    g_clear_pointer(&info->info_bar, gtk_widget_destroy);
 }
 
 static void
@@ -460,8 +458,7 @@ lbh_resource_notify_response_cb(WebKitWebResource * resource,
                 webkit_web_resource_get_uri(resource));
         /* web_view is loading an image from its cache, so we do not
          * need to ask the user for permission to download */
-        gtk_widget_destroy(info->info_bar);
-        info->info_bar = NULL;
+        g_clear_pointer(&info->info_bar, gtk_widget_destroy);
     } else {
         g_debug("%s %s null info_bar", __func__,
                 webkit_web_resource_get_uri(resource));

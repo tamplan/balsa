@@ -172,8 +172,7 @@ libbalsa_gpgme_load_key(gpgme_ctx_t   ctx,
 				if (gpgme_err == GPG_ERR_NO_ERROR) {
 					libbalsa_gpgme_set_error(error, GPG_ERR_AMBIGUOUS, _("ambiguous keys for “%s”"), fingerprint);
 					gpgme_key_unref(next_key);
-					gpgme_key_unref(key);
-					key = NULL;
+                                        g_clear_pointer(&key, gpgme_key_unref);
 				}
 			}
 		}

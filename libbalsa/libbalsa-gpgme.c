@@ -1084,10 +1084,8 @@ gpgme_build_recipients(gpgme_ctx_t   ctx,
 		rcpt[num_rcpts] = key;
 	}
 
-	if (select_res != GPG_ERR_NO_ERROR) {
-		release_keylist(rcpt);
-		rcpt = NULL;
-	}
+	if (select_res != GPG_ERR_NO_ERROR)
+                g_clear_pointer(&rcpt, release_keylist);
 
 	return rcpt;
 }

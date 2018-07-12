@@ -293,10 +293,8 @@ lbab_text_load_file(LibBalsaAddressBookText * ab_text, FILE * stream)
 
         item = lbab_text_item_new();
         item->begin = ftell(stream);
-        if (parse_address(stream, item->address, NULL, NULL) != LBABERR_OK) {
-            g_object_unref(item->address);
-            item->address = NULL;
-        }
+        if (parse_address(stream, item->address, NULL, NULL) != LBABERR_OK)
+            g_clear_object(&item->address);
         item->end = ftell(stream);
         list = g_slist_prepend(list, item);
     }
