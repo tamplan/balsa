@@ -656,11 +656,8 @@ libbalsa_mailbox_maildir_close_mailbox(LibBalsaMailbox *mailbox,
     }
 
     /* Now it's safe to free the message info. */
-    g_hash_table_destroy(mdir->messages_info);
-    mdir->messages_info = NULL;
-
-    g_ptr_array_free(mdir->msgno_2_msg_info, TRUE);
-    mdir->msgno_2_msg_info = NULL;
+    g_clear_pointer(&mdir->messages_info, g_hash_table_destroy);
+    g_clear_pointer(&mdir->msgno_2_msg_info, g_ptr_array_unref);
 }
 
 

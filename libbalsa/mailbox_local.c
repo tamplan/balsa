@@ -447,7 +447,7 @@ libbalsa_mailbox_local_finalize(GObject *object)
     if (priv->threading_info != NULL) {
         /* The memory owned by priv->threading_info was freed on closing,
          * so we free only the array itself. */
-        g_ptr_array_free(priv->threading_info, TRUE);
+        g_ptr_array_unref(priv->threading_info);
     }
 
     G_OBJECT_CLASS(libbalsa_mailbox_local_parent_class)->finalize(object);
@@ -625,7 +625,7 @@ lbm_local_save_tree(LibBalsaMailboxLocal *local)
                              filename, err->message);
         g_error_free(err);
     }
-    g_array_free(save_info.array, TRUE);
+    g_array_unref(save_info.array);
     g_free(filename);
 }
 

@@ -125,7 +125,7 @@ run_filters_on_mailbox(GSList * filters, LibBalsaMailbox * mbox)
 	sent_to_trash +=
 	    libbalsa_filter_mailbox_messages(filter, mbox, messages);
 	libbalsa_mailbox_unregister_msgnos(mbox, messages);
-	g_array_free(messages, TRUE);
+	g_array_unref(messages);
     }
 
     if (sent_to_trash)

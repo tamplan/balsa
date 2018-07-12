@@ -658,7 +658,7 @@ libbalsa_message_body_get_content(LibBalsaMessageBody * body, gchar ** buf,
 	g_byte_array_append(array, &zero, 1);
         *buf = (gchar *) g_byte_array_free(array, FALSE);
     } else {
-        g_byte_array_free(array, TRUE);
+        g_byte_array_unref(array);
         g_set_error(err, LIBBALSA_MAILBOX_ERROR,
                     LIBBALSA_MAILBOX_ACCESS_ERROR,
                     "Write error in get_content");

@@ -4148,7 +4148,7 @@ empty_trash(BalsaWindow * window)
     libbalsa_mailbox_messages_change_flags(balsa_app.trash, messages,
                                            LIBBALSA_MESSAGE_FLAG_DELETED,
                                            0);
-    g_array_free(messages, TRUE);
+    g_array_unref(messages);
 
     /* We want to expunge deleted messages: */
     libbalsa_mailbox_close(balsa_app.trash, TRUE);

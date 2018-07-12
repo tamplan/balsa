@@ -292,7 +292,7 @@ balsa_print_object_text_plain(GList               *list,
         }
         g_list_free_full(attr_list, g_free);
         g_list_free(par_parts);
-        g_array_free(attr_offs, TRUE);
+        g_array_unref(attr_offs);
     }
 
     /* clean up */

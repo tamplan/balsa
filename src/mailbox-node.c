@@ -289,7 +289,7 @@ balsa_mailbox_node_real_save_config(BalsaMailboxNode *mn,
         libbalsa_conf_set_vector("Children", children_names->len,
                                  (const char *const *)(children_names->pdata));
         g_ptr_array_foreach(children_names, (GFunc)g_free, NULL);
-        g_ptr_array_free(children_names, TRUE);
+        g_ptr_array_unref(children_names);
     }
 
     g_free(mn->config_prefix);

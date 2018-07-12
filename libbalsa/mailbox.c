@@ -304,16 +304,14 @@ libbalsa_mailbox_dispose(GObject *object)
         g_signal_handlers_disconnect_by_func(mailbox,
                                              lbm_get_index_entry_expunged_cb,
                                              priv->msgnos_pending);
-        g_array_free(priv->msgnos_pending, TRUE);
-        priv->msgnos_pending = NULL;
+        g_clear_pointer(&priv->msgnos_pending, g_array_unref);
     }
 
     if (priv->msgnos_changed != NULL) {
         g_signal_handlers_disconnect_by_func(mailbox,
                                              lbm_msgno_changed_expunged_cb,
                                              priv->msgnos_changed);
-        g_array_free(priv->msgnos_changed, TRUE);
-        priv->msgnos_changed = NULL;
+        g_clear_pointer(&priv->msgnos_changed, g_array_unref);
     }
 
     libbalsa_clear_source_id(&priv->changed_idle_id);
@@ -581,8 +579,7 @@ libbalsa_mailbox_free_mindex(LibBalsaMailbox *mailbox)
 
     if (priv->mindex != NULL) {
         g_ptr_array_foreach(priv->mindex, (GFunc) lbm_index_entry_free, NULL);
-        g_ptr_array_free(priv->mindex, TRUE);
-        priv->mindex = NULL;
+        g_clear_pointer(&priv->mindex, g_ptr_array_unref);
     }
 }
 
@@ -984,7 +981,7 @@ lbm_run_filters_on_reception_idle_cb(LibBalsaMailbox *mailbox)
         libbalsa_mailbox_register_msgnos(mailbox, msgnos);
         libbalsa_filter_mailbox_messages(filter, mailbox, msgnos);
         libbalsa_mailbox_unregister_msgnos(mailbox, msgnos);
-        g_array_free(msgnos, TRUE);
+        g_array_unref(msgnos);
     }
     libbalsa_progress_set_text(&progress, NULL, 0);
 
@@ -2370,7 +2367,7 @@ libbalsa_mailbox_msgno_change_flags(LibBalsaMailbox    *mailbox,
         libbalsa_mailbox_messages_change_flags(mailbox, msgnos, set,
                                                clear);
     libbalsa_mailbox_unregister_msgnos(mailbox, msgnos);
-    g_array_free(msgnos, TRUE);
+    g_array_unref(msgnos);
 
     return retval;
 }
@@ -3938,8 +3935,8 @@ lbm_sort(LibBalsaMailbox *mbox,
     }
 
     if (sort_array->len <= 1) {
-        g_array_free(sort_array, TRUE);
-        g_ptr_array_free(node_array, TRUE);
+        g_array_unref(sort_array);
+        g_ptr_array_unref(node_array);
         lbm_sort(mbox, node);
         return;
     }
@@ -4002,8 +3999,8 @@ lbm_sort(LibBalsaMailbox *mbox,
         g_free(new_order);
     }
 
-    g_array_free(sort_array, TRUE);
-    g_ptr_array_free(node_array, TRUE);
+    g_array_unref(sort_array);
+    g_ptr_array_unref(node_array);
 
     for (tmp_node = node; tmp_node; tmp_node = tmp_node->next) {
         lbm_sort(mbox, tmp_node);
@@ -4588,8 +4585,8 @@ lbm_try_reassemble(LibBalsaMailbox *mailbox,
     }
 
     g_ptr_array_foreach(partials, (GFunc) g_object_unref, NULL);
-    g_ptr_array_free(partials, TRUE);
-    g_array_free(messages, TRUE);
+    g_ptr_array_unref(partials);
+    g_array_unref(messages);
 
     libbalsa_progress_set_text(&progress, NULL, 0);
 }
@@ -4892,7 +4889,8 @@ libbalsa_mailbox_move_duplicates(LibBalsaMailbox *mailbox,
         }
     }
     retval = msgnos->len;
-    g_array_free(msgnos, TRUE);
+    g_array_unref(msgnos);
+
     return retval;
 }
 

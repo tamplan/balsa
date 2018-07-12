@@ -642,7 +642,7 @@ mw_move_message(BalsaMessageWindow * mw, LibBalsaMailbox * mailbox)
         mw_set_selected(mw, balsa_index_select_next);
 
     balsa_index_transfer(mw->bindex, messages, mailbox, FALSE);
-    g_array_free(messages, TRUE);
+    g_array_unref(messages);
 
     if (mw->message == original)
         /* Either action-after-move was CLOSE, or we failed to select

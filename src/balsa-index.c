@@ -1575,7 +1575,7 @@ balsa_index_selected_msgnos_free(BalsaIndex *index,
 
     mailbox = balsa_index_get_mailbox(index);
     libbalsa_mailbox_unregister_msgnos(mailbox, msgnos);
-    g_array_free(msgnos, TRUE);
+    g_array_unref(msgnos);
 }
 
 
@@ -1839,7 +1839,7 @@ bndx_do_delete(BalsaIndex *index,
                 enable_empty_trash(balsa_app.main_window, TRASH_CHECK);
         }
     }
-    g_array_free(messages, TRUE);
+    g_array_unref(messages);
     balsa_index_selected_msgnos_free(index, selected);
 }
 
@@ -2680,9 +2680,10 @@ bndx_pipe_queue_last(struct BndxPipeQueue *queue)
         printf("Piping finished. Destroying the context.\n");
         libbalsa_mailbox_unregister_msgnos(queue->mailbox, queue->msgnos);
         libbalsa_mailbox_close(queue->mailbox, FALSE);
-        g_array_free(queue->msgnos, TRUE);
+        g_array_unref(queue->msgnos);
         g_free(queue->pipe_cmd);
         g_free(queue);
+
         return;
     }
 

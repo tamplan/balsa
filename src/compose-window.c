@@ -5838,7 +5838,7 @@ message_postpone(BalsaComposeWindow *compose_window)
                                              compose_window->flow, &error);
     }
     g_ptr_array_foreach(headers, (GFunc) g_free, NULL);
-    g_ptr_array_free(headers, TRUE);
+    g_ptr_array_unref(headers);
 
     if (successp) {
         sw_delete_draft(compose_window);

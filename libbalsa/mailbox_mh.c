@@ -506,7 +506,7 @@ lbm_mh_parse_sequences(LibBalsaMailboxMh *mailbox)
         line->len = 0;
     } while (!g_mime_stream_eos(gmime_stream_buffer));
     g_object_unref(gmime_stream_buffer);
-    g_byte_array_free(line, TRUE);
+    g_byte_array_unref(line);
 }
 
 
@@ -636,7 +636,7 @@ lbm_mh_check(LibBalsaMailboxMh *mh,
     } while (!g_mime_stream_eos(gmime_stream_buffer));
 
     g_object_unref(gmime_stream_buffer);
-    g_byte_array_free(line, TRUE);
+    g_byte_array_unref(line);
 
     return retval;
 }
@@ -760,8 +760,7 @@ libbalsa_mailbox_mh_close_mailbox(LibBalsaMailbox *mailbox,
         libbalsa_mailbox_changed(mailbox);
     }
 
-    g_hash_table_destroy(mh->messages_info);
-    mh->messages_info = NULL;
+    g_clear_pointer(&mh->messages_info, g_hash_table_destroy);
 
     if (LIBBALSA_MAILBOX_CLASS(libbalsa_mailbox_mh_parent_class)->close_mailbox) {
         LIBBALSA_MAILBOX_CLASS(libbalsa_mailbox_mh_parent_class)->close_mailbox(mailbox,
@@ -769,8 +768,7 @@ libbalsa_mailbox_mh_close_mailbox(LibBalsaMailbox *mailbox,
     }
 
     /* Now it's safe to free the message info. */
-    g_ptr_array_free(mh->msgno_2_msg_info, TRUE);
-    mh->msgno_2_msg_info = NULL;
+    g_clear_pointer(&mh->msgno_2_msg_info, g_ptr_array_unref);
 }
 
 
@@ -1003,7 +1001,7 @@ libbalsa_mailbox_mh_sync(LibBalsaMailbox *mailbox,
             }
         } while (!g_mime_stream_eos(gmime_stream_buffer));
         g_object_unref(gmime_stream_buffer);
-        g_byte_array_free(line, TRUE);
+        g_byte_array_unref(line);
     }
 
     /* write sequences */

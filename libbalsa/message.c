@@ -1367,7 +1367,7 @@ libbalsa_message_load_envelope_from_stream(LibBalsaMessage *message,
         line->len = 0;
         g_byte_array_append(line, &lookahead, 1);
     } while (TRUE);
-    g_byte_array_free(line, TRUE);
+    g_byte_array_unref(line);
 
     g_object_unref(gmime_stream_buffer);
     g_mime_stream_reset(gmime_stream);
@@ -1434,7 +1434,7 @@ libbalsa_message_copy(LibBalsaMessage *message,
         g_array_append_val(msgnos, message->msgno);
         retval =
             libbalsa_mailbox_messages_copy(mailbox, msgnos, dest, err);
-        g_array_free(msgnos, TRUE);
+        g_array_unref(msgnos);
     } else {
         GMimeStream *mime_stream = libbalsa_message_stream(message);
         retval = libbalsa_mailbox_add_message(dest, mime_stream,

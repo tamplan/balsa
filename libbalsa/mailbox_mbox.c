@@ -436,7 +436,7 @@ lbm_mbox_save(LibBalsaMailboxMbox *mbox)
                                  strerror(errno));
             g_free(template);
             g_free(filename);
-            g_array_free(messages_info, TRUE);
+            g_array_unref(messages_info);
             return;
         }
         if ((close(fd) != 0)
@@ -449,7 +449,7 @@ lbm_mbox_save(LibBalsaMailboxMbox *mbox)
         }
         g_free(template);
 #endif                          /* !defined(__APPLE__) */
-        g_array_free(messages_info, TRUE);
+        g_array_unref(messages_info);
     } else if (unlink(filename) < 0) {
         libbalsa_information(LIBBALSA_INFORMATION_WARNING,
                              _("Could not unlink file %s: %s"),
@@ -607,7 +607,7 @@ free_messages_info(GPtrArray *msgno_2_msg_info)
             g_ptr_array_index(msgno_2_msg_info, i);
         free_message_info(msg_info);
     }
-    g_ptr_array_free(msgno_2_msg_info, TRUE);
+    g_ptr_array_unref(msgno_2_msg_info);
 }
 
 
@@ -1028,7 +1028,7 @@ lbm_mbox_check(LibBalsaMailbox *mailbox,
         retval = lbm_mbox_check_file(mbox, &buffer, line);
     }
 
-    g_byte_array_free(line, TRUE);
+    g_byte_array_unref(line);
     mbox_unlock(mailbox, buffer.stream);
     g_object_unref(buffer.stream);
 

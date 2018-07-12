@@ -393,7 +393,6 @@ static void ident_dialog_add_gpg_menu(GtkWidget * grid, gint row,
                                       const gchar * menu_key);
 static void add_show_menu(const char *label, gpointer data,
                           GtkWidget * menu);
-static void ident_dialog_free_values(GPtrArray * values);
 
 static void display_frame_set_gpg_mode(GObject * dialog,
                                        const gchar * key,
@@ -1659,7 +1658,7 @@ ident_dialog_add_gpg_menu(GtkWidget * grid, gint row, GtkDialog * dialog,
     opt_menu = gtk_combo_box_text_new();
     values = g_ptr_array_sized_new(3);
     g_object_set_data_full(G_OBJECT(opt_menu), "identity-value", values,
-                           (GDestroyNotify) ident_dialog_free_values);
+                           (GDestroyNotify) g_ptr_array_unref);
     gtk_grid_attach(GTK_GRID(grid), opt_menu, 1, row, 1, 1);
     g_object_set_data(G_OBJECT(dialog), menu_key, opt_menu);
 
@@ -1682,13 +1681,6 @@ add_show_menu(const char *label, gpointer data, GtkWidget * menu)
     g_ptr_array_add(values, data);
 }
 
-/* ident_dialog_free_values: helper function */
-static void
-ident_dialog_free_values(GPtrArray * values)
-{
-    g_ptr_array_free(values, TRUE);
-}
-
 static void
 ident_dialog_add_smtp_menu(GtkWidget * grid, gint row, GtkDialog * dialog,
                            const gchar * label_name,
@@ -1707,7 +1699,7 @@ ident_dialog_add_smtp_menu(GtkWidget * grid, gint row, GtkDialog * dialog,
     gtk_label_set_mnemonic_widget(GTK_LABEL(label), combo_box);
     values = g_ptr_array_sized_new(g_slist_length(smtp_servers));
     g_object_set_data_full(G_OBJECT(combo_box), "identity-value", values,
-                           (GDestroyNotify) ident_dialog_free_values);
+                           (GDestroyNotify) g_ptr_array_unref);
     gtk_grid_attach(GTK_GRID(grid), combo_box, 1, row, 1, 1);
     g_object_set_data(G_OBJECT(dialog), menu_key, combo_box);
 

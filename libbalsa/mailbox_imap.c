@@ -317,7 +317,7 @@ libbalsa_mailbox_imap_finalize(GObject *object)
     g_assert(libbalsa_mailbox_get_open_ref(LIBBALSA_MAILBOX(mailbox)) == 0);
 
     g_free(mailbox->path);
-    g_array_free(mailbox->sort_ranks, TRUE);
+    g_array_unref(mailbox->sort_ranks);
     g_list_free_full(mailbox->acls, (GDestroyNotify) imap_user_acl_free);
 
     G_OBJECT_CLASS(libbalsa_mailbox_imap_parent_class)->finalize(object);
@@ -1241,10 +1241,8 @@ free_messages_info(LibBalsaMailboxImap *mbox)
             g_free(msgid);
         }
     }
-    g_array_free(mbox->messages_info, TRUE);
-    mbox->messages_info = NULL;
-    g_ptr_array_free(mbox->msgids, TRUE);
-    mbox->msgids = NULL;
+    g_clear_pointer(&mbox->messages_info, g_array_unref);
+    g_clear_pointer(&mbox->msgids, g_ptr_array_unref);
 }
 
 
@@ -3941,7 +3939,7 @@ static void
 imap_cache_manager_free(struct ImapCacheManager *icm)
 {
     g_hash_table_destroy(icm->headers);
-    g_array_free(icm->uidmap, TRUE);
+    g_array_unref(icm->uidmap);
     g_free(icm);
 }
 
@@ -4017,10 +4015,10 @@ icm_restore_from_cache(ImapMboxHandle          *h,
             rc = IMR_NO;
         }
         if (rc != IMR_OK) {
-            g_array_free(uidmap, TRUE);
+            g_array_unref(uidmap);
             return;
         }
-        g_array_free(icm->uidmap, TRUE);
+        g_array_unref(icm->uidmap);
         icm->uidmap = uidmap;
         /* printf("New uidmap has length: %u\n", icm->uidmap->len); */
     }
