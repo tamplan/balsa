@@ -180,9 +180,7 @@ libbalsa_vevent_finalize(LibBalsaVEvent * self)
 {
     g_return_if_fail(self != NULL);
 
-    if (self->organizer) {
-	g_object_unref(self->organizer);
-    }
+    g_clear_object(&self->organizer);
     g_list_free_full(self->attendee, g_object_unref);
     g_free(self->uid);
     g_free(self->summary);
@@ -354,23 +352,23 @@ libbalsa_vcal_new_from_body(LibBalsaMessageBody * body)
                 else if (!g_ascii_strcasecmp(entry[0], "DESCRIPTION"))
                     STR_REPL_2445_TXT(event->description, value);
                 else if (!g_ascii_strcasecmp(entry[0], "ORGANIZER")) {
-                    if (event->organizer)
-                        g_object_unref(event->organizer);
-                    event->organizer =
+                    LibBalsaAddress *organizer =
                         cal_address_2445_to_lbaddress(value, entry + 1, TRUE);
-                } else if (!g_ascii_strcasecmp(entry[0], "ATTENDEE"))
+                    g_set_object(&event->organizer, organizer);
+                    g_clear_object(&organizer);
+                } else if (!g_ascii_strcasecmp(entry[0], "ATTENDEE")) {
                     event->attendee =
                         g_list_prepend(event->attendee,
                                        cal_address_2445_to_lbaddress(value,
                                                                      entry + 1,
                                                                      FALSE));
+                }
             }
 	    g_strfreev(entry);
 	}
     }
     g_strfreev(lines);
-    if (event)
-	g_object_unref(event);
+    g_clear_object(&event);
 
     /* set the method */
     retval->method = vcal_str_to_method(method);

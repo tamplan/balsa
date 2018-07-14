@@ -179,15 +179,10 @@ msg_queue_item_new(SendMessageInfo *smi)
 static void
 msg_queue_item_destroy(MessageQueueItem *mqi)
 {
-    if (mqi->smtp_msg != NULL) {
-        net_client_smtp_msg_free(mqi->smtp_msg);
-    }
-    if (mqi->stream != NULL) {
-        g_object_unref(G_OBJECT(mqi->stream));
-    }
-    if (mqi->orig != NULL) {
-        g_object_unref(G_OBJECT(mqi->orig));
-    }
+    g_clear_pointer(&mqi->smtp_msg, net_client_smtp_msg_free);
+    g_clear_object(&mqi->stream);
+    g_clear_object(&mqi->orig);
+
     g_free(mqi);
 }
 
@@ -213,12 +208,8 @@ send_message_info_new(LibBalsaSmtpServer   *smtp_server,
 static void
 send_message_info_destroy(SendMessageInfo *smi)
 {
-    if (smi->outbox != NULL) {
-        g_object_unref(G_OBJECT(smi->outbox));
-    }
-    if (smi->session != NULL) {
-        g_object_unref(G_OBJECT(smi->session));
-    }
+    g_clear_object(&smi->outbox);
+    g_clear_object(&smi->session);
     g_list_free_full(smi->items, (GDestroyNotify) msg_queue_item_destroy);
     g_free(smi->progress_id);
     g_object_unref(smi->smtp_server);
@@ -336,7 +327,7 @@ add_mime_body_plain(LibBalsaMessageBody * body, gboolean flow, gboolean postpone
         filter_stream = g_mime_stream_filter_new(stream);
         filter = g_mime_filter_charset_new("UTF-8", charset);
         g_mime_stream_filter_add(GMIME_STREAM_FILTER(filter_stream), filter);
-        g_object_unref(G_OBJECT(filter));
+        g_object_unref(filter);
 
         g_mime_stream_write(filter_stream, body->buffer, strlen(body->buffer));
         g_object_unref(filter_stream);
@@ -347,7 +338,7 @@ add_mime_body_plain(LibBalsaMessageBody * body, gboolean flow, gboolean postpone
         g_object_unref(stream);
 
         g_mime_part_set_content_object(mime_part, wrapper);
-        g_object_unref(G_OBJECT(wrapper));
+        g_object_unref(wrapper);
     } else {
         lbs_set_content(mime_part, body->buffer);
     }
@@ -361,7 +352,7 @@ add_mime_body_plain(LibBalsaMessageBody * body, gboolean flow, gboolean postpone
                                            parent, error);
 
         if (*crypt_res != LIBBALSA_MESSAGE_CREATE_OK) {
-            g_object_unref(G_OBJECT(mime_part));
+            g_object_unref(mime_part);
             return NULL;
         }
     }
@@ -372,11 +363,11 @@ add_mime_body_plain(LibBalsaMessageBody * body, gboolean flow, gboolean postpone
         GMimeMultipart *mpa = g_mime_multipart_new_with_subtype("alternative");
 
         g_mime_multipart_add(mpa, GMIME_OBJECT(mime_part));
-        g_object_unref(G_OBJECT(mime_part));
+        g_object_unref(mime_part);
 
         mime_part = g_mime_part_new_with_type("text", "html");
         g_mime_multipart_add(mpa, GMIME_OBJECT(mime_part));
-        g_object_unref(G_OBJECT(mime_part));
+        g_object_unref(mime_part);
         g_mime_object_set_disposition(GMIME_OBJECT(mime_part), GMIME_DISPOSITION_INLINE);
         g_mime_part_set_content_encoding(mime_part, GMIME_CONTENT_ENCODING_QUOTEDPRINTABLE);
         g_mime_object_set_content_type_parameter(GMIME_OBJECT(mime_part),
@@ -392,7 +383,7 @@ add_mime_body_plain(LibBalsaMessageBody * body, gboolean flow, gboolean postpone
                                                parent, error);
 
             if (*crypt_res != LIBBALSA_MESSAGE_CREATE_OK) {
-                g_object_unref(G_OBJECT(mpa));
+                g_object_unref(mpa);
                 return NULL;
             }
         }
@@ -660,9 +651,7 @@ lbs_check_reachable_cb(GObject  *object,
 	}
 
 	g_object_unref(send_info->outbox);
-	if (send_info->parent != NULL) {
-		g_object_unref(send_info->parent);
-	}
+        g_clear_object(&send_info->parent);
 	g_free(send_info);
 }
 
@@ -1364,7 +1353,7 @@ libbalsa_message_create_mime_message(LibBalsaMessage *message,
                         g_clear_error(&err);
                         g_free(msg);
                     }
-                    g_object_unref(G_OBJECT(mime_part));
+                    g_object_unref(mime_part);
                     return LIBBALSA_MESSAGE_CREATE_ERROR;
                 }
                 content = g_mime_data_wrapper_new_with_stream(stream,
@@ -1393,9 +1382,7 @@ libbalsa_message_create_mime_message(LibBalsaMessage *message,
             mime_part = add_mime_body_plain(body, flow, postponing, use_gpg_mode,
                                             &crypt_res, error);
             if (!mime_part) {
-                if (mime_root != NULL) {
-                    g_object_unref(G_OBJECT(mime_root));
-                }
+                g_clear_object(&mime_root);
                 return crypt_res;
             }
 #else
@@ -1406,7 +1393,7 @@ libbalsa_message_create_mime_message(LibBalsaMessage *message,
         if (mime_root != NULL) {
             g_mime_multipart_add(GMIME_MULTIPART(mime_root),
                                  GMIME_OBJECT(mime_part));
-            g_object_unref(G_OBJECT(mime_part));
+            g_object_unref(mime_part);
         } else {
             mime_root = mime_part;
         }
@@ -1420,14 +1407,12 @@ libbalsa_message_create_mime_message(LibBalsaMessage *message,
 
     	pubkey_part = lb_create_pubkey_part(message, parent, error);
     	if (pubkey_part == NULL) {
-            if (mime_root != NULL) {
-                g_object_unref(G_OBJECT(mime_root));
-            }
+            g_clear_object(&mime_root);
             return LIBBALSA_MESSAGE_CREATE_ERROR;
     	}
         if (mime_root != NULL) {
             g_mime_multipart_add(GMIME_MULTIPART(mime_root), GMIME_OBJECT(pubkey_part));
-            g_object_unref(G_OBJECT(pubkey_part));
+            g_object_unref(pubkey_part);
         } else {
             mime_root = GMIME_OBJECT(pubkey_part);
         }
@@ -1456,7 +1441,7 @@ libbalsa_message_create_mime_message(LibBalsaMessage *message,
             param = param->next;
         }
         g_mime_message_set_mime_part(mime_message, mime_root);
-        g_object_unref(G_OBJECT(mime_root));
+        g_object_unref(mime_root);
     }
     message_add_references(message, mime_message);
 
@@ -1701,19 +1686,19 @@ libbalsa_fill_msg_queue_item_from_queu(LibBalsaMessage  *message,
         /* filter out unwanted headers */
         filter = g_mime_filter_header_new();
         g_mime_stream_filter_add(GMIME_STREAM_FILTER(filter_stream), filter);
-        g_object_unref(G_OBJECT(filter));
+        g_object_unref(filter);
 
         /* add CRLF, encode dot */
         filter = g_mime_filter_crlf_new(TRUE, TRUE);
         g_mime_stream_filter_add(GMIME_STREAM_FILTER(filter_stream), filter);
-        g_object_unref(G_OBJECT(filter));
+        g_object_unref(filter);
 
         /* write to a new stream */
         mqi->stream = g_mime_stream_mem_new();
         g_mime_stream_write_to_stream(filter_stream, mqi->stream);
-        g_object_unref(G_OBJECT(filter_stream));
+        g_object_unref(filter_stream);
         g_mime_stream_reset(mqi->stream);
-        g_object_unref(G_OBJECT(msg_stream));
+        g_object_unref(msg_stream);
 
         g_object_ref(G_OBJECT(mqi->orig));
         result = LIBBALSA_MESSAGE_CREATE_OK;

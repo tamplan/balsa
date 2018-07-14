@@ -773,9 +773,7 @@ tm_popup_context_menu_cb(GtkWidget    *toolbar,
                                  GDK_GRAVITY_SOUTH,
                                  NULL);
     }
-
-    if (event != NULL)
-        g_object_unref(event);
+    g_clear_object(&event);
 
     return TRUE;
 }

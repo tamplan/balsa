@@ -189,7 +189,7 @@ lbe_load_cb(const gchar *email, const gchar *name, void *data)
     libbalsa_address_add_addr(address, email);
     libbalsa_address_set_full_name(address, name != NULL ? name : _("No-Name"));
     d->callback(d->ab, address, d->closure);
-    g_object_unref(G_OBJECT(address));
+    g_object_unref(address);
 }
 
 static LibBalsaABErr

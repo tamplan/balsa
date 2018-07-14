@@ -245,7 +245,7 @@ balsa_print_object_decor_draw(BalsaPrintObject *self,
             cairo_move_to(cairo_ctx, balsa_print_object_get_c_at_x(self) + 1.5 * C_LABEL_SEP,
                           c_y_hor_line - 0.5 * P_TO_C(p_label_height));
             pango_cairo_show_layout(cairo_ctx, layout);
-            g_object_unref(G_OBJECT(layout));
+            g_object_unref(layout);
             cairo_move_to(cairo_ctx, balsa_print_object_get_c_at_x(
                               self) + 2.0 * C_LABEL_SEP + P_TO_C(p_label_width),
                           c_y_hor_line);

@@ -151,7 +151,7 @@ libbalsa_vfs_new_from_uri(const gchar * uri)
         return NULL;
 
     if (!(retval->priv = g_new0(struct _LibbalsaVfsPriv, 1))) {
-        g_object_unref(G_OBJECT(retval));
+        g_object_unref(retval);
         return NULL;
     }
     retval->priv->text_attr = (LibBalsaTextAttribute) -1;
@@ -620,7 +620,7 @@ libbalsa_vfs_launch_app_for_body(LibBalsaMessageBody * mime_body,
     uri = g_filename_to_uri(mime_body->temp_filename, NULL, NULL);
     file = libbalsa_vfs_new_from_uri(uri);
     g_free(uri);
-    result = libbalsa_vfs_launch_app(file,object , err);
+    result = libbalsa_vfs_launch_app(file, object, err);
     g_object_unref(file);
 
     return result;
@@ -662,10 +662,9 @@ gio_add_vfs_menu_item(GtkMenu * menu, GAppInfo *app, GCallback callback,
         g_strdup_printf(_("Open with %s"), g_app_info_get_name(app));
     GtkWidget *menu_item = gtk_menu_item_new_with_label (menu_label);
     
-    g_object_ref(G_OBJECT(app));
     g_object_set_data_full(G_OBJECT(menu_item), LIBBALSA_VFS_MIME_ACTION,
-			   app, g_object_unref);
-    g_signal_connect(G_OBJECT (menu_item), "activate", callback, data);
+			   g_object_ref(app), g_object_unref);
+    g_signal_connect(menu_item, "activate", callback, data);
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
     g_free(menu_label);
 }
@@ -694,12 +693,8 @@ libbalsa_vfs_fill_menu_by_content_type(GtkMenu * menu,
             (!def_app || !g_app_info_equal(app, def_app)))
             gio_add_vfs_menu_item(menu, app, callback, data);
     }
-    if (def_app)
-        g_object_unref(def_app);
-    if (app_list) {
-        g_list_foreach(app_list, (GFunc) g_object_unref, NULL);
-        g_list_free(app_list);
-    }
+    g_clear_object(&def_app);
+    g_list_free_full(app_list, g_object_unref);
 }
 
 GtkWidget *

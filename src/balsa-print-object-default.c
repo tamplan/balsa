@@ -239,7 +239,7 @@ balsa_print_object_default_draw(BalsaPrintObject *self,
                   balsa_print_object_get_c_at_y(self) + (c_max_height -
                                                          pod->c_text_height) * 0.5);
     pango_cairo_show_layout(cairo_ctx, layout);
-    g_object_unref(G_OBJECT(layout));
+    g_object_unref(layout);
 }
 
 
@@ -601,7 +601,7 @@ balsa_print_object_calendar(GList               *list,
         list = g_list_append(list, new_pod);
     }
     g_list_free(par_parts);
-    g_object_unref(G_OBJECT(test_layout));
+    g_object_unref(test_layout);
 
     return list;
 }

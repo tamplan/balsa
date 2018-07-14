@@ -468,7 +468,7 @@ net_client_set_cert_from_file(NetClient *client, const gchar *pem_path, GError *
 		result = net_client_set_cert_from_pem(client, pem_buf, error);
 		g_free(pem_buf);
 	}
-	g_object_unref(G_OBJECT(pem_file));
+	g_object_unref(pem_file);
 	return result;
 }
 
@@ -495,7 +495,7 @@ net_client_start_tls(NetClient *client, GError **error)
 			result = g_tls_connection_handshake(G_TLS_CONNECTION(priv->tls_conn), NULL, error);
 			if (result) {
 				g_filter_input_stream_set_close_base_stream(G_FILTER_INPUT_STREAM(priv->istream), FALSE);
-				g_object_unref(G_OBJECT(priv->istream));		/* unref the plain connection's stream */
+				g_object_unref(priv->istream);		/* unref the plain connection's stream */
 				priv->istream = g_data_input_stream_new(g_io_stream_get_input_stream(G_IO_STREAM(priv->tls_conn)));
 				g_data_input_stream_set_newline_type(priv->istream, G_DATA_STREAM_NEWLINE_TYPE_CR_LF);
 				priv->ostream = g_io_stream_get_output_stream(G_IO_STREAM(priv->tls_conn));

@@ -108,8 +108,7 @@ folder_conf_response(GtkDialog * dialog, int response,
                               err->message);
             g_error_free(err);
         }
-	if (cdd->mbnode)
-	    g_object_unref(cdd->mbnode);
+	g_clear_object(&cdd->mbnode);
         return;
     case GTK_RESPONSE_OK:
         if(!cdd->ok(cdd))
@@ -572,8 +571,7 @@ folder_selection_func(GtkTreeSelection * selection, GtkTreeModel * model,
 static void
 browse_button_data_free(BrowseButtonData *bbd)
 {
-    if (bbd->mbnode)
-	g_object_unref(bbd->mbnode);
+    g_clear_object(&bbd->mbnode);
     g_free(bbd);
 }
 

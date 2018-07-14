@@ -1165,9 +1165,8 @@ main(int argc, char *argv[])
     gtk_main();
 
     /* Proper shutdown here */
-    for (l = contacts_app.address_book_list; l; l = l->next)
-        if (l->data)
-            g_object_unref(l->data);
+    for (l = contacts_app.address_book_list; l != NULL; l = l->next)
+        g_clear_object(&l->data);
     g_list_free(contacts_app.address_book_list);
 
     return 0;

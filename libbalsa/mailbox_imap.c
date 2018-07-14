@@ -948,7 +948,7 @@ imap_exists_idle(gpointer data)
     }
 
     libbalsa_unlock_mailbox(mailbox);
-    g_object_unref(G_OBJECT(mailbox));
+    g_object_unref(mailbox);
 
     return FALSE;
 }
@@ -994,9 +994,7 @@ imap_expunge_cb(ImapMboxHandle      *handle,
 
     msg_info = message_info_from_msgno(mimap, seqno);
     if (msg_info) {
-        if (msg_info->message) {
-            g_object_unref(msg_info->message);
-        }
+        g_clear_object(&msg_info->message);
         g_array_remove_index(mimap->messages_info, seqno - 1);
     }
 

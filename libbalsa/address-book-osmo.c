@@ -337,14 +337,14 @@ osmo_read_addresses(LibBalsaAddressBookOsmo *osmo,
 					if (libbalsa_address_get_addr(this_addr) != NULL) {
 						addresses = g_list_prepend(addresses, this_addr);
 					} else {
-						g_object_unref(G_OBJECT(this_addr));
+						g_object_unref(this_addr);
 					}
 				}
 			} while (!eos && (*error == NULL));
 
 			/* clean up */
-			g_object_unref(G_OBJECT(data));
-			g_object_unref(G_OBJECT(stream));
+			g_object_unref(data);
+			g_object_unref(stream);
 			g_free(vcards);
 			g_variant_unref(reply);
 

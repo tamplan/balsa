@@ -878,15 +878,17 @@ void
 libbalsa_message_set_dispnotify(LibBalsaMessage *message,
                                 InternetAddress *ia)
 {
-    g_return_if_fail(message);
+    InternetAddressList *list = NULL;
 
-    g_object_unref(message->headers->dispnotify_to);
-    if (ia) {
-        message->headers->dispnotify_to = internet_address_list_new ();
-        internet_address_list_add (message->headers->dispnotify_to, ia);
-    } else {
-        message->headers->dispnotify_to = NULL;
+    g_return_if_fail(message != NULL);
+
+    if (ia != NULL) {
+        list = internet_address_list_new();
+        internet_address_list_add(list, ia);
     }
+
+    g_set_object(&message->headers->dispnotify_to, list);
+    g_clear_object(&list);
 }
 
 

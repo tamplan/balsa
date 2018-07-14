@@ -504,10 +504,8 @@ balsa_attach_info_finalize(GObject *object)
     }
 
     /* clean up memory */
-    if (info->popup_menu)
-        gtk_widget_destroy(info->popup_menu);
-    if (info->file_uri)
-        g_object_unref(G_OBJECT(info->file_uri));
+    g_clear_pointer(&info->popup_menu, gtk_widget_destroy);
+    g_clear_object(&info->file_uri);
     g_free(info->force_mime_type);
     g_free(info->charset);
     libbalsa_message_headers_destroy(info->headers);
@@ -1526,6 +1524,7 @@ remove_attachment(GtkWidget       *menu_item,
     GtkTreeModel *model;
     GtkTreeSelection *selection;
     BalsaAttachInfo *test_info;
+    gboolean is_info;
 
     g_return_if_fail(info->bm != NULL);
 
@@ -1536,12 +1535,10 @@ remove_attachment(GtkWidget       *menu_item,
 
     /* make sure we got the right element */
     gtk_tree_model_get(model, &iter, ATTACH_INFO_COLUMN, &test_info, -1);
-    if (test_info != info) {
-        if (test_info)
-            g_object_unref(test_info);
+    is_info = test_info == info;
+    g_clear_object(&test_info);
+    if (!is_info)
         return;
-    }
-    g_object_unref(test_info);
 
     /* remove the attachment */
     gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
@@ -1572,6 +1569,7 @@ change_attach_mode(GtkWidget       *menu_item,
     GtkTreeModel *model;
     GtkTreeSelection *selection;
     BalsaAttachInfo *test_info;
+    gboolean is_info;
 
     g_return_if_fail(info->bm != NULL);
 
@@ -1582,12 +1580,10 @@ change_attach_mode(GtkWidget       *menu_item,
 
     /* make sure we got the right element */
     gtk_tree_model_get(model, &iter, ATTACH_INFO_COLUMN, &test_info, -1);
-    if (test_info != info) {
-        if (test_info)
-            g_object_unref(test_info);
+    is_info = test_info == info;
+    g_clear_object(&test_info);
+    if (!is_info)
         return;
-    }
-    g_object_unref(test_info);
 
     /* verify that the user *really* wants to attach as reference */
     if ((info->mode != new_mode) && (new_mode == LIBBALSA_ATTACH_AS_EXTBODY)) {

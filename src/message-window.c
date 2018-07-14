@@ -956,6 +956,5 @@ message_window_new(LibBalsaMailbox * mailbox, guint msgno)
     gtk_widget_show(window);
 
     mw_set_message(mw, message);
-    if (message != NULL)
-        g_object_unref(message);
+    g_clear_object(&message);
 }

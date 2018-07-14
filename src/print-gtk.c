@@ -91,7 +91,7 @@ print_header_footer(GtkPrintContext * context, cairo_t * cairo_ctx,
     g_free(pagebuf);
     cairo_move_to(cairo_ctx, pdata->setup.c_x0, pdata->c_header_y);
     pango_cairo_show_layout(cairo_ctx, layout);
-    g_object_unref(G_OBJECT(layout));
+    g_object_unref(layout);
 
     /* footer (if available) */
     if (pdata->footer) {
@@ -106,7 +106,7 @@ print_header_footer(GtkPrintContext * context, cairo_t * cairo_ctx,
 	pango_layout_set_text(layout, pdata->footer, -1);
 	cairo_move_to(cairo_ctx, pdata->setup.c_x0, pdata->c_footer_y);
 	pango_cairo_show_layout(cairo_ctx, layout);
-	g_object_unref(G_OBJECT(layout));
+	g_object_unref(layout);
     }
 }
 
@@ -322,7 +322,7 @@ begin_print(GtkPrintOperation * operation, GtkPrintContext * context,
 	/* remember in the context */
 	pdata->footer = g_string_free(footer_string, FALSE);
     }
-    g_object_unref(G_OBJECT(layout));
+    g_object_unref(layout);
 
     /* add the message headers */
     pdata->setup.c_y_pos = 0.0;	/* to simplify calculating the layout... */
@@ -743,11 +743,10 @@ message_print(LibBalsaMessage * msg, GtkWindow * parent)
 			  _("Error printing message: %s"), err->message);
 
     /* clean up */
-    if (err)
-	g_error_free(err);
+    g_clear_error(&err);
     g_list_free_full(print_data->print_parts, g_object_unref);
     g_free(print_data->footer);
     g_free(print_data);
-    g_object_unref(G_OBJECT(print));
-    g_object_unref(G_OBJECT(msg));
+    g_object_unref(print);
+    g_object_unref(msg);
 }

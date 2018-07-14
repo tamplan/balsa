@@ -150,8 +150,7 @@ lbab_text_item_new(void)
 static void
 lbab_text_item_free(LibBalsaAddressBookTextItem * item)
 {
-    if (item->address)
-        g_object_unref(item->address);
+    g_clear_object(&item->address);
     g_free(item);
 }
 

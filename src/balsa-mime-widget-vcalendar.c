@@ -348,7 +348,6 @@ vevent_reply(GObject * button, GtkWidget * box)
 	libbalsa_information(LIBBALSA_INFORMATION_ERROR,
 			     _("Sending the iTIP calendar reply failed: %s"),
 			     error ? error->message : "?");
-    if (error)
-	g_error_free(error);
-    g_object_unref(G_OBJECT(message));
+    g_clear_error(&error);
+    g_object_unref(message);
 }

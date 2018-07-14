@@ -261,7 +261,7 @@ lb_gpgme_select_key(const gchar * user_name, lb_key_sel_md_t mode, GList * keys,
     	keys = keys->next;
     }
 
-    g_object_unref(G_OBJECT(model));
+    g_object_unref(model);
 
 	renderer = gtk_cell_renderer_text_new();
 	column =

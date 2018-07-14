@@ -220,8 +220,9 @@ libbalsa_sign_mime_object(GMimeObject ** content, const gchar * rfc822_for,
 	return FALSE;
     }
 
-    g_object_unref(G_OBJECT(*content));
-    *content = GMIME_OBJECT(mps);
+    g_set_object(content, GMIME_OBJECT(mps));
+    g_object_unref(mps);
+
     return TRUE;
 }
 
@@ -271,12 +272,10 @@ libbalsa_encrypt_mime_object(GMimeObject ** content, GList * rfc822_for,
     g_ptr_array_unref(recipients);
 
     /* error checking */
-    if (!result) {
-	g_object_unref(encrypted_obj);
-    } else {
-    g_object_unref(G_OBJECT(*content));
-    *content = GMIME_OBJECT(encrypted_obj);
-    }
+    if (result)
+        g_set_object(content, encrypted_obj);
+    g_object_unref(encrypted_obj);
+
     return result;
 }
 
@@ -357,8 +356,8 @@ libbalsa_body_check_signature(LibBalsaMessageBody * body,
         || (g_mime_multipart_get_count
             (GMIME_MULTIPART(body->mime_part)) < 2))
         return FALSE;
-    if (body->parts->next->sig_info)
-	g_object_unref(G_OBJECT(body->parts->next->sig_info));
+
+    g_clear_object(&body->parts->next->sig_info);
 
     /* verify the signature */
     libbalsa_mailbox_lock_store(libbalsa_message_get_mailbox(body->message));
@@ -465,7 +464,7 @@ libbalsa_body_decrypt(LibBalsaMessageBody *body, gpgme_protocol_t protocol, GtkW
 	if (status != GPG_ERR_NOT_SIGNED)
 	    body->sig_info = sig_state;
 	else
-	    g_object_unref(G_OBJECT(sig_state));
+	    g_object_unref(sig_state);
     }
 
     return body;
@@ -549,9 +548,7 @@ libbalsa_rfc2440_verify(GMimePart * part, GMimeGpgmeSigstat ** sig_info)
     if (sig_info != NULL) {
         g_set_object(sig_info, result);
     }
-    if (result != NULL) {
-        g_object_unref(result);
-    }
+    g_clear_object(&result);
 
     return retval;
 }
@@ -608,9 +605,8 @@ libbalsa_rfc2440_decrypt(GMimePart * part, GMimeGpgmeSigstat ** sig_info,
 
 	/* return the signature info if requested */
 	if (sig_info && status != GPG_ERR_NOT_SIGNED)
-	    *sig_info = result;
-	else
-	    g_object_unref(G_OBJECT(result));
+	    g_set_object(sig_info, result);
+        g_object_unref(result);
     }
 
     return retval;

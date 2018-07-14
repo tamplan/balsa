@@ -1132,9 +1132,9 @@ balsa_gtk_html_popup(GtkWidget * html, BalsaMessage * bm)
      * GdkEvent is no longer current; instead it is preserved and passed
      * to us: */
     event = g_object_get_data(G_OBJECT(html), LIBBALSA_HTML_POPUP_EVENT);
-    if (!event)
+    if (event == NULL)
         event = current_event = gtk_get_current_event();
-    if (event)
+    if (event != NULL)
         gtk_menu_popup_at_pointer(GTK_MENU(menu),
                                   (GdkEvent *) event);
     else
@@ -1142,8 +1142,7 @@ balsa_gtk_html_popup(GtkWidget * html, BalsaMessage * bm)
                                  GTK_WIDGET(bm),
                                  GDK_GRAVITY_CENTER, GDK_GRAVITY_CENTER,
                                  NULL);
-    if (current_event)
-        g_object_unref(current_event);
+    g_clear_object(&current_event);
 
     return TRUE;
 }

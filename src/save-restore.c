@@ -565,6 +565,7 @@ config_global_load(void)
     gboolean def_used;
     guint filter_mask;
     static gboolean new_user = FALSE;
+    GtkPageSetup *page_setup;
 
     config_address_books_load();
 
@@ -825,9 +826,10 @@ config_global_load(void)
     libbalsa_conf_push_group("Printing");
 
     /* ... Printing */
-    if (balsa_app.page_setup)
-	g_object_unref(G_OBJECT(balsa_app.page_setup));
-    balsa_app.page_setup = restore_gtk_page_setup();
+    page_setup = restore_gtk_page_setup();
+    g_set_object(&balsa_app.page_setup, page_setup);
+    g_clear_object(&page_setup);
+
     balsa_app.margin_left = libbalsa_conf_get_double("LeftMargin");
     balsa_app.margin_top = libbalsa_conf_get_double("TopMargin");
     balsa_app.margin_right = libbalsa_conf_get_double("RightMargin");
