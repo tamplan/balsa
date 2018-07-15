@@ -58,8 +58,8 @@ static LibBalsaAddress *cal_address_2445_to_lbaddress(const gchar * uri,
 						      is_organizer);
 
 /* conversion helpers */
-static gint64 date_time_2445_to_gint64(const gchar *date_time, const gchar *modifier, gboolean *date_only);
-static gchar *gint64_to_date_time_2445(gint64 ttime);
+static gint64 date_time_2445_to_unix(const gchar *date_time, const gchar *modifier, gboolean *date_only);
+static gchar *unix_to_date_time_2445(gint64 unix_time);
 static gchar *text_2445_unescape(const gchar * text);
 static gchar *text_2445_escape(const gchar * text);
 static const gchar *vcal_role_to_str(LibBalsaVCalRole role);
@@ -338,11 +338,11 @@ libbalsa_vcal_new_from_body(LibBalsaMessageBody * body)
                 in_embedded = TRUE;
             else if (!in_embedded) {
                 if (!g_ascii_strcasecmp(entry[0], "DTSTART"))
-                    event->start = date_time_2445_to_gint64(value, entry[1], &event->start_date_only);
+                    event->start = date_time_2445_to_unix(value, entry[1], &event->start_date_only);
                 else if (!g_ascii_strcasecmp(entry[0], "DTEND"))
-                    event->end = date_time_2445_to_gint64(value, entry[1], &event->end_date_only);
+                    event->end = date_time_2445_to_unix(value, entry[1], &event->end_date_only);
                 else if (!g_ascii_strcasecmp(entry[0], "DTSTAMP"))
-                    event->stamp = date_time_2445_to_gint64(value, entry[1], NULL);
+                    event->stamp = date_time_2445_to_unix(value, entry[1], NULL);
                 else if (!g_ascii_strcasecmp(entry[0], "UID"))
                     STR_REPL_2445_TXT(event->uid, value);
                 else if (!g_ascii_strcasecmp(entry[0], "SUMMARY"))
@@ -443,7 +443,7 @@ libbalsa_vevent_reply(const LibBalsaVEvent * event, const gchar * sender,
     retval = g_string_new("BEGIN:VCALENDAR\nVERSION:2.0\n"
 			  "PRODID:-//GNOME//Balsa " BALSA_VERSION "//EN\n"
 			  "METHOD:REPLY\nBEGIN:VEVENT\n");
-    buf = gint64_to_date_time_2445(g_get_real_time());
+    buf = unix_to_date_time_2445(g_get_real_time() / G_USEC_PER_SEC);
     g_string_append_printf(retval, "DTSTAMP:%s\n", buf);
     g_free(buf);
     g_string_append_printf(retval, "ATTENDEE;PARTSTAT=%s:mailto:%s\n",
@@ -467,12 +467,12 @@ libbalsa_vevent_reply(const LibBalsaVEvent * event, const gchar * sender,
 	g_free(buf);
     }
     if (event->start != (gint64) - 1) {
-	buf = gint64_to_date_time_2445(event->start);
+	buf = unix_to_date_time_2445(event->start);
 	g_string_append_printf(retval, "DTSTART:%s\n", buf);
 	g_free(buf);
     }
     if (event->end != (gint64) - 1) {
-	buf = gint64_to_date_time_2445(event->end);
+	buf = unix_to_date_time_2445(event->end);
 	g_string_append_printf(retval, "DTEND:%s\n", buf);
 	g_free(buf);
     }
@@ -500,12 +500,14 @@ libbalsa_vevent_reply(const LibBalsaVEvent * event, const gchar * sender,
 /* convert a rfc 2445 time string into a gint64 value */
 // FIXME - what about entries containing a TZID?
 static gint64
-date_time_2445_to_gint64(const gchar *date_time_2445, const gchar *modifier, gboolean *date_only)
+date_time_2445_to_unix(const gchar *date_time_2445,
+                       const gchar *modifier,
+                       gboolean *date_only)
 {
     gint len;
-    gint64 the_time = (gint64) (-1);
     GTimeZone *tz;
     GDateTime *date_time = NULL;
+    gint64 the_time = (gint64) (-1);
 
     g_return_val_if_fail(date_time_2445 != NULL, (gint64) (-1));
     len = strlen(date_time_2445);
@@ -530,7 +532,7 @@ date_time_2445_to_gint64(const gchar *date_time_2445, const gchar *modifier, gbo
         if (strptime(date_time_2445, "%Y%m%d", &tm) != NULL) {
             date_time =
                 g_date_time_new(tz, tm.tm_year, tm.tm_mon, tm.tm_mday,
-                                0, 0, 0.0);
+                                12, 0, 0.0);
 
             if (date_time != NULL && date_only != NULL) {
                 *date_only = TRUE;
@@ -550,12 +552,12 @@ date_time_2445_to_gint64(const gchar *date_time_2445, const gchar *modifier, gbo
 
 
 static gchar *
-gint64_to_date_time_2445(gint64 ttime)
+unix_to_date_time_2445(gint64 unix_time)
 {
 	gchar *retval = NULL;
 	GDateTime *date_time;
 
-	date_time = g_date_time_new_from_unix_utc(ttime / G_USEC_PER_SEC);
+	date_time = g_date_time_new_from_unix_utc(unix_time);
 	if (date_time != NULL) {
 		retval = g_date_time_format(date_time, "%Y%m%dT%H%M%SZ");
 		g_date_time_unref(date_time);
