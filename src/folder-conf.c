@@ -136,7 +136,7 @@ folder_conf_response(GtkDialog * dialog, int response,
 static void 
 validate_folder(GtkWidget *w, FolderDialogData * fcw)
 {
-    CommonDialogData *cdd = &fcw->cdd;
+    CommonDialogData *cdd = (CommonDialogData *) fcw;
     gboolean sensitive = TRUE;
 
     if (!*gtk_entry_get_text(GTK_ENTRY(fcw->folder_name))) {
@@ -191,7 +191,7 @@ security_cb(GtkComboBox *combo, FolderDialogData *fcw)
 static gboolean
 folder_conf_clicked_ok(FolderDialogData * fcw)
 {
-    CommonDialogData *cdd = &fcw->cdd;
+    CommonDialogData *cdd = (CommonDialogData *) fcw;
     gboolean insert;
     LibBalsaServer *s;
     const gchar *username;
@@ -307,7 +307,7 @@ folder_conf_imap_node(BalsaMailboxNode *mn)
     s = mn ? balsa_mailbox_node_get_server(mn) : NULL;
 
     fcw = g_new(FolderDialogData, 1);
-    cdd = &fcw->cdd;
+    cdd = (CommonDialogData *) fcw;
     cdd->ok = (CommonDialogFunc) folder_conf_clicked_ok;
     cdd->mbnode = mn;
     cdd->dialog = gtk_dialog_new_with_buttons
@@ -424,12 +424,12 @@ folder_conf_imap_node(BalsaMailboxNode *mn)
     fcw->anonymous =
         libbalsa_create_grid_check(_("_Anonymous access"), grid, r++,
                                    s ? libbalsa_server_get_try_anonymous(s) : FALSE);
-    g_signal_connect(G_OBJECT(fcw->anonymous), "toggled",
+    g_signal_connect(fcw->anonymous, "toggled",
                      G_CALLBACK(anonymous_cb), fcw);
     fcw->remember =
         libbalsa_create_grid_check(_(remember_password_message), grid, r++,
                                    s ? libbalsa_server_get_remember_passwd(s) : TRUE);
-    g_signal_connect(G_OBJECT(fcw->remember), "toggled",
+    g_signal_connect(fcw->remember, "toggled",
                      G_CALLBACK(remember_cb), fcw);
 
     fcw->subscribed =
@@ -467,7 +467,7 @@ folder_conf_imap_node(BalsaMailboxNode *mn)
 static void
 validate_sub_folder(GtkWidget * w, SubfolderDialogData * sdd)
 {
-    CommonDialogData *cdd = &sdd->cdd;
+    CommonDialogData *cdd = (CommonDialogData *) sdd;
     BalsaMailboxNode *mn = sdd->parent;
     /*
      * Allow typing in the parent_folder entry box only if we already
@@ -551,7 +551,7 @@ folder_selection_func(GtkTreeSelection * selection, GtkTreeModel * model,
 		      GtkTreePath * path, gboolean path_currently_selected,
 		      SubfolderDialogData * sdd)
 {
-    CommonDialogData *cdd = &sdd->cdd;
+    CommonDialogData *cdd = (CommonDialogData *) sdd;
     GtkTreeIter iter;
     BalsaMailboxNode *mbnode;
     LibBalsaServer *server;
@@ -578,7 +578,7 @@ browse_button_data_free(BrowseButtonData *bbd)
 static void
 browse_button_cb(GtkWidget * widget, SubfolderDialogData * sdd)
 {
-    CommonDialogData *cdd = &sdd->cdd;
+    CommonDialogData *cdd = (CommonDialogData *) sdd;
     GtkWidget *scroll, *dialog;
     GtkRequisition req;
     GtkWidget *tree_view = balsa_mblist_new();
@@ -621,9 +621,9 @@ browse_button_cb(GtkWidget * widget, SubfolderDialogData * sdd)
     bbd->mbnode = NULL;
     g_object_weak_ref(G_OBJECT(dialog),
 		      (GWeakNotify) browse_button_data_free, bbd);
-    g_signal_connect(G_OBJECT(selection), "changed",
+    g_signal_connect(selection, "changed",
                      G_CALLBACK(browse_button_select_row_cb), bbd);
-    g_signal_connect(G_OBJECT(tree_view), "row-activated",
+    g_signal_connect(tree_view, "row-activated",
                      G_CALLBACK(browse_button_row_activated), bbd);
 
     /* Force the mailbox list to be a reasonable size. */
@@ -641,7 +641,7 @@ browse_button_cb(GtkWidget * widget, SubfolderDialogData * sdd)
     gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog),
                                       GTK_RESPONSE_OK, FALSE);
 
-    g_signal_connect(G_OBJECT(dialog), "response",
+    g_signal_connect(dialog, "response",
                      G_CALLBACK(browse_button_response), bbd);
     gtk_widget_show(GTK_WIDGET(dialog));
 }
@@ -649,7 +649,7 @@ browse_button_cb(GtkWidget * widget, SubfolderDialogData * sdd)
 static gboolean
 subfolder_conf_clicked_ok(SubfolderDialogData * sdd)
 {
-    CommonDialogData *cdd = &sdd->cdd;
+    CommonDialogData *cdd = (CommonDialogData *) sdd;
     gchar *parent, *folder;
     gboolean ret = TRUE;
 
@@ -810,7 +810,7 @@ folder_conf_imap_sub_node(BalsaMailboxNode * mn)
     }
 
     sdd = g_new(SubfolderDialogData, 1);
-    cdd = &sdd->cdd;
+    cdd = (CommonDialogData *) sdd;
     cdd->ok = (CommonDialogFunc) subfolder_conf_clicked_ok;
 
     if ((cdd->mbnode = mn) != NULL) {
@@ -900,8 +900,8 @@ folder_conf_imap_sub_node(BalsaMailboxNode * mn)
     gtk_entry_set_text(GTK_ENTRY(sdd->parent_folder), sdd->old_parent);
 
     button = gtk_button_new_with_mnemonic(_("_Browse…"));
-    g_signal_connect(G_OBJECT(button), "clicked",
-		     G_CALLBACK(browse_button_cb), (gpointer) sdd);
+    g_signal_connect(button, "clicked",
+		     G_CALLBACK(browse_button_cb), sdd);
 
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12);
     gtk_widget_set_hexpand(sdd->parent_folder, TRUE);
