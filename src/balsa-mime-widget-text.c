@@ -132,7 +132,7 @@ static void fill_text_buf_cited(BalsaMimeWidgetText *mwt,
     "balsa-mime-widget-text-new-notified"
 
 #define BALSA_LEFT_MARGIN   2
-#define BALSA_RIGHT_MARGIN 15
+#define BALSA_RIGHT_MARGIN  2
 
 /*
  * Class definition
