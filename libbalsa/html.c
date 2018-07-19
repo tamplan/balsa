@@ -235,7 +235,7 @@ lbh_mouse_target_changed_cb(WebKitWebView       * web_view,
         return;
 
     if (info->uri != NULL) {
-        g_clear_pointer(&info->uri);
+        g_clear_pointer(&info->uri, g_free);
         (*info->hover_cb) (NULL);
     }
 
