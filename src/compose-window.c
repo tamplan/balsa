@@ -3121,8 +3121,8 @@ create_text_area(BalsaComposeWindow *compose_window)
 #else  /* GTK_MR_236_IS_MERGED */
     gtk_text_view_set_left_margin(text_view, 0);
     gtk_text_view_set_right_margin(text_view, 0);
-    gtk_widget_set_margin_start(compose_window->text, BALSA_LEFT_MARGIN);
-    gtk_widget_set_margin_end(compose_window->text, BALSA_RIGHT_MARGIN);
+    gtk_widget_set_margin_start(compose_window->text, 2);
+    gtk_widget_set_margin_end(compose_window->text, 2);
 #endif /* GTK_MR_236_IS_MERGED */
 
     /* set the message font */
