@@ -146,12 +146,16 @@ html2text(gchar ** text, gsize len)
  * Experimental support for WebKit2.
  */
 
+#if defined(GTK_DISABLE_DEPRECATED)
 /* WebKitContextMenuItem uses GtkAction, which is deprecated.
- * We don't use it, but it breaks the git-tree build, so we just mangle
- * it: */
-#define GtkAction GAction
+ * We don't use it, but it breaks the git-tree build, so we temporarily
+ * turn off deprecation warnings: */
+#undef GTK_DISABLE_DEPRECATED
 #include <webkit2/webkit2.h>
-#undef GtkAction
+#define GTK_DISABLE_DEPRECATED
+#else  /* defined(GTK_DISABLE_DEPRECATED) */
+#include <webkit2/webkit2.h>
+#endif /* defined(GTK_DISABLE_DEPRECATED) */
 
 typedef struct {
     LibBalsaMessageBody  *body;
