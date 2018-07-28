@@ -91,10 +91,11 @@ static gboolean
 img_check_size(BalsaMimeWidgetImage * mwi)
 {
     GtkWidget *widget;
-    GtkImage *image;
+    GtkPicture *picture;
     GtkWidget *viewport;
     gint orig_width;
     GdkPixbuf *pixbuf;
+    GdkPaintable *paintable;
     gint curr_w, dst_w;
     GtkAllocation allocation;
 
@@ -116,21 +117,16 @@ img_check_size(BalsaMimeWidgetImage * mwi)
         return G_SOURCE_REMOVE;
     }
 
-    image = GTK_IMAGE(widget);
-    switch (gtk_image_get_storage_type(image)) {
-        case GTK_IMAGE_PAINTABLE:
-            curr_w = gdk_paintable_get_intrinsic_width(gtk_image_get_paintable(image));
-            break;
-        default:
-            curr_w = 0;
-    }
+    picture = GTK_PICTURE(widget);
+    paintable = gtk_picture_get_paintable(picture);
+    curr_w = paintable != NULL ? gdk_paintable_get_intrinsic_width(paintable) : 0;
 
     gtk_widget_get_allocation(viewport, &allocation);
     dst_w = allocation.width;
     gtk_widget_get_allocation(gtk_bin_get_child(GTK_BIN(viewport)),
                               &allocation);
     dst_w -= allocation.width;
-    gtk_widget_get_allocation(gtk_widget_get_parent(GTK_WIDGET(image)),
+    gtk_widget_get_allocation(gtk_widget_get_parent(widget),
                               &allocation);
     dst_w += allocation.width;
     dst_w -= 16;                /* Magic number? */
@@ -143,7 +139,7 @@ img_check_size(BalsaMimeWidgetImage * mwi)
 	dst_h = (gfloat)dst_w / (gfloat)orig_width * gdk_pixbuf_get_height(pixbuf);
 	scaled_pixbuf = gdk_pixbuf_scale_simple(pixbuf, dst_w, dst_h,
 						GDK_INTERP_BILINEAR);
-	gtk_image_set_from_pixbuf(image, scaled_pixbuf);
+	gtk_picture_set_pixbuf(picture, scaled_pixbuf);
 	g_object_unref(scaled_pixbuf);
     }
 
@@ -167,7 +163,7 @@ balsa_mime_widget_new_image(BalsaMessage * bm,
                             LibBalsaMessageBody * mime_body,
 			    const gchar * content_type, gpointer data)
 {
-    GtkWidget *image;
+    GtkWidget *picture;
     GError * load_err = NULL;
     BalsaMimeWidgetImage *mwi;
     GtkGesture *gesture;
@@ -190,18 +186,19 @@ balsa_mime_widget_new_image(BalsaMessage * bm,
 	return NULL;
     }
 
-    image = gtk_image_new_from_icon_name("image-missing");
-    g_signal_connect_swapped(image, "size-allocate",
+    picture = gtk_picture_new();
+    gtk_picture_set_can_shrink(GTK_PICTURE(picture), FALSE);
+    g_signal_connect_swapped(picture, "size-allocate",
                              G_CALLBACK(img_size_allocate_cb), mwi);
 
     gesture = gtk_gesture_multi_press_new();
     gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(gesture), 0);
     g_signal_connect(gesture, "begin",
                      G_CALLBACK(balsa_mime_widget_image_gesture_pressed_cb), data);
-    gtk_widget_add_controller(image, GTK_EVENT_CONTROLLER(gesture));
+    gtk_widget_add_controller(picture, GTK_EVENT_CONTROLLER(gesture));
 
     mw = (BalsaMimeWidget *) mwi;
-    balsa_mime_widget_set_widget(mw, image);
+    balsa_mime_widget_set_widget(mw, picture);
 
     return mw;
 }
