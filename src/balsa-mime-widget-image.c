@@ -72,25 +72,19 @@ balsa_mime_widget_image_class_init(BalsaMimeWidgetImageClass * klass)
  */
 
 static void
-balsa_mime_widget_image_gesture_pressed_cb(GtkGestureMultiPress *multi_press,
-                                           gint                  n_press,
-                                           gdouble               x,
-                                           gdouble               y,
-                                           gpointer              user_data)
+balsa_mime_widget_image_gesture_pressed_cb(GtkGesture       *gesture,
+                                           GdkEventSequence *sequence,
+                                           gpointer          user_data)
 {
     GtkMenu *menu = user_data;
-    GtkGesture *gesture;
-    GdkEventSequence *sequence;
     const GdkEvent *event;
 
-    gesture = GTK_GESTURE(multi_press);
-    sequence = gtk_gesture_get_last_updated_sequence(gesture);
     event = gtk_gesture_get_last_event(gesture, sequence);
+
     g_return_if_fail(event != NULL);
 
-    if (gdk_event_triggers_context_menu(event)) {
+    if (gdk_event_triggers_context_menu(event))
         gtk_menu_popup_at_pointer(menu, event);
-    }
 }
 
 static gboolean
@@ -202,7 +196,7 @@ balsa_mime_widget_new_image(BalsaMessage * bm,
 
     gesture = gtk_gesture_multi_press_new();
     gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(gesture), 0);
-    g_signal_connect(gesture, "pressed",
+    g_signal_connect(gesture, "begin",
                      G_CALLBACK(balsa_mime_widget_image_gesture_pressed_cb), data);
     gtk_widget_add_controller(image, GTK_EVENT_CONTROLLER(gesture));
 
