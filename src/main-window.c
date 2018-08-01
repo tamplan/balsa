@@ -492,7 +492,9 @@ bw_create_index_widget(BalsaWindow *bw)
     BalsaWindowPrivate *priv = balsa_window_get_instance_private(bw);
     GtkWidget *vbox, *button;
     unsigned i;
+#if 0
     GList *focusable_widgets;
+#endif
 
     if(!view_filters_translated) {
         for(i=0; i<G_N_ELEMENTS(view_filters); i++)
@@ -533,9 +535,11 @@ bw_create_index_widget(BalsaWindow *bw)
     gtk_widget_set_vexpand(priv->notebook, TRUE);
     gtk_box_pack_start(GTK_BOX(vbox), priv->notebook);
 
+#if 0
     focusable_widgets = g_list_append(NULL, priv->notebook);
     gtk_container_set_focus_chain(GTK_CONTAINER(vbox), focusable_widgets);
     g_list_free(focusable_widgets);
+#endif
 
     gtk_widget_set_sensitive(button, FALSE);
 
