@@ -492,9 +492,6 @@ bw_create_index_widget(BalsaWindow *bw)
     BalsaWindowPrivate *priv = balsa_window_get_instance_private(bw);
     GtkWidget *vbox, *button;
     unsigned i;
-#if 0
-    GList *focusable_widgets;
-#endif
 
     if(!view_filters_translated) {
         for(i=0; i<G_N_ELEMENTS(view_filters); i++)
@@ -505,11 +502,12 @@ bw_create_index_widget(BalsaWindow *bw)
     priv->sos_bar = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
 
     priv->filter_choice = gtk_combo_box_text_new();
-    gtk_box_pack_start(GTK_BOX(priv->sos_bar), priv->filter_choice);
     for(i=0; i<G_N_ELEMENTS(view_filters); i++)
         gtk_combo_box_text_insert_text(GTK_COMBO_BOX_TEXT(priv->filter_choice),
                                        i, view_filters[i].str);
     gtk_combo_box_set_active(GTK_COMBO_BOX(priv->filter_choice), 0);
+    gtk_box_pack_start(GTK_BOX(priv->sos_bar), priv->filter_choice);
+
     priv->sos_entry = gtk_entry_new();
     /* gtk_label_set_mnemonic_widget(GTK_LABEL(priv->filter_choice),
        priv->sos_entry); */
@@ -517,8 +515,8 @@ bw_create_index_widget(BalsaWindow *bw)
                      G_CALLBACK(bw_check_filter), bw);
     gtk_widget_set_hexpand(priv->sos_entry, TRUE);
     gtk_box_pack_start(GTK_BOX(priv->sos_bar), priv->sos_entry);
+
     button = gtk_button_new_from_icon_name("gtk-ok");
-    gtk_box_pack_start(GTK_BOX(priv->sos_bar), button);
     g_signal_connect(G_OBJECT(priv->sos_entry), "activate",
                      G_CALLBACK(bw_filter_entry_activate),
                      button);
@@ -530,18 +528,13 @@ bw_create_index_widget(BalsaWindow *bw)
                              button);
     g_signal_connect(G_OBJECT(priv->filter_choice), "changed",
                      G_CALLBACK(bw_filter_entry_changed), button);
+    gtk_widget_set_sensitive(button, FALSE);
+    gtk_box_pack_start(GTK_BOX(priv->sos_bar), button);
+
     vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_box_pack_start(GTK_BOX(vbox), priv->sos_bar);
     gtk_widget_set_vexpand(priv->notebook, TRUE);
     gtk_box_pack_start(GTK_BOX(vbox), priv->notebook);
-
-#if 0
-    focusable_widgets = g_list_append(NULL, priv->notebook);
-    gtk_container_set_focus_chain(GTK_CONTAINER(vbox), focusable_widgets);
-    g_list_free(focusable_widgets);
-#endif
-
-    gtk_widget_set_sensitive(button, FALSE);
 
     return vbox;
 }
