@@ -2567,7 +2567,7 @@ bw_enable_message_menus(BalsaWindow * window, guint msgno)
         g_list_free_full(messages, g_object_unref);
 
         mailbox = balsa_index_get_mailbox(bindex);
-        enable_modify_message_actions =
+        enable_modify_message_actions = enable_message_actions &&
             (mailbox != NULL && !libbalsa_mailbox_get_readonly(mailbox));
 
         enable_store = (balsa_app.address_book_list != NULL);
