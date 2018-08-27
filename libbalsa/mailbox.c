@@ -3437,7 +3437,10 @@ mbox_compare_func(const SortTuple * a,
 	    retval = mbox_compare_subject(message_a, message_b);
 	    break;
 	case LB_MAILBOX_SORT_DATE:
-	    retval = mbox_compare_date(message_a, message_b);
+            retval =
+                mbox->view->threading_type == LB_MAILBOX_THREADING_FLAT
+                ? mbox_compare_date(message_a, message_b)
+                : mbox_compare_thread_date(a, b, mbox);
 	    break;
 	case LB_MAILBOX_SORT_SIZE:
 	    retval = mbox_compare_size(message_a, message_b);
@@ -3454,7 +3457,10 @@ mbox_compare_func(const SortTuple * a,
                 retval = mbox_compare_from(message_a, message_b);
                 break;
             case LB_MAILBOX_SORT_SUBJECT:
-                retval = mbox_compare_subject(message_a, message_b);
+                retval =
+                    mbox->view->threading_type == LB_MAILBOX_THREADING_FLAT
+                    ? mbox_compare_date(message_a, message_b)
+                    : mbox_compare_thread_date(a, b, mbox);
                 break;
             case LB_MAILBOX_SORT_DATE:
                 retval = mbox_compare_date(message_a, message_b);
