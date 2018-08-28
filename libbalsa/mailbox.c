@@ -3786,12 +3786,14 @@ mbox_get_thread_date_traverse_func(GNode   *node,
                                    gpointer data)
 {
     LibBalsaMailboxThreadDateInfo *info = data;
+    LibBalsaMailbox *mailbox = info->mbox;
+    LibBalsaMailboxPrivate *priv = libbalsa_mailbox_get_instance_private(mailbox);
     guint msgno;
     LibBalsaMailboxIndexEntry *message;
 
     if ((msgno = GPOINTER_TO_UINT(node->data)) > 0 &&
-        msgno <= info->mbox->mindex->len &&
-        (message = g_ptr_array_index(info->mbox->mindex, msgno - 1)) != NULL) {
+        msgno <= priv->mindex->len &&
+        (message = g_ptr_array_index(priv->mindex, msgno - 1)) != NULL) {
         time_t msg_date = message->msg_date;
 
         if (msg_date > info->thread_date)
@@ -3843,27 +3845,28 @@ mbox_compare_size(LibBalsaMailboxIndexEntry * message_a,
 static gint
 mbox_compare_func(const SortTuple * a,
                   const SortTuple * b,
-                  LibBalsaMailbox * mbox)
+                  LibBalsaMailbox * mailbox)
 {
+    LibBalsaMailboxPrivate *priv = libbalsa_mailbox_get_instance_private(mailbox);
     guint msgno_a;
     guint msgno_b;
     gint retval;
 
     msgno_a = GPOINTER_TO_UINT(a->node->data);
     msgno_b = GPOINTER_TO_UINT(b->node->data);
-    if (mbox->view->sort_field == LB_MAILBOX_SORT_NO)
+    if (priv->view->sort_field == LB_MAILBOX_SORT_NO)
 	retval = msgno_a - msgno_b;
     else {
 	LibBalsaMailboxIndexEntry *message_a;
 	LibBalsaMailboxIndexEntry *message_b;
 
-	message_a = g_ptr_array_index(mbox->mindex, msgno_a - 1);
-	message_b = g_ptr_array_index(mbox->mindex, msgno_b - 1);
+	message_a = g_ptr_array_index(priv->mindex, msgno_a - 1);
+	message_b = g_ptr_array_index(priv->mindex, msgno_b - 1);
 
 	if (!(VALID_ENTRY(message_a) && VALID_ENTRY(message_b)))
 	    return 0;
 
-	switch (mbox->view->sort_field) {
+	switch (priv->view->sort_field) {
 	case LB_MAILBOX_SORT_SENDER:
 	    retval = mbox_compare_from(message_a, message_b);
 	    break;
@@ -3872,9 +3875,9 @@ mbox_compare_func(const SortTuple * a,
 	    break;
 	case LB_MAILBOX_SORT_DATE:
             retval =
-                mbox->view->threading_type == LB_MAILBOX_THREADING_FLAT
+                priv->view->threading_type == LB_MAILBOX_THREADING_FLAT
                 ? mbox_compare_date(message_a, message_b)
-                : mbox_compare_thread_date(a, b, mbox);
+                : mbox_compare_thread_date(a, b, mailbox);
 	    break;
 	case LB_MAILBOX_SORT_SIZE:
 	    retval = mbox_compare_size(message_a, message_b);
@@ -3886,7 +3889,7 @@ mbox_compare_func(const SortTuple * a,
 
         if (retval == 0) {
             /* resolve ties using previous sort column */
-            switch (mbox->view->sort_field_prev) {
+            switch (priv->view->sort_field_prev) {
             case LB_MAILBOX_SORT_SENDER:
                 retval = mbox_compare_from(message_a, message_b);
                 break;
@@ -3895,9 +3898,9 @@ mbox_compare_func(const SortTuple * a,
                 break;
 	    case LB_MAILBOX_SORT_DATE:
 	        retval =
-                    mbox->view->threading_type == LB_MAILBOX_THREADING_FLAT
+                    priv->view->threading_type == LB_MAILBOX_THREADING_FLAT
                     ? mbox_compare_date(message_a, message_b)
-                    : mbox_compare_thread_date(a, b, mbox);
+                    : mbox_compare_thread_date(a, b, mailbox);
 	        break;
             case LB_MAILBOX_SORT_SIZE:
                 retval = mbox_compare_size(message_a, message_b);
