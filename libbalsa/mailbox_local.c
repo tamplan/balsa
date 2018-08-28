@@ -2400,6 +2400,8 @@ lbm_local_sync_real(LibBalsaMailboxLocal *local)
 static gboolean
 lbm_local_sync_idle(LibBalsaMailboxLocal *local)
 {
+    LibBalsaMailboxLocalPrivate *priv =
+        libbalsa_mailbox_local_get_instance_private(local);
     GThread *sync_thread;
 
     priv->sync_id = 0;
