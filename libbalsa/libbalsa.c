@@ -73,8 +73,6 @@ libbalsa_init(void)
 {
     main_thread_id = g_thread_self();
 
-    libbalsa_real_information_func = information_callback;
-
     g_mime_init(); /* Registers all GMime types */
     libbalsa_parser_options_init();
 

@@ -1116,7 +1116,7 @@ main(int argc, char *argv[])
 #endif
 
     bab_init();
-    libbalsa_real_information_func = (LibBalsaInformationFunc)information_real;
+    balsa_ab_setup_libbalsa_notification((GApplication *) application);
     g_mime_init();
     libbalsa_parser_options_init();
 

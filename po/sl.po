@@ -5283,6 +5283,16 @@ msgstr "Odpiranje %s"
 msgid "Checking Mail…"
 msgstr "Poteka preverjanje za novo pošto na »%s«"
 
+#: ../src/main-window.c:3427
+#, c-format
+msgid "IMAP mailbox: %s"
+msgstr "Poštni predal IMAP: %s"
+
+#: ../src/main-window.c:3431
+#, c-format
+msgid "Local mailbox: %s"
+msgstr "Krajevni poštni predal: %s"
+
 #: ../src/main-window.c:3599
 msgid "Finished Checking."
 msgstr "Preverjanje je končano."

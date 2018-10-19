@@ -320,12 +320,8 @@ msgstr "Или"
 
 #: ../libbalsa/gmime-application-pkcs7.c:129
 #, c-format
-msgid ""
-"\n"
-"Key fingerprint: %s"
-msgstr ""
-"\n"
-"Отисак кључа: %s"
+msgid "Failed to decrypt MIME part: parse error"
+msgstr "Не могу да дешифрујем МИМЕ део: грешка у обради"
 
 #: ../libbalsa/gmime-gpgme-signature.c:135
 msgid "PGP signature: "
@@ -363,6 +359,15 @@ msgid ""
 msgstr ""
 "\n"
 "Потписан: %s"
+
+#: ../libbalsa/gmime-gpgme-signature.c:172
+#, c-format
+msgid ""
+"\n"
+"Key fingerprint: %s"
+msgstr ""
+"\n"
+"Отисак кључа: %s"
 
 #: ../libbalsa/gmime-multipart-crypt.c:228
 msgid "Cannot verify multipart/signed part due to missing subparts."

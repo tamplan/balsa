@@ -1,3 +1,57 @@
+2018-10-19  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	Cleanup after rebasing on master
+
+	* README:
+	* configure.ac:
+	* libbalsa/gmime-gpgme-signature.c
+	(libbalsa_cert_subject_readable):
+	* libbalsa/html.c (libbalsa_html_print):
+	* libbalsa/imap/meson.build:
+	* libbalsa/information.c (libbalsa_information_varg):
+	* libbalsa/libbalsa.c (libbalsa_init):
+	* libbalsa/mailbox.c (libbalsa_mailbox_new_from_config),
+	(lbm_need_threading_idle_cb), (libbalsa_mailbox_set_view_filter),
+	(lbm_set_threading_idle_cb), (lbm_set_threading),
+	(libbalsa_mailbox_set_threading),
+	(libbalsa_mailbox_set_subject_gather),
+	(libbalsa_mailbox_get_subject_gather), (mbox_compare_func),
+	(lbm_sort):
+	* libbalsa/mailbox.h:
+	* libbalsa/mailbox_local.c (libbalsa_mailbox_local_close_mailbox),
+	(lbml_set_threading), (lbml_set_threading_idle_cb),
+	(libbalsa_mailbox_local_set_threading), (lbm_local_thread_idle),
+	(lbml_thread_messages), (lbml_unthread_message),
+	(lbml_threading_flat):
+	* meson.build:
+	* meson_options.txt:
+	* src/ab-main.c (main):
+	* src/balsa-index.c (balsa_index_set_thread_messages):
+	* src/balsa-index.h:
+	* src/balsa-mime-widget-callbacks.c (bmw_set_can_focus),
+	(balsa_mime_widget_limit_focus), (balsa_mime_widget_unlimit_focus):
+	* src/mailbox-conf.c (create_dialog), (thread_messages_toggled),
+	(mailbox_conf_view_new_full), (mailbox_conf_view_check):
+	* src/mailbox-conf.h:
+	* src/mailbox-node.c (balsa_mailbox_node_new_from_config),
+	(balsa_mailbox_node_new_imap_node):
+	* src/mailbox-node.h:
+	* src/main-window.c (bw_create_index_widget),
+	(threading_change_state), (bw_add_win_action_entries),
+	(balsa_window_new), (bw_enable_expand_collapse),
+	(bw_enable_mailbox_menus), (balsa_window_set_thread_messages),
+	(bw_real_open_mbnode_idle_cb), (bw_progress_timeout),
+	(balsa_window_increase_activity), (balsa_window_decrease_activity),
+	(balsa_window_setup_progress), (balsa_window_increment_progress):
+	* src/main-window.h:
+	* src/main.c (balsa_get_stats):
+	* src/pref-manager.c (update_view_defaults), (apply_prefs),
+	(set_prefs), (server_add_menu_widget),
+	(pm_grid_add_threading_group), (open_preferences_manager):
+	* src/save-restore.c (migrate_imap_mailboxes),
+	(config_load_sections), (config_get_unused_group):
+	* ui/main-window.ui:
+
 2018-08-27  Peter Bloomfield  <pbloomfield@bellsouth.net>
 
 	Check for valid msgno

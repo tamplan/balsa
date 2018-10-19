@@ -69,6 +69,9 @@ struct _BalsaMailboxConfView {
 #ifdef HAVE_GPGME
     GtkWidget *chk_crypt;
 #endif
+    GtkWidget *thread_messages;
+    GtkWidget *subject_gather;
+    LibBalsaMailbox *mailbox;
 };
 typedef struct _MailboxConfWindow MailboxConfWindow;
 struct _MailboxConfWindow {
@@ -134,7 +137,6 @@ static BalsaMailboxConfView *
 static GtkWidget *create_dialog(MailboxConfWindow *mcw);
 static GtkWidget *create_local_mailbox_dialog(MailboxConfWindow *mcw);
 static GtkWidget *create_pop_mailbox_dialog(MailboxConfWindow *mcw);
-static GtkWidget *create_imap_mailbox_dialog(MailboxConfWindow *mcw);
 
 static void check_for_blank_fields(GtkWidget *widget, MailboxConfWindow *mcw);
 
@@ -309,12 +311,6 @@ void
 mailbox_conf_add_mh_cb(GtkWidget * widget, gpointer data)
 {
     mailbox_conf_new(LIBBALSA_TYPE_MAILBOX_MH);
-}
-
-void
-mailbox_conf_add_imap_cb(GtkWidget * widget, gpointer data)
-{
-    mailbox_conf_new(LIBBALSA_TYPE_MAILBOX_IMAP);
 }
 
 void
@@ -1058,8 +1054,6 @@ create_dialog(MailboxConfWindow *mcw)
 	return create_local_mailbox_dialog(mcw);
     } else if (g_type_is_a(mcw->mailbox_type, LIBBALSA_TYPE_MAILBOX_POP3) ) {
 	return create_pop_mailbox_dialog(mcw);
-    } else if (g_type_is_a(mcw->mailbox_type, LIBBALSA_TYPE_MAILBOX_IMAP) ) {
-	return create_imap_mailbox_dialog(mcw);
     } else {
 	g_warning("Unknown mailbox type: %s\n",
                   g_type_name(mcw->mailbox_type));
@@ -1281,132 +1275,6 @@ create_pop_mailbox_dialog(MailboxConfWindow *mcw)
     return dialog;
 }
 
-static void
-anon_toggle_cb(GtkToggleButton *anon_button, MailboxConfWindow *mcw)
-{
-    gtk_widget_set_sensitive(GTK_WIDGET(mcw->mb_data.imap.anonymous),
-                             gtk_toggle_button_get_active(anon_button));
-}
-static void
-remember_toggle_cb(GtkToggleButton *remember_button, MailboxConfWindow *mcw)
-{
-    gtk_widget_set_sensitive(GTK_WIDGET(mcw->mb_data.imap.password),
-                             gtk_toggle_button_get_active(remember_button));
-}
-
-static void
-entry_activated(GtkEntry * entry, MailboxConfWindow * mcw)
-{
-    if (mcw->ok_sensitive)
-        gtk_dialog_response(GTK_DIALOG(mcw->window), MCW_RESPONSE);
-}
-
-static GtkWidget *
-create_imap_mailbox_dialog(MailboxConfWindow *mcw)
-{
-    GtkWidget *dialog;
-    GtkWidget *notebook, *advanced, *grid;
-    GtkWidget *label;
-    GtkWidget *entry;
-    gint row = -1;
-
-#if defined(HAVE_LIBSECRET)
-    static const gchar *remember_password_message =
-        N_("_Remember password in Secret Service");
-#else
-    static const gchar *remember_password_message =
-        N_("_Remember password");
-#endif                          /* defined(HAVE_LIBSECRET) */
-
-    notebook = gtk_notebook_new();
-    grid = libbalsa_create_grid();
-    gtk_container_set_border_width(GTK_CONTAINER(grid), 12);
-    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), grid,
-                             gtk_label_new_with_mnemonic(_("_Basic")));
-
-    /* mailbox name */
-    label = libbalsa_create_grid_label(_("Mailbox _name:"), grid, ++row);
-    mcw->mailbox_name =
-        libbalsa_create_grid_entry(grid, G_CALLBACK(check_for_blank_fields),
-                                   mcw, row, NULL, label);
-
-    /* imap server */
-    label = libbalsa_create_grid_label(_("_Server:"), grid, ++row);
-    mcw->mb_data.imap.bsc.server =
-	libbalsa_create_grid_entry(grid, G_CALLBACK(check_for_blank_fields),
-                                   mcw, row++, "localhost", label);
-
-    /* security */
-    mcw->mb_data.imap.bsc.security = create_security_entry(grid, &row, mcw);
-
-    /* username  */
-    label = libbalsa_create_grid_label(_("_Username:"), grid, ++row);
-    mcw->mb_data.imap.username =
-	libbalsa_create_grid_entry(grid, G_CALLBACK(check_for_blank_fields),
-                                   mcw, row, g_get_user_name(), label);
-
-    /* toggle for anonymous password */
-    mcw->mb_data.imap.anonymous =
-	libbalsa_create_grid_check(_("_Anonymous access"), grid,
-                                   ++row, FALSE);
-    g_signal_connect(G_OBJECT(mcw->mb_data.imap.anonymous), "toggled",
-                     G_CALLBACK(anon_toggle_cb), mcw);
-    /* toggle for remember password */
-    mcw->mb_data.imap.remember =
-	libbalsa_create_grid_check(_(remember_password_message), grid,
-                                   ++row, FALSE);
-    g_signal_connect(G_OBJECT(mcw->mb_data.imap.remember), "toggled",
-                     G_CALLBACK(remember_toggle_cb), mcw);
-
-   /* password field */
-    label = libbalsa_create_grid_label(_("Pass_word:"), grid, ++row);
-    mcw->mb_data.imap.password =
-	libbalsa_create_grid_entry(grid, NULL, NULL, row, NULL, label);
-    gtk_entry_set_visibility(GTK_ENTRY(mcw->mb_data.imap.password), FALSE);
-
-    label = libbalsa_create_grid_label(_("F_older path:"), grid, ++row);
-
-    mcw->mb_data.imap.folderpath = entry = gtk_entry_new();
-    gtk_widget_set_hexpand(entry, TRUE);
-    gtk_entry_set_text(GTK_ENTRY(mcw->mb_data.imap.folderpath), "INBOX");
-
-    gtk_label_set_mnemonic_widget(GTK_LABEL(label), 
-                                  mcw->mb_data.imap.folderpath);
-    g_signal_connect(G_OBJECT(mcw->mb_data.imap.folderpath), "activate",
-                     G_CALLBACK(entry_activated), mcw);
-    g_signal_connect(G_OBJECT(mcw->mb_data.imap.folderpath), "changed",
-                     G_CALLBACK(check_for_blank_fields), mcw);
-
-    gtk_grid_attach(GTK_GRID(grid), entry, 1, row, 1, 1);
-
-    advanced =
-        balsa_server_conf_get_advanced_widget(&mcw->mb_data.imap.bsc);
-    mcw->mb_data.imap.enable_persistent = 
-        balsa_server_conf_add_checkbox(&mcw->mb_data.imap.bsc,
-                                       _("Enable _persistent cache"));
-    mcw->mb_data.imap.has_bugs = 
-        balsa_server_conf_add_checkbox(&mcw->mb_data.imap.bsc,
-                                       _("Enable _bug workarounds"));
-    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), advanced,
-                             gtk_label_new_with_mnemonic(_("_Advanced")));
-
-    gtk_widget_show_all(notebook);
-    gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), 0);
-    gtk_widget_grab_focus(mcw->mailbox_name? 
-                          mcw->mailbox_name : mcw->mb_data.imap.bsc.server);
-
-    dialog = create_generic_dialog(mcw);
-    gtk_container_add(GTK_CONTAINER
-                      (gtk_dialog_get_content_area(GTK_DIALOG(dialog))),
-                      notebook);
-
-    mcw->view_info =
-        mailbox_conf_view_new_full(mcw->mailbox, GTK_WINDOW(dialog), grid,
-                                   ++row, NULL, mcw, NULL);
-
-    return dialog;
-}
-
 /* Manage the widgets that control aspects of the view, not the config.
  * Currently the mailbox default identity and whether the address column
  * shows the sender or the recipient can be controlled in this way.
@@ -1430,6 +1298,17 @@ enum {
     IDENTITY_COMBO_BOX_N_COLUMNS
 };
 
+static void
+thread_messages_toggled(GtkWidget * widget,
+                        BalsaMailboxConfView * view_info)
+{
+    gboolean thread_messages;
+
+    thread_messages = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+    gtk_widget_set_sensitive(view_info->subject_gather, thread_messages);
+}
+
+
 static BalsaMailboxConfView *
 mailbox_conf_view_new_full(LibBalsaMailbox * mailbox,
                            GtkWindow * window,
@@ -1442,9 +1321,11 @@ mailbox_conf_view_new_full(LibBalsaMailbox * mailbox,
     BalsaMailboxConfView *view_info;
     GtkWidget *widget;
     const gchar *identity_name;
+    gboolean thread_messages;
 
     view_info = g_new(BalsaMailboxConfView, 1);
     g_object_weak_ref(G_OBJECT(window), (GWeakNotify) g_free, view_info);
+    view_info->mailbox = mailbox;
     view_info->window = window;
 
     label = libbalsa_create_grid_label(_("_Identity:"), grid, row);
@@ -1526,6 +1407,39 @@ mailbox_conf_view_new_full(LibBalsaMailbox * mailbox,
         g_signal_connect_swapped(view_info->subscribe, "toggled",
                                  callback, window);
 
+    /* Thread messages check button */
+    thread_messages =
+        libbalsa_mailbox_get_threading_type(mailbox) !=
+        LB_MAILBOX_THREADING_FLAT;
+    view_info->thread_messages =
+        libbalsa_create_grid_check(_("_Thread messages"), grid, ++row,
+                                   thread_messages);
+    if (mcw != NULL) {
+        g_signal_connect(view_info->thread_messages, "toggled",
+                         G_CALLBACK(check_for_blank_fields), mcw);
+    }
+    if (callback != NULL) {
+        g_signal_connect_swapped(view_info->thread_messages, "toggled",
+                                 callback, window);
+    }
+    g_signal_connect(view_info->thread_messages, "toggled",
+                     G_CALLBACK(thread_messages_toggled), view_info);
+
+    /* Subject gather check button */
+    view_info->subject_gather =
+        libbalsa_create_grid_check(_("_Merge threads with the same subject"),
+                                   grid, ++row,
+                                   libbalsa_mailbox_get_subject_gather(mailbox));
+    if (mcw != NULL) {
+        g_signal_connect(view_info->subject_gather, "toggled",
+                         G_CALLBACK(check_for_blank_fields), mcw);
+    }
+    if (callback != NULL) {
+        g_signal_connect_swapped(view_info->subject_gather, "toggled",
+                                 callback, window);
+    }
+    gtk_widget_set_sensitive(view_info->subject_gather, thread_messages);
+
     return view_info;
 }
 
@@ -1575,7 +1489,6 @@ mailbox_conf_view_check(BalsaMailboxConfView * view_info,
     changed = FALSE;
 
     libbalsa_mailbox_view_free(mailbox->view);
-    g_print("%s set view on %s\n", __func__, mailbox->name);
     mailbox->view = config_load_mailbox_view(mailbox->url);
     if (!mailbox->view) {
 	/* The mailbox may not have its URL yet */
@@ -1607,6 +1520,16 @@ mailbox_conf_view_check(BalsaMailboxConfView * view_info,
 				       LB_MAILBOX_SUBSCRIBE_YES :
 				       LB_MAILBOX_SUBSCRIBE_NO))
 	changed = TRUE;
+
+    /* Threading */
+
+    active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON
+                                          (view_info->subject_gather));
+    libbalsa_mailbox_set_subject_gather(view_info->mailbox, active);
+
+    active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON
+                                          (view_info->thread_messages));
+    balsa_window_set_thread_messages(balsa_app.main_window, active);
 
 #ifdef HAVE_GPGME
     if (libbalsa_mailbox_set_crypto_mode(mailbox,

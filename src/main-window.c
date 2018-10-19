@@ -142,7 +142,6 @@ static gboolean bw_is_open_mailbox(LibBalsaMailbox *m);
 
 static void bw_mailbox_tab_close_cb(GtkWidget * widget, gpointer data);
 
-static void bw_set_threading_menu(BalsaWindow * window, int option);
 static void bw_show_mbtree(BalsaWindow * window);
 static void bw_set_filter_menu(BalsaWindow * window, int gui_filter);
 static LibBalsaCondition *bw_get_view_filter(BalsaWindow * window);
@@ -462,7 +461,6 @@ bw_create_index_widget(BalsaWindow *bw)
 {
     GtkWidget *vbox, *button;
     unsigned i;
-    GList *focusable_widgets;
 
     if(!view_filters_translated) {
         for(i=0; i<ELEMENTS(view_filters); i++)
@@ -511,10 +509,6 @@ bw_create_index_widget(BalsaWindow *bw)
     gtk_widget_show(bw->sos_bar);
     gtk_box_pack_start(GTK_BOX(vbox), bw->sos_bar, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox), bw->notebook, TRUE, TRUE, 0);
-
-    focusable_widgets = g_list_append(NULL, bw->notebook);
-    gtk_container_set_focus_chain(GTK_CONTAINER(vbox), focusable_widgets);
-    g_list_free(focusable_widgets);
 
     gtk_widget_set_sensitive(button, FALSE);
     gtk_widget_show(vbox);
@@ -746,23 +740,6 @@ bw_action_get_boolean(BalsaWindow * window,
     }
 
     return retval;
-}
-
-/*
- * Set the state of a radio action
- */
-
-static void
-bw_action_set_string(BalsaWindow * window,
-                     const gchar * action_name,
-                     const gchar * state)
-{
-    GAction *action;
-
-    action = bw_get_action(window, action_name);
-    if (action)
-        g_simple_action_set_state(G_SIMPLE_ACTION(action),
-                                  g_variant_new_string(state));
 }
 
 /*
@@ -1879,26 +1856,14 @@ threading_change_state(GSimpleAction * action,
 {
     BalsaWindow *window = BALSA_WINDOW(user_data);
     GtkWidget *index;
-    const gchar *value;
-    LibBalsaMailboxThreadingType type;
+    gboolean thread_messages;
     BalsaMailboxNode *mbnode;
     LibBalsaMailbox *mailbox;
 
-    value = g_variant_get_string(state, NULL);
-
-    if (strcmp(value, "flat") == 0)
-        type = LB_MAILBOX_THREADING_FLAT;
-    else if (strcmp(value, "simple") == 0)
-        type = LB_MAILBOX_THREADING_SIMPLE;
-    else if (strcmp(value, "jwz") == 0)
-        type = LB_MAILBOX_THREADING_JWZ;
-    else {
-        g_print("%s unknown value “%s”\n", __func__, value);
-        return;
-    }
+    thread_messages = g_variant_get_boolean(state);
 
     index = balsa_window_find_current_index(window);
-    balsa_index_set_threading_type(BALSA_INDEX(index), type);
+    balsa_index_set_thread_messages(BALSA_INDEX(index), thread_messages);
 
     /* bw->current_index may have been destroyed and cleared during
      * set-threading: */
@@ -1972,7 +1937,7 @@ bw_add_win_action_entries(GActionMap * action_map)
                                   wrap_change_state},
         {"headers",               libbalsa_radio_activated, "s", "'none'",
                                   header_change_state},
-        {"threading",             libbalsa_radio_activated, "s", "'flat'",
+        {"threading",             libbalsa_toggle_activated, NULL, "false",
                                   threading_change_state},
         {"expand-all",            expand_all_activated},
         {"collapse-all",          collapse_all_activated},
@@ -2224,6 +2189,8 @@ balsa_window_new(GtkApplication *application)
     gtk_box_pack_end(GTK_BOX(window->vbox), hbox, FALSE, FALSE, 0);
 
     window->progress_bar = gtk_progress_bar_new();
+    g_object_add_weak_pointer(G_OBJECT(window->progress_bar),
+                              (gpointer *) &window->progress_bar);
     gtk_widget_set_valign(window->progress_bar, GTK_ALIGN_CENTER);
     gtk_progress_bar_set_pulse_step(GTK_PROGRESS_BAR(window->progress_bar),
                                     0.01);
@@ -2327,7 +2294,7 @@ balsa_window_new(GtkApplication *application)
 
     action = bw_get_action(window, "threading");
     g_simple_action_set_state(G_SIMPLE_ACTION(action),
-                              g_variant_new_string("flat"));
+                              g_variant_new_boolean(FALSE));
 
     bw_action_set_boolean(window, "show-mailbox-tabs",
                           balsa_app.show_notebook_tabs);
@@ -2399,7 +2366,10 @@ bw_enable_expand_collapse(BalsaWindow * window, LibBalsaMailbox * mailbox)
 {
     gboolean enable;
 
-    enable = mailbox &&
+    enable = mailbox != NULL;
+    bw_action_set_enabled(window, "threading", enable);
+
+    enable = mailbox != NULL &&
         libbalsa_mailbox_get_threading_type(mailbox) !=
         LB_MAILBOX_THREADING_FLAT;
     bw_action_set_enabled(window, "expand-all", enable);
@@ -2458,12 +2428,11 @@ bw_enable_mailbox_menus(BalsaWindow * window, BalsaIndex * index)
     bw_action_set_enabled(window, "remove-duplicates", mailbox &&
                           libbalsa_mailbox_can_move_duplicates(mailbox));
 
-    if (mailbox) {
-	bw_set_threading_menu(window,
-					libbalsa_mailbox_get_threading_type
-					(mailbox));
-	bw_set_filter_menu(window,
-				     libbalsa_mailbox_get_filter(mailbox));
+    if (mailbox != NULL) {
+        balsa_window_set_thread_messages(window,
+                                         libbalsa_mailbox_get_threading_type(mailbox)
+                                         != LB_MAILBOX_THREADING_FLAT);
+	bw_set_filter_menu(window, libbalsa_mailbox_get_filter(mailbox));
     }
 
     bw_enable_next_unread(window, libbalsa_mailbox_get_unread(mailbox) > 0
@@ -2647,20 +2616,19 @@ bw_enable_part_menu_items(BalsaWindow * window)
                           balsa_message_has_previous_part(msg));
 }
 
-static void
-bw_set_threading_menu(BalsaWindow * window, int option)
+void
+balsa_window_set_thread_messages(BalsaWindow * window, gboolean thread_messages)
 {
     GtkWidget *index;
     BalsaMailboxNode *mbnode;
     LibBalsaMailbox *mailbox;
-    const gchar *const threading_types[] = { "flat", "simple", "jwz" };
 
-    bw_action_set_string(window, "threading", threading_types[option]);
+    bw_action_set_boolean(window, "threading", thread_messages);
 
-    if ((index = balsa_window_find_current_index(window))
-	&& (mbnode = BALSA_INDEX(index)->mailbox_node)
-	&& (mailbox = mbnode->mailbox))
-	bw_enable_expand_collapse(window, mailbox);
+    if ((index = balsa_window_find_current_index(window)) != NULL
+        && (mbnode = BALSA_INDEX(index)->mailbox_node) != NULL
+        && (mailbox = mbnode->mailbox) != NULL)
+        bw_enable_expand_collapse(window, mailbox);
 }
 
 static void
@@ -2894,9 +2862,8 @@ bw_real_open_mbnode_idle_cb(BalsaWindowRealOpenMbnodeInfo * info)
                                       page_num);
 
     bw_register_open_mailbox(mailbox);
-    libbalsa_mailbox_set_threading(mailbox,
-                                   libbalsa_mailbox_get_threading_type
-                                   (mailbox));
+
+    libbalsa_mailbox_set_threading(mailbox);
 
     filter =
         bw_get_condition_from_int(libbalsa_mailbox_get_filter(mailbox));
@@ -4428,15 +4395,19 @@ static gboolean bw_notebook_drag_motion_cb(GtkWidget * widget,
  *
  * Use of the progress bar to show a fraction of a task takes priority.
  **/
-static gint
-bw_progress_timeout(BalsaWindow ** window)
+static gboolean
+bw_progress_timeout(gpointer user_data)
 {
+    BalsaWindow *window = *(BalsaWindow **) user_data;
+
     if (balsa_app.show_statusbar
-        && *window && (*window)->progress_type == BALSA_PROGRESS_ACTIVITY)
-        gtk_progress_bar_pulse(GTK_PROGRESS_BAR((*window)->progress_bar));
+        && window != NULL
+        && window->progress_bar != NULL
+        && window->progress_type == BALSA_PROGRESS_ACTIVITY)
+        gtk_progress_bar_pulse(GTK_PROGRESS_BAR(window->progress_bar));
 
     /* return true so it continues to be called */
-    return *window != NULL;
+    return window != NULL;
 }
 
 
@@ -4452,17 +4423,20 @@ balsa_window_increase_activity(BalsaWindow * window, const gchar * message)
 {
     static BalsaWindow *window_save = NULL;
 
+    if (window->progress_bar == NULL)
+        return;
+
     if (!window_save) {
         window_save = window;
         g_object_add_weak_pointer(G_OBJECT(window_save),
-                                  (gpointer) &window_save);
+                                  (gpointer *) &window_save);
     }
 
-    if (!window->activity_handler)
+    if (window->activity_handler == 0) {
         /* add a timeout to make the activity bar move */
         window->activity_handler =
-            g_timeout_add(50, (GSourceFunc) bw_progress_timeout,
-                          &window_save);
+            g_timeout_add(50, bw_progress_timeout, &window_save);
+    }
 
     /* increment the reference counter */
     ++window->activity_counter;
@@ -4488,6 +4462,9 @@ balsa_window_decrease_activity(BalsaWindow * window, const gchar * message)
 {
     GSList *link;
     GtkProgressBar *progress_bar;
+
+    if (window->progress_bar == NULL)
+        return;
 
     link = g_slist_find_custom(window->activity_messages, message,
                                (GCompareFunc) strcmp);
@@ -4551,6 +4528,9 @@ balsa_window_setup_progress(BalsaWindow * window, const gchar * text)
 {
     BalsaWindowSetupProgressInfo *info;
 
+    if (window->progress_bar == NULL)
+        return FALSE;
+
     if (text) {
         /* make sure the progress bar is currently unused */
         if (window->progress_type == BALSA_PROGRESS_INCREMENT)
@@ -4584,6 +4564,9 @@ void
 balsa_window_increment_progress(BalsaWindow * window, gdouble fraction,
                                 gboolean flush)
 {
+    if (window->progress_bar == NULL)
+        return;
+
     /* make sure the progress bar is being incremented */
     if (window->progress_type != BALSA_PROGRESS_INCREMENT)
         return;

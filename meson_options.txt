@@ -15,8 +15,8 @@ option('fcntl',
 
 option('gpgme',
   type        : 'string',
-  value       : 'true',
-  description : 'build with gpgme/GnuPG support (true|false|path to gpgme-config, default=true)')
+  value       : 'false',
+  description : 'build with gpgme/GnuPG support (true|false|path to gpgme-config, default=false)')
 
 option('canberra',
   type        : 'boolean',
@@ -35,30 +35,25 @@ option('gss',
 
 option('html-widget',
   type        : 'combo',
-  choices     : ['webkit2', 'webkit', 'gtkhtml4'],
+  choices     : ['webkit2', 'no'],
   value       : 'webkit2',
   description : 'select the HTML renderer (default webkit2)')
 
 option('gtksourceview',
   type        : 'boolean',
-  value       : true,
-  description : 'Use GtkSourceView-3 if available (default=true)')
+  value       : false,
+  description : 'Use GtkSourceView-3 if available (default=false)')
 
 option('spell-checker',
   type        : 'combo',
   choices     : ['internal', 'gspell', 'gtkspell'],
-  value       : 'gspell',
+  value       : 'internal',
   description : 'select the spell checker (default internal)')
 
 option('ldap',
   type        : 'string',
   value       : 'false',
   description : 'Use OpenLDAP if available (true|false|path to LDAP installation, default=false)')
-
-option('libnotify',
-  type        : 'boolean',
-  value       : true,
-  description : 'Use libnotify if available (default=true)')
 
 option('macosx-desktop',
   type        : 'boolean',
@@ -82,8 +77,8 @@ option('sqlite',
 
 option('libsecret',
   type        : 'boolean',
-  value       : true,
-  description : 'Link to libsecret (default=true)')
+  value       : false,
+  description : 'Link to libsecret (default=false)')
 
 option('gcr',
   type        : 'boolean',
@@ -97,8 +92,8 @@ option('more-warnings',
 
 option('help-files',
   type        : 'boolean',
-  value       : true,
-  description : 'Install the help files (default=true)')
+  value       : false,
+  description : 'Install the help files (default=false)')
 
 option('libnetclient-docs',
   type        : 'boolean',
