@@ -224,7 +224,8 @@ G_DEFINE_TYPE_WITH_PRIVATE(BalsaWindow, balsa_window, GTK_TYPE_APPLICATION_WINDO
 static guint window_signals[LAST_SIGNAL] = { 0 };
 
 static void balsa_window_size_allocate(GtkWidget           *widget,
-                                       const GtkAllocation *allocation,
+                                       int                  width,
+                                       int                  height,
                                        int                  baseline);
 static gboolean balsa_window_close_request(GtkWindow * window);
 
@@ -4216,13 +4217,14 @@ bw_slave_position_cb(GtkPaned   * paned_slave,
 
 static void
 balsa_window_size_allocate(GtkWidget           *widget,
-                           const GtkAllocation *allocation,
+                           int                  width,
+                           int                  height,
                            int                  baseline)
 {
     GdkSurface *surface;
 
     GTK_WIDGET_CLASS(balsa_window_parent_class)->size_allocate
-        (widget, allocation, baseline);
+        (widget, width, height, baseline);
 
     surface = gtk_widget_get_surface(widget);
     if (surface == NULL)

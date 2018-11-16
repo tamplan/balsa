@@ -196,7 +196,7 @@ static GActionEntry win_entries[] = {
 */
 
 static void
-lsv_size_allocate_cb(GtkWidget * window, GtkAllocation * alloc,
+lsv_size_allocate_cb(GtkWidget * window, gint width, gint height,
                      gint baseline, LibBalsaSourceViewer * source_viewer)
 {
     GdkSurface *surface;

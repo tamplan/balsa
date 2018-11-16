@@ -152,7 +152,8 @@ G_DEFINE_TYPE(BalsaComposeWindow, balsa_compose_window, GTK_TYPE_APPLICATION_WIN
 
 static void balsa_compose_window_destroy(GtkWidget *widget);
 static void balsa_compose_window_size_allocate(GtkWidget           *widget,
-                                               const GtkAllocation *allocation,
+                                               int                  width,
+                                               int                  height,
                                                int                  baseline);
 static void balsa_compose_window_drag_data_received(GtkWidget        *widget,
                                                     GdkDrop          *drop,
@@ -1491,13 +1492,14 @@ update_compose_window_identity(BalsaComposeWindow     *compose_window,
 
 static void
 balsa_compose_window_size_allocate(GtkWidget           *widget,
-                                   const GtkAllocation *allocation,
+                                   int                  width,
+                                   int                  height,
                                    int                  baseline)
 {
     GdkSurface *surface;
 
     GTK_WIDGET_CLASS(balsa_compose_window_parent_class)->size_allocate
-        (widget, allocation, baseline);
+        (widget, width, height, baseline);
 
     surface = gtk_widget_get_surface(widget);
     if (surface == NULL)

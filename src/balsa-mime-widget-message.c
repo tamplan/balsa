@@ -546,7 +546,7 @@ bm_header_widget_new(BalsaMessage * bm, GtkWidget * const * buttons)
 }
 
 static gboolean
-label_size_allocate_cb(GtkLabel * label, GdkRectangle * rectangle,
+label_size_allocate_cb(GtkLabel * label, gint width, gint height,
                        gint baseline, GtkWidget * expander)
 {
     PangoLayout *layout;

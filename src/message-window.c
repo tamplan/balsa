@@ -57,7 +57,8 @@ G_DEFINE_TYPE(BalsaMessageWindow, balsa_message_window, GTK_TYPE_APPLICATION_WIN
 
 static void destroy_message_window(GtkWidget *widget);
 static void size_alloc_cb(GtkWidget           *widget,
-                          const GtkAllocation *allocation,
+                          int                  width,
+                          int                  height,
                           int                  baseline);
 
 static void
@@ -534,13 +535,14 @@ mw_close_activated(GSimpleAction * action, GVariant * parameter,
 
 static void
 size_alloc_cb(GtkWidget           *widget,
-              const GtkAllocation *allocation,
+              int                  width,
+              int                  height,
               int                  baseline)
 {
     GdkSurface *surface;
 
     GTK_WIDGET_CLASS(balsa_message_window_parent_class)->size_allocate
-        (widget, allocation, baseline);
+        (widget, width, height, baseline);
 
     surface = gtk_widget_get_surface(widget);
 
