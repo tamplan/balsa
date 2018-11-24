@@ -24,6 +24,7 @@
 
 #include <string.h>
 #include <ctype.h>
+#include <fribidi/fribidi.h>
 
 #include "libbalsa.h"
 #include "misc.h"
@@ -1203,6 +1204,35 @@ libbalsa_html_encode_hyperlinks(GString * paragraph)
     return retval;
 }
 
+static gboolean
+text_is_rtl(const gchar *text)
+{
+    FriBidiChar *str;
+    FriBidiStrIndex len;
+    FriBidiStrIndex i;
+    FriBidiCharType *bidi_types;
+    gboolean is_rtl;
+
+    if (!g_utf8_validate(text, -1, NULL))
+        return FALSE;
+
+    len = g_utf8_strlen(text, -1);
+    str = g_new(FriBidiChar, len);
+
+    for (i = 0; i < len; i++) {
+        str[i] = g_utf8_get_char(text);
+        text = g_utf8_next_char(text);
+    }
+
+    bidi_types = g_new(FriBidiCharType, len);
+    fribidi_get_bidi_types(str, len, bidi_types);
+    g_free(str);
+
+    is_rtl = FRIBIDI_IS_RTL(fribidi_get_par_direction(bidi_types, len));
+    g_free(bidi_types);
+
+    return is_rtl;
+}
 
 gchar *
 libbalsa_text_to_html(const gchar * title, const gchar * body, const gchar * lang)
@@ -1235,21 +1265,13 @@ libbalsa_text_to_html(const gchar * title, const gchar * body, const gchar * lan
     g_free(html_lang);
 
     /* add the lines of the message body */
-    while (*start) {
+    while (*start != '\0') {
         const gchar * eol = strchr(start, '\n');
-        const gchar * p = start;
-        PangoDirection direction = PANGO_DIRECTION_NEUTRAL;
         GString * html;
         gsize idx;
 
         if (!eol)
             eol = start + strlen(start);
-
-        /* find the first real char to determine the paragraph direction */
-        while (p < eol && direction == PANGO_DIRECTION_NEUTRAL) {
-            direction = pango_unichar_direction(g_utf8_get_char(p));
-            p = g_utf8_next_char(p);
-        }
 
         /* html escape the line */
         html = g_string_new_len(start, eol - start);
@@ -1270,7 +1292,7 @@ libbalsa_text_to_html(const gchar * title, const gchar * body, const gchar * lan
 
         /* append the paragraph, always stating the proper direction */
         g_string_append_printf(html_body, "<p dir=\"%s\">%s</p>\n",
-                               direction == PANGO_DIRECTION_RTL ? "rtl" : "ltr",
+                               text_is_rtl(start) ? "rtl" : "ltr",
                                *html->str ? html->str : "&nbsp;");
         g_string_free(html, TRUE);
 
