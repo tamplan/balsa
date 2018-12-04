@@ -24,7 +24,7 @@
 
 #include <string.h>
 #include <ctype.h>
-#include <fribidi/fribidi.h>
+#include <fribidi.h>
 
 #include "libbalsa.h"
 #include "misc.h"
@@ -1204,35 +1204,6 @@ libbalsa_html_encode_hyperlinks(GString * paragraph)
     return retval;
 }
 
-static gboolean
-text_is_rtl(const gchar *text)
-{
-    FriBidiChar *str;
-    FriBidiStrIndex len;
-    FriBidiStrIndex i;
-    FriBidiCharType *bidi_types;
-    gboolean is_rtl;
-
-    if (!g_utf8_validate(text, -1, NULL))
-        return FALSE;
-
-    len = g_utf8_strlen(text, -1);
-    str = g_new(FriBidiChar, len);
-
-    for (i = 0; i < len; i++) {
-        str[i] = g_utf8_get_char(text);
-        text = g_utf8_next_char(text);
-    }
-
-    bidi_types = g_new(FriBidiCharType, len);
-    fribidi_get_bidi_types(str, len, bidi_types);
-    g_free(str);
-
-    is_rtl = FRIBIDI_IS_RTL(fribidi_get_par_direction(bidi_types, len));
-    g_free(bidi_types);
-
-    return is_rtl;
-}
 
 gchar *
 libbalsa_text_to_html(const gchar * title, const gchar * body, const gchar * lang)
@@ -1265,13 +1236,32 @@ libbalsa_text_to_html(const gchar * title, const gchar * body, const gchar * lan
     g_free(html_lang);
 
     /* add the lines of the message body */
-    while (*start != '\0') {
+    while (*start) {
         const gchar * eol = strchr(start, '\n');
+        const gchar * p = start;
+        gboolean is_rtl = FALSE;
         GString * html;
         gsize idx;
 
         if (!eol)
             eol = start + strlen(start);
+
+        /* find the first real char to determine the paragraph direction */
+        /* Use the same logic as fribidi_get_par_direction(), but
+         * without allocating memory for all the gunichars and
+         * FriBidiCharTypes: */
+        while (p < eol) {
+            FriBidiCharType char_type;
+
+            char_type = fribidi_get_bidi_type(g_utf8_get_char(p));
+
+            if (FRIBIDI_IS_LETTER(char_type)) {
+                is_rtl = FRIBIDI_IS_RTL(char_type);
+                break;
+            }
+
+            p = g_utf8_next_char(p);
+        }
 
         /* html escape the line */
         html = g_string_new_len(start, eol - start);
@@ -1292,7 +1282,7 @@ libbalsa_text_to_html(const gchar * title, const gchar * body, const gchar * lan
 
         /* append the paragraph, always stating the proper direction */
         g_string_append_printf(html_body, "<p dir=\"%s\">%s</p>\n",
-                               text_is_rtl(start) ? "rtl" : "ltr",
+                               is_rtl ? "rtl" : "ltr",
                                *html->str ? html->str : "&nbsp;");
         g_string_free(html, TRUE);
 
