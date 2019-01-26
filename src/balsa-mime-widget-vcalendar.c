@@ -72,7 +72,7 @@ balsa_mime_widget_new_vcalendar(BalsaMessage * bm,
     g_free(text);
     gtk_widget_set_halign(label, GTK_ALIGN_START);
     gtk_widget_set_valign(label, GTK_ALIGN_START);
-    gtk_box_pack_start(GTK_BOX(widget), label);
+    gtk_container_add(GTK_CONTAINER(widget), label);
 
     /* a reply may be created only for unread requests */
     if ((method == ITIP_REQUEST) &&
@@ -95,7 +95,7 @@ balsa_mime_widget_new_vcalendar(BalsaMessage * bm,
 	GtkWidget *event =
 	    balsa_vevent_widget((LibBalsaVEvent *) l->data, may_reply,
 				sender);
-	gtk_box_pack_start(GTK_BOX(widget), event);
+	gtk_container_add(GTK_CONTAINER(widget), event);
     }
 
     g_object_unref(vcal_obj);
@@ -237,14 +237,14 @@ balsa_vevent_widget(LibBalsaVEvent * event, gboolean may_reply,
 			       (GDestroyNotify) g_object_unref);
 
 	/* pack everything into a box */
-	gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(grid));
+	gtk_container_add(GTK_CONTAINER(box), GTK_WIDGET(grid));
 	label =
 	    gtk_label_new(_("The sender asks you for a reply to this request:"));
-	gtk_box_pack_start(GTK_BOX(box), label);
+	gtk_container_add(GTK_CONTAINER(box), label);
 	bbox = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
 	gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox),
 				  GTK_BUTTONBOX_SPREAD);
-	gtk_box_pack_start(GTK_BOX(box), bbox);
+	gtk_container_add(GTK_CONTAINER(box), bbox);
 
 	button = gtk_button_new_with_label(_("Accept"));
 	g_object_set_data_full(G_OBJECT(button), "event", event,
@@ -253,7 +253,7 @@ balsa_vevent_widget(LibBalsaVEvent * event, gboolean may_reply,
 			  GINT_TO_POINTER(VCAL_PSTAT_ACCEPTED));
 	g_signal_connect(G_OBJECT(button), "clicked",
 			 G_CALLBACK(vevent_reply), bbox);
-	gtk_box_pack_start(GTK_BOX(bbox), button);
+	gtk_container_add(GTK_CONTAINER(bbox), button);
 
 	button = gtk_button_new_with_label(_("Accept tentatively"));
 	g_object_set_data(G_OBJECT(button), "event", event);
@@ -261,7 +261,7 @@ balsa_vevent_widget(LibBalsaVEvent * event, gboolean may_reply,
 			  GINT_TO_POINTER(VCAL_PSTAT_TENTATIVE));
 	g_signal_connect(G_OBJECT(button), "clicked",
 			 G_CALLBACK(vevent_reply), bbox);
-	gtk_box_pack_start(GTK_BOX(bbox), button);
+	gtk_container_add(GTK_CONTAINER(bbox), button);
 
 	button = gtk_button_new_with_label(_("Decline"));
 	g_object_set_data(G_OBJECT(button), "event", event);
@@ -269,7 +269,7 @@ balsa_vevent_widget(LibBalsaVEvent * event, gboolean may_reply,
 			  GINT_TO_POINTER(VCAL_PSTAT_DECLINED));
 	g_signal_connect(G_OBJECT(button), "clicked",
 			 G_CALLBACK(vevent_reply), bbox);
-	gtk_box_pack_start(GTK_BOX(bbox), button);
+	gtk_container_add(GTK_CONTAINER(bbox), button);
 
 	return box;
     } else

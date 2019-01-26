@@ -245,7 +245,7 @@ libbalsa_identity_select_dialog(GtkWindow * parent,
 
     frame = gtk_frame_new(NULL);
     gtk_widget_set_vexpand(frame, TRUE);
-    gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))),
+    gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(dialog))),
                        frame);
 
     g_object_set(G_OBJECT(tree), "margin", padding, NULL);
@@ -548,13 +548,13 @@ append_ident_notebook_page(GtkNotebook * notebook,
     vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     grid = libbalsa_create_grid();
     g_object_set(G_OBJECT(grid), "margin", padding, NULL);
-    gtk_box_pack_start(GTK_BOX(vbox), grid);
+    gtk_container_add(GTK_CONTAINER(vbox), grid);
     if (footnote) {
 	GtkWidget *label;
 
 	label = gtk_label_new(footnote);
 	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
-        gtk_box_pack_start(GTK_BOX(vbox), label);
+        gtk_container_add(GTK_CONTAINER(vbox), label);
     }
     gtk_notebook_append_page(notebook, vbox, gtk_label_new(tab_label));
 
@@ -940,7 +940,7 @@ md_face_path_changed(const gchar * filename, gboolean active,
 
     gtk_container_foreach(GTK_CONTAINER(face_box),
                           (GtkCallback) gtk_widget_destroy, NULL);
-    gtk_box_pack_start(GTK_BOX(face_box), image);
+    gtk_container_add(GTK_CONTAINER(face_box), image);
 
     g_free(content);
 }
@@ -1051,10 +1051,10 @@ ident_dialog_add_boxes(GtkWidget * grid, gint row, GtkDialog * dialog,
     gtk_grid_attach(GTK_GRID(grid), hbox, 1, row, 1, 1);
     vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     g_object_set_data(G_OBJECT(dialog), key1, vbox);
-    gtk_box_pack_start(GTK_BOX(hbox), vbox);
+    gtk_container_add(GTK_CONTAINER(hbox), vbox);
     vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     g_object_set_data(G_OBJECT(dialog), key2, vbox);
-    gtk_box_pack_start(GTK_BOX(hbox), vbox);
+    gtk_container_add(GTK_CONTAINER(hbox), vbox);
 }
 
 /* set_identity_name_in_tree:
@@ -1161,9 +1161,9 @@ ident_dialog_update(GObject * dlg)
     libbalsa_identity_set_sig_sending(id,
             ident_dialog_get_bool(dlg, "identity-sigappend"));
     libbalsa_identity_set_sig_whenforward(id,
-            ident_dialog_get_bool(dlg, "identity-sigwhenforward"));
+            ident_dialog_get_bool(dlg, "identity-whenforward"));
     libbalsa_identity_set_sig_whenreply(id,
-            ident_dialog_get_bool(dlg, "identity-sigwhenreply"));
+            ident_dialog_get_bool(dlg, "identity-whenreply"));
     libbalsa_identity_set_sig_separator(id,
             ident_dialog_get_bool(dlg, "identity-sigseparator"));
     libbalsa_identity_set_sig_prepend(id,
@@ -1432,8 +1432,8 @@ libbalsa_identity_config_dialog(GtkWindow *parent, GList **identities,
 
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, padding);
     gtk_widget_set_vexpand(hbox, TRUE);
-    gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), hbox);
-    gtk_box_pack_start(GTK_BOX(hbox), frame);
+    gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), hbox);
+    gtk_container_add(GTK_CONTAINER(hbox), frame);
 
     smtp_server_list = g_new(GSList *, 1);
     *smtp_server_list = g_slist_copy(smtp_servers);
@@ -1445,7 +1445,7 @@ libbalsa_identity_config_dialog(GtkWindow *parent, GList **identities,
 		      smtp_server_list);
 
     gtk_widget_set_hexpand(display_frame, TRUE);
-    gtk_box_pack_start(GTK_BOX(hbox), display_frame);
+    gtk_container_add(GTK_CONTAINER(hbox), display_frame);
 
     select = gtk_tree_view_get_selection(tree);
     g_signal_connect(select, "changed",

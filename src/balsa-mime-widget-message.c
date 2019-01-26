@@ -138,7 +138,7 @@ balsa_mime_widget_new_message(BalsaMessage * bm,
         balsa_mime_widget_set_container(mw, container);
 
         header_widget = bm_header_widget_new(bm, NULL);
-	gtk_box_pack_start(GTK_BOX(container), header_widget);
+	gtk_container_add(GTK_CONTAINER(container), header_widget);
         balsa_mime_widget_set_header_widget(mw, header_widget);
 
         bmw_message_set_headers(bm, mw, mime_body,
@@ -244,12 +244,12 @@ bmw_message_extbody_url(LibBalsaMessageBody * mime_body,
     widget = gtk_box_new(GTK_ORIENTATION_VERTICAL, BMW_VBOX_SPACE);
     g_object_set(G_OBJECT(widget), "margin", BMW_CONTAINER_BORDER, NULL);
 
-    gtk_box_pack_start(GTK_BOX(widget), gtk_label_new(msg->str));
+    gtk_container_add(GTK_CONTAINER(widget), gtk_label_new(msg->str));
     g_string_free(msg, TRUE);
 
     button = gtk_button_new_with_label(url);
     gtk_widget_set_margin_top(button, BMW_BUTTON_PACK_SPACE);
-    gtk_box_pack_start(GTK_BOX(widget), button);
+    gtk_container_add(GTK_CONTAINER(widget), button);
     g_object_set_data_full(G_OBJECT(button), "call_url", url,
 			   (GDestroyNotify) g_free);
     g_signal_connect(G_OBJECT(button), "clicked",
@@ -292,14 +292,14 @@ bmw_message_extbody_mail(LibBalsaMessageBody * mime_body)
     widget = gtk_box_new(GTK_ORIENTATION_VERTICAL, BMW_VBOX_SPACE);
     g_object_set(G_OBJECT(widget), "margin", BMW_CONTAINER_BORDER, NULL);
 
-    gtk_box_pack_start(GTK_BOX(widget), gtk_label_new(msg->str));
+    gtk_container_add(GTK_CONTAINER(widget), gtk_label_new(msg->str));
     g_string_free(msg, TRUE);
 
     button =
 	gtk_button_new_with_mnemonic(_
 				     ("Se_nd message to obtain this part"));
     gtk_widget_set_margin_top(button, BMW_BUTTON_PACK_SPACE);
-    gtk_box_pack_start(GTK_BOX(widget), button);
+    gtk_container_add(GTK_CONTAINER(widget), button);
     g_signal_connect(G_OBJECT(button), "clicked",
 		     G_CALLBACK(extbody_send_mail), (gpointer) mime_body);
 
@@ -418,14 +418,14 @@ balsa_mime_widget_new_message_tl(BalsaMessage * bm,
 
     headers = bm_header_widget_new(bm, tl_buttons);
     balsa_mime_widget_set_header_widget(mw, headers);
-    gtk_box_pack_start(GTK_BOX(box), headers);
+    gtk_container_add(GTK_CONTAINER(box), headers);
 
     container = gtk_box_new(GTK_ORIENTATION_VERTICAL, BMW_MESSAGE_PADDING);
     balsa_mime_widget_set_container(mw, container);
     gtk_widget_set_vexpand(container, TRUE);
     gtk_widget_set_margin_top(container,
                               BMW_CONTAINER_BORDER - BMW_MESSAGE_PADDING);
-    gtk_box_pack_start(GTK_BOX(box), container);
+    gtk_container_add(GTK_CONTAINER(box), container);
 
     return mw;
 }
@@ -473,13 +473,9 @@ bm_header_widget_new(BalsaMessage * bm, GtkWidget * const * buttons)
 {
     GtkWidget *grid;
     GtkEventController *controller;
-#ifdef GTK_INFO_BAR_WRAPPING_IS_BROKEN
-    GtkWidget *hbox;
-#else                           /* GTK_INFO_BAR_WRAPPING_IS_BROKEN */
     GtkWidget *info_bar_widget;
     GtkInfoBar *info_bar;
     GtkWidget *content_area;
-#endif                          /* GTK_INFO_BAR_WRAPPING_IS_BROKEN */
     GtkWidget *action_area;
     GtkWidget *widget;
     GtkWidget *face_box;
@@ -495,32 +491,21 @@ bm_header_widget_new(BalsaMessage * bm, GtkWidget * const * buttons)
 		     G_CALLBACK(balsa_mime_widget_key_press_event), bm);
     gtk_widget_add_controller(grid, controller);
 
-#ifdef GTK_INFO_BAR_WRAPPING_IS_BROKEN
-    hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-    gtk_box_pack_start(GTK_BOX(hbox), grid);
-    g_object_set(G_OBJECT(hbox), "margin", 6, NULL);
-
-    action_area = gtk_button_box_new(GTK_ORIENTATION_VERTICAL);
-    gtk_button_box_set_layout(GTK_BUTTON_BOX(action_area),
-                              GTK_BUTTONBOX_START);
-    gtk_box_pack_end(GTK_BOX(hbox), action_area);
-#else                           /* GTK_INFO_BAR_WRAPPING_IS_BROKEN */
     info_bar_widget = gtk_info_bar_new();
     info_bar = GTK_INFO_BAR(info_bar_widget);
 
     content_area = gtk_info_bar_get_content_area(info_bar);
-    gtk_box_pack_start(GTK_BOX(content_area), grid);
+    gtk_container_add(GTK_CONTAINER(content_area), grid);
 
     action_area = gtk_info_bar_get_action_area(info_bar);
     gtk_orientable_set_orientation(GTK_ORIENTABLE(action_area),
                                    GTK_ORIENTATION_VERTICAL);
     gtk_button_box_set_layout(GTK_BUTTON_BOX(action_area),
                               GTK_BUTTONBOX_START);
-#endif                          /* GTK_INFO_BAR_WRAPPING_IS_BROKEN */
     face_box = balsa_message_get_face_box(bm);
     if (face_box == NULL) {
         face_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-        gtk_box_pack_start(GTK_BOX(action_area), face_box);
+        gtk_container_add(GTK_CONTAINER(action_area), face_box);
         gtk_button_box_set_child_non_homogeneous(GTK_BUTTON_BOX(action_area),
                                                  face_box, TRUE);
         balsa_message_set_face_box(bm, face_box);
@@ -528,17 +513,13 @@ bm_header_widget_new(BalsaMessage * bm, GtkWidget * const * buttons)
 
     if (buttons) {
         while (*buttons) {
-            gtk_box_pack_start(GTK_BOX(action_area), *buttons++);
+            gtk_container_add(GTK_CONTAINER(action_area), *buttons++);
         }
     }
 
     widget = gtk_frame_new(NULL);
     gtk_frame_set_shadow_type(GTK_FRAME(widget), GTK_SHADOW_IN);
-#ifdef GTK_INFO_BAR_WRAPPING_IS_BROKEN
-    gtk_container_add(GTK_CONTAINER(widget), hbox);
-#else                           /* GTK_INFO_BAR_WRAPPING_IS_BROKEN */
     gtk_container_add(GTK_CONTAINER(widget), info_bar_widget);
-#endif                          /* GTK_INFO_BAR_WRAPPING_IS_BROKEN */
 
     g_object_set_data(G_OBJECT(widget), BALSA_MESSAGE_GRID, grid);
 
@@ -655,8 +636,8 @@ add_header_gchar(GtkGrid * grid, const gchar * header, const gchar * label,
                          G_CALLBACK(label_size_allocate_cb), expander);
 
         hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-        gtk_box_pack_start(GTK_BOX(hbox), value_label);
-        gtk_box_pack_start(GTK_BOX(hbox), expander);
+        gtk_container_add(GTK_CONTAINER(hbox), value_label);
+        gtk_container_add(GTK_CONTAINER(hbox), expander);
         gtk_grid_attach_next_to(grid, hbox, lab, GTK_POS_RIGHT, 1, 1);
     }
 

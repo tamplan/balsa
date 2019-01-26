@@ -220,12 +220,12 @@ store_address_dialog(StoreAddressInfo * info)
     if (balsa_app.address_book_list && balsa_app.address_book_list->next) {
         /* User has more than one address book, so show the options */
         frame = store_address_book_frame(info);
-        gtk_box_pack_start(GTK_BOX(vbox), frame);
+        gtk_container_add(GTK_CONTAINER(vbox), frame);
     }
 
     frame = store_address_note_frame(info);
     gtk_widget_set_vexpand(frame, TRUE);
-    gtk_box_pack_start(GTK_BOX(vbox), frame);
+    gtk_container_add(GTK_CONTAINER(vbox), frame);
 
     return dialog;
 }
@@ -285,7 +285,7 @@ store_address_book_frame(StoreAddressInfo * info)
 
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12);
     g_object_set(G_OBJECT(hbox), "margin", 4, NULL);
-    gtk_box_pack_start(GTK_BOX(hbox), gtk_label_new(_("Address Book:")));
+    gtk_container_add(GTK_CONTAINER(hbox), gtk_label_new(_("Address Book:")));
 
     combo_box = gtk_combo_box_text_new();
     g_signal_connect(combo_box, "changed",
@@ -312,7 +312,7 @@ store_address_book_frame(StoreAddressInfo * info)
     gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), default_ab_offset);
 
     gtk_widget_set_hexpand(combo_box, TRUE);
-    gtk_box_pack_start(GTK_BOX(hbox), combo_box);
+    gtk_container_add(GTK_CONTAINER(hbox), combo_box);
 
     return hbox;
 }

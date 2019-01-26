@@ -212,26 +212,26 @@ build_left_side(void)
     gtk_container_add(GTK_CONTAINER(sw), GTK_WIDGET(fe_filters_list));
 
     gtk_widget_set_vexpand(sw, TRUE);
-    gtk_box_pack_start(GTK_BOX(vbox), sw);
+    gtk_container_add(GTK_CONTAINER(vbox), sw);
 
     /* new and delete buttons */
     bbox = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
     gtk_box_set_spacing(GTK_BOX(bbox), 2);
     gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox), GTK_BUTTONBOX_SPREAD);
 
-    gtk_box_pack_start(GTK_BOX(vbox), bbox);
+    gtk_container_add(GTK_CONTAINER(vbox), bbox);
 
     /* new button */
     /* Translators: button "New" filter */
     fe_new_button = gtk_button_new_with_mnemonic(C_("filter", "_New"));
     g_signal_connect(G_OBJECT(fe_new_button), "clicked",
 		     G_CALLBACK(fe_new_pressed), NULL);
-    gtk_box_pack_start(GTK_BOX(bbox), fe_new_button);
+    gtk_container_add(GTK_CONTAINER(bbox), fe_new_button);
     /* delete button */
     fe_delete_button = gtk_button_new_with_mnemonic(("_Delete"));
     g_signal_connect(G_OBJECT(fe_delete_button), "clicked",
 		     G_CALLBACK(fe_delete_pressed), NULL);
-    gtk_box_pack_start(GTK_BOX(bbox), fe_delete_button);
+    gtk_container_add(GTK_CONTAINER(bbox), fe_delete_button);
     gtk_widget_set_sensitive(fe_delete_button, FALSE);
 
     return vbox;
@@ -284,7 +284,7 @@ build_match_page()
 						NULL, NULL);
     g_signal_connect(fe_op_codes_option_menu, "changed",
                      G_CALLBACK(fe_action_changed), NULL);
-    gtk_box_pack_start(GTK_BOX(box), fe_op_codes_option_menu);
+    gtk_container_add(GTK_CONTAINER(box), fe_op_codes_option_menu);
 
     /* list of conditions defining how this filter matches */
 
@@ -309,17 +309,17 @@ build_match_page()
     gtk_grid_attach(GTK_GRID(page), box, 0, 3, 2, 1);
     fe_condition_edit_button = gtk_button_new_with_mnemonic(_("_Edit"));
     gtk_widget_set_sensitive(fe_condition_edit_button,FALSE);
-    gtk_box_pack_start(GTK_BOX(box), fe_condition_edit_button);
+    gtk_container_add(GTK_CONTAINER(box), fe_condition_edit_button);
     g_signal_connect(G_OBJECT(fe_condition_edit_button), "clicked",
                      G_CALLBACK(fe_edit_condition), GINT_TO_POINTER(0));
     /* Translators: button "New" filter match */
     button = gtk_button_new_with_mnemonic(C_("filter match", "Ne_w"));
-    gtk_box_pack_start(GTK_BOX(box), button);
+    gtk_container_add(GTK_CONTAINER(box), button);
     g_signal_connect(G_OBJECT(button), "clicked",
                      G_CALLBACK(fe_edit_condition), GINT_TO_POINTER(1));
     fe_condition_delete_button = gtk_button_new_with_mnemonic(_("_Remove"));
     gtk_widget_set_sensitive(fe_condition_delete_button,FALSE);
-    gtk_box_pack_start(GTK_BOX(box), fe_condition_delete_button);
+    gtk_container_add(GTK_CONTAINER(box), fe_condition_delete_button);
     g_signal_connect(G_OBJECT(fe_condition_delete_button), "clicked",
 		     G_CALLBACK(fe_condition_remove_pressed), NULL);
 
@@ -385,7 +385,7 @@ build_action_page(GtkWindow * window)
     frame = gtk_frame_new(_("Notification:"));
     gtk_frame_set_label_align(GTK_FRAME(frame), GTK_POS_LEFT);
     gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_ETCHED_IN);
-    gtk_box_pack_start(GTK_BOX(page), frame);
+    gtk_container_add(GTK_CONTAINER(page), frame);
 
     grid = gtk_grid_new();
     gtk_grid_set_row_spacing(GTK_GRID(grid), 5);
@@ -437,7 +437,7 @@ build_action_page(GtkWindow * window)
     frame = gtk_frame_new(_("Action to perform:"));
     gtk_frame_set_label_align(GTK_FRAME(frame), GTK_POS_LEFT);
     gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_ETCHED_IN);
-    gtk_box_pack_start(GTK_BOX(page), frame);
+    gtk_container_add(GTK_CONTAINER(page), frame);
 
     box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
     gtk_box_set_homogeneous(GTK_BOX(box), TRUE);
@@ -448,7 +448,7 @@ build_action_page(GtkWindow * window)
         fe_build_option_menu(fe_actions, G_N_ELEMENTS(fe_actions),
                              G_CALLBACK(fe_action_selected), NULL);
     gtk_widget_set_vexpand(fe_action_option_menu, TRUE);
-    gtk_box_pack_start(GTK_BOX(box), fe_action_option_menu);
+    gtk_container_add(GTK_CONTAINER(box), fe_action_option_menu);
 
     /* FIXME : we use the global mru folder list, perhaps we should use
        our own. We'll see this later, for now let's make something usable
@@ -460,11 +460,11 @@ build_action_page(GtkWindow * window)
     g_signal_connect(G_OBJECT(fe_mailboxes), "changed",
                      G_CALLBACK(fe_action_changed), NULL);
     gtk_widget_set_vexpand(fe_mailboxes, TRUE);
-    gtk_box_pack_start(GTK_BOX(box), fe_mailboxes);
+    gtk_container_add(GTK_CONTAINER(box), fe_mailboxes);
 
     fe_color_buttons = fe_make_color_buttons();
     gtk_widget_set_vexpand(fe_color_buttons, TRUE);
-    gtk_box_pack_start(GTK_BOX(box), fe_color_buttons);
+    gtk_container_add(GTK_CONTAINER(box), fe_color_buttons);
     return page;
 }				/* end build_action_page() */
 
@@ -487,7 +487,7 @@ build_right_side(GtkWindow * window)
     notebook = gtk_notebook_new();
     gtk_notebook_set_tab_pos(GTK_NOTEBOOK(notebook), GTK_POS_TOP);
     gtk_widget_set_vexpand(notebook, TRUE);
-    gtk_box_pack_start(GTK_BOX(rightside), notebook);
+    gtk_container_add(GTK_CONTAINER(rightside), notebook);
 
     page = build_match_page();
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook),
@@ -498,17 +498,17 @@ build_right_side(GtkWindow * window)
 
     /* button box */
     bbox = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
-    gtk_box_pack_start(GTK_BOX(rightside), bbox);
+    gtk_container_add(GTK_CONTAINER(rightside), bbox);
 
     fe_apply_button = gtk_button_new_with_mnemonic(_("_Apply"));
     g_signal_connect(G_OBJECT(fe_apply_button), "clicked",
 		     G_CALLBACK(fe_apply_pressed), NULL);
-    gtk_box_pack_start(GTK_BOX(bbox), fe_apply_button);
+    gtk_container_add(GTK_CONTAINER(bbox), fe_apply_button);
 
     fe_revert_button = gtk_button_new_with_mnemonic(_("Re_vert"));
     g_signal_connect(G_OBJECT(fe_revert_button), "clicked",
 		     G_CALLBACK(fe_revert_pressed), NULL);
-    gtk_box_pack_start(GTK_BOX(bbox), fe_revert_button);
+    gtk_container_add(GTK_CONTAINER(bbox), fe_revert_button);
     gtk_widget_set_sensitive(fe_apply_button, FALSE);
     gtk_widget_set_sensitive(fe_revert_button, FALSE);
 
@@ -589,18 +589,18 @@ filters_edit_dialog(GtkWindow * parent)
     /* main hbox */
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, FILTER_EDIT_PADDING);
     gtk_widget_set_vexpand(hbox, TRUE);
-    gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(fe_window))), hbox);
+    gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(fe_window))), hbox);
     gtk_widget_set_margin_top(piece, FILTER_EDIT_PADDING);
-    gtk_box_pack_start(GTK_BOX(hbox), piece);
+    gtk_container_add(GTK_CONTAINER(hbox), piece);
 
-    gtk_box_pack_start(GTK_BOX(hbox),
+    gtk_container_add(GTK_CONTAINER(hbox),
                        gtk_separator_new(GTK_ORIENTATION_VERTICAL));
 
     fe_right_page = build_right_side(GTK_WINDOW(fe_window));
     gtk_widget_set_sensitive(fe_right_page, FALSE);
     gtk_widget_set_hexpand(fe_right_page, TRUE);
     gtk_widget_set_margin_top(fe_right_page, FILTER_EDIT_PADDING);
-    gtk_box_pack_start(GTK_BOX(hbox), fe_right_page);
+    gtk_container_add(GTK_CONTAINER(hbox), fe_right_page);
 
     fe_user_headers_list = NULL;
 

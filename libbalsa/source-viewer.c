@@ -286,11 +286,11 @@ libbalsa_show_message_source(GtkApplication  * application,
 #if HAVE_MACOSX_DESKTOP
     libbalsa_macosx_menu(window, GTK_MENU_SHELL(menu_bar));
 #else
-    gtk_box_pack_start(GTK_BOX(vbox), menu_bar);
+    gtk_container_add(GTK_CONTAINER(vbox), menu_bar);
 #endif
 
     gtk_widget_set_vexpand(interior, TRUE);
-    gtk_box_pack_start(GTK_BOX(vbox), interior);
+    gtk_container_add(GTK_CONTAINER(vbox), interior);
     gtk_container_add(GTK_CONTAINER(window), vbox);
 
     source_viewer->msg = g_object_ref(msg);

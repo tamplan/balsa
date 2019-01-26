@@ -293,7 +293,7 @@ balsa_spell_check_init(BalsaSpellCheck *spell_check)
     GtkTreeViewColumn *column;
     GtkTreeSelection *selection;
     GtkWidget *box_widget;
-    GtkBox *box;
+    GtkContainer *box;
 
     /* Set spell checker */
 
@@ -310,15 +310,15 @@ balsa_spell_check_init(BalsaSpellCheck *spell_check)
     g_object_set(G_OBJECT(box_widget), "margin", BALSA_SPELL_CHECK_PADDING, NULL);
     gtk_container_add((GtkContainer *) spell_check, box_widget);
 
-    box = (GtkBox *) box_widget;
-    gtk_box_pack_start(box, widget);
+    box = (GtkContainer *) box_widget;
+    gtk_container_add(box, widget);
 
     sw = gtk_scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(sw),
                                    GTK_POLICY_AUTOMATIC,
                                    GTK_POLICY_AUTOMATIC);
     gtk_widget_set_vexpand(sw, TRUE);
-    gtk_box_pack_start(box, sw);
+    gtk_container_add(box, sw);
 
     /* setup suggestion list */
     store  = gtk_list_store_new(1, G_TYPE_STRING);
@@ -342,7 +342,7 @@ balsa_spell_check_init(BalsaSpellCheck *spell_check)
 
     /* setup buttons to perform actions */
     widget = gtk_grid_new();
-    gtk_box_pack_start(box, widget);
+    gtk_container_add(box, widget);
 
     grid = GTK_GRID(widget);
     gtk_grid_set_row_spacing(grid, BALSA_SPELL_CHECK_PADDING);

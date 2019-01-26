@@ -987,8 +987,8 @@ libbalsa_address_get_edit_widget(const LibBalsaAddress *address,
 
             entries[cnt] = lba_addr_list_widget(changed_cb,
                                                    changed_data);
-            gtk_box_pack_start(GTK_BOX(box), label);
-            gtk_box_pack_start(GTK_BOX(box), but);
+            gtk_container_add(GTK_CONTAINER(box), label);
+            gtk_container_add(GTK_CONTAINER(box), but);
             lhs = box;
             g_signal_connect(but, "clicked", G_CALLBACK(add_row),
                              entries[cnt]);

@@ -35,7 +35,7 @@
 
 static void on_gpg_key_button(GtkWidget *button, const gchar *fingerprint);
 static void on_key_import_button(GtkButton *button, gpointer user_data);
-static gboolean create_import_keys_widget(GtkBox *box, const gchar *key_buf, GError **error);
+static gboolean create_import_keys_widget(GtkContainer *box, const gchar *key_buf, GError **error);
 static void show_public_key_data(GtkExpander *expander, gpointer user_data);
 
 
@@ -86,7 +86,7 @@ balsa_mime_widget_new_pgpkey(BalsaMessage        *bm,
         mw = g_object_new(BALSA_TYPE_MIME_WIDGET, NULL);
         box = gtk_box_new(GTK_ORIENTATION_VERTICAL, BMW_VBOX_SPACE);
         balsa_mime_widget_set_widget(mw, box);
-        if (!create_import_keys_widget(GTK_BOX(box), body_buf, &err)) {
+        if (!create_import_keys_widget(GTK_CONTAINER(box), body_buf, &err)) {
             balsa_information(LIBBALSA_INFORMATION_ERROR,
                               _("Could not process GnuPG keys: %s"),
                               err != NULL ? err->message : "Unknown error");
@@ -130,7 +130,7 @@ balsa_mime_widget_signature_widget(LibBalsaMessageBody * mime_body,
     label = gtk_label_new((lines[1] != NULL) ? lines[1] : lines[0]);
     gtk_label_set_selectable(GTK_LABEL(label), TRUE);
     gtk_widget_set_halign(label, GTK_ALIGN_START);
-    gtk_box_pack_start(GTK_BOX(vbox), label);
+    gtk_container_add(GTK_CONTAINER(vbox), label);
     if (g_mime_gpgme_sigstat_get_protocol(mime_body->sig_info)
             == GPGME_PROTOCOL_OpenPGP) {
         GtkWidget *button;
@@ -144,7 +144,7 @@ balsa_mime_widget_signature_widget(LibBalsaMessageBody * mime_body,
                          G_CALLBACK(on_gpg_key_button),
                          (gpointer) g_mime_gpgme_sigstat_get_fingerprint
                                     (mime_body->sig_info));
-        gtk_box_pack_start(GTK_BOX(vbox), button);
+        gtk_container_add(GTK_CONTAINER(vbox), button);
     }
 
     /* Hack alert: if we omit the box below and use the expander as signature widget
@@ -153,7 +153,7 @@ balsa_mime_widget_signature_widget(LibBalsaMessageBody * mime_body,
      * the label... */
     signature_widget = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     expander = gtk_expander_new(lines[0]);
-    gtk_box_pack_start(GTK_BOX(signature_widget), expander);
+    gtk_container_add(GTK_CONTAINER(signature_widget), expander);
     gtk_container_add(GTK_CONTAINER(expander), vbox);
 
     /* add a callback to load the key when the user wants to show the details
@@ -164,6 +164,7 @@ balsa_mime_widget_signature_widget(LibBalsaMessageBody * mime_body,
     	(g_mime_gpgme_sigstat_get_key(mime_body->sig_info) == NULL)) {
     	g_signal_connect(expander, "activate", (GCallback) show_public_key_data, mime_body);
     	g_object_set_data(G_OBJECT(expander), "vbox", vbox);
+    	g_object_set_data(G_OBJECT(expander), "label", label);
     }
     g_object_set(G_OBJECT(signature_widget), "margin", BMW_CONTAINER_BORDER, NULL);
 
@@ -187,7 +188,7 @@ balsa_mime_widget_crypto_frame(LibBalsaMessageBody * mime_body, GtkWidget * chil
     gtk_container_add(GTK_CONTAINER(frame), vbox);
     icon_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, BMW_VBOX_SPACE);
     if (was_encrypted)
-        gtk_box_pack_start(GTK_BOX(icon_box),
+        gtk_container_add(GTK_CONTAINER(icon_box),
                            gtk_image_new_from_icon_name
                            (balsa_icon_id(BALSA_PIXMAP_ENCR)));
     if (!no_signature) {
@@ -195,17 +196,17 @@ balsa_mime_widget_crypto_frame(LibBalsaMessageBody * mime_body, GtkWidget * chil
 	    balsa_mime_widget_signature_icon_name(libbalsa_message_body_protect_state(mime_body));
 	if (!icon_name)
 	    icon_name = BALSA_PIXMAP_SIGN;
-        gtk_box_pack_start(GTK_BOX(icon_box),
+        gtk_container_add(GTK_CONTAINER(icon_box),
                            gtk_image_new_from_icon_name
                            (balsa_icon_id(icon_name)));
     }
     gtk_frame_set_label_widget(GTK_FRAME(frame), icon_box);
     g_object_set(G_OBJECT(vbox), "margin", BMW_MESSAGE_PADDING, NULL);
 
-    gtk_box_pack_start(GTK_BOX(vbox), child);
+    gtk_container_add(GTK_CONTAINER(vbox), child);
 
     if (signature) {
-	gtk_box_pack_end(GTK_BOX(vbox), signature);
+	gtk_container_add(GTK_CONTAINER(vbox), signature);
     }
 
     return frame;
@@ -288,7 +289,7 @@ on_key_import_button(GtkButton *button,
 
 
 static gboolean
-create_import_keys_widget(GtkBox *box, const gchar *key_buf, GError **error)
+create_import_keys_widget(GtkContainer *box, const gchar *key_buf, GError **error)
 {
 	gboolean success = FALSE;
 	gpgme_ctx_t ctx;
@@ -321,19 +322,19 @@ create_import_keys_widget(GtkBox *box, const gchar *key_buf, GError **error)
 						success = FALSE;
 					} else {
 						key_widget = libbalsa_gpgme_key(this_key, NULL, GPG_SUBKEY_CAP_ALL, FALSE);
-						gtk_box_pack_start(box, key_widget);
+						gtk_container_add(box, key_widget);
 
 						import_btn = gtk_button_new_with_label(_("Import key into the local key ring"));
 						g_object_set_data_full(G_OBJECT(import_btn), "keydata", key_ascii, (GDestroyNotify) g_free);
 						g_signal_connect(G_OBJECT(import_btn), "clicked", (GCallback) on_key_import_button, NULL);
-						gtk_box_pack_start(box, import_btn);
+						gtk_container_add(box, import_btn);
 
 						if (item->next != NULL) {
                                                     GtkWidget *separator;
 
 							separator = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
                                                         gtk_widget_set_margin_top(separator, BMW_VBOX_SPACE);
-							gtk_box_pack_start(box, separator);
+							gtk_container_add(box, separator);
 						}
 					}
 				}
@@ -370,14 +371,15 @@ show_public_key_data(GtkExpander *expander,
                     key != NULL) {
 			GtkWidget *key_widget;
 			GtkBox *vbox;
+			GtkWidget *label;
                         const gchar *fingerprint;
 
 			vbox = GTK_BOX(g_object_steal_data(G_OBJECT(expander), "vbox"));
                         fingerprint =
                             g_mime_gpgme_sigstat_get_fingerprint(body->sig_info);
 			key_widget = libbalsa_gpgme_key(key, fingerprint, 0U, FALSE);
-			gtk_box_pack_start(vbox, key_widget);
-			gtk_box_reorder_child(vbox, key_widget, 1U);
+			label = g_object_get_data(G_OBJECT(expander), "label");
+                        gtk_box_insert_child_after(vbox, key_widget, label);
 		}
 	}
 }

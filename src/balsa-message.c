@@ -563,7 +563,7 @@ bm_find_bar_new(BalsaMessage * bm)
     gtk_toolbar_set_style(GTK_TOOLBAR(toolbar), GTK_TOOLBAR_BOTH_HORIZ);
 
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
-    gtk_box_pack_start(GTK_BOX(hbox), gtk_label_new(_("Find:")));
+    gtk_container_add(GTK_CONTAINER(hbox), gtk_label_new(_("Find:")));
     bm->find_entry = gtk_entry_new();
 
     /* Make sure we see "Esc" and "Return" key presses: */
@@ -588,7 +588,7 @@ bm_find_bar_new(BalsaMessage * bm)
 
     g_signal_connect(bm->find_entry, "changed",
                      G_CALLBACK(bm_find_entry_changed_cb), bm);
-    gtk_box_pack_start(GTK_BOX(hbox), bm->find_entry);
+    gtk_container_add(GTK_CONTAINER(hbox), bm->find_entry);
 
     tool_item = gtk_tool_item_new();
     gtk_container_add(GTK_CONTAINER(tool_item), hbox);
@@ -689,7 +689,7 @@ balsa_message_init(BalsaMessage * bm)
     GtkEventController *controller;
 
     bm->switcher = gtk_stack_switcher_new();
-    gtk_box_pack_start(GTK_BOX(bm), bm->switcher);
+    gtk_container_add(GTK_CONTAINER(bm), bm->switcher);
 
     bm->stack = gtk_stack_new();
     stack = GTK_STACK(bm->stack);
@@ -697,7 +697,7 @@ balsa_message_init(BalsaMessage * bm)
                                   GTK_STACK_TRANSITION_TYPE_SLIDE_UP_DOWN);
     gtk_stack_switcher_set_stack(GTK_STACK_SWITCHER(bm->switcher), stack);
     gtk_widget_set_vexpand(bm->stack, TRUE);
-    gtk_box_pack_start(GTK_BOX(bm), bm->stack);
+    gtk_container_add(GTK_CONTAINER(bm), bm->stack);
 
     /* Box to hold the scrolled window and the find bar */
     vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
@@ -715,7 +715,7 @@ balsa_message_init(BalsaMessage * bm)
     gtk_widget_add_controller(scroll, controller);
 
     gtk_widget_set_vexpand(scroll, TRUE);
-    gtk_box_pack_start(GTK_BOX(vbox), scroll);
+    gtk_container_add(GTK_CONTAINER(vbox), scroll);
 
     /* Widget to hold headers */
     buttons = bm_header_tl_buttons(bm);
@@ -811,7 +811,7 @@ balsa_message_init(BalsaMessage * bm)
 
     /* Find-in-message toolbar that is hidden by default. */
     bm->find_bar = bm_find_bar_new(bm);
-    gtk_box_pack_start(GTK_BOX(vbox), bm->find_bar);
+    gtk_container_add(GTK_CONTAINER(vbox), bm->find_bar);
 }
 
 static void
@@ -1542,7 +1542,7 @@ display_face(BalsaMessage * bm)
         return;
     }
 
-    gtk_box_pack_start(GTK_BOX(face_box), image);
+    gtk_container_add(GTK_CONTAINER(face_box), image);
 }
 
 static void
@@ -2174,7 +2174,7 @@ add_part(BalsaMessage * bm, BalsaPartInfo * info, GtkWidget * container)
 
     if ((widget = balsa_mime_widget_get_widget(info->mime_widget)) != NULL) {
         gtk_widget_set_vexpand(widget, TRUE);
-        gtk_box_pack_start(GTK_BOX(container), widget);
+        gtk_container_add(GTK_CONTAINER(container), widget);
     }
 
     bm_container = balsa_mime_widget_get_container(info->mime_widget);

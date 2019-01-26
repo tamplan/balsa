@@ -63,15 +63,15 @@ balsa_druid_page_defclient_init(BalsaDruidPageDefclient * defclient,
 
     gtk_widget_set_margin_top(label, 8);
     gtk_widget_set_vexpand(label, TRUE);
-    gtk_box_pack_start((GtkBox *) page, label);
+    gtk_container_add((GtkContainer *) page, label);
 
     gtk_widget_set_margin_top(yes, 2);
     gtk_widget_set_vexpand(yes, TRUE);
-    gtk_box_pack_start((GtkBox *) page, yes);
+    gtk_container_add((GtkContainer *) page, yes);
 
     gtk_widget_set_margin_top(no, 2);
     gtk_widget_set_vexpand(no, TRUE);
-    gtk_box_pack_start((GtkBox *) page, no);
+    gtk_container_add((GtkContainer *) page, no);
 
     return;
 }

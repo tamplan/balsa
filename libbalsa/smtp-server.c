@@ -444,7 +444,7 @@ libbalsa_smtp_server_dialog(LibBalsaSmtpServer * smtp_server,
                                       FALSE);
 
     notebook = gtk_notebook_new();
-    gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))),
+    gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(dialog))),
                        notebook);
 
 #define HIG_PADDING 12
@@ -538,9 +538,9 @@ libbalsa_smtp_server_dialog(LibBalsaSmtpServer * smtp_server,
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
     sdi->big_message = gtk_spin_button_new_with_range(0.1, 100, 0.1);
     gtk_widget_set_hexpand(sdi->big_message, TRUE);
-    gtk_box_pack_start(GTK_BOX(hbox), sdi->big_message);
+    gtk_container_add(GTK_CONTAINER(hbox), sdi->big_message);
     label = gtk_label_new(_("MB"));
-    gtk_box_pack_start(GTK_BOX(hbox), label);
+    gtk_container_add(GTK_CONTAINER(hbox), label);
     if (smtp_server->big_message > 0) {
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sdi->split_button), TRUE);
         /* The widget is in MB, but big_message is stored in kB. */

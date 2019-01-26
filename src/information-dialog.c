@@ -258,7 +258,7 @@ balsa_information_list(GtkWindow *parent, LibBalsaInformationType type,
 				       GTK_POLICY_AUTOMATIC);
         gtk_widget_set_vexpand(scrolled_window, TRUE);
         gtk_widget_set_margin_top(scrolled_window, 1); /* Seriously? */
-        gtk_box_pack_start(GTK_BOX
+        gtk_container_add(GTK_CONTAINER
                            (gtk_dialog_get_content_area
                             (GTK_DIALOG(information_dialog))),
                            scrolled_window);

@@ -502,7 +502,7 @@ message_prefs_widget(GtkPrintOperation * operation,
 
     group = gtk_box_new(GTK_ORIENTATION_VERTICAL, 12);
     g_object_set(G_OBJECT(group), "margin", 12, NULL);
-    gtk_box_pack_start(GTK_BOX(page), group);
+    gtk_container_add(GTK_CONTAINER(page), group);
 
     label = gtk_label_new(NULL);
     markup = g_strdup_printf("<b>%s</b>", _("Fonts"));
@@ -510,22 +510,22 @@ message_prefs_widget(GtkPrintOperation * operation,
     g_free(markup);
     gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
     gtk_widget_set_halign(label, GTK_ALIGN_START);
-    gtk_box_pack_start(GTK_BOX(group), label);
+    gtk_container_add(GTK_CONTAINER(group), label);
 
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     gtk_widget_set_vexpand(hbox, TRUE);
-    gtk_box_pack_start(GTK_BOX(group), hbox);
-    gtk_box_pack_start(GTK_BOX(hbox), gtk_label_new("    "));
+    gtk_container_add(GTK_CONTAINER(group), hbox);
+    gtk_container_add(GTK_CONTAINER(hbox), gtk_label_new("    "));
 
     vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
     gtk_widget_set_hexpand(vbox, TRUE);
-    gtk_box_pack_start(GTK_BOX(hbox), vbox);
+    gtk_container_add(GTK_CONTAINER(hbox), vbox);
 
     grid = gtk_grid_new();
     gtk_grid_set_row_spacing(GTK_GRID(grid), 6);
     gtk_grid_set_column_spacing(GTK_GRID(grid), 6);
 
-    gtk_box_pack_start(GTK_BOX(vbox), grid);
+    gtk_container_add(GTK_CONTAINER(vbox), grid);
 
     print_prefs->header_font =
 	add_font_button(_("_Header Font:"), balsa_app.print_header_font,
@@ -538,7 +538,7 @@ message_prefs_widget(GtkPrintOperation * operation,
 			GTK_GRID(grid), 2);
 
     group = gtk_box_new(GTK_ORIENTATION_VERTICAL, 12);
-    gtk_box_pack_start(GTK_BOX(page), group);
+    gtk_container_add(GTK_CONTAINER(page), group);
 
     label = gtk_label_new(NULL);
     markup = g_strdup_printf("<b>%s</b>", _("Highlighting"));
@@ -546,23 +546,23 @@ message_prefs_widget(GtkPrintOperation * operation,
     g_free(markup);
     gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
     gtk_widget_set_halign(label, GTK_ALIGN_START);
-    gtk_box_pack_start(GTK_BOX(group), label);
+    gtk_container_add(GTK_CONTAINER(group), label);
 
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     gtk_widget_set_vexpand(hbox, TRUE);
-    gtk_box_pack_start(GTK_BOX(group), hbox);
-    gtk_box_pack_start(GTK_BOX(hbox), gtk_label_new("    "));
+    gtk_container_add(GTK_CONTAINER(group), hbox);
+    gtk_container_add(GTK_CONTAINER(hbox), gtk_label_new("    "));
 
     vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
     gtk_widget_set_hexpand(vbox, TRUE);
-    gtk_box_pack_start(GTK_BOX(hbox), vbox);
+    gtk_container_add(GTK_CONTAINER(hbox), vbox);
 
     print_prefs->highlight_cited =
 	gtk_check_button_new_with_mnemonic(_("Highlight _cited text"));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON
 				 (print_prefs->highlight_cited),
 				 balsa_app.print_highlight_cited);
-    gtk_box_pack_start(GTK_BOX(vbox), print_prefs->highlight_cited);
+    gtk_container_add(GTK_CONTAINER(vbox), print_prefs->highlight_cited);
 
     print_prefs->highlight_phrases =
 	gtk_check_button_new_with_mnemonic(_
@@ -570,10 +570,10 @@ message_prefs_widget(GtkPrintOperation * operation,
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON
 				 (print_prefs->highlight_phrases),
 				 balsa_app.print_highlight_phrases);
-    gtk_box_pack_start(GTK_BOX(vbox), print_prefs->highlight_phrases);
+    gtk_container_add(GTK_CONTAINER(vbox), print_prefs->highlight_phrases);
 
     group = gtk_box_new(GTK_ORIENTATION_VERTICAL, 12);
-    gtk_box_pack_start(GTK_BOX(page), group);
+    gtk_container_add(GTK_CONTAINER(page), group);
 
     label = gtk_label_new(NULL);
     markup = g_strdup_printf("<b>%s</b>", _("Margins"));
@@ -581,22 +581,22 @@ message_prefs_widget(GtkPrintOperation * operation,
     g_free(markup);
     gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
     gtk_widget_set_halign(label, GTK_ALIGN_START);
-    gtk_box_pack_start(GTK_BOX(group), label);
+    gtk_container_add(GTK_CONTAINER(group), label);
 
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     gtk_widget_set_vexpand(hbox, TRUE);
-    gtk_box_pack_start(GTK_BOX(group), hbox);
-    gtk_box_pack_start(GTK_BOX(hbox), gtk_label_new("    "));
+    gtk_container_add(GTK_CONTAINER(group), hbox);
+    gtk_container_add(GTK_CONTAINER(hbox), gtk_label_new("    "));
 
     vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
     gtk_widget_set_hexpand(vbox, TRUE);
-    gtk_box_pack_start(GTK_BOX(hbox), vbox);
+    gtk_container_add(GTK_CONTAINER(hbox), vbox);
 
     grid = gtk_grid_new();
     gtk_grid_set_row_spacing(GTK_GRID(grid), 6);
     gtk_grid_set_column_spacing(GTK_GRID(grid), 6);
 
-    gtk_box_pack_start(GTK_BOX(vbox), grid);
+    gtk_container_add(GTK_CONTAINER(vbox), grid);
 
     pg_setup = gtk_print_operation_get_default_page_setup(operation);
     print_prefs->margin_top =

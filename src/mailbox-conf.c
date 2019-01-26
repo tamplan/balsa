@@ -190,7 +190,7 @@ balsa_server_conf_get_advanced_widget(BalsaServerConf *bsc)
 
     bsc->grid = GTK_GRID(libbalsa_create_grid());
     g_object_set(G_OBJECT(bsc->grid), "margin", 12, NULL);
-    gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(bsc->grid));
+    gtk_container_add(GTK_CONTAINER(box), GTK_WIDGET(bsc->grid));
 
     bsc->used_rows = 0U;
 
@@ -1356,7 +1356,7 @@ create_pop_mailbox_dialog(MailboxConfWindow *mcw)
     gtk_widget_grab_focus(mcw->mailbox_name);
 
     dialog = create_generic_dialog(mcw);
-    gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))),
+    gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(dialog))),
                        notebook);
     return dialog;
 }
@@ -1475,7 +1475,7 @@ create_imap_mailbox_dialog(MailboxConfWindow *mcw)
                           mcw->mailbox_name : mcw->mb_data.imap.bsc.server);
 
     dialog = create_generic_dialog(mcw);
-    gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))),
+    gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(dialog))),
                        notebook);
 
     mcw->view_info =

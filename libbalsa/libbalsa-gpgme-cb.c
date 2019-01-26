@@ -186,7 +186,7 @@ lb_gpgme_select_key(const gchar * user_name, lb_key_sel_md_t mode, GList * keys,
 #endif
     vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 12);
     gtk_widget_set_vexpand (vbox, TRUE);
-    gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), vbox);
+    gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), vbox);
     g_object_set(G_OBJECT(vbox), "margin", 12, NULL);
     switch (mode) {
     	case LB_SELECT_PRIVATE_KEY:
@@ -212,11 +212,11 @@ lb_gpgme_select_key(const gchar * user_name, lb_key_sel_md_t mode, GList * keys,
     label = gtk_label_new(prompt);
     gtk_widget_set_halign(label, GTK_ALIGN_START);
     g_free(prompt);
-    gtk_box_pack_start(GTK_BOX(vbox), label);
+    gtk_container_add(GTK_CONTAINER(vbox), label);
 
     label = gtk_label_new(_("Double-click key to show details"));
     gtk_widget_set_halign(label, GTK_ALIGN_START);
-    gtk_box_pack_start(GTK_BOX(vbox), label);
+    gtk_container_add(GTK_CONTAINER(vbox), label);
 
     scrolled_window = gtk_scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW
@@ -225,7 +225,7 @@ lb_gpgme_select_key(const gchar * user_name, lb_key_sel_md_t mode, GList * keys,
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
     	GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
     gtk_widget_set_vexpand(scrolled_window, TRUE);
-    gtk_box_pack_start(GTK_BOX(vbox), scrolled_window);
+    gtk_container_add(GTK_CONTAINER(vbox), scrolled_window);
 
     model = gtk_list_store_new(GPG_KEY_NUM_COLUMNS, G_TYPE_STRING,	/* user ID */
 			       G_TYPE_POINTER);	/* key */
@@ -342,16 +342,16 @@ get_passphrase_real(const gchar * uid_hint, const gchar * passphrase_info,
 #endif
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12);
     g_object_set(G_OBJECT(hbox), "margin", 12, NULL);
-    gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), hbox);
+    gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), hbox);
 
     vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 12);
-    gtk_box_pack_start(GTK_BOX(hbox), vbox);
+    gtk_container_add(GTK_CONTAINER(hbox), vbox);
     if (!padlock_keyhole)
 	padlock_keyhole =
 	    gdk_pixbuf_new_from_xpm_data(padlock_keyhole_xpm);
-    gtk_box_pack_start(GTK_BOX(vbox), gtk_image_new_from_pixbuf(padlock_keyhole));
+    gtk_container_add(GTK_CONTAINER(vbox), gtk_image_new_from_pixbuf(padlock_keyhole));
     vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 12);
-    gtk_box_pack_start(GTK_BOX(hbox), vbox);
+    gtk_container_add(GTK_CONTAINER(hbox), vbox);
     if (prev_was_bad)
 	prompt =
 	    g_strdup_printf(_
@@ -362,10 +362,10 @@ get_passphrase_real(const gchar * uid_hint, const gchar * passphrase_info,
 	    g_strdup_printf(_
 			    ("%s\nPlease enter the passphrase for the secret key!\n\nKey: %s"),
 			    passphrase_info, uid_hint);
-    gtk_box_pack_start(GTK_BOX(vbox), gtk_label_new(prompt));
+    gtk_container_add(GTK_CONTAINER(vbox), gtk_label_new(prompt));
     g_free(prompt);
     entry = gtk_entry_new();
-    gtk_box_pack_start(GTK_BOX(vbox), entry);
+    gtk_container_add(GTK_CONTAINER(vbox), entry);
 
     gtk_entry_set_width_chars(GTK_ENTRY(entry), 40);
     gtk_entry_set_visibility(GTK_ENTRY(entry), FALSE);

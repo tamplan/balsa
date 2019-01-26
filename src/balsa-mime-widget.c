@@ -181,7 +181,7 @@ balsa_mime_widget_new_unknown(BalsaMessage * bm,
 
     if (mime_body->filename) {
 	msg = g_strdup_printf(_("File name: %s"), mime_body->filename);
-	gtk_box_pack_start(GTK_BOX(priv->widget), gtk_label_new(msg));
+	gtk_container_add(GTK_CONTAINER(priv->widget), gtk_label_new(msg));
 	g_free(msg);
     }
 
@@ -235,7 +235,7 @@ balsa_mime_widget_new_unknown(BalsaMessage * bm,
     msg_label = gtk_label_new(msg);
     g_free(msg);
     gtk_label_set_ellipsize(GTK_LABEL(msg_label), PANGO_ELLIPSIZE_END);
-    gtk_box_pack_start(GTK_BOX(priv->widget), msg_label);
+    gtk_container_add(GTK_CONTAINER(priv->widget), msg_label);
 
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, BMW_HBOX_SPACE);
     gtk_box_set_homogeneous(GTK_BOX(hbox), TRUE);
@@ -243,9 +243,9 @@ balsa_mime_widget_new_unknown(BalsaMessage * bm,
                                            G_CALLBACK(balsa_mime_widget_ctx_menu_cb),
                                            (gpointer) mime_body))) {
         gtk_widget_set_hexpand(button, TRUE);
-	gtk_box_pack_start(GTK_BOX(hbox), button);
+	gtk_container_add(GTK_CONTAINER(hbox), button);
     } else {
-	gtk_box_pack_start(GTK_BOX(priv->widget),
+	gtk_container_add(GTK_CONTAINER(priv->widget),
 			   gtk_label_new(_("No open or view action "
 					   "defined for this content type")));
     }
@@ -253,12 +253,12 @@ balsa_mime_widget_new_unknown(BalsaMessage * bm,
 
     button = gtk_button_new_with_mnemonic(_("S_ave part"));
     gtk_widget_set_hexpand(button, TRUE);
-    gtk_box_pack_start(GTK_BOX(hbox), button);
+    gtk_container_add(GTK_CONTAINER(hbox), button);
     g_signal_connect(G_OBJECT(button), "clicked",
 		     G_CALLBACK(balsa_mime_widget_ctx_menu_save),
 		     (gpointer) mime_body);
 
-    gtk_box_pack_start(GTK_BOX(priv->widget), hbox);
+    gtk_container_add(GTK_CONTAINER(priv->widget), hbox);
 
     return mw;
 }

@@ -999,7 +999,7 @@ add_button_to_box(const gchar * label, GCallback cb, gpointer cb_data,
 {
     GtkWidget *button = gtk_button_new_with_mnemonic(label);
     g_signal_connect_swapped(button, "clicked", cb, cb_data);
-    gtk_box_pack_start(GTK_BOX(box), button);
+    gtk_container_add(GTK_CONTAINER(box), button);
 
     return button;
 }
@@ -2141,19 +2141,19 @@ pm_grid_add_checking_group(GtkWidget * grid_widget)
 
     label = gtk_label_new(_("When mail arrives:"));
     gtk_widget_set_halign(label, GTK_ALIGN_START);
-    gtk_box_pack_start(GTK_BOX(hbox), label);
+    gtk_container_add(GTK_CONTAINER(hbox), label);
 
     pui->notify_new_mail_dialog =
         gtk_check_button_new_with_label(_("Display message"));
-    gtk_box_pack_start(GTK_BOX(hbox), pui->notify_new_mail_dialog);
+    gtk_container_add(GTK_CONTAINER(hbox), pui->notify_new_mail_dialog);
 
     pui->notify_new_mail_sound =
         gtk_check_button_new_with_label(_("Play sound"));
-    gtk_box_pack_start(GTK_BOX(hbox), pui->notify_new_mail_sound);
+    gtk_container_add(GTK_CONTAINER(hbox), pui->notify_new_mail_sound);
 
     pui->notify_new_mail_icon =
         gtk_check_button_new_with_label(_("Show icon"));
-    gtk_box_pack_start(GTK_BOX(hbox), pui->notify_new_mail_icon);
+    gtk_container_add(GTK_CONTAINER(hbox), pui->notify_new_mail_icon);
 
     pm_grid_attach(grid, hbox, 1, ++row, 3, 1);
 
@@ -3261,7 +3261,7 @@ open_preferences_manager(GtkWidget * widget, gpointer data)
 
 	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 	content_area = gtk_dialog_get_content_area(GTK_DIALOG(property_box));
-	gtk_box_pack_start(GTK_BOX(content_area), hbox);
+	gtk_container_add(GTK_CONTAINER(content_area), hbox);
 
     store = gtk_tree_store_new(PM_NUM_COLS,
                                G_TYPE_STRING,   /* PM_TEXT_COL     */
@@ -3270,7 +3270,7 @@ open_preferences_manager(GtkWidget * widget, gpointer data)
             );
     pui->view = view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
     g_object_set(view, "margin", BORDER_WIDTH, NULL);
-    gtk_box_pack_start(GTK_BOX(hbox), view);
+    gtk_container_add(GTK_CONTAINER(hbox), view);
     gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(view), FALSE);
 
     renderer = gtk_cell_renderer_text_new();
@@ -3284,7 +3284,7 @@ open_preferences_manager(GtkWidget * widget, gpointer data)
     gtk_stack_set_transition_type((GtkStack *) stack,
                                   GTK_STACK_TRANSITION_TYPE_SLIDE_UP_DOWN);
     gtk_stack_set_transition_duration((GtkStack *) stack, 400);
-    gtk_box_pack_start(GTK_BOX(hbox), stack);
+    gtk_container_add(GTK_CONTAINER(hbox), stack);
 
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
     g_signal_connect(selection, "changed",

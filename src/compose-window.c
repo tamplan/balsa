@@ -1764,9 +1764,9 @@ sw_get_user_codeset(BalsaComposeWindow *compose_window,
     g_free(msg);
     content_box = GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog)));
     gtk_box_set_spacing(content_box, 5);
-    gtk_box_pack_start(content_box, info);
+    gtk_container_add(GTK_CONTAINER(content_box), info);
     gtk_widget_set_vexpand(charset_button, TRUE);
-    gtk_box_pack_start(content_box, charset_button);
+    gtk_container_add(GTK_CONTAINER(content_box), charset_button);
     gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_OK);
 
     if (change_type) {
@@ -1775,9 +1775,9 @@ sw_get_user_codeset(BalsaComposeWindow *compose_window,
         combo_box = gtk_combo_box_text_new();
 
         gtk_widget_set_vexpand(hbox, TRUE);
-        gtk_box_pack_start(content_box, hbox);
+        gtk_container_add(GTK_CONTAINER(content_box), hbox);
         gtk_widget_set_hexpand(label, TRUE);
-        gtk_box_pack_start(GTK_BOX(hbox), label);
+        gtk_container_add(GTK_CONTAINER(hbox), label);
         gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combo_box),
                                        mime_type);
         gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combo_box),
@@ -1787,7 +1787,7 @@ sw_get_user_codeset(BalsaComposeWindow *compose_window,
                          G_CALLBACK(sw_charset_combo_box_changed),
                          charset_button);
         gtk_widget_set_hexpand(combo_box, TRUE);
-        gtk_box_pack_start(GTK_BOX(hbox), combo_box);
+        gtk_container_add(GTK_CONTAINER(hbox), combo_box);
     }
 
     if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
@@ -3648,14 +3648,14 @@ quote_parts_select_dlg(GtkTreeStore *tree_store,
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12);
     vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 12);
 
-    gtk_box_pack_start(GTK_BOX(vbox), label);
-    gtk_box_pack_start(GTK_BOX(hbox), image);
+    gtk_container_add(GTK_CONTAINER(vbox), label);
+    gtk_container_add(GTK_CONTAINER(hbox), image);
     gtk_widget_set_hexpand(vbox, TRUE);
-    gtk_box_pack_start(GTK_BOX(hbox), vbox);
+    gtk_container_add(GTK_CONTAINER(hbox), vbox);
 
     content_box = GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog)));
     gtk_widget_set_vexpand(hbox, TRUE);
-    gtk_box_pack_start(content_box, hbox);
+    gtk_container_add(GTK_CONTAINER(content_box), hbox);
 
     g_object_set(G_OBJECT(hbox), "margin", 5, NULL);
     gtk_box_set_spacing(content_box, 14);
@@ -3667,7 +3667,7 @@ quote_parts_select_dlg(GtkTreeStore *tree_store,
                                    GTK_POLICY_AUTOMATIC);
     g_object_set(G_OBJECT(scroll), "margin", 5, NULL);
     gtk_widget_set_hexpand(scroll, TRUE);
-    gtk_box_pack_start(GTK_BOX(vbox), scroll);
+    gtk_container_add(GTK_CONTAINER(vbox), scroll);
 
     /* add the tree view */
     tree_view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(tree_store));
@@ -5429,38 +5429,38 @@ subject_not_empty(BalsaComposeWindow *compose_window)
 
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12);
     gtk_widget_set_vexpand(hbox, TRUE);
-    gtk_box_pack_start (GTK_BOX (dialog_vbox), hbox);
+    gtk_container_add (GTK_CONTAINER (dialog_vbox), hbox);
     g_object_set(G_OBJECT(hbox), "margin", 6, NULL);
 
     image = gtk_image_new_from_icon_name("dialog-question");
-    gtk_box_pack_start (GTK_BOX (hbox), image);
+    gtk_container_add (GTK_CONTAINER (hbox), image);
     gtk_widget_set_valign(image, GTK_ALIGN_START);
 
     vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 12);
     gtk_widget_set_hexpand(vbox, TRUE);
-    gtk_box_pack_start (GTK_BOX (hbox), vbox);
+    gtk_container_add (GTK_CONTAINER (hbox), vbox);
 
     text_str = g_strdup_printf("<span weight=\"bold\" size=\"larger\">%s</span>\n\n%s",
                                _("You did not specify a subject for this message"),
                                _("If you would like to provide one, enter it below."));
     label = gtk_label_new (text_str);
     g_free(text_str);
-    gtk_box_pack_start (GTK_BOX (vbox), label);
+    gtk_container_add (GTK_CONTAINER (vbox), label);
     gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
     gtk_label_set_line_wrap (GTK_LABEL (label), TRUE);
     gtk_widget_set_halign(label, GTK_ALIGN_START);
     gtk_widget_set_valign(label, GTK_ALIGN_START);
 
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
-    gtk_box_pack_start (GTK_BOX (vbox), hbox);
+    gtk_container_add (GTK_CONTAINER (vbox), hbox);
 
     label = gtk_label_new (_("Subject:"));
-    gtk_box_pack_start (GTK_BOX (hbox), label);
+    gtk_container_add (GTK_CONTAINER (hbox), label);
 
     subj_entry = gtk_entry_new ();
     gtk_entry_set_text(GTK_ENTRY(subj_entry), _("(no subject)"));
     gtk_widget_set_hexpand(subj_entry, TRUE);
-    gtk_box_pack_start (GTK_BOX (hbox), subj_entry);
+    gtk_container_add (GTK_CONTAINER (hbox), subj_entry);
     gtk_entry_set_activates_default (GTK_ENTRY (subj_entry), TRUE);
     gtk_dialog_set_default_response(GTK_DIALOG (no_subj_dialog),
                                     GTK_RESPONSE_OK);
@@ -5556,9 +5556,9 @@ check_suggest_encryption(BalsaComposeWindow *compose_window)
         gtk_widget_set_valign(hbox, GTK_ALIGN_CENTER);
         gtk_container_add(GTK_CONTAINER(button), hbox);
         image = gtk_image_new_from_icon_name(balsa_icon_id(BALSA_PIXMAP_GPG_ENCRYPT));
-        gtk_box_pack_start(GTK_BOX(hbox), image);
+        gtk_container_add(GTK_CONTAINER(hbox), image);
         label = gtk_label_new_with_mnemonic(_("Send _encrypted"));
-        gtk_box_pack_start(GTK_BOX(hbox), label);
+        gtk_container_add(GTK_CONTAINER(hbox), label);
 
         button = gtk_button_new();
         gtk_dialog_add_action_widget(GTK_DIALOG(dialog), button, GTK_RESPONSE_NO);
@@ -5569,9 +5569,9 @@ check_suggest_encryption(BalsaComposeWindow *compose_window)
         gtk_widget_set_valign(hbox, GTK_ALIGN_CENTER);
         gtk_container_add(GTK_CONTAINER(button), hbox);
         image = gtk_image_new_from_icon_name(balsa_icon_id(BALSA_PIXMAP_SEND));
-        gtk_box_pack_start(GTK_BOX(hbox), image);
+        gtk_container_add(GTK_CONTAINER(hbox), image);
         label = gtk_label_new_with_mnemonic(_("Send _unencrypted"));
-        gtk_box_pack_start(GTK_BOX(hbox), label);
+        gtk_container_add(GTK_CONTAINER(hbox), label);
 
         button = gtk_button_new_with_mnemonic(_("_Cancel"));
         gtk_dialog_add_action_widget(GTK_DIALOG(dialog), button, GTK_RESPONSE_CANCEL);
@@ -7237,7 +7237,7 @@ balsa_compose_window_new()
 #if HAVE_MACOSX_DESKTOP
     libbalsa_macosx_menu(window, GTK_MENU_SHELL(menubar));
 #else
-    gtk_box_pack_start(GTK_BOX(main_box), menubar);
+    gtk_container_add(GTK_CONTAINER(main_box), menubar);
 #endif
 
     /*
@@ -7251,7 +7251,7 @@ balsa_compose_window_new()
 
     model = balsa_compose_window_get_toolbar_model();
     compose_window->toolbar = balsa_toolbar_new(model, G_ACTION_MAP(window));
-    gtk_box_pack_start(GTK_BOX(main_box), compose_window->toolbar);
+    gtk_container_add(GTK_CONTAINER(main_box), compose_window->toolbar);
 
     compose_window->flow = !balsa_app.wordwrap;
     sw_action_set_enabled(compose_window, "reflow", compose_window->flow);
@@ -7281,7 +7281,7 @@ balsa_compose_window_new()
      * bottom: */
     compose_window->paned = paned = gtk_paned_new(GTK_ORIENTATION_VERTICAL);
     gtk_widget_set_vexpand(paned, TRUE);
-    gtk_box_pack_start(GTK_BOX(main_box), paned);
+    gtk_container_add(GTK_CONTAINER(main_box), paned);
 
     /* create the top portion with the to, from, etc in it */
     gtk_paned_add1(GTK_PANED(paned), create_info_pane(compose_window));

@@ -2894,7 +2894,7 @@ balsa_index_pipe(BalsaIndex *index)
     gtk_box_set_spacing(GTK_BOX(vbox), HIG_PADDING);
 
     label = gtk_label_new(_("Specify the program to run:"));
-    gtk_box_pack_start(GTK_BOX(vbox), label);
+    gtk_container_add(GTK_CONTAINER(vbox), label);
 
     info->entry = entry = gtk_combo_box_text_new_with_entry();
     for (list = balsa_app.pipe_cmds; list; list = list->next) {
@@ -2902,7 +2902,7 @@ balsa_index_pipe(BalsaIndex *index)
                                        list->data);
     }
     gtk_combo_box_set_active(GTK_COMBO_BOX(entry), 0);
-    gtk_box_pack_start(GTK_BOX(vbox), entry);
+    gtk_container_add(GTK_CONTAINER(vbox), entry);
 
     gtk_widget_show(label);
     gtk_widget_show(entry);

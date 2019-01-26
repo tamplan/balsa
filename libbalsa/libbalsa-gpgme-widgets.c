@@ -128,7 +128,7 @@ libbalsa_gpgme_key(gpgme_key_t           key,
 		gtk_widget_set_margin_start(uid_box, 12);
 		gtk_container_add(GTK_CONTAINER(uid_expander), uid_box);
 		for (uid = key->uids->next; uid != NULL; uid = uid->next) {
-			gtk_box_pack_end(GTK_BOX(uid_box), create_key_uid_widget(uid));
+			gtk_container_add(GTK_CONTAINER(uid_box), create_key_uid_widget(uid));
 		}
 	}
 
@@ -192,13 +192,13 @@ libbalsa_gpgme_key(gpgme_key_t           key,
 		for (subkey = key->subkeys; subkey != NULL; subkey = subkey->next) {
 			if (fingerprint != NULL) {
 				if (strcmp(fingerprint, subkey->fpr) == 0) {
-					gtk_box_pack_end(GTK_BOX(subkey_box), create_subkey_widget(subkey));
+					gtk_container_add(GTK_CONTAINER(subkey_box), create_subkey_widget(subkey));
 				}
 			} else if ((((subkey_capa & GPG_SUBKEY_CAP_SIGN) != 0U) && (subkey->can_sign != 0)) ||
 					   (((subkey_capa & GPG_SUBKEY_CAP_ENCRYPT) != 0U) && (subkey->can_encrypt != 0)) ||
 					   (((subkey_capa & GPG_SUBKEY_CAP_CERTIFY) != 0U) && (subkey->can_certify != 0)) ||
 					   (((subkey_capa & GPG_SUBKEY_CAP_AUTH) != 0U) && (subkey->can_authenticate != 0))) {
-				gtk_box_pack_end(GTK_BOX(subkey_box), create_subkey_widget(subkey));
+				gtk_container_add(GTK_CONTAINER(subkey_box), create_subkey_widget(subkey));
 			} else {
 				/* do not print this subkey */
 			}
@@ -372,17 +372,17 @@ libbalsa_key_dialog(GtkWindow            *parent,
 	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12);
 	g_object_set(G_OBJECT(hbox), "margin", 6, NULL);
         gtk_widget_set_vexpand(hbox, TRUE);
-	gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), hbox);
+	gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), hbox);
 	gtk_box_set_homogeneous(GTK_BOX(hbox), FALSE);
 
 	/* standard key icon; "application-certificate" would be an alternative... */
 	icon = gtk_image_new_from_icon_name("dialog-password");
-	gtk_box_pack_start(GTK_BOX(hbox), icon);
+	gtk_container_add(GTK_CONTAINER(hbox), icon);
 	gtk_widget_set_valign(icon, GTK_ALIGN_START);
 
 	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
         gtk_widget_set_hexpand(vbox, TRUE);
-	gtk_box_pack_start(GTK_BOX(hbox), vbox);
+	gtk_container_add(GTK_CONTAINER(hbox), vbox);
 	gtk_box_set_homogeneous(GTK_BOX(vbox), FALSE);
 
 	if (message1 != NULL) {
@@ -392,21 +392,21 @@ libbalsa_key_dialog(GtkWindow            *parent,
 		markup = g_markup_printf_escaped("<b><big>%s</big></b>", message1);
 		gtk_label_set_markup(GTK_LABEL(label), markup);
 		g_free(markup);
-		gtk_box_pack_start(GTK_BOX(vbox), label);
+		gtk_container_add(GTK_CONTAINER(vbox), label);
 		gtk_label_set_line_wrap(GTK_LABEL(label), FALSE);
 	}
 
 	if (message2 != NULL) {
 		label = gtk_label_new(message2);
 		gtk_widget_set_halign(label, GTK_ALIGN_START);
-		gtk_box_pack_start(GTK_BOX(vbox), label);
+		gtk_container_add(GTK_CONTAINER(vbox), label);
 		gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
 	}
 
 	scrolledw = gtk_scrolled_window_new(NULL, NULL);
         gtk_widget_set_vexpand(scrolledw, TRUE);
         gtk_widget_set_margin_top(scrolledw, 6);
-	gtk_box_pack_start(GTK_BOX(vbox), scrolledw);
+	gtk_container_add(GTK_CONTAINER(vbox), scrolledw);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledw), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 	gtk_scrolled_window_set_min_content_height(GTK_SCROLLED_WINDOW(scrolledw), 120);
 
@@ -572,7 +572,7 @@ create_key_label_with_warn(const gchar *text,
 
 		result = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
 		icon = gtk_image_new_from_icon_name("gtk-dialog-warning");
-		gtk_box_pack_start(GTK_BOX(result), icon);
+		gtk_container_add(GTK_CONTAINER(result), icon);
 		buf = g_markup_printf_escaped("<span fgcolor=\"red\">%s</span>", text);
 		label = gtk_label_new(NULL);
 		gtk_label_set_markup(GTK_LABEL(label), buf);
@@ -581,7 +581,7 @@ create_key_label_with_warn(const gchar *text,
 		gtk_widget_set_hexpand(label, TRUE);
 		gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
 		gtk_label_set_selectable(GTK_LABEL(label), TRUE);
-		gtk_box_pack_start(GTK_BOX(result), label);
+		gtk_container_add(GTK_CONTAINER(result), label);
 	} else {
 		result = gtk_label_new(text);
 		gtk_widget_set_halign(result, GTK_ALIGN_START);
