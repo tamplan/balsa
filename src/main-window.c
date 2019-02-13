@@ -609,6 +609,8 @@ bw_set_panes(BalsaWindow * window)
     }
     if ( (bindex=balsa_window_find_current_index(window)) != NULL)
         balsa_index_set_width_preference(BALSA_INDEX(bindex), width_preference);
+
+    gtk_box_reorder_child_after(GTK_BOX(priv->vbox), priv->bottom_bar, priv->content);
 }
 
 /* Create the toolbar model for the main window's toolbar.
