@@ -319,8 +319,7 @@ balsa_ab_window_init(BalsaAbWindow *ab)
     gtk_widget_set_size_request(scrolled_window, 300, 250);
 
     /* Buttons ... */
-    hbox = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
-    gtk_button_box_set_layout(GTK_BUTTON_BOX(hbox), GTK_BUTTONBOX_SPREAD);
+    hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     gtk_widget_set_vexpand(hbox, FALSE);
     gtk_grid_attach(GTK_GRID(grid), hbox, 0, 2, 1, 1);
 

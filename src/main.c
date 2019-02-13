@@ -545,7 +545,7 @@ balsa_startup_cb(GApplication *application,
 
     default_icon = balsa_pixmap_finder("balsa_icon.png");
     if(default_icon) { /* may be NULL for developer installations */
-        gtk_window_set_default_icon_from_file(default_icon, NULL);
+        gtk_window_set_default_icon_name(default_icon);
         g_free(default_icon);
     }
 

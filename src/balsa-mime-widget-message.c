@@ -500,14 +500,10 @@ bm_header_widget_new(BalsaMessage * bm, GtkWidget * const * buttons)
     action_area = gtk_info_bar_get_action_area(info_bar);
     gtk_orientable_set_orientation(GTK_ORIENTABLE(action_area),
                                    GTK_ORIENTATION_VERTICAL);
-    gtk_button_box_set_layout(GTK_BUTTON_BOX(action_area),
-                              GTK_BUTTONBOX_START);
     face_box = balsa_message_get_face_box(bm);
     if (face_box == NULL) {
         face_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
         gtk_container_add(GTK_CONTAINER(action_area), face_box);
-        gtk_button_box_set_child_non_homogeneous(GTK_BUTTON_BOX(action_area),
-                                                 face_box, TRUE);
         balsa_message_set_face_box(bm, face_box);
     }
 

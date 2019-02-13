@@ -215,10 +215,7 @@ build_left_side(void)
     gtk_container_add(GTK_CONTAINER(vbox), sw);
 
     /* new and delete buttons */
-    bbox = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
-    gtk_box_set_spacing(GTK_BOX(bbox), 2);
-    gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox), GTK_BUTTONBOX_SPREAD);
-
+    bbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
     gtk_container_add(GTK_CONTAINER(vbox), bbox);
 
     /* new button */
@@ -304,7 +301,7 @@ build_match_page()
 
     gtk_container_add(GTK_CONTAINER(scroll), GTK_WIDGET(fe_conditions_list));
 
-    box = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
+    box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     gtk_widget_set_hexpand(box, TRUE);
     gtk_grid_attach(GTK_GRID(page), box, 0, 3, 2, 1);
     fe_condition_edit_button = gtk_button_new_with_mnemonic(_("_Edit"));
@@ -497,7 +494,7 @@ build_right_side(GtkWindow * window)
 			     page, gtk_label_new(_("Action")));
 
     /* button box */
-    bbox = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
+    bbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     gtk_container_add(GTK_CONTAINER(rightside), bbox);
 
     fe_apply_button = gtk_button_new_with_mnemonic(_("_Apply"));

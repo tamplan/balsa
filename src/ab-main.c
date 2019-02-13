@@ -859,7 +859,7 @@ bab_get_edit_button_box(struct ABMainWindow *abmw)
     GtkWidget *box_widget;
     GtkContainer *box;
 
-    box_widget = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
+    box_widget = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     box = GTK_CONTAINER(box_widget);
 
     abmw->apply_button = gtk_button_new_with_mnemonic(_("_Apply"));

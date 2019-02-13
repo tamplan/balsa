@@ -3868,7 +3868,7 @@ bw_find_real(BalsaWindow * window, BalsaIndex * bindex, gboolean again)
 	gtk_container_add(GTK_CONTAINER(vbox), frame);
 
 	/* Button box */
-	box = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
+	box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 
 	button = gtk_button_new_with_mnemonic(_("_Apply"));
 	g_signal_connect(G_OBJECT(button), "clicked",
