@@ -230,7 +230,7 @@ dnl #####################################################################
 
 PKG_CHECK_MODULES(BALSA, [
 glib-2.0 >= 2.56.0
-gtk+-4.0
+gtk4
 gmime-2.6
 gio-2.0
 gthread-2.0
@@ -240,7 +240,7 @@ fribidi
 
 PKG_CHECK_MODULES(BALSA_AB, [
    glib-2.0
-   gtk+-4.0
+   gtk4
    gmime-2.6
 ])
 
