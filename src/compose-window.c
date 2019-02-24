@@ -553,7 +553,7 @@ address_book_cb(LibBalsaAddressView *address_view,
                            COMPOSE_WINDOW_ADDRESS_BOOK_KEY);
     if (ab != NULL) {
         gtk_window_present_with_time(GTK_WINDOW(ab),
-                                     gtk_get_ccurrent_event_time());
+                                     gtk_get_current_event_time());
         return;
     }
 
@@ -6721,7 +6721,7 @@ sw_spell_check_activated(GSimpleAction *action,
     if (compose_window->spell_checker) {
         if (gtk_widget_get_realized((GtkWidget *) compose_window->spell_checker)) {
             gtk_window_present_with_time(GTK_WINDOW(compose_window->spell_checker),
-                                         gtk_get_ccurrent_event_time());
+                                         gtk_get_current_event_time());
             return;
         } else {
             /* A spell checker was created, but not shown because of
@@ -7530,7 +7530,7 @@ balsa_compose_window_continue(LibBalsaMailbox *mailbox,
     if ((compose_window = g_object_get_data(G_OBJECT(message),
                                    BALSA_COMPOSE_WINDOW_KEY))) {
         gtk_window_present_with_time(GTK_WINDOW(compose_window),
-                                     gtk_get_ccurrent_event_time());
+                                     gtk_get_current_event_time());
         return NULL;
     }
 
