@@ -1,3 +1,682 @@
+2019-02-23  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	gtk_window_present() will be deprecated in later versions of
+	Gtk-2.24, in favor of gtk_window_present_with_time().
+
+	We never have a time-stamp readily available, so just pass
+	gtk_get_current_event_time().
+
+	* libbalsa/identity.c (libbalsa_identity_select_dialog),
+	(libbalsa_identity_config_dialog):
+	* libbalsa/smtp-server.c (libbalsa_smtp_server_dialog):
+	* src/address-book-config.c (balsa_address_book_config_new):
+	* src/balsa-index.c (balsa_index_pipe):
+	* src/filter-edit-dialog.c (filters_edit_dialog):
+	* src/filter-export-dialog.c (filters_export_dialog):
+	* src/filter-run-dialog.c (filters_run_dialog):
+	* src/folder-conf.c (folder_conf_imap_node),
+	(folder_conf_imap_sub_node):
+	* src/mailbox-conf.c (mailbox_conf_new), (mailbox_conf_edit):
+	* src/main-window.c (check_new_messages_real):
+	* src/main.c (balsa_activate_cb), (handle_remote):
+	* src/message-window.c (mw_set_selected), (message_window_new):
+	* src/pref-manager.c (open_preferences_manager):
+	* src/sendmsg-window.c (address_book_cb),
+	(sw_spell_check_activated), (sendmsg_window_continue):
+	* src/store-address.c (balsa_store_address_from_messages):
+	* src/toolbar-prefs.c (customize_dialog_cb):
+
+2019-02-23  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	* libbalsa/html.c: simpler regular expression for non-cid schemes.
+
+2018-02-23  Albrecht Dreß  <albrecht.dress@arcor.de>
+
+	Error in IMAP mailbox encoding
+
+	Balsa has a bug in encoding IMAP mailbox names to modified UTF-7
+	as defined in RFC 3501, sect. 5.1.3 [1], as the '\' (0x5c) is
+	encoded as '\\' which is explicitly prohibited.  To reproduce:
+	activate main() in libbalsa/imap/util.c, compile it, and run
+	e.g. (yes, the mailbox name is weird, but it includes all special
+	cases from the RFC…)
+
+	/util 'ϴä ab c&d+e/f\~ßx'
+	orig='ϴä ab c&d+e/f\~ßx' mbx='&A,QA5A- ab c&-d+e/f\\~&AN8-x' back='ϴä ab c&d+e/f\\~ßx'
+	WRONG CONVERSION: --------------------------------^^
+
+	* libbalsa/imap/util.c (imap_utf8_to_mailbox),
+	  (imap_mailbox_to_utf8): replace the hand-coded conversion by
+	  utilising g_convert(), and also fix the bug
+	* libbalsa/imap/util.h: declare them with the
+	  G_GNUC_WARN_UNUSED_RESULT attribute.
+
+2019-02-22  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	* libbalsa/html.c (lbh_web_view_new): use a static location when
+	registering 'cid:' scheme; fix the regular expression for
+	matching non-cid schemes (it was also matching 'cid:')
+
+2019-02-19  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	* libbalsa/mailbox_imap.c (lbm_imap_get_msg_part_from_cache):
+	plug memory leaks in error return paths;
+
+2019-02-18  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	* src/balsa-mime-widget-image.c (img_check_size): avoid scan-build
+	false positive.
+
+2019-02-18  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	* libbalsa/imap/imap-handle.c (imap_body_from_stringi): guard
+	against NULL pointer.
+
+2019-02-18  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	* src/balsa-print-object-text.c (collect_attrs): initialize a
+	region by structure assignment instead of g_memdup().
+
+
+2019-02-18  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	* libbalsa/send.c (libbalsa_message_create_mime_message): do not
+	leak mime_type in error return paths; also reduce scope of
+	mime_type.
+
+2019-02-18  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	* libbalsa/address.c (vcard_strsplit): eliminate one decrement,
+	and add an assertion to avoid a scan-build false positive
+
+2019-02-18  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	* libbalsa/mailbox.c (libbalsa_mailbox_view_new): initialize a
+	view by structure assignment instead of g_memdup().
+
+2019-02-18  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	* libbalsa/address.c (libbalsa_address_new_from_vcard): do not
+	leak a string.
+
+2019-02-18  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	Cast weak-pointer-location to (gpointer *) in calls to
+	g_object{add,remove}_weak_pointer()
+
+	* libbalsa/identity.c (libbalsa_identity_config_dialog):
+	* libbalsa/mailbox_maildir.c (free_message_info):
+	* libbalsa/mailbox_mbox.c (free_message_info):
+	* libbalsa/mailbox_mh.c (lbm_mh_free_message_info):
+	* src/balsa-index.c (bndx_clear_if_last_ref), (bndx_pipe_response):
+	* src/balsa-mblist.c (balsa_mblist_get_store),
+	(update_mailbox_idle), (bmbl_mailbox_changed_cb):
+	* src/balsa-mime-widget-image.c
+	(balsa_mime_widget_image_resize_all), (img_check_size):
+	* src/filter-edit-callbacks.c (fe_edit_condition):
+	* src/folder-conf.c (folder_conf_imap_node),
+	(folder_conf_imap_sub_node):
+	* src/information-dialog.c (balsa_information_list):
+	* src/mailbox-conf.c (mailbox_conf_new):
+	* src/mailbox-node.c (imap_scan_attach_mailbox),
+	(balsa_mailbox_node_scan_children), (bmbn_scan_children_idle):
+	* src/main-window.c (balsa_window_new),
+	(bw_real_open_mbnode_idle_cb), (bw_real_open_mbnode_thread),
+	(balsa_window_real_open_mbnode), (bw_focus_idle),
+	(balsa_window_real_close_mbnode), (bw_notebook_switch_page_cb):
+	* src/main.c (balsa_activate_cb):
+	* src/message-window.c (destroy_message_window),
+	(message_window_new):
+	* src/toolbar-prefs.c (customize_dialog_cb):
+
+2019-02-17  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	* libbalsa/mailbox.c: remove an unused function;
+	* libbalsa/mailbox.h: do not export it.
+
+2019-02-16  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	mailbox-local: Do not leak LibBalsaMessage
+
+	* libbalsa/mailbox_local.c (lbml_message_pool_take_message): new
+	name for 'lbml_add_message_to_pool', emphasizing that it takes
+	over the reference count;
+	(lbm_local_get_message_with_msg_info): use the new name;
+	(libbalsa_mailbox_local_get_message): always return a reference
+	to the LibBalsaMessage.
+
+2019-02-16  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	imap-mbox-handle: Do not leak a GNode tree
+
+	* libbalsa/imap/imap-handle.c (imap_mbox_handle_finalize):
+	destroy the thread-root GNode tree.
+
+2018-02-15  Albrecht Dreß  <albrecht.dress@arcor.de>
+
+	Relax secret key selection
+
+	Currently, the user can only select a key with a uid which matches
+	the account's email address.  However, there are use-cases where
+	this is not sufficient.  At work, we have an isolated network
+	with “internal” email addresses.  Outgoing messages are
+	re-written to public addresses, but the internal ones shall
+	not be exposed to the outside world (see e.g. [1]), i.e. the
+	key /must not/ carry a user-id for the internal address.  Thus,
+	neither auto-selection nor defining the key id in the gui works
+	(it would be possible to run gpg[sm] on the console to print
+	the id, and then copy it into the input field, though).
+
+	The patch enables selecting any valid private key in the identity
+	dialogue, but /not/ when a message shall be sent and the private
+	key cannot be determined.  Note that the vast majority of users
+	will probably never use this feature, i.e. use automatic key
+	selection (id is empty in the identity setup).
+
+	* libbalsa/libbalsa-gpgme.c (libbalsa_gpgme_get_seckey): relax
+	the selection of the private key in the identity setup dialogue
+
+2018-02-15  Albrecht Dreß  <albrecht.dress@arcor.de>
+
+	Fix broken decryption of s/mime messages loaded from imap
+
+	* libbalsa/mailbox_imap.c
+	(libbalsa_mailbox_imap_fetch_structure): fetch part if it is not
+	multipart/*, instead of only fetching text/*.
+
+2018-02-15  Albrecht Dreß  <albrecht.dress@arcor.de>
+
+	Printing of HTML message parts
+
+	* libbalsa/html.[ch]: implement function for rendering to a
+	Cairo surface; refactor for extracting common code
+	* src/balsa-print-object-html.[ch]: implement printing the HTML
+	Cairo surface (new module)
+	* src/Makefile.am, src/meson.build: add new module
+	* src/balsa-print-object.c: use the new module for HTML (falls
+	back to default if built w/o HTML support)
+	* src/balsa-print-object.h: add the “volatile” HTML printing
+	options to BalsaPrintSetup
+	* src/print-gtk.c: refactor print dialogue to use GtkGrid;
+	add new options; add function for selecting the proper part
+	from multipart/alternative
+	* src/balsa-print-object-html.[ch]: new files
+
+2019-02-15  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	* src/mailbox-node.c (balsa_mailbox_node_dispose): now that we
+	unref POP3 mailboxes, which do not need to be saved in the
+	config file, we must not try to save them.
+
+2019-02-14  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	Plug some memory leaks
+
+	* src/balsa-mime-widget.[ch]: No need for a 'finalize' method
+	* src/balsa-message.c: Unref the BalsaMimeWidget
+	* src/balsa-app.c: Unref the POP3 mailboxes and free the list
+	* libbalsa/mailbox_pop3.c: Do not leak the filter-cmd
+	* libbalsa/address-book-rubrica.c: Do not leak the completion
+
+2019-02-04  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	* meson_options.txt: make 'autocrypt' a boolean option, default
+	false;
+	* meson.build: rename 'autocryptcfg' to 'autocrypt', since it is
+	now boolean.
+
+2019-02-03  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	Restore running the address book editor
+
+	* src/meson.build: build the editor with the correct name:
+	"balsa-ab", not "balsa_ab";
+	* ui/balsa-ab.gresource.xml: use the correct prefix:
+	"/org/desktop/BalsaAb", not "/org/desktop/Balsa".
+
+2018-01-30  Albrecht Dreß  <albrecht.dress@arcor.de>
+
+	LDAP address book: use all email attributes
+
+	* libbalsa_address_book_ldap_get_address(): assign the GList
+	  of all mail attribute strings to LibBalsaAddress instead of the
+	  first one only;
+	* lbabl_get_internet_address(): append separate InternetAddress
+	  to a GList instead on returning the first one only.
+
+2018-01-24  Albrecht Dreß  <albrecht.dress@arcor.de>
+
+	* libbalsa/html.c (lbh_web_process_terminated_cb): new signal in
+	  webkit version 2.20;
+	  (libbalsa_html_new): do not auto-load images if any are
+	  external (that is, not cid: data)
+2019-01-22  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	More menu shuffling
+
+	* ui/main-window.ui:
+	  move "File → New → Message" to "Message → New…";
+	  move  "Mailbox → Close" to the foot of the "Mailbox" menu, and
+	  group "Remove Duplicates" and "Expunge Deleted Messages"
+	  immediately above it;
+	  move "Message → Next Message" and three friends to a new
+	  "Go" top-level menu.
+
+2019-01-21  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	* ui/main-window.ui: Shuffle some menu items;
+	see https://gitlab.gnome.org/GNOME/balsa/issues/14
+
+2019-01-21  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	* ui/main-window.ui: Restore 'm' shortcut for "New message"
+
+2019-01-20  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	Remove application menu
+
+	GNOME has decided that application menus, shown in the top bar
+	of the GNOME desktop, are a bad idea. It was kind of a stretch
+	for Balsa to implement one, so it shouldn't be too hard to drop
+	it.
+
+	* src/main-window.c (settings_activated),
+	(bw_add_win_action_entries), (balsa_window_add_action_entries),
+	(bw_set_menus): move the appmenu items that are not already
+	duplicate in the File: menu back there;
+	* ui/main-window.ui: ditto.
+
+2018-01-20  Albrecht Dreß  <albrecht.dress@arcor.de>
+
+	Do not trigger a CRITICAL message when request for a Message
+	Disposition Notification is activated
+	Fixes
+	https://mail.gnome.org/archives/balsa-list/2019-January/msg00018.html
+
+	* libbalsa/message.c (libbalsa_message_set_dispnotify): test
+	whether message->headers->dispnotify_to is NULL before unreffing
+	it.
+
+2018-01-13  Albrecht Dreß  <albrecht.dress@arcor.de>
+
+	Get the Autocrypt headers from Balsa's user-headers instead of
+	from a GMimeMessage, which doesn't always exist.
+
+	* libbalsa/autocrypt.c (scan_autocrypt_headers): new function
+	for scanning Balsa's user-headers;
+	(autocrypt_from_message): use it, instead of
+	g_mime_object_get_header_list() and friends;
+	(parse_autocrypt_header): extend the (debug) output when
+	checking the key data from an Autocrypt header fails.
+
+2019-01-11  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	Check for NULL message
+
+	* libbalsa/imap/imap-commands.c (imap_mbox_sort_msgno_client):
+	check for NULL message and for a message with a NULL envelope,
+	to avoid dereferencing NULL pointers.
+
+2018-01-10  Albrecht Dreß  <albrecht.dress@arcor.de>
+
+	Minor autocrypt fixes
+
+	* libbalsa/autocrypt.c: set a proper error message if no
+	  fingerprint of a usable private key can be identified for a
+	  mailbox; fix memory leak; attach Autocrypt database window to
+	  geometry manager
+	* libbalsa/send.c: do not add Autocrypt header when postponing;
+	  propagate error from creating Autocrypt header
+	* src/save-restore.c: restore Autocrypt database window geometry
+
+2018-01-05  Albrecht Dreß  <albrecht.dress@arcor.de>
+
+	make IMAP messages translatable
+
+	* libbalsa/imap/auth-cram.c, libbalsa/imap/auth-gssapi.c,
+	libbalsa/imap/imap-commands.c, libbalsa/imap/imap-handle.c:
+	  make message strings translatable
+	* libbalsa/imap/imap-handle.c, libbalsa/imap/imap_private.h:
+	  implement imap_mbox_handle_set_msg() as function
+	* libbalsa/imap/imap-commands.h, libbalsa/imap/imap-tls.c:
+	  add GError to imap_handle_starttls() api
+
+2019-01-05  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	Fix the meson build
+
+	* libbalsa/meson.build: add geometry manager module
+
+2018-01-05  Albrecht Dreß  <albrecht.dress@arcor.de>
+
+	Simplify window geometry management
+
+	* libbalsa/Makefile.am: add geometry manager module
+	* libbalsa/geometry-manager.[hc]: geometry manager module
+	  implementation
+	* libbalsa/libbalsa-gpgme-cb.c: use geometry manager for the
+	  key list dialogue
+	* libbalsa/libbalsa-gpgme-widgets.c: use geometry manager for
+	  the key dialogue
+	* libbalsa/libbalsa.h: simplify libbalsa_show_message_source()
+	  api, remove unimplemented function prototype
+	* libbalsa/source-viewer.c: use geometry manager, simplify
+	  libbalsa_show_message_source() api
+	* src/balsa-app.c: remove initialisation of obsolete balsa_app
+	  items
+	* src/balsa-app.h: remove obsolete balsa_app items
+	* src/balsa-index.c: use new libbalsa_show_message_source() api
+	* src/folder-conf.c, src/main-window.c, src/main.c,
+	src/message-window.c, src/sendmsg-window.c: use geometry manager
+	  and new libbalsa_show_message_source() api
+	* src/save-restore.c: use geometry manager to load and save values
+
+2018-01-05  Albrecht Dreß  <albrecht.dress@arcor.de>
+
+	minor Autocrypt fixes
+
+	* libbalsa/autocrypt.c:
+	  * add missing include, required on Debian stretch
+	  * make sure the ~/.balsa folder exists before initialising
+	    the autocrypt sub-system (otherwise an error is thrown when
+	    balsa is started for the first time)
+	  * clarify debug messages, indicating if a database entry
+	    has actually been changed
+
+2018-12-18  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	* src/mailbox-conf.c (create_local_mailbox_dialog): avoid
+	possibly dereferencing a NULL pointer.
+
+2018-12-18  Albrecht Dreß  <albrecht.dress@arcor.de>
+
+	Fix broken display of expired application/pgp-keys parts
+
+	* libbalsa/libbalsa-gpgme-keys.[hc]: add flag to
+	  libbalsa_gpgme_list_keys() for listing expired etc. keys, use
+	  the new api w/o allowing expired etc. keys
+	* libbalsa/libbalsa-gpgme.c, libbalsa/rfc3156.c: use the new
+	  api w/o allowing expired etc. keys
+	* src/balsa-mime-widget-crypto.c: use the new api, allowing
+	  expired etc. keys
+
+
+2018-12-18  Albrecht Dreß  <albrecht.dress@arcor.de>
+
+	Fix buffer overflow and missing include
+
+	* libbalsa/folder-scanners.c: fix missing include on old systems
+	  which do not indirectly import string.h, remove obsolete macro
+	* libbalsa/libbalsa.c: fix one-byte buffer overflow in
+	  x509_fingerprint()
+
+2018-12-18  Albrecht Dreß  <albrecht.dress@arcor.de>
+
+	SMTP, POP: fall back to auth w/ password if GSS failed
+
+	* libnetclient/net-client-pop.c, libnetclient/net-client-smtp.c:
+	  retry auth with password if GSS auth failed; small performance
+	  improvement checking the various auth methods
+	* libnetclient/net-client-utils.c: print more (internal) debug
+	  info about failed GSS operations, fix nit-picks
+
+2018-12-14  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	Stop using GSlice; it may go away
+
+	* libbalsa/mailbox.c (libbalsa_mailbox_search_iter_new): use
+	g_new(), not g_slice_new();
+	(libbalsa_mailbox_search_iter_unref): use g_free(), not
+	g_slice_free().
+
+2018-12-13  Albrecht Dreß  <albrecht.dress@arcor.de>
+
+	Replace readdir() by g_dir_read_name()
+
+	* libbalsa/folder-scanners.c: replace opendir/readdir/closedir
+	  by g_dir_*, and refactor functions libbalsa_scanner_mdir()
+	  and libbalsa_scanner_local_dir_helper
+	* libbalsa/mailbox_imap.c: replace opendir/readdir/closedir
+	  by g_dir_*
+
+2018-12-09  Albrecht Dreß  <albrecht.dress@arcor.de>
+
+	Clean up deadwood
+
+	* src/mailbox-conf.c (run_mailbox_conf),
+	(create_local_mailbox_dialog): remove the “deadwood”, and
+	a stray debug message…
+
+2018-12-08  Albrecht Dreß  <albrecht.dress@arcor.de>
+
+	Fix some issues detected by cppcheck
+
+	* libbalsa/imap/auth-gssapi.c: fix (unlikely) uninitialised use of rc
+	* libbalsa/imap/imap-auth.c: do not dereference NULL pointer if
+	  an error occurred
+	* libbalsa/libbalsa.c: fix signed/unsigned mismatch, and use
+	  g_debug instead of printf
+	* libbalsa/mailbox_imap.c: fix signed/unsigned mismatch
+	* libinit_balsa/assistant_page_directory.c: fix different
+	  parameters names in function prototype and implementation
+	* src/balsa-message.c, src/save-restore.c: do no dereference
+	  pointer before checking it it is not NULL
+	* src/sendmsg-window.c: fix false-positive about NULL pointer dereference
+	* src/store-address.c: fix false-positive by splitting an
+	  over-complex construct
+
+2018-12-04  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	Deprecation cleanup
+
+	* libbalsa/mime.c (libbalsa_text_to_html):
+	pango_unichar_direction() is deprecated in Pango 1.44; a commit
+	message suggests using fribidi directly.
+	* configure.ac: add direct fribidi dependency; it is already an
+	indirect dependency through Pango.
+	* meson.build: ditto.
+
+2018-12-03  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	Do not include no-longer-existing libbalsa/libbalsa-marshal.h
+
+	* src/main-window.c:
+
+2018-11-30  Albrecht Dreß  <albrecht.dress@arcor.de>
+
+	Replace custom ELEMENTS macro with Glib G_N_ELEMENTS
+
+	* libbalsa/filter-funcs.c (libbalsa_condition_new_from_string),
+	(append_header_names), (append_flag_names):
+	* libbalsa/identity.c (md_sig_path_changed):
+	* libbalsa/imap/imap-commands.c (need_fetch), (imap_mbox_status),
+	(enum_flag_to_str):
+	* libbalsa/imap/imap-handle.c (ir_capability_data),
+	(ir_resp_text_code), (ir_list_lsub), (ir_status),
+	(ir_msg_att_flags), (ir_fetch_seq), (ir_handle_response):
+	* libbalsa/libbalsa.h:
+	* libbalsa/mailbox.c (mbox_model_get_value):
+	* src/balsa-index.c (bndx_instance_init), (bndx_popup_menu_create):
+	* src/balsa-mblist.c (balsa_mblist_default_signal_bindings):
+	* src/filter-edit-callbacks.c (build_condition_dialog):
+	* src/filter-edit-dialog.c (build_match_page), (build_action_page):
+	* src/main-window.c (bw_create_index_widget):
+	* src/sendmsg-window.c (find_locale_index_by_locale),
+	(create_email_entry), (sw_attachment_list), (create_text_area),
+	(create_lang_menu):
+	* src/toolbar-factory.c:
+
+2018-11-30  Albrecht Dreß  <albrecht.dress@arcor.de>
+
+	Fix confusing signature info
+
+	* libbalsa/gmime-gpgme-signature.c: hide unavailable data if a
+	signature is bad, the public key missing, or without signature
+	data at all
+	* libbalsa/libbalsa-gpgme-widgets.c: find proper subkey even if
+	only the end of the fingerprint is given
+	* src/balsa-mime-widget-crypto.c: remove useless debug message
+
+2018-11-28  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	Pass NULL instead of a stock marshaller to g_signal_new().
+
+	* libbalsa/address-view.c (libbalsa_address_view_class_init):
+	* libbalsa/cell-renderer-button.c
+	(libbalsa_cell_renderer_button_class_init):
+	* libbalsa/imap/imap-handle.c (imap_mbox_handle_class_init):
+	* libbalsa/mailbox.c (libbalsa_mailbox_class_init):
+	* src/balsa-index.c (bndx_class_init):
+	* src/balsa-mblist.c (bmbl_class_init):
+	* src/balsa-message.c (balsa_message_class_init):
+	* src/filter-run-dialog.c (balsa_filter_run_dialog_class_init):
+	* src/mailbox-node.c (balsa_mailbox_node_class_init):
+	* src/main-window.c (balsa_window_class_init):
+	* src/toolbar-factory.c (balsa_toolbar_model_class_init):
+
+2018-11-28  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	Remove marshal lists
+
+	* libbalsa/imap/libimap-marshal.list:
+	* libbalsa/libbalsa-marshal.list:
+
+2018-11-27  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	GNotification does not use HTML markup
+
+	* libbalsa/information.c (libbalsa_information_varg): so do not
+	escape markup characters in the text
+
+2018-11-27  Albrecht Dreß  <albrecht.dress@arcor.de>
+
+	Clear passwords if authentication fails
+
+	* libbalsa/mailbox_pop3.c, libbalsa/send.c: clear appropriate
+	password when libnetclient reports an authentication failure
+	(SMTP, POP), or could not decrypt a user certificate's private key
+	* libnetclient/net-client-pop.[ch]: report auth failure if the
+	server reports any error in the authentication phase (AUTH,
+	APOP, USER/PASS); fix nagging by Flexelint
+	* libnetclient/net-client-smtp.[ch]: report auth failure if
+	the server replies with status codes 534 or 535; fix nagging
+	by Flexelint
+	* libnetclient/net-client.[ch]: report a certificate key
+	decryption error if the passphrase is wrong
+
+
+2018-11-27  Albrecht Dreß  <albrecht.dress@arcor.de>
+
+	Fix broken IMAP special folders & other migration issues
+
+	* libbalsa/mailbox.[ch]: tell libbalsa_mailbox_new_from_config()
+	if a folder is special, so it is processed even if it is an
+	IMAP one
+	* libbalsa/mailbox_imap.c: always set the "Migrated" flag for
+	LibBalsaMailboxImap mailboxes
+	* src/save-restore.c: in the migration process, track "user@host"
+	folder ids in a hash table to avoid duplicates; keep special IMAP
+	folders; load folders before mailboxes so special IMAP mailboxes
+	do not overwrite the folder's IMAP configs (the server config
+	originates from the first server seen)
+
+2018-11-27  Albrecht Dreß  <albrecht.dress@arcor.de>
+
+	Password dialogue improvements
+
+	* libbalsa/imap-server.c, libbalsa/server-config.c,
+	libinit_balsa/assistant_page_user.c, src/save-restore.c: use
+	changed libbalsa_server_set_password() api
+	* libbalsa/libbalsa.[c]: implement GTK_DIALOG_USE_HEADER_BAR
+	detection as boolean for GCR dialogue
+	* libbalsa/server.[ch]: clean up signal definitions (remove
+	obsolete marshallers); remove unused class method;
+	adjust api's for libbalsa_server_set_password(),
+	libbalsa_server_get_password() and libbalsa_server_get_cert_pass()
+	* libnetclient/net-client.[ch]: pass cert subject only
+	instead of full binary data in the passphrase signal
+	* src/balsa-app.[ch]: use GCR password dialogue if available;
+	drop set_passwd_from_matching_server() which is never used
+
+2018-11-04  Albrecht Dreß  <albrecht.dress@arcor.de>
+
+	Unified server configuration GUI
+
+	* libbalsa/Makefile.am, libbalsa/meson.build: add new
+	server-config module
+	* libbalsa/imap-server.c: use common config class; ensure server
+	hash key required by changed folder conf approach
+	* libbalsa/libbalsa-conf.[ch]: add option for obfuscated private
+	string, so libbalsa_rot() is used only locally
+	* libbalsa/address-book-ldap.c: use changed libbalsa-conf api
+	* libbalsa/libbalsa.[ch]: libbalsa_rot() moved to
+	libbalsa/libbalsa-conf.c
+	* libbalsa/mailbox_pop3.c: properly initialise procmail command
+	* libbalsa/send.c: fix broken signal connections if a user
+	certificate is used
+	* libbalsa/server-config.[ch]: implement new server config
+	gui class
+	* libbalsa/server.[ch]: use new config gui; refactor libsecret
+	stuff; store user cert passphrase using libsecret if requested;
+	clean up exported types
+	* libbalsa/smtp-server.c: use new config gui
+	* src/folder-conf.c: use new config gui; Note: slightly changed
+	approach for adding an IMAP folder
+	* src/mailbox-conf.[ch]: use new config gui, removes loads of
+	obsolete exported code
+	* src/mailbox-node.c: use g_debug() for debug messages
+	* src/save-restore.c: use changed libbalsa-conf api
+
+2018-10-17  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	* src/main-window.c (bw_create_index_widget):
+	gtk_container_*_focus_chain functions are deprecated.
+
+2018-10-17  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	* src/balsa-mime-widget-callbacks.c (bmw_set_can_focus),
+	(balsa_mime_widget_limit_focus), (balsa_mime_widget_unlimit_focus):
+	gtk_container_*_focus_chain functions are deprecated.
+
+2018-09-14  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	* libbalsa/information.c (libbalsa_information_varg): use
+	  g_markup_escape_text to entity-escape the body of a
+	  GNotification, instead of our home-brewed non-UTF8-safe version.
+
+2018-09-05  Albrecht Dreß  <albrecht.dress@arcor.de>
+
+	Fix crash listing S/MIME certificates
+
+	* libbalsa/gmime-gpgme-signature.c
+	(libbalsa_cert_subject_readable): restore a missing termination
+	check.
+
+2018-08-29  Albrecht Dreß  <albrecht.dress@arcor.de>
+
+	Move single IMAP mailboxes to folders
+
+	* libbalsa/mailbox.c: print paranoid warning if
+	  libbalsa_mailbox_new_from_config() is called for an IMAP mailbox
+	* src/mailbox-conf.[ch]: remove obsolete
+	  mailbox_conf_add_imap_cb(), create_imap_mailbox_dialog() and
+	  dependent functions
+	* src/mailbox-node.[ch]: make sure BalsaMailboxNode::dir
+	  is properly initialised; remove obsolete
+	  balsa_mailbox_node_new_imap()
+	* src/pref-manager.c: clean up menu
+	* src/save-restore.c: migrate IMAP mailboxes to IMAP folders
+
+2018-08-27  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	Apply threading changes on 'Update'
+
+	* src/mailbox-conf.c (thread_messages_toggled),
+	(mailbox_conf_view_new_full), (mailbox_conf_view_check):
+	apply threading changes on 'Update' instead of instantly on
+	checking the boxes.
+
+>>>>>>> 05e7c7ea7... Deprecation cleanup: gtk_window_present()
 2018-08-27  Peter Bloomfield  <pbloomfield@bellsouth.net>
 
 	Check for valid msgno

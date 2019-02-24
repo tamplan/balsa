@@ -2861,7 +2861,8 @@ balsa_index_pipe(BalsaIndex *index)
 
     info = g_object_get_data(G_OBJECT(mailbox), BALSA_INDEX_PIPE_INFO);
     if (info) {
-        gtk_window_present(GTK_WINDOW(info->dialog));
+        gtk_window_present_with_time(GTK_WINDOW(info->dialog),
+                                     gtk_get_current_event_time());
         return;
     }
 

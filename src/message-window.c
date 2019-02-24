@@ -609,7 +609,8 @@ mw_set_selected(BalsaMessageWindow * mw, void (*select_func) (BalsaIndex *))
     if ((tmp = g_object_get_data(G_OBJECT(message),
                                  BALSA_MESSAGE_WINDOW_KEY))) {
         if (tmp == mw) {
-            gtk_window_present(GTK_WINDOW(tmp));
+            gtk_window_present_with_time(GTK_WINDOW(tmp->window),
+                                         gtk_get_current_event_time());
             g_object_unref(message);
             return;
         }
@@ -859,7 +860,8 @@ message_window_new(LibBalsaMailbox * mailbox, guint msgno)
     if (message 
         && (mw = g_object_get_data(G_OBJECT(message), 
                                    BALSA_MESSAGE_WINDOW_KEY))) {
-        gtk_window_present(GTK_WINDOW(mw));
+        gtk_window_present_with_time(GTK_WINDOW(mw->window),
+                                     gtk_get_current_event_time());
         g_object_unref(message);
         return;
     }

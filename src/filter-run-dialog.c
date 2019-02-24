@@ -465,9 +465,10 @@ filters_run_dialog(LibBalsaMailbox *mbox,
             break;
     }
     if (lst) {
-        /* If there was yet a dialog box for this mailbox, we raise it */
-        gtk_window_present(GTK_WINDOW(lst->data));
-        return;
+	/* If there was yet a dialog box for this mailbox, we raise it */
+	gtk_window_present_with_time(GTK_WINDOW(lst->data),
+                                     gtk_get_current_event_time());
+	return;
     }
 
     p = balsa_filter_run_dialog_new(mbox, parent);

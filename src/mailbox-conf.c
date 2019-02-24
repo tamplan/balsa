@@ -565,7 +565,8 @@ mailbox_conf_new(GType mailbox_type)
     static GtkWidget *dialog;
 
     if (dialog) {
-        gtk_window_present(GTK_WINDOW(dialog));
+        gtk_window_present_with_time(GTK_WINDOW(dialog),
+                                     gtk_get_current_event_time());
         return;
     }
 
@@ -587,7 +588,8 @@ mailbox_conf_edit(BalsaMailboxNode * mbnode)
 
     dialog = g_object_get_data(G_OBJECT(mailbox), BALSA_MAILBOX_CONF_DIALOG);
     if (dialog) {
-        gtk_window_present(GTK_WINDOW(dialog));
+        gtk_window_present_with_time(GTK_WINDOW(dialog),
+                                     gtk_get_current_event_time());
         return;
     }
 
