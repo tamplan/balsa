@@ -300,7 +300,7 @@ folder_conf_imap_node(BalsaMailboxNode *mn)
     fcw = mn ? g_object_get_data(G_OBJECT(mn), BALSA_FOLDER_CONF_IMAP_KEY)
              : fcw_new;
     if (fcw) {
-        gtk_window_present_with_time(GTK_WINDOW(fcw->dialog),
+        gtk_window_present_with_time(GTK_WINDOW(fcw->cdd.dialog),
                                      gtk_get_current_event_time());
         return;
     }
@@ -806,7 +806,7 @@ folder_conf_imap_sub_node(BalsaMailboxNode * mn)
     sdd = mn ? g_object_get_data(G_OBJECT(mn), BALSA_FOLDER_CONF_IMAP_KEY)
              : sdd_new;
     if (sdd) {
-        gtk_window_present_with_time(GTK_WINDOW(sdd->dialog),
+        gtk_window_present_with_time(GTK_WINDOW(sdd->cdd.dialog),
                                      gtk_get_current_event_time());
         return;
     }
