@@ -209,7 +209,8 @@ libbalsa_identity_select_dialog(GtkWindow * parent,
     sdi = g_object_get_data(G_OBJECT(parent),
                             LIBBALSA_IDENTITY_SELECT_DIALOG_KEY);
     if (sdi) {
-        gtk_window_present(GTK_WINDOW(sdi->dialog));
+        gtk_window_present_with_time(GTK_WINDOW(sdi->dialog),
+                                     gtk_get_current_event_time());
         return;
     }
 
@@ -1400,7 +1401,8 @@ libbalsa_identity_config_dialog(GtkWindow *parent, GList **identities,
 
     /* Show only one dialog at a time. */
     if (dialog) {
-        gtk_window_present(GTK_WINDOW(dialog));
+        gtk_window_present_with_time(GTK_WINDOW(dialog),
+                                     gtk_get_current_event_time());
         return;
     }
 
