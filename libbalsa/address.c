@@ -753,11 +753,11 @@ libbalsa_address_set_edit_entries(const LibBalsaAddress * address,
 	nick_name = g_strdup(address->nick_name);
 
     /* Full name must be set after first and last names. */
-    gtk_entry_set_text(GTK_ENTRY(entries[FIRST_NAME]), first_name);
-    gtk_entry_set_text(GTK_ENTRY(entries[LAST_NAME]), last_name);
-    gtk_entry_set_text(GTK_ENTRY(entries[FULL_NAME]), new_name);
-    gtk_entry_set_text(GTK_ENTRY(entries[NICK_NAME]), nick_name);
-    gtk_entry_set_text(GTK_ENTRY(entries[ORGANIZATION]), new_organization);
+    gtk_editable_set_text(GTK_EDITABLE(entries[FIRST_NAME]), first_name);
+    gtk_editable_set_text(GTK_EDITABLE(entries[LAST_NAME]), last_name);
+    gtk_editable_set_text(GTK_EDITABLE(entries[FULL_NAME]), new_name);
+    gtk_editable_set_text(GTK_EDITABLE(entries[NICK_NAME]), nick_name);
+    gtk_editable_set_text(GTK_EDITABLE(entries[ORGANIZATION]), new_organization);
 
     store = GTK_LIST_STORE(gtk_tree_view_get_model
                            (GTK_TREE_VIEW(entries[EMAIL_ADDRESS])));
@@ -795,12 +795,12 @@ libbalsa_address_set_edit_entries(const LibBalsaAddress * address,
     and enumerated with LibBalsaAddressField constants
 */
 static void
-lba_entry_changed(GtkEntry * entry, GtkEntry ** entries)
+lba_entry_changed(GtkEntry * entry, GtkEditable ** editables)
 {
     gchar *full_name =
-        g_strconcat(gtk_entry_get_text(entries[FIRST_NAME]), " ",
-                    gtk_entry_get_text(entries[LAST_NAME]), NULL);
-    gtk_entry_set_text(entries[FULL_NAME], full_name);
+        g_strconcat(gtk_editable_get_text(editables[FIRST_NAME]), " ",
+                    gtk_editable_get_text(editables[LAST_NAME]), NULL);
+    gtk_editable_set_text(editables[FULL_NAME], full_name);
     g_free(full_name);
 }
 

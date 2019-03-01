@@ -367,7 +367,7 @@ get_passphrase_real(const gchar * uid_hint, const gchar * passphrase_info,
     entry = gtk_entry_new();
     gtk_container_add(GTK_CONTAINER(vbox), entry);
 
-    gtk_entry_set_width_chars(GTK_ENTRY(entry), 40);
+    gtk_editable_set_width_chars(GTK_EDITABLE(entry), 40);
     gtk_entry_set_visibility(GTK_ENTRY(entry), FALSE);
 
     gtk_entry_set_activates_default(GTK_ENTRY(entry), TRUE);

@@ -949,7 +949,7 @@ libbalsa_create_grid_entry(GtkWidget * grid, GCallback changed_func,
     gtk_grid_attach(GTK_GRID(grid), entry, 1, row, 1, 1);
 
     if (initval)
-        gtk_entry_set_text(GTK_ENTRY(entry), initval);
+        gtk_editable_set_text(GTK_EDITABLE(entry), initval);
 
     gtk_label_set_mnemonic_widget(GTK_LABEL(hotlabel), entry);
 

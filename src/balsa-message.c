@@ -323,7 +323,7 @@ bm_find_set_status(BalsaMessage * bm, BalsaMessageFindStatus status)
             /* The widget returned "found"; if it really found a string,
              * we sensitize the "next" and "previous" buttons, but if
              * the find-entry was empty, we desensitize them. */
-            if (gtk_entry_get_text(GTK_ENTRY(bm->find_entry))[0])
+            if (gtk_editable_get_text(GTK_EDITABLE(bm->find_entry))[0])
                 sensitive = TRUE;
             break;
         case BM_FIND_STATUS_WRAPPED:
@@ -427,7 +427,7 @@ bm_find_cb(const gchar * text, gboolean found, gpointer data)
 static void
 bm_find_entry_changed_cb(GtkEditable * editable, gpointer data)
 {
-    const gchar *text = gtk_entry_get_text(GTK_ENTRY(editable));
+    const gchar *text = gtk_editable_get_text(GTK_EDITABLE(editable));
     BalsaMessage *bm = data;
     GtkWidget *widget = balsa_mime_widget_get_widget(bm->current_part->mime_widget);
     gboolean found = FALSE;
@@ -488,7 +488,7 @@ bm_find_entry_changed_cb(GtkEditable * editable, gpointer data)
 static void
 bm_find_again(BalsaMessage * bm, gboolean find_forward)
 {
-    const gchar *text = gtk_entry_get_text(GTK_ENTRY(bm->find_entry));
+    const gchar *text = gtk_editable_get_text(GTK_EDITABLE(bm->find_entry));
     GtkWidget *widget = balsa_mime_widget_get_widget(bm->current_part->mime_widget);
     gboolean found;
 
@@ -3270,7 +3270,7 @@ balsa_message_find_in_message(BalsaMessage * bm)
         }
 
         bm->find_forward = TRUE;
-        gtk_entry_set_text(GTK_ENTRY(bm->find_entry), "");
+        gtk_editable_set_text(GTK_EDITABLE(bm->find_entry), "");
 
         toplevel = gtk_widget_get_toplevel(GTK_WIDGET(bm));
         if (GTK_IS_APPLICATION_WINDOW(toplevel))

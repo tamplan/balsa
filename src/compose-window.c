@@ -894,7 +894,7 @@ edit_with_gnome_check(gpointer data)
                 line[strlen(line) - 1] = '\0';
 
             if (libbalsa_str_has_prefix(line, _("Subject:")) == 0) {
-                gtk_entry_set_text(GTK_ENTRY(data_real->compose_window->subject[1]),
+                gtk_editable_set_text(GTK_EDITABLE(data_real->compose_window->subject[1]),
                                    line + strlen(_("Subject:")) + 1);
                 continue;
             }
@@ -990,7 +990,7 @@ sw_edit_activated(GSimpleAction *action,
         guint type;
 
         fprintf(tmp, "%s %s\n", _("Subject:"),
-                gtk_entry_get_text(GTK_ENTRY(compose_window->subject[1])));
+                gtk_editable_get_text(GTK_EDITABLE(compose_window->subject[1])));
         for (type = 0; type < G_N_ELEMENTS(address_types); type++) {
             InternetAddressList *list =
                 libbalsa_address_view_get_list(compose_window->recipient_view,
@@ -1337,7 +1337,7 @@ update_compose_window_identity(BalsaComposeWindow     *compose_window,
     }
 
     /* change the subject to use the reply/forward strings */
-    subject = gtk_entry_get_text(GTK_ENTRY(compose_window->subject[1]));
+    subject = gtk_editable_get_text(GTK_EDITABLE(compose_window->subject[1]));
 
     /*
      * If the subject begins with the old reply string
@@ -1362,12 +1362,12 @@ update_compose_window_identity(BalsaComposeWindow     *compose_window,
     if (((replen = strlen(old_reply_string)) > 0) &&
         g_str_has_prefix(subject, old_reply_string)) {
         tmpstr = g_strconcat(reply_string, &(subject[replen]), NULL);
-        gtk_entry_set_text(GTK_ENTRY(compose_window->subject[1]), tmpstr);
+        gtk_editable_set_text(GTK_EDITABLE(compose_window->subject[1]), tmpstr);
         g_free(tmpstr);
     } else if (((fwdlen = strlen(old_forward_string)) > 0) &&
                g_str_has_prefix(subject, old_forward_string)) {
         tmpstr = g_strconcat(forward_string, &(subject[fwdlen]), NULL);
-        gtk_entry_set_text(GTK_ENTRY(compose_window->subject[1]), tmpstr);
+        gtk_editable_set_text(GTK_EDITABLE(compose_window->subject[1]), tmpstr);
         g_free(tmpstr);
     } else {
         if (((replen == 0) && reply_type) ||
@@ -4135,7 +4135,7 @@ compose_window_set_subject_from_body(BalsaComposeWindow        *compose_window,
         }
     }
 
-    gtk_entry_set_text(GTK_ENTRY(compose_window->subject[1]), subject);
+    gtk_editable_set_text(GTK_EDITABLE(compose_window->subject[1]), subject);
     g_free(subject);
 }
 
@@ -5402,7 +5402,7 @@ subject_not_empty(BalsaComposeWindow *compose_window)
 
     /* read the subject widget and verify that it is contains something else
        than spaces */
-    subj = gtk_entry_get_text(GTK_ENTRY(compose_window->subject[1]));
+    subj = gtk_editable_get_text(GTK_EDITABLE(compose_window->subject[1]));
     if (subj) {
         const gchar *p = subj;
 
@@ -5459,7 +5459,7 @@ subject_not_empty(BalsaComposeWindow *compose_window)
     gtk_container_add (GTK_CONTAINER (hbox), label);
 
     subj_entry = gtk_entry_new ();
-    gtk_entry_set_text(GTK_ENTRY(subj_entry), _("(no subject)"));
+    gtk_editable_set_text(GTK_EDITABLE(subj_entry), _("(no subject)"));
     gtk_widget_set_hexpand(subj_entry, TRUE);
     gtk_container_add (GTK_CONTAINER (hbox), subj_entry);
     gtk_entry_set_activates_default (GTK_ENTRY (subj_entry), TRUE);
@@ -5472,8 +5472,8 @@ subject_not_empty(BalsaComposeWindow *compose_window)
     response = gtk_dialog_run(GTK_DIALOG(no_subj_dialog));
 
     /* always set the current string in the subject entry */
-    gtk_entry_set_text(GTK_ENTRY(compose_window->subject[1]),
-                       gtk_entry_get_text(GTK_ENTRY(subj_entry)));
+    gtk_editable_set_text(GTK_EDITABLE(compose_window->subject[1]),
+                       gtk_editable_get_text(GTK_EDITABLE(subj_entry)));
     gtk_widget_destroy(no_subj_dialog);
 
     return response == GTK_RESPONSE_OK;
@@ -6982,7 +6982,7 @@ balsa_compose_window_set_title(BalsaComposeWindow *compose_window)
     g_object_unref(list);
 
     title = g_strdup_printf(title_format, to_string ? to_string : "",
-                            gtk_entry_get_text(GTK_ENTRY(compose_window->subject[1])));
+                            gtk_editable_get_text(GTK_EDITABLE(compose_window->subject[1])));
     g_free(to_string);
     gtk_window_set_title(GTK_WINDOW(compose_window), title);
     g_free(title);

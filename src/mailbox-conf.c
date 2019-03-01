@@ -611,19 +611,19 @@ mailbox_conf_set_values_pop3(LibBalsaMailbox * mailbox,
 
     /* basic settings */
     if (libbalsa_server_get_host(server) != NULL) {
-        gtk_entry_set_text(GTK_ENTRY(mcw->mb_data.pop3.bsc.server),
+        gtk_editable_set_text(GTK_EDITABLE(mcw->mb_data.pop3.bsc.server),
                            libbalsa_server_get_host(server));
     }
     gtk_combo_box_set_active(GTK_COMBO_BOX(mcw->mb_data.pop3.bsc.security),
                              libbalsa_server_get_security(server) - 1);
 
     if (libbalsa_server_get_username(server) != NULL) {
-        gtk_entry_set_text(GTK_ENTRY(mcw->mb_data.pop3.username),
+        gtk_editable_set_text(GTK_EDITABLE(mcw->mb_data.pop3.username),
                            libbalsa_server_get_username(server));
     }
 
     if (libbalsa_server_get_password(server) != NULL) {
-        gtk_entry_set_text(GTK_ENTRY(mcw->mb_data.pop3.password),
+        gtk_editable_set_text(GTK_EDITABLE(mcw->mb_data.pop3.password),
                            libbalsa_server_get_password(server));
     }
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON
@@ -639,7 +639,7 @@ mailbox_conf_set_values_pop3(LibBalsaMailbox * mailbox,
 
     filter_cmd = libbalsa_mailbox_pop3_get_filter_cmd(pop3);
     if (filter_cmd != NULL)
-        gtk_entry_set_text(GTK_ENTRY(mcw->mb_data.pop3.filter_cmd), filter_cmd);
+        gtk_editable_set_text(GTK_EDITABLE(mcw->mb_data.pop3.filter_cmd), filter_cmd);
     gtk_widget_set_sensitive(mcw->mb_data.pop3.filter_cmd, filter_cmd != NULL);
 
     /* advanced settings */
@@ -663,7 +663,7 @@ mailbox_conf_set_values_pop3(LibBalsaMailbox * mailbox,
                              sensitive);
 
     if (libbalsa_server_get_cert_passphrase(server) != NULL) {
-        gtk_entry_set_text(GTK_ENTRY
+        gtk_editable_set_text(GTK_EDITABLE
                            (mcw->mb_data.pop3.bsc.client_cert_passwd),
                            libbalsa_server_get_cert_passphrase(server));
     }
@@ -694,7 +694,7 @@ mailbox_conf_set_values(MailboxConfWindow *mcw)
 	g_return_if_fail(LIBBALSA_IS_MAILBOX(mailbox));
 
 	if (mcw->mailbox_name && libbalsa_mailbox_get_name(mailbox))
-		gtk_entry_set_text(GTK_ENTRY(mcw->mailbox_name), libbalsa_mailbox_get_name(mailbox));
+		gtk_editable_set_text(GTK_EDITABLE(mcw->mailbox_name), libbalsa_mailbox_get_name(mailbox));
 
 	if (LIBBALSA_IS_MAILBOX_LOCAL(mailbox)) {
 		if (libbalsa_mailbox_get_url(mailbox)) {
@@ -716,10 +716,10 @@ mailbox_conf_set_values(MailboxConfWindow *mcw)
 		server = LIBBALSA_MAILBOX_REMOTE_GET_SERVER(mailbox);
 
 		if (libbalsa_server_get_host(server))
-			gtk_entry_set_text(GTK_ENTRY(mcw->mb_data.imap.bsc.server),
+			gtk_editable_set_text(GTK_EDITABLE(mcw->mb_data.imap.bsc.server),
 				libbalsa_server_get_host(server));
 		if (libbalsa_server_get_username(server))
-			gtk_entry_set_text(GTK_ENTRY(mcw->mb_data.imap.username),
+			gtk_editable_set_text(GTK_EDITABLE(mcw->mb_data.imap.username),
 				libbalsa_server_get_username(server));
 		gtk_toggle_button_set_active
 		(GTK_TOGGLE_BUTTON(mcw->mb_data.imap.anonymous),
@@ -728,11 +728,11 @@ mailbox_conf_set_values(MailboxConfWindow *mcw)
 		(GTK_TOGGLE_BUTTON(mcw->mb_data.imap.remember),
 			libbalsa_server_get_remember_passwd(server));
 		if (libbalsa_server_get_password(server))
-			gtk_entry_set_text(GTK_ENTRY(mcw->mb_data.imap.password),
+			gtk_editable_set_text(GTK_EDITABLE(mcw->mb_data.imap.password),
 				libbalsa_server_get_password(server));
 		path = libbalsa_mailbox_imap_get_path(imap);
 		if (path)
-			gtk_entry_set_text(GTK_ENTRY(mcw->mb_data.imap.folderpath),
+			gtk_editable_set_text(GTK_EDITABLE(mcw->mb_data.imap.folderpath),
 				path);
 		if(libbalsa_imap_server_has_persistent_cache
 			(LIBBALSA_IMAP_SERVER(server)))
@@ -771,7 +771,7 @@ check_for_blank_fields(GtkWidget G_GNUC_UNUSED *widget, MailboxConfWindow *mcw)
 
     sensitive = TRUE;
 
-    if (mcw->mailbox_name &&!*gtk_entry_get_text(GTK_ENTRY(mcw->mailbox_name))) {
+    if (mcw->mailbox_name &&!*gtk_editable_get_text(GTK_EDITABLE(mcw->mailbox_name))) {
     	sensitive = FALSE;
     } else if (g_type_is_a(mcw->mailbox_type, LIBBALSA_TYPE_MAILBOX_LOCAL) ) {
     	gchar *filename =
@@ -783,22 +783,22 @@ check_for_blank_fields(GtkWidget G_GNUC_UNUSED *widget, MailboxConfWindow *mcw)
     	}
     } else if (g_type_is_a(mcw->mailbox_type, LIBBALSA_TYPE_MAILBOX_IMAP ) ) {
     	bsc = &mcw->mb_data.imap.bsc;
-    	if (!*gtk_entry_get_text(GTK_ENTRY(mcw->mb_data.imap.folderpath))
-    		|| !*gtk_entry_get_text(GTK_ENTRY(bsc->server))
-			|| !*gtk_entry_get_text(GTK_ENTRY(mcw->mb_data.imap.username))) {
+    	if (!*gtk_editable_get_text(GTK_EDITABLE(mcw->mb_data.imap.folderpath))
+    		|| !*gtk_editable_get_text(GTK_EDITABLE(bsc->server))
+			|| !*gtk_editable_get_text(GTK_EDITABLE(mcw->mb_data.imap.username))) {
     		sensitive = FALSE;
     	}
     } else if (g_type_is_a(mcw->mailbox_type, LIBBALSA_TYPE_MAILBOX_POP3) ) {
     	/* POP3: require user name and server */
     	bsc = &mcw->mb_data.pop3.bsc;
-    	if ((gtk_entry_get_text(GTK_ENTRY(mcw->mb_data.pop3.username))[0] == '\0') ||
-    		(gtk_entry_get_text(GTK_ENTRY(bsc->server))[0] == '\0')) {
+    	if ((gtk_editable_get_text(GTK_EDITABLE(mcw->mb_data.pop3.username))[0] == '\0') ||
+    		(gtk_editable_get_text(GTK_EDITABLE(bsc->server))[0] == '\0')) {
     		sensitive = FALSE;
     	}
     	/* procmail filtering requires command */
     	if (sensitive &&
     		gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mcw->mb_data.pop3.filter)) &&
-			(gtk_entry_get_text(GTK_ENTRY(mcw->mb_data.pop3.filter_cmd))[0] == '\0')) {
+			(gtk_editable_get_text(GTK_EDITABLE(mcw->mb_data.pop3.filter_cmd))[0] == '\0')) {
     		sensitive = FALSE;
     	}
     }
@@ -837,7 +837,7 @@ fill_in_imap_data(MailboxConfWindow *mcw, gchar ** name, gchar ** path)
 	    g_free(*name);
 
 	*name = g_strdup_printf(_("%s on %s"), *path,
-				gtk_entry_get_text(GTK_ENTRY
+				gtk_editable_get_text(GTK_EDITABLE
 						   (mcw->mb_data.imap.bsc.server)));
     }
 }
@@ -860,21 +860,21 @@ update_pop_mailbox(MailboxConfWindow * mcw)
 
     /* basic data */
     libbalsa_mailbox_set_name((LibBalsaMailbox *) mailbox,
-                              gtk_entry_get_text(GTK_ENTRY
+                              gtk_editable_get_text(GTK_EDITABLE
                                                  (mcw->mailbox_name)));
 
     security = balsa_server_conf_get_security(&mcw->mb_data.pop3.bsc);
     libbalsa_server_set_security(server, security);
     libbalsa_server_set_host(server,
-                             gtk_entry_get_text(GTK_ENTRY
+                             gtk_editable_get_text(GTK_EDITABLE
                                                 (mcw->mb_data.pop3.bsc.server)));
 
     libbalsa_server_set_username(server,
-                                 gtk_entry_get_text(GTK_ENTRY
+                                 gtk_editable_get_text(GTK_EDITABLE
                                                     (mcw->mb_data.pop3.
                                                      username)));
     libbalsa_server_set_password(server,
-                                 gtk_entry_get_text(GTK_ENTRY
+                                 gtk_editable_get_text(GTK_EDITABLE
                                                     (mcw->mb_data.pop3.
                                                      password)));
     libbalsa_server_config_changed(server);
@@ -893,7 +893,7 @@ update_pop_mailbox(MailboxConfWindow * mcw)
                                      (GTK_TOGGLE_BUTTON
                                       (mcw->mb_data.pop3.filter)));
     libbalsa_mailbox_pop3_set_filter_cmd(mailbox,
-                                         gtk_entry_get_text(GTK_ENTRY
+                                         gtk_editable_get_text(GTK_EDITABLE
                                                             (mcw->mb_data.
                                                              pop3.
                                                              filter_cmd)));
@@ -911,7 +911,7 @@ update_pop_mailbox(MailboxConfWindow * mcw)
     g_free(filename);
 
     libbalsa_server_set_cert_passphrase(server,
-                                        gtk_entry_get_text(GTK_ENTRY
+                                        gtk_editable_get_text(GTK_EDITABLE
                                                            (bsc->
                                                             client_cert_passwd)));
     libbalsa_mailbox_pop3_set_disable_apop(mailbox,
@@ -952,7 +952,7 @@ update_imap_mailbox(MailboxConfWindow *mcw)
     libbalsa_mailbox_set_name((LibBalsaMailbox *) mailbox, name);
     g_free(name);
     libbalsa_server_set_username(server,
-				 gtk_entry_get_text(GTK_ENTRY
+				 gtk_editable_get_text(GTK_EDITABLE
 						    (mcw->mb_data.imap.username)));
     libbalsa_server_set_try_anonymous(server,
         gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mcw->
@@ -963,7 +963,7 @@ update_imap_mailbox(MailboxConfWindow *mcw)
     security = balsa_server_conf_get_security(&mcw->mb_data.imap.bsc);
     libbalsa_server_set_security(server, security);
     libbalsa_server_set_password(server,
-				 gtk_entry_get_text(GTK_ENTRY
+				 gtk_editable_get_text(GTK_EDITABLE
 						    (mcw->mb_data.imap.password)));
     libbalsa_imap_server_enable_persistent_cache
         (LIBBALSA_IMAP_SERVER(server),
@@ -976,7 +976,7 @@ update_imap_mailbox(MailboxConfWindow *mcw)
     /* Set host after all other server changes, as it triggers
      * save-to-config for any folder or mailbox using this server. */
     libbalsa_server_set_host(server,
-			     gtk_entry_get_text(GTK_ENTRY
+			     gtk_editable_get_text(GTK_EDITABLE
 						(mcw->mb_data.imap.bsc.server)));
     libbalsa_server_config_changed(server);
     libbalsa_server_connect_get_password(server, G_CALLBACK(ask_password), mailbox);
@@ -1450,7 +1450,7 @@ create_imap_mailbox_dialog(MailboxConfWindow *mcw)
 
     mcw->mb_data.imap.folderpath = entry = gtk_entry_new();
     gtk_widget_set_hexpand(entry, TRUE);
-    gtk_entry_set_text(GTK_ENTRY(mcw->mb_data.imap.folderpath), "INBOX");
+    gtk_editable_set_text(GTK_EDITABLE(mcw->mb_data.imap.folderpath), "INBOX");
 
     gtk_label_set_mnemonic_widget(GTK_LABEL(label), 
                                   mcw->mb_data.imap.folderpath);

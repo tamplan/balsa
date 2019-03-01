@@ -883,7 +883,7 @@ bab_get_edit_button_box(struct ABMainWindow *abmw)
 static void
 bab_filter_entry_activate(GtkWidget *entry, GtkWidget *button)
 {
-    const gchar *filter = gtk_entry_get_text(GTK_ENTRY(entry));
+    const gchar *filter = gtk_editable_get_text(GTK_EDITABLE(entry));
     bab_set_address_book(contacts_app.address_book, contacts_app.entry_list,
                          filter);
     gtk_widget_set_sensitive(button, FALSE);

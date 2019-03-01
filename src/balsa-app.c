@@ -96,7 +96,7 @@ ask_password_real(LibBalsaServer * server, LibBalsaMailbox * mbox)
 
     entry = gtk_entry_new();
     gtk_container_add(GTK_CONTAINER(content_area), entry);
-    gtk_entry_set_width_chars(GTK_ENTRY(entry), 20);
+    gtk_editable_set_width_chars(GTK_EDITABLE(entry), 20);
     gtk_entry_set_visibility(GTK_ENTRY(entry), FALSE);
 
     rememb =  gtk_check_button_new_with_mnemonic(_(remember_password_message));

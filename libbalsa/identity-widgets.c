@@ -386,7 +386,7 @@ static void set_identity_name_in_tree(GtkTreeView * tree,
 				      const gchar * name);
 static void md_response_cb(GtkWidget * dialog, gint response,
                            GtkTreeView * tree);
-static void md_name_changed(GtkEntry * name, GtkTreeView * tree);
+static void md_name_changed(GtkEditable * name, GtkTreeView * tree);
 
 static void ident_dialog_add_gpg_menu(GtkWidget * grid, gint row,
                                       GtkDialog * dialog,
@@ -726,10 +726,10 @@ setup_ident_frame(GtkDialog * dialog, gboolean createp, gpointer tree,
 /* Callback for the "changed" signal of the name entry; updates the name
  * in the tree. */
 static void
-md_name_changed(GtkEntry * name, GtkTreeView * tree)
+md_name_changed(GtkEditable * name, GtkTreeView * tree)
 {
     set_identity_name_in_tree(tree, get_selected_identity(tree),
-			      gtk_entry_get_text(name));
+			      gtk_editable_get_text(name));
 }
 
 /*
@@ -1213,14 +1213,14 @@ ident_dialog_update(GObject * dlg)
 static const gchar *
 ident_dialog_get_text(GObject * dialog, const gchar * key)
 {
-    GtkEntry *entry;
+    GtkEditable *editable;
     GtkToggleButton *check;
 
-    entry = g_object_get_data(dialog, key);
-    check = g_object_get_data(G_OBJECT(entry), LIBBALSA_IDENTITY_CHECK);
+    editable = g_object_get_data(dialog, key);
+    check = g_object_get_data(G_OBJECT(editable), LIBBALSA_IDENTITY_CHECK);
     if (check && !gtk_toggle_button_get_active(check))
         return NULL;
-    return gtk_entry_get_text(entry);
+    return gtk_editable_get_text(editable);
 }
 
 
@@ -1580,9 +1580,9 @@ display_frame_set_field(GObject * dialog,
                         const gchar* key,
                         const gchar* value)
 {
-    GtkEntry *entry = g_object_get_data(dialog, key);
+    GtkEditable *editable = g_object_get_data(dialog, key);
 
-    gtk_entry_set_text(entry, value ? value : "");
+    gtk_editable_set_text(editable, value != NULL ? value : "");
 }
 
 static void
@@ -1609,7 +1609,7 @@ display_frame_set_path(GObject * dialog,
         if(use_chooser)
             gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(chooser), value);
         else
-            gtk_entry_set_text(GTK_ENTRY(chooser), value);
+            gtk_editable_set_text(GTK_EDITABLE(chooser), value);
     }
     gtk_widget_set_sensitive(GTK_WIDGET(chooser), set);
     gtk_toggle_button_set_active(check, set);

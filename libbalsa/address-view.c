@@ -296,7 +296,7 @@ lbav_entry_setup_matches(LibBalsaAddressView * address_view,
     const gchar *prefix;
     GList *match = NULL;
 
-    prefix = gtk_entry_get_text(entry);
+    prefix = gtk_editable_get_text(GTK_EDITABLE(entry));
     if (*prefix)
         match = lbav_get_matching_addresses(address_view, prefix, type);
     lbav_append_addresses(address_view, completion, match, prefix);
@@ -409,7 +409,7 @@ lbav_combo_changed_idle(LibBalsaAddressView * address_view)
 
     /* Save the address */
     child = lbav_get_entry(address_view, row);
-    name = gtk_entry_get_text(GTK_ENTRY(child));
+    name = gtk_editable_get_text(GTK_EDITABLE(child));
 
     /* Find the new row for the addrress */
     new_type = gtk_combo_box_get_active(GTK_COMBO_BOX(combo_box));
@@ -433,7 +433,7 @@ lbav_combo_changed_idle(LibBalsaAddressView * address_view)
         icon = (name == NULL || name[0] == '\0') ? WITH_BOOK_ICON : WITH_CLOSE_ICON;
         lbav_insert_row(address_view, row, new_type, icon);
         child = lbav_get_entry(address_view, row);
-        gtk_entry_set_text(GTK_ENTRY(child), name);
+        gtk_editable_set_text(GTK_EDITABLE(child), name);
 
         if (old_row > row) {
             ++old_row;
@@ -589,7 +589,7 @@ lbav_ensure_blank_row(LibBalsaAddressView * address_view, gint type)
     for (row = 0; (child = lbav_get_entry(address_view, row)) != NULL; /* nothing */) {
         const gchar *name;
 
-        name = gtk_entry_get_text(GTK_ENTRY(child));
+        name = gtk_editable_get_text(GTK_EDITABLE(child));
         if (name == NULL || name[0] == '\0') {
             lbav_remove_row(address_view, row);
         } else {
@@ -675,7 +675,7 @@ lbav_add_from_list(LibBalsaAddressView * address_view,
         }
 
         child = lbav_get_entry(address_view, row);
-        gtk_entry_set_text(GTK_ENTRY(child), name);
+        gtk_editable_set_text(GTK_EDITABLE(child), name);
         g_free(name);
     }
     g_signal_emit(address_view, address_view_signals[VIEW_CHANGED], 0);
@@ -892,7 +892,7 @@ lbav_completion_match_selected_cb(GtkEntryCompletion * completion,
     entry = gtk_entry_completion_get_entry(completion);
     g_signal_handlers_block_by_func(entry, lbav_entry_changed_cb,
                                     address_view);
-    gtk_entry_set_text(GTK_ENTRY(entry), name);
+    gtk_editable_set_text(GTK_EDITABLE(entry), name);
     g_signal_handlers_unblock_by_func(entry, lbav_entry_changed_cb,
                                       address_view);
 
@@ -916,7 +916,7 @@ lbav_notify_has_focus_cb(GtkEntry            *entry,
         return;
     }
 
-    name = gtk_entry_get_text(entry);
+    name = gtk_editable_get_text(GTK_EDITABLE(entry));
 
     if (name == NULL || name[0] == '\0') {
         /* No text to match */
@@ -945,7 +945,7 @@ lbav_notify_has_focus_cb(GtkEntry            *entry,
         g_signal_handlers_block_by_func(entry,
                                         lbav_entry_changed_cb,
                                         address_view);
-        gtk_entry_set_text(entry, the_addr);
+        gtk_editable_set_text(GTK_EDITABLE(entry), the_addr);
         g_signal_handlers_unblock_by_func(entry,
                                           lbav_entry_changed_cb,
                                           address_view);
@@ -1147,7 +1147,7 @@ libbalsa_address_view_get_list(LibBalsaAddressView * address_view,
             InternetAddressList *tmp_list;
 
             child = lbav_get_entry(address_view, row);
-            name = gtk_entry_get_text(GTK_ENTRY(child));
+            name = gtk_editable_get_text(GTK_EDITABLE(child));
             tmp_list = internet_address_list_parse_string(name);
             if (tmp_list != NULL) {
                 internet_address_list_append(address_list, tmp_list);

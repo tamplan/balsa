@@ -285,23 +285,23 @@ smtp_server_response(GtkDialog * dialog, gint response,
         return;
     case GTK_RESPONSE_OK:
         libbalsa_smtp_server_set_name(sdi->smtp_server,
-                                      gtk_entry_get_text(GTK_ENTRY
+                                      gtk_editable_get_text(GTK_EDITABLE
                                                          (sdi->name)));
         libbalsa_server_set_security
             (server,
              (NetClientCryptMode) (gtk_combo_box_get_active(GTK_COMBO_BOX(sdi->tlsm)) + 1));
         libbalsa_server_set_host
             (server,
-             gtk_entry_get_text(GTK_ENTRY(sdi->host)));
+             gtk_editable_get_text(GTK_EDITABLE(sdi->host)));
         libbalsa_server_set_try_anonymous
             (server,
              !gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(sdi->auth_button)));
         libbalsa_server_set_username
             (server,
-             gtk_entry_get_text(GTK_ENTRY(sdi->user)));
+             gtk_editable_get_text(GTK_EDITABLE(sdi->user)));
         libbalsa_server_set_password
             (server,
-             gtk_entry_get_text(GTK_ENTRY(sdi->pass)));
+             gtk_editable_get_text(GTK_EDITABLE(sdi->pass)));
         libbalsa_server_set_client_cert
             (server,
              gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(sdi->cert_button)));
@@ -312,7 +312,7 @@ smtp_server_response(GtkDialog * dialog, gint response,
 
         libbalsa_server_set_cert_passphrase
             (server,
-             gtk_entry_get_text(GTK_ENTRY(sdi->cert_pass)));
+             gtk_editable_get_text(GTK_EDITABLE(sdi->cert_pass)));
         if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(sdi->split_button))) {
             /* big_message is stored in kB, but the widget is in MB. */
         	sdi->smtp_server->big_message =
@@ -344,8 +344,8 @@ smtp_server_changed(GtkWidget G_GNUC_UNUSED *widget,
 
 	/* enable ok button only if a name and a host have been given */
     if ((sdi->name != NULL) && (sdi->host != NULL)) {
-    	enable_ok = (*gtk_entry_get_text(GTK_ENTRY(sdi->name)) != '\0')
-        	&& (*gtk_entry_get_text(GTK_ENTRY(sdi->host)) != '\0');
+    	enable_ok = (*gtk_editable_get_text(GTK_EDITABLE(sdi->name)) != '\0')
+        	&& (*gtk_editable_get_text(GTK_EDITABLE(sdi->host)) != '\0');
     }
 
 	/* user name/password only if authentication is required */
@@ -355,7 +355,7 @@ smtp_server_changed(GtkWidget G_GNUC_UNUSED *widget,
 		gtk_widget_set_sensitive(sdi->pass, sensitive);
 
 		/* disable ok if authentication is required, but no user name given */
-		if (sensitive && (*gtk_entry_get_text(GTK_ENTRY(sdi->user)) == '\0')) {
+		if (sensitive && (*gtk_editable_get_text(GTK_EDITABLE(sdi->user)) == '\0')) {
 			enable_ok = FALSE;
 		}
 	}
@@ -462,7 +462,7 @@ libbalsa_smtp_server_dialog(LibBalsaSmtpServer * smtp_server,
     gtk_widget_set_hexpand(sdi->name, TRUE);
     smtp_server_add_widget(grid, row, _("_Descriptive Name:"), sdi->name);
     if (smtp_server->name != NULL) {
-        gtk_entry_set_text(GTK_ENTRY(sdi->name), smtp_server->name);
+        gtk_editable_set_text(GTK_EDITABLE(sdi->name), smtp_server->name);
     }
     g_signal_connect(sdi->name, "changed", G_CALLBACK(smtp_server_changed), sdi);
 
@@ -470,7 +470,7 @@ libbalsa_smtp_server_dialog(LibBalsaSmtpServer * smtp_server,
     sdi->host = gtk_entry_new();
     smtp_server_add_widget(grid, ++row, _("_Server:"), sdi->host);
     if (libbalsa_server_get_host(server) != NULL) {
-        gtk_entry_set_text(GTK_ENTRY(sdi->host), libbalsa_server_get_host(server));
+        gtk_editable_set_text(GTK_EDITABLE(sdi->host), libbalsa_server_get_host(server));
     }
     g_signal_connect(sdi->host, "changed", G_CALLBACK(smtp_server_changed), sdi);
 
@@ -490,7 +490,7 @@ libbalsa_smtp_server_dialog(LibBalsaSmtpServer * smtp_server,
     sdi->user = gtk_entry_new();
     smtp_server_add_widget(grid, ++row, _("_User Name:"), sdi->user);
     if (libbalsa_server_get_username(server) != NULL) {
-        gtk_entry_set_text(GTK_ENTRY(sdi->user), libbalsa_server_get_username(server));
+        gtk_editable_set_text(GTK_EDITABLE(sdi->user), libbalsa_server_get_username(server));
     }
     g_signal_connect(sdi->user, "changed", G_CALLBACK(smtp_server_changed), sdi);
 
@@ -499,7 +499,7 @@ libbalsa_smtp_server_dialog(LibBalsaSmtpServer * smtp_server,
     g_object_set(G_OBJECT(sdi->pass), "input-purpose", GTK_INPUT_PURPOSE_PASSWORD, NULL);
     gtk_entry_set_visibility(GTK_ENTRY(sdi->pass), FALSE);
     if (libbalsa_server_get_password(server) != NULL) {
-        gtk_entry_set_text(GTK_ENTRY(sdi->pass), libbalsa_server_get_password(server));
+        gtk_editable_set_text(GTK_EDITABLE(sdi->pass), libbalsa_server_get_password(server));
     }
     g_signal_connect(sdi->pass, "changed", G_CALLBACK(smtp_server_changed), sdi);
 
@@ -529,7 +529,7 @@ libbalsa_smtp_server_dialog(LibBalsaSmtpServer * smtp_server,
     g_object_set(G_OBJECT(sdi->cert_pass), "input-purpose", GTK_INPUT_PURPOSE_PASSWORD, NULL);
     gtk_entry_set_visibility(GTK_ENTRY(sdi->cert_pass), FALSE);
     if (libbalsa_server_get_cert_passphrase(server) != NULL) {
-        gtk_entry_set_text(GTK_ENTRY(sdi->cert_pass), libbalsa_server_get_cert_passphrase(server));
+        gtk_editable_set_text(GTK_EDITABLE(sdi->cert_pass), libbalsa_server_get_cert_passphrase(server));
     }
     g_signal_connect(sdi->cert_pass, "changed", G_CALLBACK(smtp_server_changed), sdi);
 

@@ -139,9 +139,9 @@ validate_folder(GtkWidget *w, FolderDialogData * fcw)
     CommonDialogData *cdd = (CommonDialogData *) fcw;
     gboolean sensitive = TRUE;
 
-    if (!*gtk_entry_get_text(GTK_ENTRY(fcw->folder_name))) {
+    if (!*gtk_editable_get_text(GTK_EDITABLE(fcw->folder_name))) {
     	sensitive = FALSE;
-    } else if (!*gtk_entry_get_text(GTK_ENTRY(fcw->bsc.server))) {
+    } else if (!*gtk_editable_get_text(GTK_EDITABLE(fcw->bsc.server))) {
     	sensitive = FALSE;
     }
 
@@ -197,8 +197,8 @@ folder_conf_clicked_ok(FolderDialogData * fcw)
     const gchar *username;
     const gchar *host;
 
-    host = gtk_entry_get_text(GTK_ENTRY(fcw->bsc.server));
-    username = gtk_entry_get_text(GTK_ENTRY(fcw->username));
+    host = gtk_editable_get_text(GTK_EDITABLE(fcw->bsc.server));
+    username = gtk_editable_get_text(GTK_EDITABLE(fcw->username));
 
     if (cdd->mbnode) {
         insert = FALSE;
@@ -232,7 +232,7 @@ folder_conf_clicked_ok(FolderDialogData * fcw)
     libbalsa_server_set_remember_passwd(s,
         gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fcw->remember)));
     libbalsa_server_set_password(s,
-                                 gtk_entry_get_text(GTK_ENTRY
+                                 gtk_editable_get_text(GTK_EDITABLE
                                                     (fcw->password)));
     if (!cdd->mbnode) {
         cdd->mbnode = balsa_mailbox_node_new_imap_folder(s, NULL);
@@ -246,9 +246,9 @@ folder_conf_clicked_ok(FolderDialogData * fcw)
     }
 
     balsa_mailbox_node_set_dir(cdd->mbnode,
-            gtk_entry_get_text(GTK_ENTRY(fcw->prefix)));
+            gtk_editable_get_text(GTK_EDITABLE(fcw->prefix)));
     balsa_mailbox_node_set_name(cdd->mbnode,
-            gtk_entry_get_text(GTK_ENTRY(fcw->folder_name)));
+            gtk_editable_get_text(GTK_EDITABLE(fcw->folder_name)));
     balsa_mailbox_node_set_subscribed(cdd->mbnode,
             gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fcw->subscribed)));
     balsa_mailbox_node_set_list_inbox(cdd->mbnode,
@@ -483,7 +483,7 @@ validate_sub_folder(GtkWidget * w, SubfolderDialogData * sdd)
      */
     gtk_dialog_set_response_sensitive(GTK_DIALOG(cdd->dialog), GTK_RESPONSE_OK, 
                                       have_server &&
-                                      *gtk_entry_get_text(GTK_ENTRY
+                                      *gtk_editable_get_text(GTK_EDITABLE
                                                           (sdd->folder_name)));
 }
 
@@ -536,7 +536,7 @@ browse_button_response(GtkDialog * dialog, gint response,
         bbd->sdd->parent = mbnode;
         dir = balsa_mailbox_node_get_dir(mbnode);
         if (dir != NULL)
-            gtk_entry_set_text(GTK_ENTRY(bbd->sdd->parent_folder), dir);
+            gtk_editable_set_text(GTK_EDITABLE(bbd->sdd->parent_folder), dir);
         server = balsa_mailbox_node_get_server(mbnode);
         if (server != NULL)
             gtk_label_set_label(GTK_LABEL(bbd->sdd->host_label),
@@ -899,7 +899,7 @@ folder_conf_imap_sub_node(BalsaMailboxNode * mn)
     (void) libbalsa_create_grid_label(_("Subfolder of:"), grid, row);
     sdd->parent_folder = gtk_entry_new();
     gtk_editable_set_editable(GTK_EDITABLE(sdd->parent_folder), FALSE);
-    gtk_entry_set_text(GTK_ENTRY(sdd->parent_folder), sdd->old_parent);
+    gtk_editable_set_text(GTK_EDITABLE(sdd->parent_folder), sdd->old_parent);
 
     button = gtk_button_new_with_mnemonic(_("_Browse…"));
     g_signal_connect(button, "clicked",

@@ -269,10 +269,10 @@ fe_regexs_selection_changed(GtkTreeSelection *selection,
     selected = gtk_tree_selection_get_selected(selection, &model, &iter);
     if (selected) {
         gtk_tree_model_get(model, &iter, 0, &str, -1);
-        gtk_entry_set_text(GTK_ENTRY(fe_type_regex_entry),str);
+        gtk_editable_set_text(GTK_EDITABLE(fe_type_regex_entry),str);
         g_free(str);
     }
-    else gtk_entry_set_text(GTK_ENTRY(fe_type_regex_entry),"");
+    else gtk_editable_set_text(GTK_EDITABLE(fe_type_regex_entry),"");
     gtk_widget_set_sensitive(fe_regex_remove_button, selected);
 }
 #endif                  /* REGULAR_EXPRESSION_FILTERING_IS_IMPLEMENTED */
@@ -553,7 +553,7 @@ condition_validate(LibBalsaCondition* new_cnd)
     }
     switch (new_cnd->type) {
     case CONDITION_STRING:
-        c_str = gtk_entry_get_text(GTK_ENTRY(fe_type_simple_entry));
+        c_str = gtk_editable_get_text(GTK_EDITABLE(fe_type_simple_entry));
         if (!c_str || c_str[0]=='\0') {
             balsa_information(LIBBALSA_INFORMATION_ERROR,
                               _("You must provide a string"));
@@ -571,7 +571,7 @@ condition_validate(LibBalsaCondition* new_cnd)
 #endif                  /* REGULAR_EXPRESSION_FILTERING_IS_IMPLEMENTED */
         break;
     case CONDITION_DATE:
-        c_str = gtk_entry_get_text(GTK_ENTRY(fe_type_date_low_entry));
+        c_str = gtk_editable_get_text(GTK_EDITABLE(fe_type_date_low_entry));
         if (c_str && c_str[0]!='\0') {
             (void) strptime("00:00:00","%T",&date);
             p=(gchar *)strptime(c_str,"%x",&date);
@@ -582,7 +582,7 @@ condition_validate(LibBalsaCondition* new_cnd)
             }
             new_cnd->match.date.date_low=mktime(&date);
         }
-        c_str = gtk_entry_get_text(GTK_ENTRY(fe_type_date_high_entry));
+        c_str = gtk_editable_get_text(GTK_EDITABLE(fe_type_date_high_entry));
         if (c_str && c_str[0]!='\0') {
             (void) strptime("23:59:59","%T",&date);
             p=(gchar *)strptime(c_str,"%x",&date);
@@ -662,13 +662,13 @@ clear_condition_widgets()
         gtk_tree_view_get_model(fe_type_regex_list);
 #endif                  /* REGULAR_EXPRESSION_FILTERING_IS_IMPLEMENTED */
 
-    gtk_entry_set_text(GTK_ENTRY(fe_type_simple_entry),"");
+    gtk_editable_set_text(GTK_EDITABLE(fe_type_simple_entry),"");
 #if REGULAR_EXPRESSION_FILTERING_IS_IMPLEMENTED
-    gtk_entry_set_text(GTK_ENTRY(fe_type_regex_entry),"");          
+    gtk_editable_set_text(GTK_EDITABLE(fe_type_regex_entry),"");          
     gtk_list_store_clear(GTK_LIST_STORE(model));
 #endif                  /* REGULAR_EXPRESSION_FILTERING_IS_IMPLEMENTED */
-    gtk_entry_set_text(GTK_ENTRY(fe_type_date_low_entry),"");
-    gtk_entry_set_text(GTK_ENTRY(fe_type_date_high_entry),"");
+    gtk_editable_set_text(GTK_EDITABLE(fe_type_date_low_entry),"");
+    gtk_editable_set_text(GTK_EDITABLE(fe_type_date_high_entry),"");
 }
 
 /* set_button_sensitivities:
@@ -727,11 +727,11 @@ fill_condition_widgets(LibBalsaCondition* cnd)
     condition_not=cnd->negate;
     /* Clear all widgets */
     if (cnd->type!=CONDITION_STRING)
-        gtk_entry_set_text(GTK_ENTRY(fe_type_simple_entry),"");
+        gtk_editable_set_text(GTK_EDITABLE(fe_type_simple_entry),"");
 
 #if REGULAR_EXPRESSION_FILTERING_IS_IMPLEMENTED
     if (cnd->type!=CONDITION_REGEX)
-        gtk_entry_set_text(GTK_ENTRY(fe_type_regex_entry),"");      
+        gtk_editable_set_text(GTK_EDITABLE(fe_type_regex_entry),"");      
 
     gtk_list_store_clear(GTK_LIST_STORE(model));
 #endif                  /* REGULAR_EXPRESSION_FILTERING_IS_IMPLEMENTED */
@@ -763,14 +763,14 @@ fill_condition_widgets(LibBalsaCondition* cnd)
     }
     else {
 	gtk_widget_set_sensitive(fe_user_header,FALSE);
-        gtk_entry_set_text(GTK_ENTRY
+        gtk_editable_set_text(GTK_EDITABLE
                            (gtk_bin_get_child(GTK_BIN(fe_user_header))),
                            "");
     }	
     /* Next update type specific fields */
     switch (cnd->type) {
     case CONDITION_STRING:
-        gtk_entry_set_text(GTK_ENTRY(fe_type_simple_entry),
+        gtk_editable_set_text(GTK_EDITABLE(fe_type_simple_entry),
                            cnd->match.string.string 
                            ? cnd->match.string.string : "");
         fe_update_label(fe_type_simple_label, &simple_label);
@@ -800,7 +800,7 @@ fill_condition_widgets(LibBalsaCondition* cnd)
             str = g_date_time_format(date, xformat);
             g_date_time_unref(date);
         }
-        gtk_entry_set_text(GTK_ENTRY(fe_type_date_low_entry),str);
+        gtk_editable_set_text(GTK_EDITABLE(fe_type_date_low_entry),str);
         g_free(str);
         if (cnd->match.date.date_high==0) str = g_strdup("");
         else {
@@ -808,7 +808,7 @@ fill_condition_widgets(LibBalsaCondition* cnd)
             str = g_date_time_format(date, xformat);
             g_date_time_unref(date);
         }
-        gtk_entry_set_text(GTK_ENTRY(fe_type_date_high_entry),str);
+        gtk_editable_set_text(GTK_EDITABLE(fe_type_date_high_entry),str);
         g_free(str);
         fe_update_label(fe_type_date_label, &date_label);
         break;
@@ -1579,7 +1579,7 @@ fe_add_pressed(GtkWidget * widget, gpointer throwaway)
     GtkTreeIter iter;
     GtkTreeSelection *selection;
 
-    text = gtk_entry_get_text(GTK_ENTRY(fe_type_regex_entry));
+    text = gtk_editable_get_text(GTK_EDITABLE(fe_type_regex_entry));
     
     if (!text || text[0] == '\0')
         return;
@@ -1785,8 +1785,8 @@ fe_delete_pressed(GtkWidget * widget, gpointer data)
     else {
         /* ...the store is empty: */
         /* We clear all widgets */
-        gtk_entry_set_text(GTK_ENTRY(fe_name_entry),"");
-        gtk_entry_set_text(GTK_ENTRY(fe_popup_entry),"");
+        gtk_editable_set_text(GTK_EDITABLE(fe_name_entry),"");
+        gtk_editable_set_text(GTK_EDITABLE(fe_popup_entry),"");
         /*gtk_option_menu_set_history(GTK_OPTION_MENU(fe_mailboxes), 0); */
         gtk_list_store_clear(GTK_LIST_STORE
                              (gtk_tree_view_get_model
@@ -1828,7 +1828,7 @@ fe_apply_pressed(GtkWidget * widget, gpointer data)
         return;
 
     /* quick check before we malloc */
-    temp = gtk_entry_get_text(GTK_ENTRY(fe_name_entry));
+    temp = gtk_editable_get_text(GTK_EDITABLE(fe_name_entry));
     if (!temp || temp[0] == '\0') {
         balsa_information(LIBBALSA_INFORMATION_ERROR,
                           _("No filter name specified."));
@@ -1934,9 +1934,9 @@ fe_apply_pressed(GtkWidget * widget, gpointer data)
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fe_popup_button))) {
         static gchar defstring[] = N_("Filter has matched");
         const gchar *tmpstr;
-        
-        tmpstr = gtk_entry_get_text(GTK_ENTRY(fe_popup_entry));
-        
+
+        tmpstr = gtk_editable_get_text(GTK_EDITABLE(fe_popup_entry));
+
         fil->popup_text=g_strdup(((!tmpstr)
                                   || (tmpstr[0] ==
                                       '\0')) ? _(defstring) : tmpstr);
@@ -2045,10 +2045,10 @@ fe_filters_list_selection_changed(GtkTreeSelection * selection,
     gtk_tree_model_get(model, &iter, 1, &fil, -1);
     
     /* Populate all fields with filter data */
-    gtk_entry_set_text(GTK_ENTRY(fe_name_entry),fil->name);
+    gtk_editable_set_text(GTK_EDITABLE(fe_name_entry),fil->name);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fe_popup_button),
                                  fil->popup_text!=NULL);
-    gtk_entry_set_text(GTK_ENTRY(fe_popup_entry),
+    gtk_editable_set_text(GTK_EDITABLE(fe_popup_entry),
                        fil->popup_text!=NULL
                        ? fil->popup_text : "");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fe_sound_button),

@@ -684,7 +684,7 @@ static gboolean
 create_book(AddressBookConfig * abc)
 {
     LibBalsaAddressBook *address_book = NULL;
-    const gchar *name = gtk_entry_get_text(GTK_ENTRY(abc->name_entry));
+    const gchar *name = gtk_editable_get_text(GTK_EDITABLE(abc->name_entry));
 
     if (abc->type == LIBBALSA_TYPE_ADDRESS_BOOK_VCARD) {
         gchar *path =
@@ -711,15 +711,15 @@ create_book(AddressBookConfig * abc)
 #ifdef ENABLE_LDAP
     } else if (abc->type == LIBBALSA_TYPE_ADDRESS_BOOK_LDAP) {
         const gchar *host =
-            gtk_entry_get_text(GTK_ENTRY(abc->ab_specific.ldap.host));
+            gtk_editable_get_text(GTK_EDITABLE(abc->ab_specific.ldap.host));
         const gchar *base_dn =
-            gtk_entry_get_text(GTK_ENTRY(abc->ab_specific.ldap.base_dn));
+            gtk_editable_get_text(GTK_EDITABLE(abc->ab_specific.ldap.base_dn));
         const gchar *bind_dn =
-            gtk_entry_get_text(GTK_ENTRY(abc->ab_specific.ldap.bind_dn));
+            gtk_editable_get_text(GTK_EDITABLE(abc->ab_specific.ldap.bind_dn));
         const gchar *passwd =
-            gtk_entry_get_text(GTK_ENTRY(abc->ab_specific.ldap.passwd));
+            gtk_editable_get_text(GTK_EDITABLE(abc->ab_specific.ldap.passwd));
         const gchar *book_dn =
-            gtk_entry_get_text(GTK_ENTRY(abc->ab_specific.ldap.book_dn));
+            gtk_editable_get_text(GTK_EDITABLE(abc->ab_specific.ldap.book_dn));
         gboolean enable_tls =
             gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON
                                          (abc->ab_specific.ldap.enable_tls));
@@ -770,7 +770,7 @@ modify_book(AddressBookConfig * abc)
     gboolean active;
 
     libbalsa_address_book_set_name(address_book,
-                                   gtk_entry_get_text(GTK_ENTRY(abc->name_entry)));
+                                   gtk_editable_get_text(GTK_EDITABLE(abc->name_entry)));
 
     if (abc->type == LIBBALSA_TYPE_ADDRESS_BOOK_VCARD
         || abc->type == LIBBALSA_TYPE_ADDRESS_BOOK_LDIF
@@ -807,15 +807,15 @@ modify_book(AddressBookConfig * abc)
     } else if (abc->type == LIBBALSA_TYPE_ADDRESS_BOOK_LDAP) {
         LibBalsaAddressBookLdap *ldap;
         const gchar *host =
-            gtk_entry_get_text(GTK_ENTRY(abc->ab_specific.ldap.host));
+            gtk_editable_get_text(GTK_EDITABLE(abc->ab_specific.ldap.host));
         const gchar *base_dn =
-            gtk_entry_get_text(GTK_ENTRY(abc->ab_specific.ldap.base_dn));
+            gtk_editable_get_text(GTK_EDITABLE(abc->ab_specific.ldap.base_dn));
         const gchar *bind_dn =
-            gtk_entry_get_text(GTK_ENTRY(abc->ab_specific.ldap.bind_dn));
+            gtk_editable_get_text(GTK_EDITABLE(abc->ab_specific.ldap.bind_dn));
         const gchar *passwd =
-            gtk_entry_get_text(GTK_ENTRY(abc->ab_specific.ldap.passwd));
+            gtk_editable_get_text(GTK_EDITABLE(abc->ab_specific.ldap.passwd));
         const gchar *book_dn =
-            gtk_entry_get_text(GTK_ENTRY(abc->ab_specific.ldap.book_dn));
+            gtk_editable_get_text(GTK_EDITABLE(abc->ab_specific.ldap.book_dn));
         gboolean enable_tls =
             gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON
                                          (abc->ab_specific.ldap.enable_tls));

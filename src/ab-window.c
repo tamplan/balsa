@@ -710,7 +710,7 @@ balsa_ab_window_load(BalsaAbWindow *ab)
     if (ab->current_address_book == NULL)
 	return;
 
-    filter = gtk_entry_get_text(GTK_ENTRY(ab->filter_entry));
+    filter = gtk_editable_get_text(GTK_EDITABLE(ab->filter_entry));
     err = libbalsa_address_book_load(ab->current_address_book, filter,
                                      (LibBalsaAddressBookLoadFunc)
                                      balsa_ab_window_load_cb, ab);
@@ -805,7 +805,7 @@ balsa_ab_window_find(GtkWidget * group_entry, BalsaAbWindow * ab)
 
     g_return_if_fail(BALSA_IS_AB_WINDOW(ab));
 
-    entry_text = gtk_entry_get_text(GTK_ENTRY(group_entry));
+    entry_text = gtk_editable_get_text(GTK_EDITABLE(group_entry));
 
     if (*entry_text == '\0')
         return;

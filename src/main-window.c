@@ -375,7 +375,7 @@ bw_set_view_filter(BalsaWindow * bw, gint filter_no, GtkWidget * entry)
 
     view_filter = bw_get_view_filter(bw);
     balsa_index_set_view_filter(BALSA_INDEX(index), filter_no,
-                                gtk_entry_get_text(GTK_ENTRY(entry)),
+                                gtk_editable_get_text(GTK_EDITABLE(entry)),
                                 view_filter);
     libbalsa_condition_unref(view_filter);
 }
@@ -1343,7 +1343,7 @@ reset_filter_activated(GSimpleAction * action,
     GtkWidget *index;
 
     /* do it by resetting the sos filder */
-    gtk_entry_set_text(GTK_ENTRY(priv->sos_entry), "");
+    gtk_editable_set_text(GTK_EDITABLE(priv->sos_entry), "");
     index = balsa_window_find_current_index(window);
     bw_set_view_filter(window, balsa_index_get_filter_no(BALSA_INDEX(index)),
                        priv->sos_entry);
@@ -3929,7 +3929,7 @@ bw_find_real(BalsaWindow * window, BalsaIndex * bindex, gboolean again)
 	gtk_container_add(GTK_CONTAINER(box), button);
 
 	if (cnd->match.string.string)
-	    gtk_entry_set_text(GTK_ENTRY(search_entry),
+	    gtk_editable_set_text(GTK_EDITABLE(search_entry),
                                cnd->match.string.string);
 	gtk_toggle_button_set_active(matching_body,
 				     CONDITION_CHKMATCH(cnd,
@@ -4053,7 +4053,7 @@ bw_get_view_filter(BalsaWindow *window)
 
     i = gtk_combo_box_get_active(GTK_COMBO_BOX(priv->filter_choice));
     if (i >= 0) {
-        const gchar *str = gtk_entry_get_text(GTK_ENTRY(priv->sos_entry));
+        const gchar *str = gtk_editable_get_text(GTK_EDITABLE(priv->sos_entry));
         g_assert(((guint) i) < G_N_ELEMENTS(view_filters));
         filter = view_filters[i].filter(str);
     } else filter = NULL;
@@ -4112,7 +4112,7 @@ bw_reset_filter(BalsaWindow * window)
     BalsaIndex *bindex = BALSA_INDEX(balsa_window_find_current_index(window));
 
     /* do it by resetting the sos filder */
-    gtk_entry_set_text(GTK_ENTRY(priv->sos_entry), "");
+    gtk_editable_set_text(GTK_EDITABLE(priv->sos_entry), "");
     bw_set_view_filter(window, balsa_index_get_filter_no(bindex), priv->sos_entry);
 }
 
@@ -4301,7 +4301,7 @@ bw_notebook_switch_page_cb(GtkWidget * notebook,
     bw_enable_mailbox_menus(window, index);
 
     filter_string = balsa_index_get_filter_string(index);
-    gtk_entry_set_text(GTK_ENTRY(priv->sos_entry),
+    gtk_editable_set_text(GTK_EDITABLE(priv->sos_entry),
                        filter_string != NULL ? filter_string : "");
     gtk_combo_box_set_active(GTK_COMBO_BOX(priv->filter_choice),
                              balsa_index_get_filter_no(index));

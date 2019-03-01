@@ -542,7 +542,7 @@ apply_prefs(GtkDialog * pbox)
         gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON
                                      (pui->mark_quoted));
     g_free(balsa_app.quote_regex);
-    tmp = gtk_entry_get_text(GTK_ENTRY(pui->quote_pattern));
+    tmp = gtk_editable_get_text(GTK_EDITABLE(pui->quote_pattern));
     balsa_app.quote_regex = g_strcompress(tmp);
 
     balsa_app.browse_wrap =
@@ -594,8 +594,8 @@ apply_prefs(GtkDialog * pbox)
     /* selected headers */
     g_free(balsa_app.selected_headers);
     balsa_app.selected_headers =
-        g_ascii_strdown(gtk_entry_get_text
-                        (GTK_ENTRY(pui->selected_headers)), -1);
+        g_ascii_strdown(gtk_editable_get_text
+                        (GTK_EDITABLE(pui->selected_headers)), -1);
 
     /* quoted text color */
     for (i = 0; i < MAX_QUOTED_COLOR; i++) {
@@ -774,12 +774,12 @@ set_prefs(void)
                                  balsa_app.edit_headers);
 
     /* arp */
-    gtk_entry_set_text(GTK_ENTRY(pui->quote_str), balsa_app.quote_str);
+    gtk_editable_set_text(GTK_EDITABLE(pui->quote_str), balsa_app.quote_str);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(pui->mark_quoted),
                                  balsa_app.mark_quoted);
     gtk_widget_set_sensitive(pui->quote_pattern, balsa_app.mark_quoted);
     tmp = g_strescape(balsa_app.quote_regex, NULL);
-    gtk_entry_set_text(GTK_ENTRY(pui->quote_pattern), tmp);
+    gtk_editable_set_text(GTK_EDITABLE(pui->quote_pattern), tmp);
     g_free(tmp);
 
     /* wrap incoming text/plain */
@@ -832,12 +832,12 @@ set_prefs(void)
 
     /* date format */
     if (balsa_app.date_string)
-        gtk_entry_set_text(GTK_ENTRY(pui->date_format),
+        gtk_editable_set_text(GTK_EDITABLE(pui->date_format),
                            balsa_app.date_string);
 
     /* selected headers */
     if (balsa_app.selected_headers)
-        gtk_entry_set_text(GTK_ENTRY(pui->selected_headers),
+        gtk_editable_set_text(GTK_EDITABLE(pui->selected_headers),
                            balsa_app.selected_headers);
 
     /* Colour */

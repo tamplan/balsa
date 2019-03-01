@@ -257,11 +257,11 @@ balsa_druid_page_user_next(GtkAssistant * druid, GtkWidget * page,
 #endif
 
     /* incoming mail */
-    host = gtk_entry_get_text(GTK_ENTRY(user->incoming_srv));
+    host = gtk_editable_get_text(GTK_EDITABLE(user->incoming_srv));
     if(host && *host) {
         LibBalsaMailbox *mbx = NULL;
-        const gchar *login = gtk_entry_get_text(GTK_ENTRY(user->login));
-        const gchar *passwd = gtk_entry_get_text(GTK_ENTRY(user->passwd));
+        const gchar *login = gtk_editable_get_text(GTK_EDITABLE(user->login));
+        const gchar *passwd = gtk_editable_get_text(GTK_EDITABLE(user->passwd));
         NetClientCryptMode security = balsa_option_get_active(user->security) + NET_CLIENT_CRYPT_ENCRYPTED;
         gboolean remember = 
             balsa_option_get_active(user->remember_passwd) == 0;
@@ -280,7 +280,7 @@ balsa_druid_page_user_next(GtkAssistant * druid, GtkWidget * page,
 
     /* identity */
 
-    mailbox = gtk_entry_get_text(GTK_ENTRY(user->name));
+    mailbox = gtk_editable_get_text(GTK_EDITABLE(user->name));
     if (balsa_app.identities == NULL) {
 	gchar *domain = strrchr(mailbox, '@');
         ident = LIBBALSA_IDENTITY(libbalsa_identity_new_with_name
@@ -293,7 +293,7 @@ balsa_druid_page_user_next(GtkAssistant * druid, GtkWidget * page,
         ident = balsa_app.current_ident;
     }
     
-    ia = internet_address_mailbox_new (mailbox, gtk_entry_get_text(GTK_ENTRY(user->email)));
+    ia = internet_address_mailbox_new (mailbox, gtk_editable_get_text(GTK_EDITABLE(user->email)));
     libbalsa_identity_set_address (ident, ia);
     g_object_unref(ia);
 
@@ -307,7 +307,7 @@ balsa_druid_page_user_next(GtkAssistant * druid, GtkWidget * page,
 	smtp_server = balsa_app.smtp_servers->data;
     }
     libbalsa_server_set_host(LIBBALSA_SERVER(smtp_server),
-                             gtk_entry_get_text(GTK_ENTRY(user->smtp)));
+                             gtk_editable_get_text(GTK_EDITABLE(user->smtp)));
 
     g_free(balsa_app.local_mail_directory);
     balsa_app.local_mail_directory =

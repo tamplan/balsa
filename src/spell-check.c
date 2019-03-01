@@ -418,7 +418,7 @@ select_word_cb(GtkTreeSelection *selection,
         BalsaSpellCheck *spell_check = BALSA_SPELL_CHECK(data);
 
         gtk_tree_model_get(model, &iter, 0, &str, -1);
-        gtk_entry_set_text(spell_check->entry, str);
+        gtk_editable_set_text(GTK_EDITABLE(spell_check->entry), str);
         g_free(str);
     }
 }
@@ -1008,7 +1008,7 @@ finish_check(BalsaSpellCheck *spell_check)
     /* get rid of the suggestions */
     gtk_list_store_clear(GTK_LIST_STORE(model));
 
-    gtk_entry_set_text(spell_check->entry, "");
+    gtk_editable_set_text(GTK_EDITABLE(spell_check->entry), "");
 
     enchant_dict_free_string_list(spell_check->dict,
                                   spell_check->suggestions);
