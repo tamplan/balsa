@@ -155,7 +155,6 @@ customize_dialog_cb(GtkWidget * widget, gpointer data)
     gtk_widget_set_vexpand(notebook, TRUE);
     gtk_container_add(GTK_CONTAINER(content_area), notebook);
 
-    gtk_window_set_role(GTK_WINDOW(customize_widget), "customize");
     gtk_window_set_default_size(GTK_WINDOW(customize_widget), 600, 440);
 
     /* The order of pages must be consistent with the BalsaToolbarType

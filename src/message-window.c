@@ -904,8 +904,6 @@ message_window_new(LibBalsaMailbox * mailbox, guint msgno)
     mw->toolbar = balsa_toolbar_new(model, G_ACTION_MAP(mw));
     gtk_container_add(GTK_CONTAINER(vbox), mw->toolbar);
 
-    gtk_window_set_role(GTK_WINDOW(window), "message");
-
     mw->bindex = balsa_find_index_by_mailbox(mailbox);
     g_object_weak_ref(G_OBJECT(mw->bindex), mw_bindex_closed_cb, mw);
     g_signal_connect_swapped(G_OBJECT(mw->bindex), "index-changed",

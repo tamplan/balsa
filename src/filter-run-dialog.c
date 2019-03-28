@@ -170,7 +170,6 @@ balsa_filter_run_dialog_new(LibBalsaMailbox *mbox,
     dialog_title = g_strconcat(_("Filters of Mailbox: "),
                                libbalsa_mailbox_get_name(p->mbox), NULL);
     gtk_window_set_title(GTK_WINDOW(p), dialog_title);
-    gtk_window_set_role(GTK_WINDOW(p), "filter-run");
     g_free(dialog_title);
 
     /* Load associated filters if needed */

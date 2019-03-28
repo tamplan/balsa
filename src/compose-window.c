@@ -201,8 +201,6 @@ balsa_compose_window_init(BalsaComposeWindow *compose_window)
     compose_window->req_mdn = FALSE;
     compose_window->req_dsn = FALSE;
     compose_window->send_mp_alt = FALSE;
-
-    gtk_window_set_role(GTK_WINDOW(compose_window), "compose");
 }
 
 typedef struct {

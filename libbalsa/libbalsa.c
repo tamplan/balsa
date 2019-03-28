@@ -460,7 +460,6 @@ ask_cert_real(void *data)
                                          _("Accept & _Save"), 1,
                                          _("_Reject"), GTK_RESPONSE_CANCEL,
                                          NULL);
-    gtk_window_set_role(GTK_WINDOW(dialog), "tls_cert_dialog");
     g_object_get(G_OBJECT(acd->certificate), "certificate", &cert_der, NULL);
     gcr_cert = gcr_simple_certificate_new(cert_der->data, cert_der->len);
     g_byte_array_unref(cert_der);
@@ -626,7 +625,6 @@ ask_cert_real(void *data)
                                          _("Accept & _Save"), 1,
                                          _("_Reject"), GTK_RESPONSE_CANCEL, 
                                          NULL);
-    gtk_window_set_role(GTK_WINDOW(dialog), "tls_cert_dialog");
     label = gtk_label_new(str->str);
     g_string_free(str, TRUE);
     gtk_label_set_use_markup(GTK_LABEL(label), TRUE);

@@ -80,7 +80,6 @@ filters_export_dialog(GtkWindow * parent)
                                     _("_Cancel"), GTK_RESPONSE_CANCEL,
                                     _("_Help"), GTK_RESPONSE_HELP,
                                     NULL);
-    gtk_window_set_role(GTK_WINDOW(fex_window), "filter-export");
 
     sw = gtk_scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(sw),

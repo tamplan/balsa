@@ -248,8 +248,6 @@ balsa_ab_window_init(BalsaAbWindow *ab)
 
     vbox = (GtkBox *) gtk_dialog_get_content_area(GTK_DIALOG(ab));
 
-    gtk_window_set_role(GTK_WINDOW(ab), "addressbook");
-
     /* hig defaults */
     g_object_set(G_OBJECT(vbox), "margin", 6, NULL);
     gtk_box_set_spacing(vbox, 12);

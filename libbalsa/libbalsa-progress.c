@@ -176,7 +176,6 @@ libbalsa_progress_dialog_ensure_real(ProgressDialog *progress_dialog,
     if (progress_dialog->dialog == NULL) {
     	progress_dialog->dialog = gtk_dialog_new_with_buttons(dialog_title, parent,
     		GTK_DIALOG_DESTROY_WITH_PARENT | libbalsa_dialog_flags(), _("_Hide"), GTK_RESPONSE_CLOSE, NULL);
-    	gtk_window_set_role(GTK_WINDOW(progress_dialog->dialog), "progress_dialog");
         gtk_window_set_default_size(GTK_WINDOW(progress_dialog->dialog), PROGRESS_DIALOG_WIDTH, -1);
 
         gtk_window_set_resizable(GTK_WINDOW(progress_dialog->dialog), FALSE);

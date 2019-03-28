@@ -267,7 +267,6 @@ libbalsa_show_message_source(GtkApplication  * application,
                                  NULL);
     window = (GtkWindow *) source_viewer;
     gtk_window_set_title(window, _("Message Source"));
-    gtk_window_set_role(window, "message-source");
     gtk_window_set_default_size(window, *width, *height);
 
     menu_bar = libbalsa_window_get_menu_bar(GTK_APPLICATION_WINDOW(source_viewer),
