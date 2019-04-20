@@ -692,8 +692,6 @@ bw_is_active_notify(GObject * gobject, GParamSpec * pspec,
 
             priv->new_mail_notification_sent = FALSE;
         }
-
-        gtk_window_set_urgency_hint(gtk_window, FALSE);
     }
 }
 
@@ -3630,8 +3628,6 @@ bw_display_new_mail_notification(int num_new, int has_new)
 
     if (gtk_window_is_active(window))
         return;
-    else
-         gtk_window_set_urgency_hint(window, TRUE);
 
     if (g_once_init_enter(&notification)) {
         GNotification *tmp;
