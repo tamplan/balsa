@@ -2069,9 +2069,6 @@ bw_add_win_action_entries(GActionMap * action_map)
                                   show_preview_pane_change_state},
     };
 
-static void
-bw_add_win_action_entries(GActionMap * action_map)
-{
     g_action_map_add_action_entries(action_map, win_entries,
                                     G_N_ELEMENTS(win_entries), action_map);
 }
