@@ -5547,7 +5547,6 @@ check_suggest_encryption(BalsaComposeWindow *compose_window)
 
         button = gtk_button_new();
         gtk_dialog_add_action_widget(GTK_DIALOG(dialog), button, GTK_RESPONSE_YES);
-        gtk_widget_set_can_default(button, TRUE);
         gtk_widget_grab_focus(button);
 
         hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
@@ -5561,7 +5560,6 @@ check_suggest_encryption(BalsaComposeWindow *compose_window)
 
         button = gtk_button_new();
         gtk_dialog_add_action_widget(GTK_DIALOG(dialog), button, GTK_RESPONSE_NO);
-        gtk_widget_set_can_default(button, TRUE);
 
         hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
         gtk_widget_set_halign(hbox, GTK_ALIGN_CENTER);
@@ -5574,7 +5572,6 @@ check_suggest_encryption(BalsaComposeWindow *compose_window)
 
         button = gtk_button_new_with_mnemonic(_("_Cancel"));
         gtk_dialog_add_action_widget(GTK_DIALOG(dialog), button, GTK_RESPONSE_CANCEL);
-        gtk_widget_set_can_default(button, TRUE);
 
         choice = gtk_dialog_run(GTK_DIALOG(dialog));
         gtk_widget_destroy(dialog);
