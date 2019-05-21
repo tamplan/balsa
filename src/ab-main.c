@@ -934,7 +934,7 @@ ew_key_pressed(GtkEventControllerKey *key_controller,
     if (keyval != GDK_KEY_Escape)
 	return FALSE;
 
-    gtk_button_clicked(GTK_BUTTON(abmw->cancel_button));
+    g_signal_emit_by_name(abmw->cancel_button, "clicked");
 
     return TRUE;
 }
