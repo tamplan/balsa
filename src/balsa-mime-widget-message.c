@@ -564,7 +564,7 @@ add_header_gchar(GtkGrid * grid, const gchar * header, const gchar * label,
     if (balsa_app.use_system_fonts) {
         if (strcmp(header, "subject") == 0)
             /* Use bold for the subject line */
-            css = g_strdup("#" BALSA_MESSAGE_HEADER " {font-weight:bold}");
+            css = g_strdup("#" BALSA_MESSAGE_HEADER " {font-weight:bold;}");
         else
             css = g_strdup("");
     } else {

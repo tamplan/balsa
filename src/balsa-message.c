@@ -555,7 +555,9 @@ bm_find_bar_new(BalsaMessage * bm)
 {
     GtkWidget *toolbar;
     GtkWidget *hbox;
+#ifdef BINDING_SET_STUFF_WORKS
     GtkCssProvider *css_provider;
+#endif /* BINDING_SET_STUFF_WORKS */
     GtkToolItem *tool_item;
     GtkWidget *image;
 
@@ -566,6 +568,7 @@ bm_find_bar_new(BalsaMessage * bm)
     gtk_container_add(GTK_CONTAINER(hbox), gtk_label_new(_("Find:")));
     bm->find_entry = gtk_entry_new();
 
+#ifdef BINDING_SET_STUFF_WORKS
     /* Make sure we see "Esc" and "Return" key presses: */
     css_provider = gtk_css_provider_new();
     gtk_css_provider_load_from_data(css_provider,
@@ -585,6 +588,7 @@ bm_find_bar_new(BalsaMessage * bm)
                                    GTK_STYLE_PROVIDER(css_provider),
                                    GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
     g_object_unref(css_provider);
+#endif /* BINDING_SET_STUFF_WORKS */
 
     g_signal_connect(bm->find_entry, "changed",
                      G_CALLBACK(bm_find_entry_changed_cb), bm);

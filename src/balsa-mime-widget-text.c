@@ -983,7 +983,7 @@ draw_cite_bar_real(gpointer data, gpointer user_data)
         color =
             gdk_rgba_to_string(&balsa_app.quoted_color[(bar->depth - 1)
                                                        % MAX_QUOTED_COLOR]);
-        css = g_strconcat("#" BALSA_MESSAGE_CITE_BAR " {color:", color, "}", NULL);
+        css = g_strconcat("#" BALSA_MESSAGE_CITE_BAR " {color:", color, ";}", NULL);
         g_free(color);
 
         css_provider = gtk_css_provider_new();
