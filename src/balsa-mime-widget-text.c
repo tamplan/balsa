@@ -91,7 +91,7 @@ static GdkCursor *url_cursor_normal = NULL;
 static GdkCursor *url_cursor_over_url = NULL;
 
 
-static void store_button_coords(GtkGestureMultiPress *multi_press,
+static void store_button_coords(GtkGestureClick *click,
                                 gint                  n_press,
                                 gdouble               x,
                                 gdouble               y,
@@ -102,7 +102,7 @@ static void pointer_over_url(GtkWidget * widget, message_url_t * url, gboolean s
 static void prepare_url_offsets(GtkTextBuffer * buffer, GList * url_list);
 static void url_found_cb(GtkTextBuffer * buffer, GtkTextIter * iter,
                          const gchar * buf, guint len, gpointer data);
-static void check_call_url(GtkGestureMultiPress *multi_press,
+static void check_call_url(GtkGestureClick *click,
                            gint                  n_press,
                            gdouble               x,
                            gdouble               y,
@@ -309,7 +309,7 @@ balsa_mime_widget_new_text(BalsaMessage * bm, LibBalsaMessageBody * mime_body,
     if (mwt->url_list != NULL) {
         GtkGesture *gesture;
 
-        gesture = gtk_gesture_multi_press_new();
+        gesture = gtk_gesture_click_new();
         g_signal_connect(gesture, "pressed",
                          G_CALLBACK(store_button_coords), NULL);
         g_signal_connect(gesture, "released",
@@ -615,7 +615,7 @@ text_view_populate_popup(GtkWidget *widget, GtkMenu *menu,
 /* -- URL related stuff -- */
 
 static void
-store_button_coords(GtkGestureMultiPress *multi_press,
+store_button_coords(GtkGestureClick *click,
                     gint                  n_press,
                     gdouble               x,
                     gdouble               y,
@@ -625,7 +625,7 @@ store_button_coords(GtkGestureMultiPress *multi_press,
     const GdkEvent *event;
     GdkModifierType state;
 
-    gesture = GTK_GESTURE(multi_press);
+    gesture = GTK_GESTURE(click);
     event = gtk_gesture_get_last_event(gesture, gtk_gesture_get_last_updated_sequence(gesture));
     g_return_if_fail(event != NULL);
 
@@ -744,7 +744,7 @@ url_found_cb(GtkTextBuffer * buffer, GtkTextIter * iter,
 /* if the mouse button was released over an URL, and the mouse hasn't
  * moved since the button was pressed, try to call the URL */
 static void
-check_call_url(GtkGestureMultiPress *multi_press,
+check_call_url(GtkGestureClick *click,
                gint                  n_press,
                gdouble               x,
                gdouble               y,
@@ -755,7 +755,7 @@ check_call_url(GtkGestureMultiPress *multi_press,
     const GdkEvent *event;
     GdkModifierType state;
 
-    gesture = GTK_GESTURE(multi_press);
+    gesture = GTK_GESTURE(click);
     event = gtk_gesture_get_last_event(gesture, gtk_gesture_get_last_updated_sequence(gesture));
 
     if (event == NULL || !gdk_event_get_state(event, &state)) {
@@ -1150,7 +1150,7 @@ balsa_gtk_html_popup(GtkWidget * html, BalsaMessage * bm)
 }
 
 static void
-mwt_gesture_pressed_cb(GtkGestureMultiPress *multi_press,
+mwt_gesture_pressed_cb(GtkGestureClick *click,
                        gint                  n_press,
                        gdouble               x,
                        gdouble               y,
@@ -1161,7 +1161,7 @@ mwt_gesture_pressed_cb(GtkGestureMultiPress *multi_press,
     GtkWidget *html;
     BalsaMessage *bm = user_data;
 
-    gesture = GTK_GESTURE(multi_press);
+    gesture = GTK_GESTURE(click);
     event = gtk_gesture_get_last_event(gesture, gtk_gesture_get_last_updated_sequence(gesture));
     g_return_if_fail(event != NULL);
     html = gtk_event_controller_get_widget(GTK_EVENT_CONTROLLER(gesture));
@@ -1209,7 +1209,7 @@ bm_widget_new_html(BalsaMessage * bm, LibBalsaMessageBody * mime_body)
     } else {
         GtkGesture *gesture;
 
-        gesture = gtk_gesture_multi_press_new();
+        gesture = gtk_gesture_click_new();
         gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(gesture), 0);
         g_signal_connect(gesture, "pressed",
                          G_CALLBACK(mwt_gesture_pressed_cb), bm);

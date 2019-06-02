@@ -1073,7 +1073,7 @@ balsa_help_pbox_display(void)
     gchar *text, *p;
     GError *err = NULL;
     gchar *uri;
-    GtkWidget *toplevel;
+    GtkWidget *root;
     GString *string;
 
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(pui->view));
@@ -1097,9 +1097,9 @@ balsa_help_pbox_display(void)
     g_free(text);
 
     uri = g_string_free(string, FALSE);
-    toplevel = gtk_widget_get_toplevel(GTK_WIDGET(pui->view));
-    if (gtk_widget_is_toplevel(toplevel)) {
-        gtk_show_uri_on_window(GTK_WINDOW(toplevel), uri,
+    root = GTK_WIDGET(gtk_widget_get_root(pui->view));
+    if (GTK_IS_WINDOW(root)) {
+        gtk_show_uri_on_window((GtkWindow *) root, uri,
                                gtk_get_current_event_time(), &err);
     }
     if (err) {

@@ -191,7 +191,7 @@ balsa_mime_widget_new_image(BalsaMessage * bm,
     g_signal_connect_swapped(picture, "size-allocate",
                              G_CALLBACK(img_size_allocate_cb), mwi);
 
-    gesture = gtk_gesture_multi_press_new();
+    gesture = gtk_gesture_click_new();
     gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(gesture), 0);
     g_signal_connect(gesture, "begin",
                      G_CALLBACK(balsa_mime_widget_image_gesture_pressed_cb), data);

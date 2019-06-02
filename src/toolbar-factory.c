@@ -752,7 +752,7 @@ tm_popup_context_menu_cb(GtkWidget    *toolbar,
         item =
             gtk_menu_item_new_with_mnemonic(_("_Customize Toolbars…"));
         g_signal_connect(item, "activate", G_CALLBACK(customize_dialog_cb),
-                         gtk_widget_get_toplevel(toolbar));
+                         gtk_widget_get_root(toolbar));
         gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
 
         /* Pass the model type to the customize widget, so that it can

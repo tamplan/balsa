@@ -118,7 +118,7 @@ static void select_part(BalsaMessage * bm, BalsaPartInfo *info);
 static void tree_activate_row_cb(GtkTreeView *treeview, GtkTreePath *arg1,
                                  GtkTreeViewColumn *arg2, gpointer user_data);
 static gboolean tree_menu_popup_key_cb(GtkWidget *widget, gpointer user_data);
-static void bm_gesture_pressed_cb(GtkGestureMultiPress *multi_press,
+static void bm_gesture_pressed_cb(GtkGestureClick *click,
                                   gint                  n_press,
                                   gdouble               x,
                                   gdouble               y,
@@ -660,11 +660,11 @@ bm_find_pass_to_entry(GtkEventControllerKey *key_controller,
 static void
 bm_disable_find_entry(BalsaMessage * bm)
 {
-    GtkWidget *toplevel;
+    GtkWidget *root;
 
-    toplevel = gtk_widget_get_toplevel(GTK_WIDGET(bm));
-    if (GTK_IS_APPLICATION_WINDOW(toplevel))
-        libbalsa_window_block_accels((GtkApplicationWindow *) toplevel, FALSE);
+    root = GTK_WIDGET(gtk_widget_get_root(GTK_WIDGET(bm)));
+    if (GTK_IS_APPLICATION_WINDOW(root))
+        libbalsa_window_block_accels((GtkApplicationWindow *) root, FALSE);
 
     if (bm->find_key_controller != NULL &&  bm->key_pressed_id != 0)
         g_signal_handler_disconnect(bm->find_key_controller, bm->key_pressed_id);
@@ -749,7 +749,7 @@ balsa_message_init(BalsaMessage * bm)
     g_signal_connect(bm->treeview, "row-activated",
                      G_CALLBACK(tree_activate_row_cb), bm);
 
-    gesture = gtk_gesture_multi_press_new();
+    gesture = gtk_gesture_click_new();
     gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(gesture), 0);
     g_signal_connect(gesture, "pressed",
                      G_CALLBACK(bm_gesture_pressed_cb), NULL);
@@ -996,7 +996,7 @@ tree_menu_popup_key_cb(GtkWidget *widget, gpointer user_data)
 }
 
 static void
-bm_gesture_pressed_cb(GtkGestureMultiPress *multi_press,
+bm_gesture_pressed_cb(GtkGestureClick *click,
                       gint                  n_press,
                       gdouble               x,
                       gdouble               y,
@@ -1010,7 +1010,7 @@ bm_gesture_pressed_cb(GtkGestureMultiPress *multi_press,
     BalsaMessage * bm = (BalsaMessage *) user_data;
     GtkTreePath *path;
 
-    gesture = GTK_GESTURE(multi_press);
+    gesture = GTK_GESTURE(click);
     sequence = gtk_gesture_get_last_updated_sequence(gesture);
     event = gtk_gesture_get_last_event(gesture, sequence);
 
@@ -1633,7 +1633,7 @@ part_create_menu (BalsaPartInfo* info)
         gtk_menu_shell_append(GTK_MENU_SHELL(info->popup_menu), menu_item);
 
         submenu =
-            balsa_mblist_mru_menu(GTK_WINDOW(gtk_widget_get_toplevel(info->popup_menu)),
+            balsa_mblist_mru_menu(GTK_WINDOW(gtk_widget_get_root(info->popup_menu)),
                                   &balsa_app.folder_mru,
                                   G_CALLBACK(balsa_message_copy_part),
                                   info->body);
@@ -2267,11 +2267,11 @@ balsa_message_current_part_widget(BalsaMessage * bmessage)
 GtkWindow *
 balsa_get_parent_window(GtkWidget * widget)
 {
-    if (widget) {
-        GtkWidget *toplevel = gtk_widget_get_toplevel(widget);
+    if (widget != NULL) {
+        GtkWidget *root = GTK_WIDGET(gtk_widget_get_root(widget));
 
-        if (gtk_widget_is_toplevel(toplevel) && GTK_IS_WINDOW(toplevel))
-            return GTK_WINDOW(toplevel);
+        if (GTK_IS_WINDOW(root))
+            return GTK_WINDOW(root);
     }
 
     return GTK_WINDOW(balsa_app.main_window);
@@ -3264,7 +3264,7 @@ balsa_message_find_in_message(BalsaMessage * bm)
             || libbalsa_html_can_search(widget)
 #endif                          /* HAVE_HTML_WIDGET */
             )) {
-        GtkWidget *toplevel;
+        GtkWidget *root;
 
         if (GTK_IS_TEXT_VIEW(widget)) {
             GtkTextView *text_view = (GtkTextView *) widget;
@@ -3276,13 +3276,13 @@ balsa_message_find_in_message(BalsaMessage * bm)
         bm->find_forward = TRUE;
         gtk_editable_set_text(GTK_EDITABLE(bm->find_entry), "");
 
-        toplevel = gtk_widget_get_toplevel(GTK_WIDGET(bm));
-        if (GTK_IS_APPLICATION_WINDOW(toplevel))
-            libbalsa_window_block_accels((GtkApplicationWindow *) toplevel, TRUE);
+        root = GTK_WIDGET(gtk_widget_get_root(GTK_WIDGET(bm)));
+        if (GTK_IS_APPLICATION_WINDOW(root))
+            libbalsa_window_block_accels((GtkApplicationWindow *) root, TRUE);
 
         if (bm->find_key_controller == NULL) {
             bm->find_key_controller = gtk_event_controller_key_new();
-            gtk_widget_add_controller(toplevel, bm->find_key_controller);
+            gtk_widget_add_controller(root, bm->find_key_controller);
         }
         if (bm->key_pressed_id == 0) {
             bm->key_pressed_id =

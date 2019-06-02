@@ -581,7 +581,8 @@ browse_button_cb(GtkWidget * widget, SubfolderDialogData * sdd)
     CommonDialogData *cdd = (CommonDialogData *) sdd;
     GtkWidget *scroll, *dialog;
     GtkRequisition req;
-    GtkWidget *tree_view = balsa_mblist_new();
+    BalsaMBList *mblist = balsa_mblist_new();
+    GtkWidget *tree_view = GTK_WIDGET(balsa_mblist_get_tree_view(mblist));
     GtkTreeSelection *selection =
         gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view));
     BrowseButtonData *bbd;

@@ -327,7 +327,7 @@ remove_progress_widget(progress_widget_data_t *progress_data)
 	guint rev_children = 0U;
 
 	progress_data->fadeout_id = 0U;
-	parent_dialog = gtk_widget_get_toplevel(progress_data->revealer);
+	parent_dialog = GTK_WIDGET(gtk_widget_get_root(progress_data->revealer));
 	gtk_widget_destroy(progress_data->revealer);
 
 	/* count the GtkRevealer children left, so we can just destroy the dialogue if there is none */

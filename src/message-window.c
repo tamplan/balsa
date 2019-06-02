@@ -544,7 +544,7 @@ size_alloc_cb(GtkWidget           *widget,
     GTK_WIDGET_CLASS(balsa_message_window_parent_class)->size_allocate
         (widget, width, height, baseline);
 
-    surface = gtk_widget_get_surface(widget);
+    surface = gtk_native_get_surface(GTK_NATIVE(widget));
 
     if (surface == NULL)
         return;

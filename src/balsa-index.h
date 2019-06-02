@@ -32,7 +32,7 @@ G_DECLARE_FINAL_TYPE(BalsaIndex,
                      balsa_index,
                      BALSA,
                      INDEX,
-                     GtkTreeView);
+                     GObject);
 
 
 typedef enum {
@@ -57,7 +57,7 @@ enum {
 
 /* function prototypes */
 
-GtkWidget *balsa_index_new(void);
+BalsaIndex *balsa_index_new(void);
 
 
 /* sets the mail stream; if it's a new stream, then it's
@@ -167,6 +167,8 @@ const gchar      *balsa_index_get_filter_string(BalsaIndex *bindex);
 gboolean          balsa_index_get_next_message(BalsaIndex *bindex);
 gboolean          balsa_index_get_prev_message(BalsaIndex *bindex);
 BalsaMailboxNode *balsa_index_get_mailbox_node(BalsaIndex *bindex);
+GtkTreeView      *balsa_index_get_tree_view(BalsaIndex *bindex);
+BalsaIndex       *balsa_index_get_from_tree_view(GtkTreeView *tree_view);
 
 #define BALSA_INDEX_VIEW_ON_OPEN "balsa-index-view-on-open"
 

@@ -29,9 +29,9 @@ G_DECLARE_FINAL_TYPE(BalsaMBList,
                      balsa_mblist,
                      BALSA,
                      MBLIST,
-                     GtkTreeView);
+                     GObject);
 
-GtkWidget    *balsa_mblist_new(void);
+BalsaMBList  *balsa_mblist_new(void);
 
 GtkTreeStore *balsa_mblist_get_store(void);
 void          balsa_mblist_default_signal_bindings(BalsaMBList *tree);
@@ -74,5 +74,11 @@ void     balsa_mblist_mailbox_node_append(BalsaMailboxNode *root,
                                           BalsaMailboxNode *mbnode);
 void     balsa_mblist_mailbox_node_redraw(BalsaMailboxNode *mbnode);
 gboolean balsa_mblist_mailbox_node_remove(BalsaMailboxNode *mbnode);
+
+/*
+ * Getter
+ */
+
+GtkTreeView * balsa_mblist_get_tree_view(BalsaMBList *mblist);
 
 #endif

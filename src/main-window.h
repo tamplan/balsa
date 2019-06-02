@@ -30,6 +30,7 @@
 
 #include <gio/gio.h>
 
+#include "balsa-index.h"
 #include "mailbox-node.h"
 #include "toolbar-factory.h"
 
@@ -75,7 +76,7 @@ enum {
 GType balsa_window_get_type(void);
 GtkWidget *balsa_window_new(GtkApplication *application);
 gboolean balsa_window_fix_paned(BalsaWindow *window);
-GtkWidget *balsa_window_find_current_index(BalsaWindow * window);
+BalsaIndex *balsa_window_find_current_index(BalsaWindow * window);
 void balsa_window_update_book_menus(BalsaWindow *window);
 void balsa_window_refresh(BalsaWindow * window);
 void balsa_window_open_mbnode(BalsaWindow * window,

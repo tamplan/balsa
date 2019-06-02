@@ -1500,7 +1500,7 @@ balsa_compose_window_size_allocate(GtkWidget           *widget,
     GTK_WIDGET_CLASS(balsa_compose_window_parent_class)->size_allocate
         (widget, width, height, baseline);
 
-    surface = gtk_widget_get_surface(widget);
+    surface = gtk_native_get_surface(GTK_NATIVE(widget));
     if (surface == NULL)
         return;
 
@@ -1591,7 +1591,7 @@ change_attach_mode(GtkWidget       *menu_item,
         GtkWidget *extbody_dialog, *parent;
         gint result;
 
-        parent         = gtk_widget_get_toplevel(menu_item);
+        parent         = GTK_WIDGET(gtk_widget_get_root(menu_item));
         extbody_dialog =
             gtk_message_dialog_new(GTK_WINDOW(parent),
                                    GTK_DIALOG_DESTROY_WITH_PARENT,
@@ -1656,7 +1656,7 @@ static void
 on_open_url_cb(GtkWidget       *menu_item,
                BalsaAttachInfo *info)
 {
-    GtkWidget *toplevel;
+    GtkWidget *root;
     GError *err = NULL;
     const gchar *uri;
 
@@ -1665,9 +1665,9 @@ on_open_url_cb(GtkWidget       *menu_item,
     g_return_if_fail(uri != NULL);
 
     g_message("open URL %s", uri);
-    toplevel = gtk_widget_get_toplevel(GTK_WIDGET(menu_item));
-    if (gtk_widget_is_toplevel(toplevel)) {
-        gtk_show_uri_on_window(GTK_WINDOW(toplevel), uri,
+    root = GTK_WIDGET(gtk_widget_get_root(menu_item));
+    if (GTK_IS_WINDOW(root)) {
+        gtk_show_uri_on_window((GtkWindow *) root, uri,
                                gtk_get_current_event_time(), &err);
     }
     if (err) {
@@ -2279,20 +2279,23 @@ insert_selected_messages(BalsaComposeWindow *compose_window,
 {
     GtkTextBuffer *buffer =
         gtk_text_view_get_buffer(GTK_TEXT_VIEW(compose_window->text));
-    GtkWidget *index =
+    BalsaIndex *bindex =
         balsa_window_find_current_index(balsa_app.main_window);
-    GList *l;
 
-    if (index && (l = balsa_index_selected_list(BALSA_INDEX(index)))) {
+    if (bindex != NULL) {
+        GList *selected_list = balsa_index_selected_list(bindex);
         GList *node;
 
-        for (node = l; node != NULL; node = node->next) {
+        for (node = selected_list; node != NULL; node = node->next) {
             LibBalsaMessage *message = node->data;
-            GString *body            = quote_message_body(compose_window, message, type);
+            GString *body;
+
+            body = quote_message_body(compose_window, message, type);
             gtk_text_buffer_insert_at_cursor(buffer, body->str, body->len);
             g_string_free(body, TRUE);
         }
-        g_list_free_full(l, g_object_unref);
+
+        g_list_free_full(selected_list, g_object_unref);
     }
 }
 
@@ -2314,13 +2317,13 @@ sw_attach_messages_activated(GSimpleAction *action,
                              gpointer       data)
 {
     BalsaComposeWindow *compose_window = data;
-    GtkWidget *index    =
-        balsa_window_find_current_index(balsa_app.main_window);
+    BalsaIndex *bindex = balsa_window_find_current_index(balsa_app.main_window);
 
-    if (index) {
-        GList *node, *l = balsa_index_selected_list(BALSA_INDEX(index));
+    if (bindex != NULL) {
+        GList *selected_list = balsa_index_selected_list(bindex);
+        GList *node;
 
-        for (node = l; node != NULL; node = node->next) {
+        for (node = selected_list; node != NULL; node = node->next) {
             LibBalsaMessage *message = node->data;
 
             if (!attach_message(compose_window, message)) {
@@ -2331,7 +2334,7 @@ sw_attach_messages_activated(GSimpleAction *action,
                 break;
             }
         }
-        g_list_free_full(l, g_object_unref);
+        g_list_free_full(selected_list, g_object_unref);
     }
 }
 
@@ -2665,7 +2668,7 @@ create_from_entry(GtkWidget    *grid,
 
 
 static void
-sw_gesture_pressed_cb(GtkGestureMultiPress *multi_press,
+sw_gesture_pressed_cb(GtkGestureClick *click,
                       gint                  n_press,
                       gdouble               x,
                       gdouble               y,
@@ -2676,7 +2679,7 @@ sw_gesture_pressed_cb(GtkGestureMultiPress *multi_press,
     GtkTreeView *tree_view;
     GtkTreePath *path;
 
-    gesture = GTK_GESTURE(multi_press);
+    gesture = GTK_GESTURE(click);
     event   =
         gtk_gesture_get_last_event(gesture, gtk_gesture_get_last_updated_sequence(gesture));
     g_return_if_fail(event != NULL);
@@ -2945,7 +2948,7 @@ sw_attachment_list(BalsaComposeWindow *compose_window)
     gtk_tree_selection_set_mode(gtk_tree_view_get_selection(view),
                                 GTK_SELECTION_SINGLE);
 
-    gesture = gtk_gesture_multi_press_new();
+    gesture = gtk_gesture_click_new();
     gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(gesture), 0);
     g_signal_connect(gesture, "pressed",
                      G_CALLBACK(sw_gesture_pressed_cb), NULL);

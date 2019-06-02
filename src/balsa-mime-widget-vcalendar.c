@@ -34,7 +34,7 @@
 static GtkWidget *balsa_vevent_widget(LibBalsaVEvent * event,
 				      gboolean may_reply,
 				      InternetAddress * sender);
-static void vevent_reply(GObject * button, GtkWidget * box);
+static void vevent_reply(GtkWidget * button, GtkWidget * box);
 
 
 BalsaMimeWidget *
@@ -249,7 +249,7 @@ balsa_vevent_widget(LibBalsaVEvent * event, gboolean may_reply,
                                (GDestroyNotify) g_object_unref);
 	g_object_set_data(G_OBJECT(button), "mode",
 			  GINT_TO_POINTER(VCAL_PSTAT_ACCEPTED));
-	g_signal_connect(G_OBJECT(button), "clicked",
+	g_signal_connect(button, "clicked",
 			 G_CALLBACK(vevent_reply), bbox);
 	gtk_container_add(GTK_CONTAINER(bbox), button);
 
@@ -257,7 +257,7 @@ balsa_vevent_widget(LibBalsaVEvent * event, gboolean may_reply,
 	g_object_set_data(G_OBJECT(button), "event", event);
 	g_object_set_data(G_OBJECT(button), "mode",
 			  GINT_TO_POINTER(VCAL_PSTAT_TENTATIVE));
-	g_signal_connect(G_OBJECT(button), "clicked",
+	g_signal_connect(button, "clicked",
 			 G_CALLBACK(vevent_reply), bbox);
 	gtk_container_add(GTK_CONTAINER(bbox), button);
 
@@ -265,7 +265,7 @@ balsa_vevent_widget(LibBalsaVEvent * event, gboolean may_reply,
 	g_object_set_data(G_OBJECT(button), "event", event);
 	g_object_set_data(G_OBJECT(button), "mode",
 			  GINT_TO_POINTER(VCAL_PSTAT_DECLINED));
-	g_signal_connect(G_OBJECT(button), "clicked",
+	g_signal_connect(button, "clicked",
 			 G_CALLBACK(vevent_reply), bbox);
 	gtk_container_add(GTK_CONTAINER(bbox), button);
 
@@ -275,12 +275,12 @@ balsa_vevent_widget(LibBalsaVEvent * event, gboolean may_reply,
 }
 
 static void
-vevent_reply(GObject * button, GtkWidget * box)
+vevent_reply(GtkWidget * button, GtkWidget * box)
 {
     LibBalsaVEvent *event =
-	LIBBALSA_VEVENT(g_object_get_data(button, "event"));
+	LIBBALSA_VEVENT(g_object_get_data(G_OBJECT(button), "event"));
     LibBalsaVCalPartStat pstat =
-	GPOINTER_TO_INT(g_object_get_data(button, "mode"));
+	GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "mode"));
     gchar *rcpt;
     LibBalsaMessage *message;
     LibBalsaMessageHeaders *headers;
@@ -339,8 +339,7 @@ vevent_reply(GObject * button, GtkWidget * box)
 				   balsa_find_sentbox_by_url,
 				   libbalsa_identity_get_smtp_server(ident),
 				   balsa_app.send_progress_dialog,
-                                   GTK_WINDOW(gtk_widget_get_toplevel
-                                              ((GtkWidget *) button)),
+                                   GTK_WINDOW(gtk_widget_get_root(button)),
 				   FALSE, &error);
     if (result != LIBBALSA_MESSAGE_CREATE_OK)
 	libbalsa_information(LIBBALSA_INFORMATION_ERROR,

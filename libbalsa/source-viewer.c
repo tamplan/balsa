@@ -202,7 +202,7 @@ lsv_size_allocate_cb(GtkWidget * window, gint width, gint height,
     GdkSurface *surface;
     gboolean maximized;
 
-    surface = gtk_widget_get_surface(window);
+    surface = gtk_native_get_surface(GTK_NATIVE(window));
     if (surface == NULL)
         return;
 

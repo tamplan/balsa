@@ -313,13 +313,14 @@ static void
 extbody_call_url(GtkWidget * button, gpointer data)
 {
     gchar *url = g_object_get_data(G_OBJECT(button), "call_url");
-    GtkWidget *toplevel;
+    GtkWidget *root;
     GError *err = NULL;
 
-    g_return_if_fail(url);
-    toplevel = gtk_widget_get_toplevel(GTK_WIDGET(button));
-    if (gtk_widget_is_toplevel(toplevel)) {
-        gtk_show_uri_on_window(GTK_WINDOW(toplevel), url,
+    g_return_if_fail(url != NULL);
+
+    root = GTK_WIDGET(gtk_widget_get_root(button));
+    if (GTK_IS_WINDOW(root)) {
+        gtk_show_uri_on_window(GTK_WINDOW(root), url,
                                gtk_get_current_event_time(), &err);
     }
 
@@ -387,8 +388,7 @@ extbody_send_mail(GtkWidget * button, LibBalsaMessageBody * mime_body)
 				   libbalsa_identity_get_smtp_server
                                    (balsa_app.current_ident),
 				   balsa_app.send_progress_dialog,
-                                   GTK_WINDOW(gtk_widget_get_toplevel
-                                              (button)),
+                                   GTK_WINDOW(gtk_widget_get_root(button)),
 				   FALSE, &err);
     if (result != LIBBALSA_MESSAGE_CREATE_OK)
 	libbalsa_information(LIBBALSA_INFORMATION_ERROR,
@@ -461,7 +461,7 @@ bm_header_extend_popup(GtkWidget * widget, GtkMenu * menu, gpointer arg)
 
     submenu =
         balsa_mblist_mru_menu(GTK_WINDOW
-                              (gtk_widget_get_toplevel(widget)),
+                              (gtk_widget_get_root(widget)),
                               &balsa_app.folder_mru,
                               G_CALLBACK(balsa_message_copy_part), arg);
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),
