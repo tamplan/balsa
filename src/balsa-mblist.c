@@ -825,7 +825,7 @@ static void
 bmbl_drag_data_received_cb(GtkWidget        * widget,
                            GdkDrop          * drop,
                            GtkSelectionData * selection_data,
-                           gpointer           data)
+                           gpointer           user_data)
 {
     BalsaMBList *mblist = user_data;
     GtkTreeView *tree_view = GTK_TREE_VIEW(widget);
