@@ -1528,8 +1528,7 @@ pipe_activated(GSimpleAction * action,
 {
     BalsaWindow *window = BALSA_WINDOW(user_data);
 
-    balsa_index_pipe(BALSA_INDEX
-                     (balsa_window_find_current_index(window)));
+    balsa_index_pipe(balsa_window_find_current_index(window));
 }
 
 static void
@@ -2496,7 +2495,7 @@ balsa_window_update_book_menus(BalsaWindow * window)
     bw_action_set_enabled(window, "address-book",  has_books);
     bw_action_set_enabled(window, "store-address", has_books &&
                           priv->current_index != NULL &&
-                          balsa_index_get_current_msgno(BALSA_INDEX(priv->current_index)) != 0);
+                          balsa_index_get_current_msgno(priv->current_index) != 0);
 }
 
 /*
@@ -2520,7 +2519,7 @@ bw_enable_message_menus(BalsaWindow * window, guint msgno)
 
         enable_current_message_actions = (msgno != 0);
 
-        messages = balsa_index_selected_list(BALSA_INDEX(bindex));
+        messages = balsa_index_selected_list(bindex);
         enable_message_actions = (messages != NULL);
 
         for (list = messages; list != NULL; list = list->next) {
@@ -3116,41 +3115,45 @@ balsa_identities_changed(BalsaWindow *bw)
 static gboolean
 bw_close_mailbox_on_timer(BalsaWindow * window)
 {
+    GtkNotebook *notebook;
     time_t current_time;
     GtkWidget *page;
     int i, c, delta_time;
 
-    if (!balsa_app.notebook)
+    if (balsa_app.notebook == NULL)
         return FALSE;
     if (!balsa_app.close_mailbox_auto)
         return TRUE;
 
     current_time = time(NULL);
 
-    c = gtk_notebook_get_current_page(GTK_NOTEBOOK(balsa_app.notebook));
+    notebook = GTK_NOTEBOOK(balsa_app.notebook);
+    c = gtk_notebook_get_current_page(notebook);
 
-    for (i = 0;
-         (page =
-          gtk_notebook_get_nth_page(GTK_NOTEBOOK(balsa_app.notebook), i));
-         i++) {
-        BalsaIndex *index = BALSA_INDEX(gtk_bin_get_child(GTK_BIN(page)));
+    for (i = 0; (page = gtk_notebook_get_nth_page(notebook, i)) != NULL; i++) {
+        GtkWidget *child;
+        BalsaIndex *bindex;
 
         if (i == c)
             continue;
 
+        child = gtk_bin_get_child(GTK_BIN(page));
+        bindex = balsa_index_get_from_tree_view(GTK_TREE_VIEW(child));
+
         if (balsa_app.close_mailbox_auto &&
-            (delta_time = current_time - balsa_index_get_last_use(index))
+            (delta_time = current_time - balsa_index_get_last_use(bindex))
             > balsa_app.close_mailbox_timeout) {
             if (balsa_app.debug)
                 fprintf(stderr, "Closing Page %d unused for %d s\n",
                         i, delta_time);
             balsa_window_real_close_mbnode(window,
-                                           balsa_index_get_mailbox_node(index));
+                                           balsa_index_get_mailbox_node(bindex));
             if (i < c)
                 c--;
             i--;
         }
     }
+
     return TRUE;
 }
 
@@ -3972,9 +3975,9 @@ bw_find_real(BalsaWindow * window, BalsaIndex * bindex, gboolean again)
         g_clear_pointer(&search_iter, libbalsa_mailbox_search_iter_unref);
 
         if(ok == FIND_RESPONSE_FILTER) {
-            LibBalsaMailbox *mailbox =
-                balsa_index_get_mailbox(BALSA_INDEX(bindex));
+            LibBalsaMailbox *mailbox = balsa_index_get_mailbox(bindex);
             LibBalsaCondition *filter, *res;
+
             filter = bw_get_view_filter(window);
             res = libbalsa_condition_new_bool_ptr(FALSE, CONDITION_AND,
                                                   filter, cnd);
@@ -3982,8 +3985,9 @@ bw_find_real(BalsaWindow * window, BalsaIndex * bindex, gboolean again)
             g_clear_pointer(&cnd, libbalsa_condition_unref);
 
             if (libbalsa_mailbox_set_view_filter(mailbox, res, TRUE))
-                balsa_index_ensure_visible(BALSA_INDEX(bindex));
+                balsa_index_ensure_visible(bindex);
             libbalsa_condition_unref(res);
+
             return;
         }
     }
@@ -4062,7 +4066,7 @@ bw_hide_changed_set_view_filter(BalsaWindow * window)
      * filter.  We need also to rethread to take into account that
      * some messages might have been removed or added to the view. */
     if (libbalsa_mailbox_set_view_filter(mailbox, filter, TRUE))
-        balsa_index_ensure_visible(BALSA_INDEX(index));
+        balsa_index_ensure_visible(bindex);
     libbalsa_condition_unref(filter);
 }
 
@@ -4413,7 +4417,13 @@ bw_notebook_find_page (GtkNotebook* notebook, gint x, gint y)
             label_height = allocation.height;
 
             if (y > label_y && y < label_y + label_height) {
-                return BALSA_INDEX(gtk_bin_get_child(GTK_BIN(page)));
+                GtkWidget *child;
+                BalsaIndex *bindex;
+
+                child = gtk_bin_get_child(GTK_BIN(page));
+                bindex = balsa_index_get_from_tree_view(GTK_TREE_VIEW(child));
+
+                return bindex;
             }
         }
         ++page_num;
@@ -4795,16 +4805,15 @@ balsa_window_set_statusbar(BalsaWindow * window, LibBalsaMailbox * mailbox)
 gboolean
 balsa_window_next_unread(BalsaWindow * window)
 {
-    BalsaIndex *index =
-        BALSA_INDEX(balsa_window_find_current_index(window));
-    LibBalsaMailbox *mailbox = index ? balsa_index_get_mailbox(index) : NULL;
+    BalsaIndex *bindex = balsa_window_find_current_index(window);
+    LibBalsaMailbox *mailbox = bindex != NULL ? balsa_index_get_mailbox(bindex) : NULL;
 
     if (libbalsa_mailbox_get_unread(mailbox) > 0) {
-        if (!balsa_index_select_next_unread(index)) {
+        if (!balsa_index_select_next_unread(bindex)) {
             /* All unread messages must be hidden; we assume that the
              * user wants to see them, and try again. */
             bw_reset_filter(window);
-            balsa_index_select_next_unread(index);
+            balsa_index_select_next_unread(bindex);
         }
         return FALSE;
     }
@@ -4838,9 +4847,9 @@ balsa_window_next_unread(BalsaWindow * window)
     }
 
     balsa_mblist_open_mailbox(mailbox);
-    index = balsa_find_index_by_mailbox(mailbox);
-    if (index)
-        balsa_index_select_next_unread(index);
+    bindex = balsa_find_index_by_mailbox(mailbox);
+    if (bindex != NULL)
+        balsa_index_select_next_unread(bindex);
     else
         g_object_set_data(G_OBJECT(mailbox),
                           BALSA_INDEX_VIEW_ON_OPEN, GINT_TO_POINTER(TRUE));

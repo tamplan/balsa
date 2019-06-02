@@ -650,19 +650,21 @@ balsa_find_iter_by_data(GtkTreeIter * iter , gpointer data)
 BalsaIndex*
 balsa_find_index_by_mailbox(LibBalsaMailbox * mailbox)
 {
+    GtkNotebook *notebook;
     GtkWidget *page;
-    GtkWidget *index;
     guint i;
-    g_return_val_if_fail(balsa_app.notebook, NULL);
 
-    for (i = 0;
-	 (page =
-	  gtk_notebook_get_nth_page(GTK_NOTEBOOK(balsa_app.notebook), i));
-	 i++) {
-        index = gtk_bin_get_child(GTK_BIN(page));
-	if (index  != NULL &&
-            balsa_index_get_mailbox(BALSA_INDEX(index)) == mailbox)
-	    return BALSA_INDEX(index);
+    g_return_val_if_fail(balsa_app.notebook != NULL, NULL);
+    notebook = GTK_NOTEBOOK(balsa_app.notebook);
+
+    for (i = 0; (page = gtk_notebook_get_nth_page(notebook, i)) != NULL; i++) {
+        GtkWidget *child;
+        BalsaIndex *bindex;
+
+        child = gtk_bin_get_child(GTK_BIN(page));
+        bindex = balsa_index_get_from_tree_view(GTK_TREE_VIEW(child));
+        if (bindex  != NULL && balsa_index_get_mailbox(bindex) == mailbox)
+            return bindex;
     }
 
     /* didn't find a matching mailbox */
