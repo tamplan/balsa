@@ -61,7 +61,7 @@
 
 /* gtk widget */
 static void     bndx_destroy(GObject *obj);
-static gboolean bndx_popup_menu(GtkWidget *widget);
+static gboolean bndx_popup_menu(GtkWidget *widget, gpointer user_data);
 
 /* statics */
 
@@ -259,9 +259,10 @@ bndx_destroy(GObject *obj)
 
 /* Widget class popup menu method. */
 static gboolean
-bndx_popup_menu(GtkWidget *widget)
+bndx_popup_menu(GtkWidget *widget, gpointer user_data)
 {
-    bndx_do_popup(BALSA_INDEX(widget), NULL);
+    BalsaIndex *bindex = user_data;
+    bndx_do_popup(bindex, NULL);
     return TRUE;
 }
 
@@ -449,7 +450,7 @@ balsa_index_init(BalsaIndex *bindex)
     gesture = gtk_gesture_click_new();
     gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(gesture), 0);
     g_signal_connect(gesture, "pressed",
-                     G_CALLBACK(bndx_gesture_pressed_cb), NULL);
+                     G_CALLBACK(bndx_gesture_pressed_cb), bindex);
     /* We need to claim the event sequence before GtkTreeView gets it,
      * so we jump in at the capture phase: */
     controller = GTK_EVENT_CONTROLLER(gesture);
@@ -462,12 +463,12 @@ balsa_index_init(BalsaIndex *bindex)
     /* catch thread expand events */
     bindex->row_expanded_id =
         g_signal_connect_after(tree_view, "row-expanded",
-                               G_CALLBACK(bndx_tree_expand_cb), NULL);
+                               G_CALLBACK(bndx_tree_expand_cb), bindex);
     g_signal_connect(tree_view, "test-collapse-row",
-                     G_CALLBACK(bndx_test_collapse_row_cb), NULL);
+                     G_CALLBACK(bndx_test_collapse_row_cb), bindex);
     bindex->row_collapsed_id =
         g_signal_connect_after(tree_view, "row-collapsed",
-                               G_CALLBACK(bndx_tree_collapse_cb), NULL);
+                               G_CALLBACK(bndx_tree_collapse_cb), bindex);
 
     /* We want to catch column resize attempts to store the new value */
     g_signal_connect_after(tree_view, "size-allocate",
@@ -483,10 +484,10 @@ balsa_index_init(BalsaIndex *bindex)
     gdk_content_formats_unref(formats);
 
     g_signal_connect(tree_view, "drag-data-get",
-                     G_CALLBACK(bndx_drag_cb), NULL);
+                     G_CALLBACK(bndx_drag_cb), bindex);
 
     g_signal_connect(tree_view, "popup-menu",
-                     G_CALLBACK(bndx_popup_menu), NULL);
+                     G_CALLBACK(bndx_popup_menu), bindex);
 
     balsa_index_set_column_widths(bindex);
     gtk_widget_show(widget);
@@ -654,10 +655,10 @@ bndx_gesture_pressed_cb(GtkGestureClick *click,
                         gdouble               y,
                         gpointer              user_data)
 {
+    BalsaIndex *bindex = user_data;
     GtkGesture *gesture;
     GdkEventSequence *sequence;
     const GdkEvent *event;
-    BalsaIndex *bindex;
     GtkTreeView *tree_view;
     gint bx;
     gint by;
@@ -672,7 +673,6 @@ bndx_gesture_pressed_cb(GtkGestureClick *click,
 
     gtk_gesture_set_sequence_state(gesture, sequence, GTK_EVENT_SEQUENCE_CLAIMED);
 
-    bindex     = BALSA_INDEX(gtk_event_controller_get_widget(GTK_EVENT_CONTROLLER(gesture)));
     tree_view = bindex->tree_view;
     gtk_tree_view_convert_widget_to_bin_window_coords(tree_view, (gint) x, (gint) y,
                                                       &bx, &by);
@@ -762,7 +762,7 @@ bndx_tree_expand_cb(GtkTreeView *tree_view,
                     GtkTreePath *path,
                     gpointer     user_data)
 {
-    BalsaIndex *bindex           = BALSA_INDEX(tree_view);
+    BalsaIndex *bindex          = user_data;
     GtkTreeSelection *selection = gtk_tree_view_get_selection(tree_view);
     GtkTreePath *current_path;
 
@@ -791,7 +791,7 @@ bndx_test_collapse_row_cb(GtkTreeView *tree_view,
                           GtkTreePath *path,
                           gpointer     user_data)
 {
-    BalsaIndex *bindex = BALSA_INDEX(tree_view);
+    BalsaIndex *bindex = user_data;
     bindex->collapsing = TRUE;
     return FALSE;
 }
@@ -807,7 +807,7 @@ bndx_tree_collapse_cb(GtkTreeView *tree_view,
                       GtkTreePath *path,
                       gpointer     user_data)
 {
-    BalsaIndex *bindex = BALSA_INDEX(tree_view);
+    BalsaIndex *bindex = user_data;
     bindex->collapsing = FALSE;
     bndx_changed_find_row(bindex);
 }
@@ -858,11 +858,9 @@ bndx_drag_cb(GtkWidget        *widget,
              GtkSelectionData *data,
              gpointer          user_data)
 {
-    BalsaIndex *bindex;
+    BalsaIndex *bindex = user_data;
 
     g_return_if_fail(widget != NULL);
-
-    bindex = BALSA_INDEX(widget);
 
     if (gtk_tree_selection_count_selected_rows
             (gtk_tree_view_get_selection(bindex->tree_view)) > 0) {
@@ -2153,9 +2151,10 @@ bndx_do_popup(BalsaIndex     *bindex,
 
     submenu =
         balsa_mblist_mru_menu(GTK_WINDOW
-                                  (gtk_widget_get_root(GTK_WIDGET(bindex))),
+                                  (gtk_widget_get_root(GTK_WIDGET(bindex->tree_view))),
                               &balsa_app.folder_mru,
                               G_CALLBACK(mru_menu_cb), bindex);
+    gtk_widget_set_hexpand(GTK_WIDGET(submenu), TRUE); /* Didn't help, but doesn't hurt! */
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(bindex->move_to_item),
                               submenu);
 

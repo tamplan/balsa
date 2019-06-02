@@ -4216,7 +4216,7 @@ bw_notebook_switch_page_cb(GtkWidget * notebook,
     BalsaWindow *window = BALSA_WINDOW(data);
     BalsaWindowPrivate *priv = balsa_window_get_instance_private(window);
     GtkWidget *page;
-    GtkTreeView *tree_view;
+    GtkWidget *child;
     BalsaIndex *bindex;
     LibBalsaMailbox *mailbox;
     gchar *title;
@@ -4235,8 +4235,8 @@ bw_notebook_switch_page_cb(GtkWidget * notebook,
         return;
 
     page = gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook), page_num);
-    tree_view = GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(page)));
-    bindex = balsa_index_get_from_tree_view(tree_view);
+    child = gtk_bin_get_child(GTK_BIN(page));
+    bindex = balsa_index_get_from_tree_view(GTK_TREE_VIEW(child));
 
     priv->current_index = bindex;
     g_object_add_weak_pointer(G_OBJECT(bindex),
