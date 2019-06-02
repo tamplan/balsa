@@ -783,7 +783,7 @@ bmbl_drag_drop_cb(GtkWidget *widget,
                   gint       y,
                   gpointer   user_data)
 {
-    BalsaMBList *mblist = BALSA_MBLIST(widget);
+    BalsaMBList *mblist = user_data;
     GtkTreeView *tree_view = GTK_TREE_VIEW(widget);
     GtkTreeModel *model = gtk_tree_view_get_model(tree_view);
     GtkTreePath *path;
@@ -827,7 +827,7 @@ bmbl_drag_data_received_cb(GtkWidget        * widget,
                            GtkSelectionData * selection_data,
                            gpointer           data)
 {
-    BalsaMBList *mblist = BALSA_MBLIST(widget);
+    BalsaMBList *mblist = user_data;
     GtkTreeView *tree_view = GTK_TREE_VIEW(widget);
     BalsaIndex *orig_index;
     LibBalsaMailbox *orig_mailbox;
@@ -1205,9 +1205,9 @@ balsa_mblist_default_signal_bindings(BalsaMBList * mblist)
     gdk_content_formats_unref(formats);
 
     g_signal_connect(mblist->tree_view, "drag-drop",
-                     G_CALLBACK(bmbl_drag_drop_cb), NULL);
+                     G_CALLBACK(bmbl_drag_drop_cb), mblist);
     g_signal_connect(mblist->tree_view, "drag-data-received",
-                     G_CALLBACK(bmbl_drag_data_received_cb), NULL);
+                     G_CALLBACK(bmbl_drag_data_received_cb), mblist);
 
     g_signal_connect(mblist->tree_view, "row-activated",
                      G_CALLBACK(bmbl_row_activated_cb), NULL);
