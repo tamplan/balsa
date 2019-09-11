@@ -134,9 +134,16 @@ libbalsa_icon_finder(GtkWidget         * widget,
 
             if (icon_names != NULL) {
                 for (i = 0; pixbuf == NULL && icon_names[i] != NULL; i++) {
-                    pixbuf =
+                    GdkPaintable *paintable =
                         gtk_icon_theme_load_icon(icon_theme, icon_names[i], width,
                                                  GTK_ICON_LOOKUP_FORCE_SIZE, NULL);
+
+                    if (paintable != NULL) {
+                        if (pixbuf != NULL)
+                            g_object_unref(pixbuf);
+                        pixbuf = gdk_pixbuf_get_from_texture(GDK_TEXTURE(paintable));
+                        g_object_unref(paintable);
+                    }
                 }
             }
         }

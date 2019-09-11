@@ -425,7 +425,7 @@ lbh_info_bar(LibBalsaWebKitInfo * info)
                                     (info_bar)), GTK_ORIENTATION_VERTICAL);
 
     label = gtk_label_new(_(text));
-    gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+    gtk_label_set_wrap(GTK_LABEL(label), TRUE);
 
     content_area = gtk_info_bar_get_content_area(info_bar);
     gtk_container_add(GTK_CONTAINER(content_area), label);
@@ -1094,7 +1094,7 @@ lbh_show_info_bar(LibBalsaWebKitInfo * info)
     info_bar = GTK_INFO_BAR(info_bar_widget);
 
     label = gtk_label_new(text);
-    gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+    gtk_label_set_wrap(GTK_LABEL(label), TRUE);
 
     content_area = gtk_info_bar_get_content_area(info_bar);
     gtk_container_add(GTK_CONTAINER(content_area), label);

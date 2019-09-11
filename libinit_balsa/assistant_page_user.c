@@ -86,7 +86,7 @@ balsa_druid_page_user_init(BalsaDruidPageUser * user,
     user->ed3.master = &(user->emaster);
     user->ed4.master = &(user->emaster);
     label = GTK_LABEL(gtk_label_new(_(header2)));
-    gtk_label_set_line_wrap(label, TRUE);
+    gtk_label_set_wrap(label, TRUE);
     gtk_container_add(GTK_CONTAINER(page), GTK_WIDGET(label));
 
     grid = GTK_GRID(gtk_grid_new());
@@ -96,7 +96,7 @@ balsa_druid_page_user_init(BalsaDruidPageUser * user,
 #if 0
     label = GTK_LABEL(gtk_label_new(_(header21)));
     gtk_label_set_justify(label, GTK_JUSTIFY_CENTER);
-    gtk_label_set_line_wrap(label, TRUE);
+    gtk_label_set_wrap(label, TRUE);
     gtk_grid_attach(grid, GTK_WIDGET(label), 0, 2, 0, 1,
                      GTK_EXPAND | GTK_FILL, GTK_EXPAND | GTK_FILL, 8, 4);
 #endif

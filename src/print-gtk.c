@@ -417,7 +417,7 @@ add_font_button(const gchar * text, const gchar * font, GtkGrid * grid,
 
     label = gtk_label_new_with_mnemonic(text);
     gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
-    gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+    gtk_label_set_wrap(GTK_LABEL(label), TRUE);
     gtk_widget_set_halign(label, GTK_ALIGN_START);
     gtk_grid_attach(grid, label, 0, row, 1, 1);
 
@@ -440,7 +440,7 @@ add_margin_spinbtn(const gchar * text, gdouble min, gdouble max, gdouble dflt,
 
     label = gtk_label_new_with_mnemonic(text);
     gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
-    gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+    gtk_label_set_wrap(GTK_LABEL(label), TRUE);
     gtk_widget_set_halign(label, GTK_ALIGN_START);
     gtk_grid_attach(grid, label, 0, row, 1, 1);
 
@@ -465,7 +465,7 @@ add_margin_spinbtn(const gchar * text, gdouble min, gdouble max, gdouble dflt,
 
     label = gtk_label_new(unit);
     gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
-    gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+    gtk_label_set_wrap(GTK_LABEL(label), TRUE);
     gtk_widget_set_halign(label, GTK_ALIGN_START);
     gtk_grid_attach(grid, label, 2, row, 1, 1);
 
@@ -508,7 +508,7 @@ message_prefs_widget(GtkPrintOperation * operation,
     markup = g_strdup_printf("<b>%s</b>", _("Fonts"));
     gtk_label_set_markup(GTK_LABEL(label), markup);
     g_free(markup);
-    gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+    gtk_label_set_wrap(GTK_LABEL(label), TRUE);
     gtk_widget_set_halign(label, GTK_ALIGN_START);
     gtk_container_add(GTK_CONTAINER(group), label);
 
@@ -544,7 +544,7 @@ message_prefs_widget(GtkPrintOperation * operation,
     markup = g_strdup_printf("<b>%s</b>", _("Highlighting"));
     gtk_label_set_markup(GTK_LABEL(label), markup);
     g_free(markup);
-    gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+    gtk_label_set_wrap(GTK_LABEL(label), TRUE);
     gtk_widget_set_halign(label, GTK_ALIGN_START);
     gtk_container_add(GTK_CONTAINER(group), label);
 
@@ -579,7 +579,7 @@ message_prefs_widget(GtkPrintOperation * operation,
     markup = g_strdup_printf("<b>%s</b>", _("Margins"));
     gtk_label_set_markup(GTK_LABEL(label), markup);
     g_free(markup);
-    gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+    gtk_label_set_wrap(GTK_LABEL(label), TRUE);
     gtk_widget_set_halign(label, GTK_ALIGN_START);
     gtk_container_add(GTK_CONTAINER(group), label);
 

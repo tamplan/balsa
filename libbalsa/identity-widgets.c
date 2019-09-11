@@ -554,7 +554,7 @@ append_ident_notebook_page(GtkNotebook * notebook,
 	GtkWidget *label;
 
 	label = gtk_label_new(footnote);
-	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+	gtk_label_set_wrap(GTK_LABEL(label), TRUE);
         gtk_container_add(GTK_CONTAINER(vbox), label);
     }
     gtk_notebook_append_page(notebook, vbox, gtk_label_new(tab_label));

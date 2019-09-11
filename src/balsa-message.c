@@ -2692,6 +2692,7 @@ static GdkPixbuf *
 get_crypto_content_icon(LibBalsaMessageBody * body, const gchar * content_type,
 			gchar ** icon_title)
 {
+    GdkPaintable *paintable;
     GdkPixbuf *icon;
     gchar * new_title;
     const gchar * icon_name;
@@ -2703,10 +2704,14 @@ get_crypto_content_icon(LibBalsaMessageBody * body, const gchar * content_type,
         return NULL;
 
     icon_name = balsa_mime_widget_signature_icon_name(libbalsa_message_body_protect_state(body));
-    if (!icon_name)
+    if (icon_name == NULL)
         return NULL;
-    icon =
+
+    paintable =
         gtk_icon_theme_load_icon(gtk_icon_theme_get_default(), icon_name, 24, 0, NULL);
+    icon = gdk_pixbuf_get_from_texture(GDK_TEXTURE(paintable));
+    g_object_unref(paintable);
+
     if (!icon_title)
         return icon;
 

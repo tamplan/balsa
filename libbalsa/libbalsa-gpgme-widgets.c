@@ -393,14 +393,14 @@ libbalsa_key_dialog(GtkWindow            *parent,
 		gtk_label_set_markup(GTK_LABEL(label), markup);
 		g_free(markup);
 		gtk_container_add(GTK_CONTAINER(vbox), label);
-		gtk_label_set_line_wrap(GTK_LABEL(label), FALSE);
+		gtk_label_set_wrap(GTK_LABEL(label), FALSE);
 	}
 
 	if (message2 != NULL) {
 		label = gtk_label_new(message2);
 		gtk_widget_set_halign(label, GTK_ALIGN_START);
 		gtk_container_add(GTK_CONTAINER(vbox), label);
-		gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+		gtk_label_set_wrap(GTK_LABEL(label), TRUE);
 	}
 
 	scrolledw = gtk_scrolled_window_new(NULL, NULL);
@@ -579,7 +579,7 @@ create_key_label_with_warn(const gchar *text,
 		g_free(buf);
 		gtk_widget_set_halign(label, GTK_ALIGN_START);
 		gtk_widget_set_hexpand(label, TRUE);
-		gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+		gtk_label_set_wrap(GTK_LABEL(label), TRUE);
 		gtk_label_set_selectable(GTK_LABEL(label), TRUE);
 		gtk_container_add(GTK_CONTAINER(result), label);
 	} else {
@@ -587,7 +587,7 @@ create_key_label_with_warn(const gchar *text,
 		gtk_widget_set_halign(result, GTK_ALIGN_START);
 		gtk_widget_set_hexpand(result, TRUE);
 		gtk_label_set_selectable(GTK_LABEL(result), TRUE);
-		gtk_label_set_line_wrap(GTK_LABEL(result), TRUE);
+		gtk_label_set_wrap(GTK_LABEL(result), TRUE);
 	}
 
 	return result;

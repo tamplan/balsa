@@ -295,7 +295,7 @@ create_progress_widget(const gchar *progress_id)
 	gtk_container_add(GTK_CONTAINER(box), label);
 
 	widget_data->label = gtk_label_new(" ");
-	gtk_label_set_line_wrap(GTK_LABEL(widget_data->label), TRUE);
+	gtk_label_set_wrap(GTK_LABEL(widget_data->label), TRUE);
         g_object_set(G_OBJECT(widget_data->label), "margin", 2, NULL);
 	gtk_container_add(GTK_CONTAINER(box), widget_data->label);
 

@@ -607,8 +607,8 @@ add_header_gchar(GtkGrid * grid, const gchar * header, const gchar * label,
                                        GTK_STYLE_PROVIDER(css_provider),
                                        GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
-        gtk_label_set_line_wrap(GTK_LABEL(value_label), TRUE);
-        gtk_label_set_line_wrap_mode(GTK_LABEL(value_label), PANGO_WRAP_WORD_CHAR);
+        gtk_label_set_wrap(GTK_LABEL(value_label), TRUE);
+        gtk_label_set_wrap_mode(GTK_LABEL(value_label), PANGO_WRAP_WORD_CHAR);
         gtk_label_set_selectable(GTK_LABEL(value_label), TRUE);
         gtk_widget_set_halign(value_label, GTK_ALIGN_START);
         gtk_widget_set_hexpand(value_label, TRUE);

@@ -1231,7 +1231,7 @@ bm_widget_new_html(BalsaMessage * bm, LibBalsaMessageBody * mime_body)
         gtk_widget_set_halign(lbl, GTK_ALIGN_START);                \
         gtk_grid_attach(g, lbl, 0, row, 1, 1);                    \
         lbl = gtk_label_new(str);                                 \
-        gtk_label_set_line_wrap(GTK_LABEL(lbl), TRUE);            \
+        gtk_label_set_wrap(GTK_LABEL(lbl), TRUE);            \
         gtk_widget_set_halign(lbl, GTK_ALIGN_START);              \
         gtk_grid_attach(g, lbl, 1, row, 1, 1);                    \
         row++;                                                    \

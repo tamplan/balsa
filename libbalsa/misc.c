@@ -901,7 +901,7 @@ libbalsa_create_grid_label(const gchar * text, GtkWidget * grid, gint row)
     GtkWidget *label;
 
     label = gtk_label_new_with_mnemonic(text);
-    gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+    gtk_label_set_wrap(GTK_LABEL(label), TRUE);
     gtk_widget_set_halign(label, GTK_ALIGN_START);
 
     gtk_grid_attach(GTK_GRID(grid), label, 0, row, 1, 1);

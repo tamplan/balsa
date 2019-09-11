@@ -263,7 +263,7 @@ balsa_druid_page_directory_init(BalsaDruidPageDirectory * dir,
                                    "These will be created if necessary."));
     label = GTK_LABEL(label_widget);
     gtk_label_set_justify(label, GTK_JUSTIFY_RIGHT);
-    gtk_label_set_line_wrap(label, TRUE);
+    gtk_label_set_wrap(label, TRUE);
     gtk_widget_set_hexpand(label_widget, TRUE);
     gtk_widget_set_vexpand(label_widget, TRUE);
 

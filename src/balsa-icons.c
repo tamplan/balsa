@@ -221,19 +221,21 @@ balsa_register_pixbufs(GtkWidget * widget)
     GtkIconTheme *icon_theme = gtk_icon_theme_get_default();
 
     for (i = 0; i < G_N_ELEMENTS(icons); i++) {
-        GdkPixbuf *pixbuf;
+        GdkPaintable *paintable;
         GError *err = NULL;
         gint width = 16;
         const gchar *use_id = balsa_icon_id(icons[i].icon);
 
-        pixbuf =
+        paintable =
             gtk_icon_theme_load_icon(icon_theme, use_id, width,
                                      GTK_ICON_LOOKUP_USE_BUILTIN, &err);
-        if (err) {
+        if (err != NULL) {
             g_print("%s %s size %d err %s\n", __func__, use_id,
                     width, err->message);
             g_clear_error(&err);
         } else {
+            GdkPixbuf *pixbuf = gdk_pixbuf_get_from_texture(GDK_TEXTURE(paintable));
+            g_object_unref(paintable);
             icons[i].set_icon(pixbuf);
             g_object_unref(pixbuf);
         }

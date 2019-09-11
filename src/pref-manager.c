@@ -1249,7 +1249,7 @@ pm_group_label(const gchar * text)
     gtk_label_set_markup(GTK_LABEL(label), markup);
     g_free(markup);
 
-    gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+    gtk_label_set_wrap(GTK_LABEL(label), TRUE);
     gtk_widget_set_halign(label, GTK_ALIGN_START);
 
     return label;
@@ -1288,7 +1288,7 @@ pm_grid_attach_label(GtkGrid     * grid,
     }
 
     gtk_label_set_justify((GtkLabel *) label, GTK_JUSTIFY_LEFT);
-    gtk_label_set_line_wrap((GtkLabel *) label, TRUE);
+    gtk_label_set_wrap((GtkLabel *) label, TRUE);
     gtk_label_set_max_width_chars((GtkLabel *) label, BALSA_MAX_WIDTH_CHARS);
     gtk_label_set_xalign((GtkLabel *) label, 0.0);
     gtk_label_set_yalign((GtkLabel *) label, 0.5);

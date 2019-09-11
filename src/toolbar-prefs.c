@@ -823,10 +823,14 @@ tp_store_set(GtkListStore * store, GtkTreeIter * iter, gint item)
     replace_nl_with_space(text);
 
     if (item > 0) {
-        pixbuf =
+        GdkPaintable *paintable =
             gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
                                      balsa_icon_id(toolbar_buttons[item].pixmap_id),
                                      24, 0, NULL);
+        if (paintable != NULL) {
+            pixbuf = gdk_pixbuf_get_from_texture(GDK_TEXTURE(paintable));
+            g_object_unref(paintable);
+        }
     }
     gtk_list_store_set(store, iter,
                        TP_TEXT_COLUMN, text,

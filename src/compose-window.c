@@ -2097,6 +2097,7 @@ add_urlref_attachment(BalsaComposeWindow *compose_window,
     GtkTreeModel *model;
     GtkTreeIter iter;
     BalsaAttachInfo *attach_data;
+    GdkPaintable *paintable;
     GdkPixbuf *pixbuf;
     GtkWidget *menu_item;
 
@@ -2104,9 +2105,11 @@ add_urlref_attachment(BalsaComposeWindow *compose_window,
         fprintf(stderr, "Trying to attach '%s'\n", url);
 
     /* get the pixbuf for the attachment's content type */
-    pixbuf =
+    paintable =
         gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
                                  "go-jump", 16, 0, NULL);
+    pixbuf = gdk_pixbuf_get_from_texture(GDK_TEXTURE(paintable));
+    g_object_unref(paintable);
 
     /* create a new attachment info block */
     attach_data          = balsa_attach_info_new(compose_window);
@@ -3638,7 +3641,7 @@ quote_parts_select_dlg(GtkTreeStore *tree_store,
 
     label = gtk_label_new(_("Select the parts of the message"
                             " which shall be quoted in the reply"));
-    gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+    gtk_label_set_wrap(GTK_LABEL(label), TRUE);
     gtk_label_set_selectable(GTK_LABEL(label), TRUE);
     gtk_widget_set_halign(label, GTK_ALIGN_START);
     gtk_widget_set_valign(label, GTK_ALIGN_START);
@@ -5449,7 +5452,7 @@ subject_not_empty(BalsaComposeWindow *compose_window)
     g_free(text_str);
     gtk_container_add (GTK_CONTAINER (vbox), label);
     gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
-    gtk_label_set_line_wrap (GTK_LABEL (label), TRUE);
+    gtk_label_set_wrap (GTK_LABEL (label), TRUE);
     gtk_widget_set_halign(label, GTK_ALIGN_START);
     gtk_widget_set_valign(label, GTK_ALIGN_START);
 

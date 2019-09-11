@@ -273,6 +273,7 @@ balsa_print_object_vcard(GList               *list,
 {
     BalsaPrintObjectDefault *pod;
     BalsaPrintObject *po;
+    GdkPaintable *paintable;
     PangoFontDescription *header_font;
     PangoLayout *test_layout;
     PangoTabArray *tabs;
@@ -306,10 +307,15 @@ balsa_print_object_vcard(GList               *list,
                                    - 2 * psetup->curr_depth * C_LABEL_SEP);
 
     /* get the stock contacts icon or the mime type icon on fail */
-    pod->pixbuf =
+    paintable =
         gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
                                  BALSA_PIXMAP_IDENTITY, 48,
                                  GTK_ICON_LOOKUP_USE_BUILTIN, NULL);
+    if (paintable != NULL) {
+        pod->pixbuf = gdk_pixbuf_get_from_texture(GDK_TEXTURE(paintable));
+        g_object_unref(paintable);
+    }
+
     if (!pod->pixbuf) {
         gchar *conttype = libbalsa_message_body_get_mime_type(body);
 
@@ -427,6 +433,7 @@ balsa_print_object_calendar(GList               *list,
 {
     BalsaPrintObjectDefault *pod;
     BalsaPrintObject *po;
+    GdkPaintable *paintable;
     PangoFontDescription *header_font;
     PangoLayout *test_layout;
     PangoTabArray *tabs;
@@ -455,10 +462,15 @@ balsa_print_object_calendar(GList               *list,
                                    - 2 * psetup->curr_depth * C_LABEL_SEP);
 
     /* get the stock calendar icon or the mime type icon on fail */
-    pod->pixbuf =
+    paintable =
         gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
                                  "x-office-calendar", 48,
                                  GTK_ICON_LOOKUP_USE_BUILTIN, NULL);
+    if (paintable != NULL) {
+        pod->pixbuf = gdk_pixbuf_get_from_texture(GDK_TEXTURE(paintable));
+        g_object_unref(paintable);
+    }
+
     if (!pod->pixbuf) {
         gchar *conttype = libbalsa_message_body_get_mime_type(body);
 

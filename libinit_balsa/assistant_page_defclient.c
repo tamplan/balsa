@@ -51,7 +51,7 @@ balsa_druid_page_defclient_init(BalsaDruidPageDefclient * defclient,
 
     label = gtk_label_new(_("Use Balsa as default email client?"));
     gtk_label_set_justify((GtkLabel *) label, GTK_JUSTIFY_CENTER);
-    gtk_label_set_line_wrap((GtkLabel *) label, TRUE);
+    gtk_label_set_wrap((GtkLabel *) label, TRUE);
 
     yes = gtk_radio_button_new_with_mnemonic(NULL, _("_Yes"));
     no  = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(yes),
