@@ -33,6 +33,7 @@
 #include "balsa-mime-widget.h"
 #include "balsa-mime-widget-callbacks.h"
 #include "balsa-cite-bar.h"
+#include "libbalsa/application-helpers.h"
 
 #if HAVE_GTKSOURCEVIEW
 #include <gtksourceview/gtksource.h>
@@ -43,8 +44,6 @@ static GtkWidget * create_text_widget(const char * content_type);
 static void bm_modify_font_from_string(GtkWidget * widget, const char *font);
 static GtkTextTag * quote_tag(GtkTextBuffer * buffer, gint level, gint margin);
 static void fix_text_widget(GtkWidget *widget, gpointer data);
-static void text_view_populate_popup(GtkWidget *widget, GtkMenu *menu,
-                                     gpointer user_data);
 
 #ifdef HAVE_HTML_WIDGET
 static BalsaMimeWidget *bm_widget_new_html(BalsaMessage * bm,
@@ -123,6 +122,12 @@ static void fill_text_buf_cited(BalsaMimeWidgetText *mwt,
                                 const gchar         *text_body,
                                 gboolean             is_flowed,
                                 gboolean             is_plain);
+static gboolean text_view_url_popup(GtkWidget           *widget,
+                                    BalsaMimeWidgetText *mwt);
+static void mwt_set_extra_menu(GtkWidget           *widget,
+                               BalsaMimeWidgetText *mwt);
+static void structured_phrases_toggle(BalsaMimeWidgetText *mwt,
+                                      gboolean             new_hl);
 
 
 #define PHRASE_HIGHLIGHT_ON    1
@@ -172,8 +177,73 @@ balsa_mime_widget_text_class_init(BalsaMimeWidgetTextClass * klass)
 }
 
 static void
+bmwt_launch_app_change_state(GSimpleAction * action,
+                             GVariant      * state,
+                             gpointer        user_data)
+{
+    BalsaMimeWidgetText *mwt = user_data;
+    const gchar *app_id;
+
+    app_id = g_variant_get_string(state, NULL);
+    balsa_mime_widget_ctx_gmenu_cb(app_id, mwt->mime_body);
+
+    g_simple_action_set_state(action, state);
+}
+
+static void
+bmwt_save_activated(GSimpleAction * action,
+                    GVariant      * state,
+                    gpointer        user_data)
+{
+    BalsaMimeWidgetText *mwt = user_data;
+
+    balsa_mime_widget_ctx_menu_save(GTK_WIDGET(mwt), mwt->mime_body);
+
+    g_simple_action_set_state(action, state);
+}
+
+static void
+bmwt_highlight_change_state(GSimpleAction * action,
+                            GVariant      * state,
+                            gpointer        user_data)
+{
+    BalsaMimeWidgetText *mwt = user_data;
+    gboolean new_hl;
+
+    new_hl = g_variant_get_boolean(state);
+    structured_phrases_toggle(mwt, new_hl);
+
+    g_simple_action_set_state(action, state);
+}
+
+static GActionEntry win_entries[] = {
+    {
+        "launch-app",
+        libbalsa_radio_activated,
+        "s",
+        "''",
+        bmwt_launch_app_change_state},
+    {
+        "save-part",
+        bmwt_save_activated},
+    {
+        "highlight-structured-phrases",
+        libbalsa_toggle_activated,
+        NULL,
+        "true",
+        bmwt_highlight_change_state}
+};
+
+static void
 balsa_mime_widget_text_init(BalsaMimeWidgetText * self)
 {
+    GSimpleActionGroup *simple = g_simple_action_group_new();
+
+    g_action_map_add_action_entries(G_ACTION_MAP(simple),
+                                    win_entries, G_N_ELEMENTS(win_entries),
+                                    self);
+    gtk_widget_insert_action_group(GTK_WIDGET(self), "win", G_ACTION_GROUP(simple));
+    g_object_unref(simple);
 }
 
 /*
@@ -265,7 +335,12 @@ balsa_mime_widget_new_text(BalsaMessage * bm, LibBalsaMessageBody * mime_body,
 
     /* create the mime object and the text/source view widget */
     mwt = g_object_new(BALSA_TYPE_MIME_WIDGET_TEXT, NULL);
+    mwt->mime_body = mime_body;
+
     mwt->text_widget = widget = create_text_widget(content_type);
+    g_signal_connect(widget, "popup-menu",
+                     G_CALLBACK(text_view_url_popup), mwt);
+    mwt_set_extra_menu(widget, mwt);
 
     /* configure text or source view */
     gtk_text_view_set_editable(GTK_TEXT_VIEW(widget), FALSE);
@@ -292,10 +367,6 @@ balsa_mime_widget_new_text(BalsaMessage * bm, LibBalsaMessageBody * mime_body,
     g_signal_connect(controller, "key-pressed",
 		     G_CALLBACK(balsa_mime_widget_key_press_event), bm);
     gtk_widget_add_controller(widget, controller);
-
-    mwt->mime_body = mime_body;
-    g_signal_connect(G_OBJECT(widget), "populate-popup",
-		     G_CALLBACK(text_view_populate_popup), mwt);
 
     buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(widget));
 
@@ -462,8 +533,7 @@ quote_tag(GtkTextBuffer * buffer, gint level, gint margin)
     return tag;
 }
 
-/* set the gtk_text widget's cursor to a vertical bar
-   fix event mask so that pointer motions are reported (if necessary) */
+/* set the gtk_text widget's cursor to a vertical bar */
 static void
 fix_text_widget(GtkWidget *widget, gpointer data)
 {
@@ -477,26 +547,15 @@ fix_text_widget(GtkWidget *widget, gpointer data)
 }
 
 static void
-gtk_widget_destroy_insensitive(GtkWidget * widget)
+structured_phrases_toggle(BalsaMimeWidgetText *mwt,
+                          gboolean             new_hl)
 {
-    if (!gtk_widget_get_sensitive(widget) ||
-	GTK_IS_SEPARATOR_MENU_ITEM(widget))
-	gtk_widget_destroy(widget);
-}
-
-static void
-structured_phrases_toggle(GtkCheckMenuItem *checkmenuitem,
-			  gpointer          user_data)
-{
-    BalsaMimeWidgetText *mwt = user_data;
     GtkTextView * text_view;
     GtkTextTagTable * table;
     GtkTextTag * tag;
-    gboolean new_hl;
 
     text_view = GTK_TEXT_VIEW(mwt->text_widget);
     table = gtk_text_buffer_get_tag_table(gtk_text_view_get_buffer(text_view));
-    new_hl = gtk_check_menu_item_get_active(checkmenuitem);
     if (!table || mwt->phrase_hl == 0 ||
 	(mwt->phrase_hl == PHRASE_HIGHLIGHT_ON && new_hl) ||
 	(mwt->phrase_hl == PHRASE_HIGHLIGHT_OFF && !new_hl))
@@ -543,72 +602,72 @@ url_send_cb(GtkWidget * menu_item, message_url_t * uri)
 }
 
 static gboolean
-text_view_url_popup(GtkWidget *widget, GtkMenu *menu, message_url_t *url)
+text_view_url_popup(GtkWidget           *widget,
+                    BalsaMimeWidgetText *mwt)
 {
+    message_url_t *url = mwt->current_url;
+    GtkMenu *menu;
     GtkWidget *menu_item;
+    GdkEvent *event;
 
     /* check if we are over an url */
     if (url == NULL)
 	return FALSE;
 
     /* build a popup to copy or open the URL */
-    gtk_container_foreach(GTK_CONTAINER(menu),
-                          (GtkCallback)gtk_widget_destroy, NULL);
+    menu = (GtkMenu *) gtk_menu_new();
 
-    menu_item = gtk_menu_item_new_with_label (_("Copy link"));
-    g_signal_connect (G_OBJECT (menu_item), "activate",
-                      G_CALLBACK (url_copy_cb), (gpointer)url);
+    menu_item = gtk_menu_item_new_with_label(_("Copy link"));
+    g_signal_connect(menu_item, "activate",
+                     G_CALLBACK(url_copy_cb), url);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+
+    menu_item = gtk_menu_item_new_with_label(_("Open link"));
+    g_signal_connect(menu_item, "activate",
+                     G_CALLBACK(url_open_cb), url);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+
+    menu_item = gtk_menu_item_new_with_label(_("Send link…"));
+    g_signal_connect(menu_item, "activate",
+                     G_CALLBACK(url_send_cb), url);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);
 
-    menu_item = gtk_menu_item_new_with_label (_("Open link"));
-    g_signal_connect (G_OBJECT (menu_item), "activate",
-                      G_CALLBACK (url_open_cb), (gpointer)url);
-    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);
-
-    menu_item = gtk_menu_item_new_with_label (_("Send link…"));
-    g_signal_connect (G_OBJECT (menu_item), "activate",
-                      G_CALLBACK (url_send_cb), (gpointer)url);
-    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);
+    event = gtk_get_current_event();
+    if (event != NULL) {
+        gtk_menu_popup_at_pointer(GTK_MENU(menu), event);
+        g_object_unref(event);
+    } else {
+        gtk_menu_popup_at_widget(GTK_MENU(menu), widget,
+                                 GDK_GRAVITY_CENTER, GDK_GRAVITY_CENTER,
+                                 NULL);
+    }
 
     return TRUE;
 }
 
 static void
-text_view_populate_popup(GtkWidget *widget, GtkMenu *menu,
-                         gpointer user_data)
+mwt_set_extra_menu(GtkWidget           *widget,
+                   BalsaMimeWidgetText *mwt)
 {
-    BalsaMimeWidgetText *mwt = user_data;
-    GtkWidget *menu_item;
+    GMenu *menu = g_menu_new();
 
-    gtk_widget_hide(GTK_WIDGET(menu));
-    gtk_container_foreach(GTK_CONTAINER(menu),
-                          (GtkCallback) gtk_widget_hide, NULL);
-    if (text_view_url_popup(widget, menu, mwt->current_url))
-	return;
+    libbalsa_vfs_fill_gmenu_by_content_type(menu,
+                                            "launch-app",
+                                            "text/plain");
 
-    gtk_container_foreach(GTK_CONTAINER(menu),
-                          (GtkCallback)gtk_widget_destroy_insensitive, NULL);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu),
-			  gtk_separator_menu_item_new ());
-    libbalsa_vfs_fill_menu_by_content_type(menu, "text/plain",
-					   G_CALLBACK (balsa_mime_widget_ctx_menu_cb),
-					   (gpointer)mwt->mime_body);
-
-    menu_item = gtk_menu_item_new_with_label (_("Save…"));
-    g_signal_connect (G_OBJECT (menu_item), "activate",
-                      G_CALLBACK (balsa_mime_widget_ctx_menu_save), mwt->mime_body);
-    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);
+    g_menu_append(menu, _("Save…"), "save-part");
 
     if (mwt->phrase_hl != 0) {
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu),
-			      gtk_separator_menu_item_new ());
-	menu_item = gtk_check_menu_item_new_with_label (_("Highlight structured phrases"));
-	gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu_item),
-                                        mwt->phrase_hl == PHRASE_HIGHLIGHT_ON);
-	g_signal_connect (G_OBJECT (menu_item), "toggled",
-			  G_CALLBACK (structured_phrases_toggle), mwt);
-	gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);
+        GMenu *section = g_menu_new();
+
+        g_menu_append(section, _("Highlight structured phrases"),
+                      "highlight-structured-phrases");
+
+	g_menu_append_section(menu, NULL, G_MENU_MODEL(section));
     }
+
+    gtk_text_view_set_extra_menu(GTK_TEXT_VIEW(widget), G_MENU_MODEL(menu));
+    g_object_unref(menu);
 }
 
 

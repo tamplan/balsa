@@ -28,6 +28,7 @@ G_BEGIN_DECLS
 
 
 void balsa_mime_widget_ctx_menu_cb(GtkWidget * menu_item, LibBalsaMessageBody * mime_body);
+void balsa_mime_widget_ctx_gmenu_cb(const gchar *app_id, LibBalsaMessageBody *mime_body);
 void balsa_mime_widget_ctx_menu_save(GtkWidget * parent_widget,
                                      LibBalsaMessageBody * mime_body);
 gboolean balsa_mime_widget_key_press_event(GtkEventControllerKey *key_controller,

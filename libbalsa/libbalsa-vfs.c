@@ -579,29 +579,66 @@ libbalsa_vfs_file_unlink(const LibbalsaVfs * file, GError **err)
     return result;
 }
 
+static gboolean
+launch_app(const LibbalsaVfs *file,
+           GAppInfo          *app,
+           GError           **err)
+{
+    gboolean result = FALSE;
+    GList * args;
+
+    if (app == NULL) {
+        g_set_error(err, LIBBALSA_VFS_ERROR_QUARK, -1,
+                    _("Cannot launch, missing application"));
+        return result;
+    }
+
+    args = g_list_prepend(NULL, file->priv->gio_gfile);
+    result = g_app_info_launch(app, args, NULL, err);
+    g_list_free(args);
+
+    return result;
+}
 
 gboolean
 libbalsa_vfs_launch_app(const LibbalsaVfs * file, GObject * object, GError **err)
 {
     GAppInfo *app;
-    GList * args;
-    gboolean result;
 
     g_return_val_if_fail(file != NULL, FALSE);
     g_return_val_if_fail(object != NULL, FALSE);
 
     app = G_APP_INFO(g_object_get_data(object, LIBBALSA_VFS_MIME_ACTION));
-    if (!app) {
-        g_set_error(err, LIBBALSA_VFS_ERROR_QUARK, -1,
-                    _("Cannot launch, missing application"));
-        return FALSE;
-    }
-    args = g_list_prepend(NULL, file->priv->gio_gfile);
-    result = g_app_info_launch(app, args, NULL, err);
-    g_list_free(args);
-    return result;
+
+    return launch_app(file, app, err);
 }
 
+gboolean
+libbalsa_vfs_launch_app_gmenu(const LibbalsaVfs *file,
+                              const gchar       *app_id,
+                              GError           **err)
+{
+    GList *apps;
+    GList *app_l;
+    GAppInfo *app = NULL;
+
+    g_return_val_if_fail(file != NULL, FALSE);
+    g_return_val_if_fail(app_id != NULL, FALSE);
+
+    apps = g_app_info_get_all();
+
+    for (app_l = apps; app_l != NULL; app_l = app_l->next) {
+        if (g_strcmp0(g_app_info_get_id(app_l->data), app_id) == 0)
+            break;
+    }
+
+    if (app_l != NULL)
+        app = g_object_ref(app_l->data);
+
+    g_list_free_full(apps, g_object_unref);
+
+    return launch_app(file, app, err);
+}
 
 gboolean
 libbalsa_vfs_launch_app_for_body(LibBalsaMessageBody * mime_body,
@@ -621,6 +658,29 @@ libbalsa_vfs_launch_app_for_body(LibBalsaMessageBody * mime_body,
     file = libbalsa_vfs_new_from_uri(uri);
     g_free(uri);
     result = libbalsa_vfs_launch_app(file, object, err);
+    g_object_unref(file);
+
+    return result;
+}
+
+gboolean
+libbalsa_vfs_launch_app_for_body_gmenu(const gchar         *app_id,
+                                       LibBalsaMessageBody *mime_body,
+                                       GError             **err)
+{
+    gchar *uri;
+    LibbalsaVfs * file;
+    gboolean result;
+
+    g_return_val_if_fail(mime_body != NULL, FALSE);
+
+    if (!libbalsa_message_body_save_temporary(mime_body, err))
+        return FALSE;
+
+    uri = g_filename_to_uri(mime_body->temp_filename, NULL, NULL);
+    file = libbalsa_vfs_new_from_uri(uri);
+    g_free(uri);
+    result = libbalsa_vfs_launch_app_gmenu(file, app_id, err);
     g_object_unref(file);
 
     return result;
@@ -654,6 +714,7 @@ libbalsa_vfs_content_type_of_buffer(const guchar * buffer,
 }
 
 
+/* fill the passed menu with vfs items */
 static void 
 gio_add_vfs_menu_item(GtkMenu * menu, GAppInfo *app, GCallback callback,
                       gpointer data)
@@ -670,7 +731,6 @@ gio_add_vfs_menu_item(GtkMenu * menu, GAppInfo *app, GCallback callback,
 }
 
 
-/* fill the passed menu with vfs items */
 void
 libbalsa_vfs_fill_menu_by_content_type(GtkMenu * menu,
 				       const gchar * content_type,
@@ -692,6 +752,45 @@ libbalsa_vfs_fill_menu_by_content_type(GtkMenu * menu,
         if (app && g_app_info_should_show(app) &&
             (!def_app || !g_app_info_equal(app, def_app)))
             gio_add_vfs_menu_item(menu, app, callback, data);
+    }
+    g_clear_object(&def_app);
+    g_list_free_full(app_list, g_object_unref);
+}
+
+
+/* fill the passed GMenu with vfs items */
+static void
+gio_add_vfs_gmenu_item(GMenu * menu, const gchar *action, GAppInfo *app)
+{
+    gchar *menu_label =
+        g_strdup_printf(_("Open with %s"), g_app_info_get_display_name(app));
+    gchar *detailed_action =
+        g_strdup_printf("%s::%s", action, g_app_info_get_id(app));
+
+    g_menu_append(menu, menu_label, detailed_action);
+    g_free(detailed_action);
+    g_free(menu_label);
+}
+
+void
+libbalsa_vfs_fill_gmenu_by_content_type(GMenu * menu,
+                                        const gchar * action,
+                                        const gchar * content_type)
+{
+    GList* list;
+    GAppInfo *def_app;
+    GList *app_list;
+
+    if ((def_app = g_app_info_get_default_for_type(content_type, FALSE)))
+        gio_add_vfs_gmenu_item(menu, action, def_app);
+
+    app_list = g_app_info_get_all_for_type(content_type);
+    for (list = app_list; list != NULL; list = list->next) {
+        GAppInfo *app = G_APP_INFO(list->data);
+
+        if (app && g_app_info_should_show(app) &&
+            (!def_app || !g_app_info_equal(app, def_app)))
+            gio_add_vfs_gmenu_item(menu, action, app);
     }
     g_clear_object(&def_app);
     g_list_free_full(app_list, g_object_unref);

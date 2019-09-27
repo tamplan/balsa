@@ -55,6 +55,25 @@ balsa_mime_widget_ctx_menu_cb(GtkWidget * menu_item,
 }
 
 
+void
+balsa_mime_widget_ctx_gmenu_cb(const gchar         *app_id,
+                               LibBalsaMessageBody *mime_body)
+{
+    GError *err = NULL;
+    gboolean result;
+
+    g_return_if_fail(mime_body != NULL);
+    result = libbalsa_vfs_launch_app_for_body_gmenu(app_id,
+                                                    mime_body,
+                                                    &err);
+    if (!result)
+        balsa_information(LIBBALSA_INFORMATION_WARNING,
+                          _("Could not launch application: %s"),
+                          err ? err->message : "Unknown error");
+    g_clear_error(&err);
+}
+
+
 /** Pops up a "save part" dialog for a message part.
 
     @param parent_widget the widget located in the window that is to

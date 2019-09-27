@@ -71,13 +71,22 @@ gint     libbalsa_vfs_file_unlink(const LibbalsaVfs *file,
 gboolean libbalsa_vfs_launch_app(const LibbalsaVfs *file,
                                  GObject           *object,
                                  GError           **err);
+gboolean libbalsa_vfs_launch_app_gmenu(const LibbalsaVfs *file,
+                                       const gchar       *app_id,
+                                       GError           **err);
 gboolean libbalsa_vfs_launch_app_for_body(LibBalsaMessageBody *mime_body,
                                           GObject             *object,
                                           GError             **err);
+gboolean libbalsa_vfs_launch_app_for_body_gmenu(const gchar         *app_id,
+                                                LibBalsaMessageBody *mime_body,
+                                                GError             **err);
 void libbalsa_vfs_fill_menu_by_content_type(GtkMenu     *menu,
                                             const gchar *content_type,
                                             GCallback    callback,
                                             gpointer     data);
+void libbalsa_vfs_fill_gmenu_by_content_type(GMenu       *menu,
+                                             const gchar *action,
+                                             const gchar *content_type);
 GtkWidget *libbalsa_vfs_mime_button(LibBalsaMessageBody *mime_body,
                                     const gchar         *content_type,
                                     GCallback            callback,
