@@ -287,7 +287,7 @@ mwt_set_actions(BalsaMimeWidgetText *mwt, GtkWidget *widget)
     g_action_map_add_action_entries(G_ACTION_MAP(simple),
                                     win_entries, G_N_ELEMENTS(win_entries),
                                     mwt);
-    gtk_widget_insert_action_group(widget, "win", G_ACTION_GROUP(simple));
+    gtk_widget_insert_action_group(widget, "text-widget", G_ACTION_GROUP(simple));
 }
 
 BalsaMimeWidget *
@@ -663,16 +663,16 @@ mwt_set_extra_menu(GtkWidget           *widget,
     GMenu *menu = g_menu_new();
 
     libbalsa_vfs_fill_gmenu_by_content_type(menu,
-                                            "win.launch-app",
+                                            "text-widget.launch-app",
                                             "text/plain");
 
-    g_menu_append(menu, _("Save…"), "win.save-part");
+    g_menu_append(menu, _("Save…"), "text-widget.save-part");
 
     if (mwt->phrase_hl != 0) {
         GMenu *section = g_menu_new();
 
         g_menu_append(section, _("Highlight structured phrases"),
-                      "win.highlight-structured-phrases");
+                      "text-widget.highlight-structured-phrases");
 
 	g_menu_append_section(menu, NULL, G_MENU_MODEL(section));
     }
