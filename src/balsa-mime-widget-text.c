@@ -663,16 +663,16 @@ mwt_set_extra_menu(GtkWidget           *widget,
     GMenu *menu = g_menu_new();
 
     libbalsa_vfs_fill_gmenu_by_content_type(menu,
-                                            "launch-app",
+                                            "win.launch-app",
                                             "text/plain");
 
-    g_menu_append(menu, _("Save…"), "save-part");
+    g_menu_append(menu, _("Save…"), "win.save-part");
 
     if (mwt->phrase_hl != 0) {
         GMenu *section = g_menu_new();
 
         g_menu_append(section, _("Highlight structured phrases"),
-                      "highlight-structured-phrases");
+                      "win.highlight-structured-phrases");
 
 	g_menu_append_section(menu, NULL, G_MENU_MODEL(section));
     }
