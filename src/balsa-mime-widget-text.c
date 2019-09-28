@@ -242,8 +242,8 @@ balsa_mime_widget_text_init(BalsaMimeWidgetText * self)
     g_action_map_add_action_entries(G_ACTION_MAP(simple),
                                     win_entries, G_N_ELEMENTS(win_entries),
                                     self);
-    gtk_widget_insert_action_group(GTK_WIDGET(self), "win", G_ACTION_GROUP(simple));
-    g_object_unref(simple);
+    gtk_widget_insert_action_group(balsa_mime_widget_get_widget(BALSA_MIME_WIDGET(self)),
+                                   "win", G_ACTION_GROUP(simple));
 }
 
 /*
