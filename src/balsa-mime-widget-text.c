@@ -237,13 +237,8 @@ static GActionEntry win_entries[] = {
 static void
 balsa_mime_widget_text_init(BalsaMimeWidgetText * self)
 {
-    GSimpleActionGroup *simple = g_simple_action_group_new();
-
-    g_action_map_add_action_entries(G_ACTION_MAP(simple),
-                                    win_entries, G_N_ELEMENTS(win_entries),
-                                    self);
-    gtk_widget_insert_action_group(balsa_mime_widget_get_widget(BALSA_MIME_WIDGET(self)),
-                                   "win", G_ACTION_GROUP(simple));
+    /* This is where we should handle the win_entries, if
+     * BalsaMimeWidgetText was an actual widget, as it now is in master. */
 }
 
 /*
@@ -278,6 +273,21 @@ mwt_controller_leave_cb(GtkEventController * motion,
     BalsaMimeWidgetText *mwt = user_data;
 
     check_over_url(mwt, NULL);
+}
+
+/*
+ * Public methods
+ */
+
+static void
+mwt_set_actions(BalsaMimeWidgetText *mwt, GtkWidget *widget)
+{
+    GSimpleActionGroup *simple = g_simple_action_group_new();
+
+    g_action_map_add_action_entries(G_ACTION_MAP(simple),
+                                    win_entries, G_N_ELEMENTS(win_entries),
+                                    mwt);
+    gtk_widget_insert_action_group(widget, "win", G_ACTION_GROUP(simple));
 }
 
 BalsaMimeWidget *
@@ -406,6 +416,7 @@ balsa_mime_widget_new_text(BalsaMessage * bm, LibBalsaMessageBody * mime_body,
     g_free(ptr);
 
     mw = (BalsaMimeWidget *) mwt;
+    mwt_set_actions(mwt, widget);
     balsa_mime_widget_set_widget(mw, widget);
 
     return mw;
