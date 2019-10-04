@@ -216,7 +216,7 @@ bmwt_highlight_change_state(GSimpleAction * action,
     g_simple_action_set_state(action, state);
 }
 
-static GActionEntry win_entries[] = {
+static GActionEntry text_widget_entries[] = {
     {
         "launch-app",
         libbalsa_radio_activated,
@@ -237,7 +237,7 @@ static GActionEntry win_entries[] = {
 static void
 balsa_mime_widget_text_init(BalsaMimeWidgetText * self)
 {
-    /* This is where we should handle the win_entries, if
+    /* This is where we should handle the text_widget_entries, if
      * BalsaMimeWidgetText was an actual widget, as it now is in master. */
 }
 
@@ -285,7 +285,8 @@ mwt_set_actions(BalsaMimeWidgetText *mwt, GtkWidget *widget)
     GSimpleActionGroup *simple = g_simple_action_group_new();
 
     g_action_map_add_action_entries(G_ACTION_MAP(simple),
-                                    win_entries, G_N_ELEMENTS(win_entries),
+                                    text_widget_entries,
+                                    G_N_ELEMENTS(text_widget_entries),
                                     mwt);
     gtk_widget_insert_action_group(widget, "text-widget", G_ACTION_GROUP(simple));
 }
