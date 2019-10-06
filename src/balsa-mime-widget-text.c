@@ -1066,12 +1066,11 @@ draw_cite_bar_real(gpointer data, gpointer user_data)
                                        GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
         g_object_unref(css_provider);
 
-        gtk_text_view_add_child_in_window(view, bar->bar,
-                                          GTK_TEXT_WINDOW_TEXT, 0, y_pos);
+        gtk_text_view_add_overlay(view, bar->bar, 0, y_pos);
     } else if (bar->y_pos != y_pos || bar->height != height) {
         /* shift/resize existing widget */
         balsa_cite_bar_resize(BALSA_CITE_BAR(bar->bar), height);
-        gtk_text_view_move_child(view, bar->bar, 0, y_pos);
+        gtk_text_view_move_overlay(view, bar->bar, 0, y_pos);
     }
 
     /* remember current values */
