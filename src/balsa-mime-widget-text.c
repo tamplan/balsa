@@ -1032,13 +1032,13 @@ draw_cite_bar_real(gpointer data, gpointer user_data)
 
     /* get the locations */
     gtk_text_view_get_iter_location(view, &bar->start_iter, &location);
-    gtk_text_view_buffer_to_surface_coords(view, GTK_TEXT_WINDOW_TEXT,
-                                           location.x, location.y,
-                                           &x_pos, &y_pos);
+    gtk_text_view_buffer_to_window_coords(view, GTK_TEXT_WINDOW_TEXT,
+                                          location.x, location.y,
+                                          &x_pos, &y_pos);
     gtk_text_view_get_iter_location(view, &bar->end_iter, &location);
-    gtk_text_view_buffer_to_surface_coords(view, GTK_TEXT_WINDOW_TEXT,
-                                           location.x, location.y,
-                                           &x_pos, &height);
+    gtk_text_view_buffer_to_window_coords(view, GTK_TEXT_WINDOW_TEXT,
+                                          location.x, location.y,
+                                          &x_pos, &height);
     height -= y_pos;
 
     /* add a new widget if necessary */

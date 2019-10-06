@@ -376,12 +376,12 @@ bm_find_scroll_to_selection(BalsaMessage * bm,
                                     &end_location);
     end_location.width = 0;
     gdk_rectangle_union(&begin_location, &end_location, &begin_location);
-    gtk_text_view_buffer_to_surface_coords(text_view,
-                                           GTK_TEXT_WINDOW_WIDGET,
-                                           begin_location.x,
-                                           begin_location.y,
-                                           &begin_location.x,
-                                           &begin_location.y);
+    gtk_text_view_buffer_to_window_coords(text_view,
+                                          GTK_TEXT_WINDOW_WIDGET,
+                                          begin_location.x,
+                                          begin_location.y,
+                                          &begin_location.x,
+                                          &begin_location.y);
 
     bm_find_scroll_to_rectangle(bm, GTK_WIDGET(text_view), &begin_location);
 }
