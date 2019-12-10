@@ -909,6 +909,9 @@ G_LOCK_DEFINE_STATIC(mblist_update);
 static gboolean
 update_mailbox_idle(struct update_mbox_data *umd)
 {
+    if (balsa_app.main_window == NULL)
+        return G_SOURCE_REMOVE;
+
     G_LOCK(mblist_update);
 
     if (umd->mailbox) {
@@ -946,7 +949,7 @@ update_mailbox_idle(struct update_mbox_data *umd)
 
     G_UNLOCK(mblist_update);
 
-    return FALSE;
+    return G_SOURCE_REMOVE;
 }
 
 static void
