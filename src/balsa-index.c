@@ -2161,7 +2161,7 @@ bndx_do_popup(BalsaIndex     *bindex,
     if (event != NULL) {
         gtk_menu_popup_at_pointer(GTK_MENU(menu), event);
     } else {
-        gtk_menu_popup_at_widget(GTK_MENU(menu), GTK_WIDGET(bindex),
+        gtk_menu_popup_at_widget(GTK_MENU(menu), GTK_WIDGET(bindex->tree_view),
                                  GDK_GRAVITY_CENTER, GDK_GRAVITY_CENTER,
                                  NULL);
     }
