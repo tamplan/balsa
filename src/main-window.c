@@ -510,6 +510,7 @@ bw_create_index_widget(BalsaWindow *bw)
     gtk_container_add(GTK_CONTAINER(priv->sos_bar), priv->filter_choice);
 
     priv->sos_entry = gtk_entry_new();
+    g_object_add_weak_pointer(G_OBJECT(priv->sos_entry), (gpointer *) &priv->sos_entry);
     /* gtk_label_set_mnemonic_widget(GTK_LABEL(priv->filter_choice),
        priv->sos_entry); */
     g_signal_connect(G_OBJECT(priv->sos_entry), "notify::has-focus",
@@ -4224,7 +4225,6 @@ bw_notebook_switch_page_cb(GtkWidget * notebook,
     BalsaIndex *bindex;
     LibBalsaMailbox *mailbox;
     gchar *title;
-    const gchar *filter_string;
 
     if (priv->current_index != NULL) {
 	g_object_remove_weak_pointer(G_OBJECT(priv->current_index),
@@ -4267,11 +4267,15 @@ bw_notebook_switch_page_cb(GtkWidget * notebook,
     bw_enable_message_menus(window, balsa_index_get_current_msgno(bindex));
     bw_enable_mailbox_menus(window, bindex);
 
-    filter_string = balsa_index_get_filter_string(bindex);
-    gtk_editable_set_text(GTK_EDITABLE(priv->sos_entry),
-                       filter_string != NULL ? filter_string : "");
-    gtk_combo_box_set_active(GTK_COMBO_BOX(priv->filter_choice),
-                             balsa_index_get_filter_no(bindex));
+    if (priv->sos_entry != NULL) {
+        const gchar *filter_string;
+
+        filter_string = balsa_index_get_filter_string(bindex);
+        gtk_editable_set_text(GTK_EDITABLE(priv->sos_entry),
+                              filter_string != NULL ? filter_string : "");
+        gtk_combo_box_set_active(GTK_COMBO_BOX(priv->filter_choice),
+                                 balsa_index_get_filter_no(bindex));
+    }
 
     balsa_mblist_focus_mailbox(balsa_app.mblist, mailbox);
     balsa_window_set_statusbar(window, mailbox);
