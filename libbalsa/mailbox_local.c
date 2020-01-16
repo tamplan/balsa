@@ -662,7 +662,7 @@ lbm_local_restore_tree(LibBalsaMailboxLocal * local, guint * total)
                 /* Check one level higher. */
                 sibling = parent;
                 parent = parent->parent;
-                if (parent != NULL) {
+                if (parent == NULL) {
                     /* We got to the root without finding the parent. */
                     libbalsa_information(LIBBALSA_INFORMATION_DEBUG,
                                          _("Cache file for mailbox %s "
@@ -1188,6 +1188,7 @@ libbalsa_mailbox_local_set_threading(LibBalsaMailbox * mailbox,
 
         libbalsa_mailbox_set_msg_tree(mailbox, g_node_new(NULL));
         if (lbm_local_restore_tree(local, &total)) {
+            libbalsa_mailbox_set_messages_loaded(mailbox, TRUE);
             libbalsa_mailbox_set_messages_threaded(mailbox, TRUE);
         } else {
             /* Bad or no cache file: start over. */
@@ -1219,7 +1220,10 @@ libbalsa_mailbox_local_set_threading(LibBalsaMailbox * mailbox,
         }
     }
 
-    { /* Scope */
+    if (libbalsa_mailbox_total_messages(mailbox) == 0) {
+        /* Nothing to thread, but we must set the flag. */
+        libbalsa_mailbox_set_messages_threaded(mailbox, TRUE);
+    } else {
         LbmlSetThreadingInfo *info;
 
         info = g_new(LbmlSetThreadingInfo, 1);

@@ -1,3 +1,16 @@
+2020-01-16  Peter Bloomfield  <pbloomfield@bellsouth.net>
+
+	Cleanup
+
+	* libbalsa/mailbox_local.c (lbm_local_restore_tree): fix a
+	thinko;
+	(libbalsa_mailbox_local_set_threading): set messages-loaded as
+	well as messages-threaded when the tree is successfully restored
+	from the cache.
+	* src/main-window.c (bw_real_open_mbnode_idle_cb),
+	(balsa_window_real_open_mbnode): add the mailbox to the list of
+	open mailboxes as soon as we know it's not already there.
+
 2020-01-13  Peter Bloomfield  <pbloomfield@bellsouth.net>
 
 	balsa-index: Use a low priority idle handler instead of a

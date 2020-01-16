@@ -2924,8 +2924,6 @@ bw_real_open_mbnode_idle_cb(BalsaWindowRealOpenMbnodeInfo * info)
         gtk_notebook_set_current_page(GTK_NOTEBOOK(priv->notebook),
                                       page_num);
 
-    bw_register_open_mailbox(mailbox);
-
     libbalsa_mailbox_set_threading(mailbox);
 
     filter =
@@ -3014,6 +3012,7 @@ balsa_window_real_open_mbnode(BalsaWindow * window,
 
     if (bw_is_open_mailbox(mailbox = balsa_mailbox_node_get_mailbox(mbnode)))
         return;
+    bw_register_open_mailbox(mailbox);
 
     index = BALSA_INDEX(balsa_index_new());
     balsa_index_set_width_preference
