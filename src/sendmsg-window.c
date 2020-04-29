@@ -1294,14 +1294,15 @@ update_bsmsg_identity(BalsaSendmsg* bsmsg, LibBalsaIdentity* ident)
 
 /* remove_attachment - right mouse button callback */
 static void
-remove_attachment(GtkWidget * menu_item, BalsaAttachInfo *info)
+remove_attachment(GSimpleAction *action,
+                  GVariant      *parameter,
+                  gpointer       user_data)
 {
+    BalsaAttachInfo *info = user_data;
     GtkTreeIter iter;
     GtkTreeModel *model;
     GtkTreeSelection *selection;
     BalsaAttachInfo *test_info;
-
-    g_return_if_fail(info->bm != NULL);
 
     /* get the selected element */
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(info->bm->tree_view));
@@ -1321,29 +1322,18 @@ remove_attachment(GtkWidget * menu_item, BalsaAttachInfo *info)
     gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
 }
 
-static void
-set_attach_menu_sensitivity(GtkWidget * widget, gpointer data)
-{
-    gint mode =
-        GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "new-mode"));
-
-    if (mode)
-        gtk_widget_set_sensitive(widget, mode != GPOINTER_TO_INT(data));
-}
-
 /* change attachment mode - right mouse button callback */
 static void
-change_attach_mode(GtkWidget * menu_item, BalsaAttachInfo *info)
+change_attach_mode(GSimpleAction *action,
+                   GVariant      *parameter,
+                   gpointer       user_data)
 {
-    gint new_mode =
-        GPOINTER_TO_INT(g_object_get_data(G_OBJECT(menu_item),
-                                          "new-mode"));
+    gint new_mode = g_variant_get_int32(parameter);
+    BalsaAttachInfo *info = user_data;
     GtkTreeIter iter;
     GtkTreeModel *model;
     GtkTreeSelection *selection;
     BalsaAttachInfo *test_info;
-
-    g_return_if_fail(info->bm != NULL);
 
     /* get the selected element */
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(info->bm->tree_view));
@@ -1353,8 +1343,8 @@ change_attach_mode(GtkWidget * menu_item, BalsaAttachInfo *info)
     /* make sure we got the right element */
     gtk_tree_model_get(model, &iter, ATTACH_INFO_COLUMN, &test_info, -1);
     if (test_info != info) {
-	if (test_info)
-	    g_object_unref(test_info);
+        g_object_unref(test_info);
+
 	return;
     }
     g_object_unref(test_info);
@@ -1364,7 +1354,7 @@ change_attach_mode(GtkWidget * menu_item, BalsaAttachInfo *info)
 	GtkWidget *extbody_dialog, *parent;
 	gint result;
 
-	parent = gtk_widget_get_toplevel(menu_item);
+	parent = gtk_widget_get_toplevel(info->bm->window);
 	extbody_dialog =
 	    gtk_message_dialog_new(GTK_WINDOW(parent),
 				   GTK_DIALOG_DESTROY_WITH_PARENT,
@@ -1386,8 +1376,15 @@ change_attach_mode(GtkWidget * menu_item, BalsaAttachInfo *info)
 			     _("Attach as Reference?"));
 	result = gtk_dialog_run(GTK_DIALOG(extbody_dialog));
 	gtk_widget_destroy(extbody_dialog);
-	if (result != GTK_RESPONSE_YES)
+	if (result != GTK_RESPONSE_YES) {
+#if GTK_CHECK_VERSION(3, 22, 0)
+            gtk_popover_popdown(GTK_POPOVER(info->popup_menu));
+#else                           /*GTK_CHECK_VERSION(3, 22, 0) */
+            gtk_widget_hide(info->popup_menu);
+#endif                          /*GTK_CHECK_VERSION(3, 22, 0) */
+
 	    return;
+        }
     }
 
     /* change the attachment mode */
@@ -1395,47 +1392,57 @@ change_attach_mode(GtkWidget * menu_item, BalsaAttachInfo *info)
     gtk_list_store_set(GTK_LIST_STORE(model), &iter, ATTACH_MODE_COLUMN,
 		       info->mode, -1);
 
-    /* set the menu's sensitivities */
-    gtk_container_forall(GTK_CONTAINER(gtk_widget_get_parent(menu_item)),
-			 set_attach_menu_sensitivity,
-                         GINT_TO_POINTER(info->mode));
+#if GTK_CHECK_VERSION(3, 22, 0)
+    gtk_popover_popdown(GTK_POPOVER(info->popup_menu));
+#else                           /*GTK_CHECK_VERSION(3, 22, 0) */
+    gtk_widget_hide(info->popup_menu);
+#endif                          /*GTK_CHECK_VERSION(3, 22, 0) */
+
+    g_simple_action_set_state(action, parameter);
 }
 
 
 /* attachment vfs menu - right mouse button callback */
 static void
-attachment_menu_vfs_cb(GtkWidget * menu_item, BalsaAttachInfo * info)
+attachment_menu_vfs_cb(GSimpleAction *action,
+                       GVariant      *parameter,
+                       gpointer       user_data)
 {
+    const gchar *app = g_variant_get_string(parameter, NULL);
+    BalsaAttachInfo *info = user_data;
     GError *err = NULL;
     gboolean result;
 
-    g_return_if_fail(info != NULL);
-
-    result = libbalsa_vfs_launch_app(info->file_uri,
-                                     G_OBJECT(menu_item),
-                                     &err);
+    result = libbalsa_vfs_launch_app(info->file_uri, app, &err);
     if (!result)
         balsa_information(LIBBALSA_INFORMATION_WARNING,
                           _("Could not launch application: %s"),
                           err ? err->message : "Unknown error");
     g_clear_error(&err);
+
+#if GTK_CHECK_VERSION(3, 22, 0)
+    gtk_popover_popdown(GTK_POPOVER(info->popup_menu));
+#else                           /*GTK_CHECK_VERSION(3, 22, 0) */
+    gtk_widget_hide(info->popup_menu);
+#endif                          /*GTK_CHECK_VERSION(3, 22, 0) */
 }
 
 
 /* URL external body - right mouse button callback */
 static void
-on_open_url_cb(GtkWidget * menu_item, BalsaAttachInfo * info)
+on_open_url_cb(GSimpleAction *action,
+               GVariant      *parameter,
+               gpointer       user_data)
 {
+    BalsaAttachInfo *info = user_data;
     GtkWidget *toplevel;
     GError *err = NULL;
     const gchar * uri;
 
-    g_return_if_fail(info != NULL);
     uri = libbalsa_vfs_get_uri(info->file_uri);
-    g_return_if_fail(uri != NULL);
 
     g_message("open URL %s", uri);
-    toplevel = gtk_widget_get_toplevel(GTK_WIDGET(menu_item));
+    toplevel = gtk_widget_get_toplevel(info->bm->window);
     if (gtk_widget_is_toplevel(toplevel)) {
         gtk_show_uri_on_window(GTK_WINDOW(toplevel), uri,
                                gtk_get_current_event_time(), &err);
@@ -1656,6 +1663,7 @@ get_fwd_mail_headers(const gchar *mailfile)
 /* add_attachment:
    adds given filename (uri format) to the list.
 */
+
 gboolean
 add_attachment(BalsaSendmsg * bsmsg, const gchar *filename,
                gboolean is_a_temp_file, const gchar *forced_mime_type)
@@ -1669,8 +1677,14 @@ add_attachment(BalsaSendmsg * bsmsg, const gchar *filename,
     gchar *utf8name;
     GError *err = NULL;
     GdkPixbuf *pixbuf;
-    GtkWidget *menu_item;
     gchar *content_desc;
+    GSimpleActionGroup *simple;
+    static GActionEntry attachment_entries[] = {
+        {"new-mode", libbalsa_radio_activated, "i", "1", change_attach_mode},
+        {"remove", remove_attachment},
+        {"launch-app", libbalsa_radio_activated, "s", "''", attachment_menu_vfs_cb}
+    };
+    GMenu *menu;
 
     if (balsa_app.debug)
 	fprintf(stderr, "Trying to attach '%s'\n", filename);
@@ -1761,49 +1775,47 @@ add_attachment(BalsaSendmsg * bsmsg, const gchar *filename,
     attach_data->mode = LIBBALSA_ATTACH_AS_ATTACHMENT;
 
     /* build the attachment's popup menu */
-    attach_data->popup_menu = gtk_menu_new();
+    simple = g_simple_action_group_new();
+    g_action_map_add_action_entries(G_ACTION_MAP(simple),
+                                    attachment_entries,
+                                    G_N_ELEMENTS(attachment_entries),
+                                    attach_data);
+
+    gtk_widget_insert_action_group(bsmsg->window,
+                                   "attachment",
+                                   G_ACTION_GROUP(simple));
+    g_object_unref(simple);
+
+    menu = g_menu_new();
 
     /* only real text/... and image/... parts may be inlined */
     if (can_inline) {
-	menu_item =
-	    gtk_menu_item_new_with_label(_(attach_modes
-                                           [LIBBALSA_ATTACH_AS_INLINE]));
-	g_object_set_data(G_OBJECT(menu_item), "new-mode",
-			  GINT_TO_POINTER(LIBBALSA_ATTACH_AS_INLINE));
-	g_signal_connect(menu_item, "activate",
-			 G_CALLBACK(change_attach_mode),
-			 (gpointer)attach_data);
-	gtk_menu_shell_append(GTK_MENU_SHELL(attach_data->popup_menu),
-			      menu_item);
+        GMenuItem *menu_item =
+            g_menu_item_new(_(attach_modes[LIBBALSA_ATTACH_AS_INLINE]), NULL);
+        g_menu_item_set_action_and_target(menu_item, "attachment.new-mode", "i",
+                                          LIBBALSA_ATTACH_AS_INLINE);
+        g_menu_append_item(menu, menu_item);
+        g_object_unref(menu_item);
     }
 
     /* all real files can be attachments */
     if (can_inline || !is_a_temp_file) {
-	menu_item =
-	    gtk_menu_item_new_with_label(_(attach_modes
-                                           [LIBBALSA_ATTACH_AS_ATTACHMENT]));
-	gtk_widget_set_sensitive(menu_item, FALSE);
-	g_object_set_data(G_OBJECT(menu_item), "new-mode",
-			  GINT_TO_POINTER(LIBBALSA_ATTACH_AS_ATTACHMENT));
-	g_signal_connect(menu_item, "activate",
-			 G_CALLBACK(change_attach_mode),
-			 (gpointer)attach_data);
-	gtk_menu_shell_append(GTK_MENU_SHELL(attach_data->popup_menu),
-			      menu_item);
+        GMenuItem *menu_item =
+            g_menu_item_new(_(attach_modes[LIBBALSA_ATTACH_AS_ATTACHMENT]), NULL);
+        g_menu_item_set_action_and_target(menu_item, "attachment.new-mode", "i",
+                                          LIBBALSA_ATTACH_AS_ATTACHMENT);
+        g_menu_append_item(menu, menu_item);
+        g_object_unref(menu_item);
     }
 
     /* real files may be references (external body) */
     if (!is_a_temp_file) {
-	menu_item =
-	    gtk_menu_item_new_with_label(_(attach_modes
-                                           [LIBBALSA_ATTACH_AS_EXTBODY]));
-	g_object_set_data(G_OBJECT(menu_item), "new-mode",
-			  GINT_TO_POINTER(LIBBALSA_ATTACH_AS_EXTBODY));
-	g_signal_connect(menu_item, "activate",
-			 G_CALLBACK(change_attach_mode),
-			 (gpointer)attach_data);
-	gtk_menu_shell_append(GTK_MENU_SHELL(attach_data->popup_menu),
-			      menu_item);
+        GMenuItem *menu_item =
+            g_menu_item_new(_(attach_modes[LIBBALSA_ATTACH_AS_EXTBODY]), NULL);
+        g_menu_item_set_action_and_target(menu_item, "attachment.new-mode", "i",
+                                          LIBBALSA_ATTACH_AS_EXTBODY);
+        g_menu_append_item(menu, menu_item);
+        g_object_unref(menu_item);
     }
 
     if (can_inline || !is_a_temp_file) {
@@ -1813,13 +1825,7 @@ add_attachment(BalsaSendmsg * bsmsg, const gchar *filename,
     }
 
     /* an attachment can be removed */
-    menu_item =
-	gtk_menu_item_new_with_label(_("Remove"));
-    g_signal_connect(menu_item, "activate",
-		     G_CALLBACK(remove_attachment),
-		     (gpointer)attach_data);
-    gtk_menu_shell_append(GTK_MENU_SHELL(attach_data->popup_menu),
-			  menu_item);
+    g_menu_append(menu, _("Remove"), "attachment.remove");
 
     /* Insert another separator */
     menu_item = gtk_separator_menu_item_new();
@@ -1827,12 +1833,14 @@ add_attachment(BalsaSendmsg * bsmsg, const gchar *filename,
 
     /* add the usual vfs menu so the user can inspect what (s)he actually
        attached... (only for non-message attachments) */
-    if (!is_fwd_message)
-	libbalsa_vfs_fill_menu_by_content_type(GTK_MENU(attach_data->popup_menu),
-					       content_type,
-					       G_CALLBACK(attachment_menu_vfs_cb),
-					       (gpointer)attach_data);
-    gtk_widget_show_all(attach_data->popup_menu);
+    if (!is_fwd_message) {
+	libbalsa_vfs_fill_menu_by_content_type(menu, content_type,
+                                               "attachment.launch-app");
+    }
+
+    attach_data->popup_menu =
+        gtk_popover_new_from_model(bsmsg->text, G_MENU_MODEL(menu));
+    g_object_unref(menu);
 
     /* append to the list store */
     content_desc =libbalsa_vfs_content_description(content_type);
@@ -1864,7 +1872,13 @@ add_urlref_attachment(BalsaSendmsg * bsmsg, gchar *url)
     GtkTreeIter iter;
     BalsaAttachInfo *attach_data;
     GdkPixbuf * pixbuf;
-    GtkWidget *menu_item;
+    GSimpleActionGroup *simple;
+    static GActionEntry attachment_entries[] = {
+        {"remove", remove_attachment},
+        {"open", libbalsa_radio_activated, "s", "''", on_open_url_cb}
+    };
+    GMenu *menu;
+    GMenu *open_menu;
 
     if (balsa_app.debug)
 	fprintf(stderr, "Trying to attach '%s'\n", url);
@@ -1889,26 +1903,30 @@ add_urlref_attachment(BalsaSendmsg * bsmsg, gchar *url)
     attach_data->mode = LIBBALSA_ATTACH_AS_EXTBODY;
 
     /* build the attachment's popup menu - may only be removed */
-    attach_data->popup_menu = gtk_menu_new();
-    menu_item =
-	gtk_menu_item_new_with_label(_("Remove"));
-    g_signal_connect(menu_item, "activate",
-		     G_CALLBACK(remove_attachment),
-		     (gpointer)attach_data);
-    gtk_menu_shell_append(GTK_MENU_SHELL(attach_data->popup_menu),
-			  menu_item);
+    simple = g_simple_action_group_new();
+    g_action_map_add_action_entries(G_ACTION_MAP(simple),
+                                    attachment_entries,
+                                    G_N_ELEMENTS(attachment_entries),
+                                    attach_data);
+    gtk_widget_insert_action_group(bsmsg->window,
+                                   "urlref-attachment",
+                                   G_ACTION_GROUP(simple));
+    g_object_unref(simple);
+
+    menu = g_menu_new();
+    g_menu_append(menu, _("Remove"), "urlref-attachment.remove");
 
     /* add a separator and the usual vfs menu so the user can inspect what
        (s)he actually attached... (only for non-message attachments) */
-    gtk_menu_shell_append(GTK_MENU_SHELL(attach_data->popup_menu),
-			  gtk_separator_menu_item_new());
-    menu_item =
-	gtk_menu_item_new_with_label(_("Open…"));
-    g_signal_connect(menu_item, "activate",
-		     G_CALLBACK(on_open_url_cb),
-		     (gpointer)attach_data);
-    gtk_menu_shell_append(GTK_MENU_SHELL(attach_data->popup_menu),
-			  menu_item);
+    open_menu = g_menu_new();
+    g_menu_append(open_menu, _("Open…"), "urlref-attachment.open");
+
+    g_menu_append_section(menu, NULL, G_MENU_MODEL(open_menu));
+    g_object_unref(open_menu);
+
+    attach_data->popup_menu =
+        gtk_popover_new_from_model(bsmsg->window, G_MENU_MODEL(menu));
+    g_object_unref(menu);
     gtk_widget_show_all(attach_data->popup_menu);
 
     /* append to the list store */
@@ -2434,11 +2452,9 @@ attachment_button_press_cb(GtkWidget * widget, GdkEventButton * event,
 	    BalsaAttachInfo *attach_info;
 
 	    gtk_tree_model_get(model, &iter, ATTACH_INFO_COLUMN, &attach_info, -1);
-	    if (attach_info) {
-		if (attach_info->popup_menu) {
-                    gtk_menu_popup_at_pointer(GTK_MENU(attach_info->popup_menu),
-                                              (GdkEvent *) event);
-                }
+	    if (attach_info != NULL) {
+		if (attach_info->popup_menu != NULL)
+                    gtk_popover_popup(GTK_POPOVER(attach_info->popup_menu));
 		g_object_unref(attach_info);
 	    }
         }
@@ -2461,13 +2477,9 @@ attachment_popup_cb(GtkWidget *widget, gpointer user_data)
 	return FALSE;
 
     gtk_tree_model_get(model, &iter, ATTACH_INFO_COLUMN, &attach_info, -1);
-    if (attach_info) {
-	if (attach_info->popup_menu) {
-            gtk_menu_popup_at_widget(GTK_MENU(attach_info->popup_menu),
-                                     GTK_WIDGET(widget),
-                                     GDK_GRAVITY_CENTER, GDK_GRAVITY_CENTER,
-                                     NULL);
-        }
+    if (attach_info != NULL) {
+	if (attach_info->popup_menu != NULL)
+            gtk_popover_popup(GTK_POPOVER(attach_info->popup_menu));
 	g_object_unref(attach_info);
     }
 
@@ -6104,8 +6116,6 @@ sw_entry_helper(GSimpleAction      * action,
         gtk_widget_hide(entry[0]);
         gtk_widget_hide(entry[1]);
     }
-
-    g_simple_action_set_state(G_SIMPLE_ACTION(action), state);
 
     if (bsmsg->update_config) { /* then save the config */
         GString *str = g_string_new(NULL);
