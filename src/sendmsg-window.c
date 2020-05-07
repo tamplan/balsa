@@ -2425,7 +2425,6 @@ attachment_button_press_cb(GtkWidget * widget, GdkEventButton * event,
     GtkTreeView *tree_view = GTK_TREE_VIEW(widget);
     GtkTreePath *path;
 
-    g_return_val_if_fail(event, FALSE);
     if (!gdk_event_triggers_context_menu((GdkEvent *) event)
         || event->window != gtk_tree_view_get_bin_window(tree_view))
         return FALSE;
@@ -2446,8 +2445,18 @@ attachment_button_press_cb(GtkWidget * widget, GdkEventButton * event,
 
 	    gtk_tree_model_get(model, &iter, ATTACH_INFO_COLUMN, &attach_info, -1);
 	    if (attach_info != NULL) {
-		if (attach_info->popup_menu != NULL)
+		if (attach_info->popup_menu != NULL) {
+                    GdkRectangle rectangle;
+
+                    /* Pop up above the pointer */
+                    rectangle.x = event->x;
+                    rectangle.width = 0;
+                    rectangle.y = event->y;
+                    rectangle.height = 0;
+                    gtk_popover_set_pointing_to(GTK_POPOVER(attach_info->popup_menu),
+                                                &rectangle);
                     gtk_popover_popup(GTK_POPOVER(attach_info->popup_menu));
+                }
 		g_object_unref(attach_info);
 	    }
         }
