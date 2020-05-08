@@ -2447,11 +2447,16 @@ attachment_button_press_cb(GtkWidget * widget, GdkEventButton * event,
 	    if (attach_info != NULL) {
 		if (attach_info->popup_menu != NULL) {
                     GdkRectangle rectangle;
+                    gint x, y;
+
+                    gtk_tree_view_convert_bin_window_to_widget_coords(tree_view,
+                                                                      event->x, event->y,
+                                                                      &x, &y);
 
                     /* Pop up above the pointer */
-                    rectangle.x = event->x;
+                    rectangle.x = x;
                     rectangle.width = 0;
-                    rectangle.y = event->y;
+                    rectangle.y = y;
                     rectangle.height = 0;
                     gtk_popover_set_pointing_to(GTK_POPOVER(attach_info->popup_menu),
                                                 &rectangle);
