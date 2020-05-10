@@ -1102,7 +1102,7 @@ tree_mult_selection_popup(BalsaMessage * balsa_message, GdkEventButton * event,
     if (selected == 1) {
         BalsaPartInfo *info = BALSA_PART_INFO(balsa_message->save_all_list->data);
         if (info->popup_menu != NULL) {
-            if (event != NULL) {
+            if (event != NULL && gdk_event_triggers_context_menu((GdkEvent *) event)) {
                 GdkRectangle rectangle;
 
                 /* Pop up above the pointer */
@@ -1118,7 +1118,7 @@ tree_mult_selection_popup(BalsaMessage * balsa_message, GdkEventButton * event,
         g_list_free(balsa_message->save_all_list);
         balsa_message->save_all_list = NULL;
     } else if (selected > 1) {
-        if (event != NULL) {
+        if (event != NULL && gdk_event_triggers_context_menu((GdkEvent *) event)) {
             GdkRectangle rectangle;
 
             /* Pop up above the pointer */
