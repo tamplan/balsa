@@ -141,10 +141,10 @@ img_check_size(BalsaMimeWidgetImage * mwi)
 
 static gboolean
 balsa_image_button_press_cb(GtkWidget * widget, GdkEventButton * event,
-                            GtkMenu * menu)
+                            GtkPopover * menu)
 {
     if (gdk_event_triggers_context_menu((GdkEvent *) event)) {
-        gtk_menu_popup_at_pointer(menu, (GdkEvent *) event);
+        gtk_popover_popup(menu);
         return TRUE;
     }
 
